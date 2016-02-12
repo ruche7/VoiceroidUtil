@@ -309,13 +309,15 @@ namespace ruche.voiceroid
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             /// <remarks>
-            /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
+            /// 再生中の場合は停止させる。
+            /// WAVEファイル保存中である場合やトークテキストが空である場合は失敗する。
             /// </remarks>
             public bool Play()
             {
                 if (
                     this.PlayButton == null ||
                     this.IsSaving ||
+                    string.IsNullOrEmpty(this.GetTalkText()) ||
                     !this.SetTalkTextCursorToHead())
                 {
                     return false;
@@ -351,7 +353,9 @@ namespace ruche.voiceroid
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
             /// <returns>実際のWAVEファイルパス。失敗した場合は null 。</returns>
             /// <remarks>
-            /// 再生中の場合は停止させる。既にWAVEファイル保存中である場合は失敗する。
+            /// 再生中の場合は停止させる。
+            /// WAVEファイル保存中である場合やトークテキストが空である場合は失敗する。
+            /// 
             /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
             /// 角カッコ数値文字列が追加される。
             /// </remarks>
@@ -362,7 +366,11 @@ namespace ruche.voiceroid
                     throw new ArgumentNullException("filePath");
                 }
 
-                if (this.SaveButton == null || this.IsSaving || !this.Stop())
+                if (
+                    this.SaveButton == null ||
+                    this.IsSaving ||
+                    string.IsNullOrEmpty(this.GetTalkText()) ||
+                    !this.Stop())
                 {
                     return null;
                 }
