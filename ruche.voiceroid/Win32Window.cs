@@ -51,12 +51,24 @@ namespace ruche.voiceroid
         private string className = null;
 
         /// <summary>
-        /// 親ウィンドウまたはオーナーウィンドウを取得する。
+        /// 指定した階層だけ上の親ウィンドウまたはオーナーウィンドウを取得する。
         /// </summary>
+        /// <param name="count">階層数。既定値は 1 。</param>
         /// <returns>親ウィンドウまたはオーナーウィンドウ。</returns>
-        public Win32Window GetParent()
+        public Win32Window GetAncestor(int count = 1)
         {
-            return new Win32Window(GetParent(this.Handle));
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
+            var handle = this.Handle;
+            for (int i = 0; handle != IntPtr.Zero && i < count; ++i)
+            {
+                handle = GetParent(handle);
+            }
+
+            return new Win32Window(handle);
         }
 
         /// <summary>
@@ -65,8 +77,7 @@ namespace ruche.voiceroid
         /// <returns>ウィンドウテキスト。</returns>
         public string GetText()
         {
-            var size =
-                SendMessage(this.Handle, WM_GETTEXTLENGTH, IntPtr.Zero, IntPtr.Zero);
+            var size = this.SendMessage(WM_GETTEXTLENGTH);
 
             var text = new StringBuilder(size.ToInt32());
             SendMessage(this.Handle, WM_GETTEXT, new IntPtr(text.Capacity), text);
@@ -86,10 +97,18 @@ namespace ruche.voiceroid
         }
 
         /// <summary>
-        /// 子孫ウィンドウリストを取得する。
+        /// 子孫ウィンドウを検索する。
         /// </summary>
+        /// <param name="className">
+        /// ウィンドウクラス名。 null を指定するとウィンドウクラス名を限定しない。
+        /// </param>
+        /// <param name="text">
+        /// ウィンドウテキスト。 null を指定するとウィンドウテキストを限定しない。
+        /// </param>
         /// <returns>子孫ウィンドウリスト。取得できなければ null 。</returns>
-        public List<Win32Window> GetDescendants()
+        public List<Win32Window> FindDescendants(
+            string className = null,
+            string text = null)
         {
             var descends = new List<Win32Window>();
             bool result =
@@ -97,7 +116,13 @@ namespace ruche.voiceroid
                     this.Handle,
                     (handle, lparam) =>
                     {
-                        descends.Add(new Win32Window(handle));
+                        var window = new Win32Window(handle);
+                        if (
+                            (className == null || window.ClassName == className) &&
+                            (text == null || window.GetText() == text))
+                        {
+                            descends.Add(window);
+                        }
                         return true;
                     },
                     IntPtr.Zero);
@@ -106,22 +131,22 @@ namespace ruche.voiceroid
         }
 
         /// <summary>
-        /// 指定したウィンドウタイトルを持つ子ウィンドウを検索する。
+        /// 子ウィンドウを検索して列挙する。
         /// </summary>
-        /// <param name="title">
-        /// ウィンドウタイトル。 null を指定するとウィンドウタイトルを限定しない。
-        /// </param>
         /// <param name="className">
         /// ウィンドウクラス名。 null を指定するとウィンドウクラス名を限定しない。
         /// </param>
+        /// <param name="text">
+        /// ウィンドウテキスト。 null を指定するとウィンドウテキストを限定しない。
+        /// </param>
         /// <returns>子ウィンドウ列挙。</returns>
         public IEnumerable<Win32Window> FindChildren(
-            string title = null,
-            string className = null)
+            string className = null,
+            string text = null)
         {
             for (IntPtr child = IntPtr.Zero; ; )
             {
-                child = FindWindowEx(this.Handle, child, className, title);
+                child = FindWindowEx(this.Handle, child, className, text);
                 if (child == IntPtr.Zero)
                 {
                     break;

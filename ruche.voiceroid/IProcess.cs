@@ -74,6 +74,8 @@ namespace ruche.voiceroid
         /// 
         /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
         /// 角カッコ数値文字列が追加される。
+        /// 
+        /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
         /// </remarks>
         string Save(string filePath);
     }

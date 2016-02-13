@@ -111,6 +111,80 @@ namespace ruche.voiceroid
             }
 
             /// <summary>
+            /// ディレクトリを作成する。
+            /// </summary>
+            /// <param name="dirPath">ディレクトリパス。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            private static bool MakeDirectory(string dirPath)
+            {
+                if (dirPath == null)
+                {
+                    throw new ArgumentNullException("dirPath");
+                }
+
+                if (!Directory.Exists(dirPath))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(dirPath);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            /// <summary>
+            /// ファイルダイアログからファイル名エディットコントロールを検索する。
+            /// </summary>
+            /// <param name="dialog">ファイルダイアログ。</param>
+            /// <returns>
+            /// ファイル名エディットコントロール。見つからなければ null 。
+            /// </returns>
+            private static Win32Window FindFileDialogFileNameEdit(Win32Window dialog)
+            {
+                if (dialog == null)
+                {
+                    throw new ArgumentNullException("dialog");
+                }
+
+                // 2つ上が ComboBoxEx32 の場合はアドレスバーなので除外
+                return
+                    dialog
+                        .FindDescendants(className: "Edit")
+                        .FirstOrDefault(
+                            c => c.GetAncestor(2).ClassName != "ComboBoxEx32");
+            }
+
+            /// <summary>
+            /// 戻り値が null 以外になるまでデリゲートを呼び出し続ける。
+            /// </summary>
+            /// <typeparam name="T">戻り値の型。</typeparam>
+            /// <param name="func">デリゲート。</param>
+            /// <param name="loopCount">ループ回数。</param>
+            /// <param name="interval">ループ間隔。</param>
+            /// <returns>最終的な戻り値。</returns>
+            private static T RepeatWhileNull<T>(
+                Func<T> func,
+                int loopCount,
+                TimeSpan interval)
+                where T : class
+            {
+                for (int i = 0; i < loopCount; ++i, Thread.Sleep(interval))
+                {
+                    var value = func();
+                    if (value != null)
+                    {
+                        return value;
+                    }
+                }
+                return null;
+            }
+
+            /// <summary>
             /// メインウィンドウを取得または設定する。
             /// </summary>
             private Win32Window MainWindow { get; set; } = null;
@@ -141,7 +215,7 @@ namespace ruche.voiceroid
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             private bool UpdateControls()
             {
-                var controls = this.MainWindow.GetDescendants();
+                var controls = this.MainWindow.FindDescendants();
 
                 // トークテキスト入力欄取得
                 var talkEdit =
@@ -183,27 +257,9 @@ namespace ruche.voiceroid
 
                 return
                     Win32Window.Desktop
-                        .FindChildren(title: SaveDialogTitle)
+                        .FindChildren(text: SaveDialogTitle)
                         .FirstOrDefault(
-                            w => w.GetParent().Handle == this.MainWindow.Handle);
-            }
-
-            /// <summary>
-            /// 保存ダイアログを検索する。
-            /// </summary>
-            /// <param name="loopCount">検索ループ回数。</param>
-            /// <param name="interval">検索インターバル。</param>
-            /// <returns>保存ダイアログ。見つからなければ null 。</returns>
-            private Win32Window FindSaveDialog(int loopCount, TimeSpan interval)
-            {
-                var dialog = this.FindSaveDialog();
-                for (int i = 0; dialog == null && i < loopCount; ++i)
-                {
-                    Thread.Sleep(interval);
-                    dialog = this.FindSaveDialog();
-                }
-
-                return dialog;
+                            w => w.GetAncestor().Handle == this.MainWindow.Handle);
             }
 
             /// <summary>
@@ -358,6 +414,8 @@ namespace ruche.voiceroid
             /// 
             /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
             /// 角カッコ数値文字列が追加される。
+            /// 
+            /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
             /// </remarks>
             public string Save(string filePath)
             {
@@ -379,17 +437,9 @@ namespace ruche.voiceroid
                 var path = MakeWaveFilePath(filePath);
 
                 // 保存先ディレクトリ作成
-                var dirPath = Path.GetDirectoryName(path);
-                if (!Directory.Exists(dirPath))
+                if (!MakeDirectory(Path.GetDirectoryName(path)))
                 {
-                    try
-                    {
-                        Directory.CreateDirectory(dirPath);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    return null;
                 }
 
                 // 保存ボタン押下
@@ -397,7 +447,11 @@ namespace ruche.voiceroid
                 this.IsSaving = true; // 一応立てる
 
                 // 保存ダイアログ検索
-                var dialog = this.FindSaveDialog(200, TimeSpan.FromMilliseconds(10));
+                var dialog =
+                    RepeatWhileNull(
+                        this.FindSaveDialog,
+                        100,
+                        TimeSpan.FromMilliseconds(20));
                 if (dialog == null)
                 {
                     return null;
@@ -408,16 +462,11 @@ namespace ruche.voiceroid
 
                 // ファイルパス設定先のエディットコントロール取得
                 // ダイアログ作成直後は未作成の場合があるので何度か調べる
-                Win32Window fileNameEdit = null;
-                for (int i = 0; i < 100; ++i, Thread.Sleep(10))
-                {
-                    fileNameEdit =
-                        dialog.GetDescendants().FirstOrDefault(c => c.ClassName == "Edit");
-                    if (fileNameEdit != null)
-                    {
-                        break;
-                    }
-                }
+                var fileNameEdit =
+                    RepeatWhileNull(
+                        () => FindFileDialogFileNameEdit(dialog),
+                        50,
+                        TimeSpan.FromMilliseconds(20));
                 if (fileNameEdit == null)
                 {
                     return null;
