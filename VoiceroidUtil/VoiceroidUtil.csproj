@@ -37,6 +37,9 @@
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.WindowsAPICodePack-Core.1.1.0.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -131,9 +134,11 @@
     <Compile Include="EnumValueDisplayConverter.cs" />
     <Compile Include="FileNameFormat.cs" />
     <Compile Include="MainWindowConfig.cs" />
+    <Compile Include="MessageBox.cs" />
     <Compile Include="SaveSettingsControl.xaml.cs">
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TextElementEnumerable.cs" />
     <Compile Include="VoiceroidTemplateSelector.cs" />
     <Page Include="resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
@@ -165,6 +170,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <None Include="App.manifest" />
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
