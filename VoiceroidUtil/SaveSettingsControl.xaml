@@ -64,7 +64,7 @@
             IsChecked="{Binding Config.IsTextFileForceMaking}"
             Margin="0,4,0,0" />
         <CheckBox
-            Content="文字コードUTF-8(BOM付き)で作成(_U)"
+            Content="文字コード UTF-8 で作成(_U)"
             IsChecked="{Binding Config.IsTextFileUtf8}"
             IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
             Margin="20,4,0,0" />
