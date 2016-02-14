@@ -60,23 +60,9 @@ namespace ruche.voiceroid
         /// プロセス実装配列を取得する。
         /// </summary>
         private ProcessImpl[] Impls { get; } =
-            {
-                new ProcessImpl(
-                    VoiceroidId.YukariEx,
-                    @"VOICEROID＋ 結月ゆかり EX"),
-                new ProcessImpl(
-                    VoiceroidId.MakiEx,
-                    @"VOICEROID＋ 民安ともえ EX"),
-                new ProcessImpl(
-                    VoiceroidId.ZunkoEx,
-                    @"VOICEROID＋ 東北ずん子 EX"),
-                new ProcessImpl(
-                    VoiceroidId.Akane,
-                    @"VOICEROID＋ 琴葉茜"),
-                new ProcessImpl(
-                    VoiceroidId.Aoi,
-                    @"VOICEROID＋ 琴葉葵"),
-            };
+            Array.ConvertAll(
+                (VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)),
+                id => new ProcessImpl(id));
 
         /// <summary>
         /// 状態更新用タイマーを取得する。

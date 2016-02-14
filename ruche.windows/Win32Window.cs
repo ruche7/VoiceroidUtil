@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ruche.voiceroid
+namespace ruche.windows
 {
     /// <summary>
     /// Win32 API によって操作されるウィンドウクラス。
     /// </summary>
-    internal class Win32Window
+    public class Win32Window
     {
         /// <summary>
         /// デスクトップウィンドウ。
@@ -49,6 +49,15 @@ namespace ruche.voiceroid
             }
         }
         private string className = null;
+
+        /// <summary>
+        /// ウィンドウが有効な状態であるか否かを取得または設定する。
+        /// </summary>
+        public bool IsEnabled
+        {
+            get { return IsWindowEnabled(this.Handle); }
+            set { EnableWindow(this.Handle, value); }
+        }
 
         /// <summary>
         /// 指定した階層だけ上の親ウィンドウまたはオーナーウィンドウを取得する。
@@ -219,6 +228,16 @@ namespace ruche.voiceroid
             IntPtr windowHandle,
             [Out] StringBuilder name,
             int nameSize);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsWindowEnabled(IntPtr windowHandle);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool EnableWindow(
+            IntPtr windowHandle,
+            [MarshalAs(UnmanagedType.Bool)] bool enable);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
         private static extern IntPtr SendMessage(

@@ -14,14 +14,19 @@ namespace ruche.voiceroid
         VoiceroidId Id { get; }
 
         /// <summary>
-        /// VOICEROID名称を取得する。
+        /// メインウィンドウタイトルを取得する。
         /// </summary>
-        string Name { get; }
+        string WindowTitle { get; }
 
         /// <summary>
         /// プロセスが実行中であるか否かを取得する。
         /// </summary>
         bool IsRunning { get; }
+
+        /// <summary>
+        /// トークテキストを再生中であるか否かを取得する。
+        /// </summary>
+        bool IsPlaying { get; }
 
         /// <summary>
         /// トークテキストをWAVEファイル保存中であるか否かを取得する。
@@ -49,8 +54,8 @@ namespace ruche.voiceroid
         /// </summary>
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         /// <remarks>
-        /// 再生中の場合は停止させる。
-        /// WAVEファイル保存中である場合やトークテキストが空である場合は失敗する。
+        /// 再生中の場合は何もせず true を返す。
+        /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
         /// </remarks>
         bool Play();
 
@@ -70,7 +75,7 @@ namespace ruche.voiceroid
         /// <returns>実際のWAVEファイルパス。失敗した場合は null 。</returns>
         /// <remarks>
         /// 再生中の場合は停止させる。
-        /// WAVEファイル保存中である場合やトークテキストが空である場合は失敗する。
+        /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
         /// 
         /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
         /// 角カッコ数値文字列が追加される。
