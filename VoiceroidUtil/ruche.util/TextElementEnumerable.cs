@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace VoiceroidUtil
+namespace ruche.util
 {
     /// <summary>
     /// サロゲートペアを考慮した文字列挙を提供するクラス。

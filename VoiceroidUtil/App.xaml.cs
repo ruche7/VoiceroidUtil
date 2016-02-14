@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using ruche.util;
 
 namespace VoiceroidUtil
 {

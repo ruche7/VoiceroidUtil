@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using ruche.util;
 using ruche.voiceroid;
 
 namespace VoiceroidUtil
@@ -138,26 +137,6 @@ namespace VoiceroidUtil
         public ReactiveCommand SelectDirectoryCommand { get; }
 
         /// <summary>
-        /// 1文字以上の空白文字にマッチする正規表現。
-        /// </summary>
-        private static readonly Regex RegexBlank = new Regex(@"\s+");
-
-        /// <summary>
-        /// CodePage932 エンコーディング。
-        /// </summary>
-        private static readonly Encoding CodePage932 = Encoding.GetEncoding(932);
-
-        /// <summary>
-        /// CodePage932 エンコーディングで表現可能な文字列に変換する。
-        /// </summary>
-        /// <param name="src">文字列。</param>
-        /// <returns>CodePage932 エンコーディングで表現可能な文字列。</returns>
-        private static string ToCodePage932String(string src)
-        {
-            return new string(CodePage932.GetChars(CodePage932.GetBytes(src)));
-        }
-
-        /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
@@ -198,73 +177,16 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            var info = process.Id.GetInfo();
-            var text = this.MakeFileNamePartFromTalkText();
-            var time = DateTime.Now.ToString("yyMMdd_hhmmss");
-
-            var name = text;
-            switch (this.Config.FileNameFormat)
+            var text = this.TalkText.Value;
+            if (string.IsNullOrWhiteSpace(text))
             {
-            case FileNameFormat.Text:
-                name = text;
-                break;
-            case FileNameFormat.NameText:
-                name = string.Join("_", info.Name, text);
-                break;
-            case FileNameFormat.ShortNameText:
-                name = string.Join("_", info.ShortName, text);
-                break;
-            case FileNameFormat.DateTimeText:
-                name = string.Join("_", time, text);
-                break;
-            case FileNameFormat.DateTimeNameText:
-                name = string.Join("_", time, info.Name, text);
-                break;
-            case FileNameFormat.DateTimeShortNameText:
-                name = string.Join("_", time, info.ShortName, text);
-                break;
-            case FileNameFormat.TextInNameDirectory:
-                name = Path.Combine(info.Name, text);
-                break;
-            case FileNameFormat.TextInShortNameDirectory:
-                name = Path.Combine(info.ShortName, text);
-                break;
-            case FileNameFormat.DateTimeTextInNameDirectory:
-                name = Path.Combine(info.Name, string.Join("_", time, text));
-                break;
-            case FileNameFormat.DateTimeTextInShortNameDirectory:
-                name = Path.Combine(info.ShortName, string.Join("_", time, text));
-                break;
+                return null;
             }
+
+            var name =
+                FileSaveUtil.MakeFileName(this.Config.FileNameFormat, process.Id, text);
 
             return Path.Combine(this.Config.SaveDirectoryPath, name + ".wav");
-        }
-
-        /// <summary>
-        /// トークテキストからファイル名パーツを作成する。
-        /// </summary>
-        /// <returns>ファイル名パーツ。</returns>
-        private string MakeFileNamePartFromTalkText()
-        {
-            var dest = ToCodePage932String(this.TalkText.Value);
-
-            // 空白文字を半角スペース1文字に短縮
-            // ファイル名に使えない文字を置換
-            var invalidChars = Path.GetInvalidFileNameChars();
-            dest =
-                string.Join(
-                    "",
-                    from c in RegexBlank.Replace(dest, " ")
-                    select (Array.IndexOf(invalidChars, c) < 0) ? c : '_');
-
-            // 文字数制限
-            int maxLength = 12;
-            if (dest.Length > maxLength)
-            {
-                dest = dest.Substring(0, maxLength - 1) + "-";
-            }
-
-            return dest;
         }
 
         /// <summary>
@@ -296,23 +218,14 @@ namespace VoiceroidUtil
         /// </summary>
         private void ExecuteSaveCommand()
         {
-            var process = this.SelectedProcess.Value;
-            if (process == null)
-            {
-                return;
-            }
-
-            var text = this.TalkText.Value;
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return;
-            }
-
             var filePath = this.MakeWaveFilePath();
             if (filePath == null)
             {
                 return;
             }
+
+            var process = this.SelectedProcess.Value;
+            var text = this.TalkText.Value;
 
             process.Stop();
             if (!process.SetTalkText(text))
@@ -356,7 +269,7 @@ namespace VoiceroidUtil
                 return;
             }
 
-            string filePath = null;
+            string dirPath = null;
             using (var dialog = new CommonOpenFileDialog())
             {
                 dialog.IsFolderPicker = true;
@@ -370,28 +283,21 @@ namespace VoiceroidUtil
                 {
                     return;
                 }
-                filePath = dialog.FileName;
+                dirPath = dialog.FileName;
             }
 
             // CodePage932 で表現可能なパスでなければダメ
-            var cp932Path = ToCodePage932String(filePath);
-            if (cp932Path != filePath)
+            string invalidLetter = null;
+            if (!FileSaveUtil.IsValidPath(dirPath, out invalidLetter))
             {
                 var message =
                     "VOICEROID+ が対応していない文字が含まれています。\n" +
                     "VOICEROID+ は Unicode のファイルパスに対応していません。";
-
-                // 問題の文字を探す
-                var fileElems = new TextElementEnumerable(filePath);
-                var cp932Elems = new TextElementEnumerable(cp932Path);
-                var invalidElem =
-                    fileElems
-                        .Zip(cp932Elems, (e1, e2) => (e1 == e2) ? null : e1)
-                        .FirstOrDefault(e => e != null);
-                if (invalidElem != null)
+                if (invalidLetter != null)
                 {
                     message +=
-                        "\nフォルダ名に \"" + invalidElem + "\" を使用しないでください。";
+                        "\nフォルダ名に \"" + invalidLetter +
+                        "\" を使用しないでください。";
                 }
 
                 MessageBox.Show(
@@ -402,7 +308,7 @@ namespace VoiceroidUtil
                 return;
             }
 
-            this.Config.SaveDirectoryPath = filePath;
+            this.Config.SaveDirectoryPath = dirPath;
         }
     }
 }

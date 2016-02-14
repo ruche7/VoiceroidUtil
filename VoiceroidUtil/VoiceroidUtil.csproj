@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,9 +37,10 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>App.manifest</ApplicationManifest>
+    <ApplicationManifest>Properties\App.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -130,16 +132,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
-    <Compile Include="ConfigKeeper.cs" />
-    <Compile Include="EnumValueDisplayConverter.cs" />
+    <Compile Include="ruche.util\ConfigKeeper.cs" />
+    <Compile Include="ruche.util\EnumValueDisplayConverter.cs" />
     <Compile Include="FileNameFormat.cs" />
+    <Compile Include="FileSaveUtil.cs" />
     <Compile Include="MainWindowConfig.cs" />
-    <Compile Include="MessageBox.cs" />
+    <Compile Include="ruche.util\MessageBox.cs" />
     <Compile Include="SaveSettingsControl.xaml.cs">
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TextElementEnumerable.cs" />
-    <Compile Include="VoiceroidTemplateSelector.cs" />
+    <Compile Include="ruche.util\TextElementEnumerable.cs" />
     <Page Include="resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -170,12 +172,12 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="App.manifest" />
+    <None Include="Properties\App.manifest" />
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="Properties\App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ruche.voiceroid\ruche.voiceroid.csproj">

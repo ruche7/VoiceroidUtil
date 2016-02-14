@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace VoiceroidUtil
+namespace ruche.util
 {
     /// <summary>
     /// 任意の列挙型の値を、 DisplayAttribute 属性による表示文字列に変換するクラス。
