@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 
-namespace VoiceroidUtil
+namespace ruche.util
 {
     /// <summary>
     /// 設定の読み書きを行うクラス。

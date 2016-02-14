@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:util="clr-namespace:ruche.util"
     x:Class="VoiceroidUtil.SaveSettingsControl"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}">
@@ -13,7 +14,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="resources/CommonStyles.xaml" />
                 <ResourceDictionary>
-                    <local:EnumValueDisplayConverter x:Key="enumDisplayConv" />
+                    <util:EnumValueDisplayConverter x:Key="enumDisplayConv" />
                     <ObjectDataProvider
                         x:Key="fileNameFormats"
                         MethodName="GetValues"
