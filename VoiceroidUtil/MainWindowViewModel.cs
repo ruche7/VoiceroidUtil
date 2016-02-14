@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -142,6 +143,21 @@ namespace VoiceroidUtil
         private static readonly Regex RegexBlank = new Regex(@"\s+");
 
         /// <summary>
+        /// CodePage932 エンコーディング。
+        /// </summary>
+        private static readonly Encoding CodePage932 = Encoding.GetEncoding(932);
+
+        /// <summary>
+        /// CodePage932 エンコーディングで表現可能な文字列に変換する。
+        /// </summary>
+        /// <param name="src">文字列。</param>
+        /// <returns>CodePage932 エンコーディングで表現可能な文字列。</returns>
+        private static string ToCodePage932String(string src)
+        {
+            return new string(CodePage932.GetChars(CodePage932.GetBytes(src)));
+        }
+
+        /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
@@ -230,13 +246,15 @@ namespace VoiceroidUtil
         /// <returns>ファイル名パーツ。</returns>
         private string MakeFileNamePartFromTalkText()
         {
+            var dest = ToCodePage932String(this.TalkText.Value);
+
             // 空白文字を半角スペース1文字に短縮
             // ファイル名に使えない文字を置換
             var invalidChars = Path.GetInvalidFileNameChars();
-            var dest =
+            dest =
                 string.Join(
                     "",
-                    from c in RegexBlank.Replace(this.TalkText.Value, " ")
+                    from c in RegexBlank.Replace(dest, " ")
                     select (Array.IndexOf(invalidChars, c) < 0) ? c : '_');
 
             // 文字数制限
@@ -338,6 +356,7 @@ namespace VoiceroidUtil
                 return;
             }
 
+            string filePath = null;
             using (var dialog = new CommonOpenFileDialog())
             {
                 dialog.IsFolderPicker = true;
@@ -347,11 +366,43 @@ namespace VoiceroidUtil
                 dialog.EnsureFileExists = false;
                 dialog.EnsurePathExists = false;
 
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                if (dialog.ShowDialog() != CommonFileDialogResult.Ok)
                 {
-                    this.Config.SaveDirectoryPath = dialog.FileName;
+                    return;
                 }
+                filePath = dialog.FileName;
             }
+
+            // CodePage932 で表現可能なパスでなければダメ
+            var cp932Path = ToCodePage932String(filePath);
+            if (cp932Path != filePath)
+            {
+                var message =
+                    "VOICEROID+ が対応していない文字が含まれています。\n" +
+                    "VOICEROID+ は Unicode のファイルパスに対応していません。";
+
+                // 問題の文字を探す
+                var fileElems = new TextElementEnumerable(filePath);
+                var cp932Elems = new TextElementEnumerable(cp932Path);
+                var invalidElem =
+                    fileElems
+                        .Zip(cp932Elems, (e1, e2) => (e1 == e2) ? null : e1)
+                        .FirstOrDefault(e => e != null);
+                if (invalidElem != null)
+                {
+                    message +=
+                        "\nフォルダ名に \"" + invalidElem + "\" を使用しないでください。";
+                }
+
+                MessageBox.Show(
+                    message,
+                    "エラー",
+                    MessageBox.Button.Ok,
+                    MessageBox.Icon.Error);
+                return;
+            }
+
+            this.Config.SaveDirectoryPath = filePath;
         }
     }
 }
