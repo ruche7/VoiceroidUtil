@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Practices.Prism.Mvvm;
 using ruche.windows;
 
@@ -29,7 +30,7 @@ namespace ruche.voiceroid
                     throw new InvalidEnumArgumentException(
                         nameof(id),
                         (int)id,
-                        typeof(VoiceroidId));
+                        id.GetType());
                 }
 
                 this.Id = id;
@@ -52,6 +53,12 @@ namespace ruche.voiceroid
                     return;
                 }
 
+                // 保存タスク処理中なら更新しない
+                if (this.IsRunning && this.IsSaveTaskRunning)
+                {
+                    return;
+                }
+
                 // 現在と同じウィンドウが取得できた場合はスキップ
                 if (
                     !this.IsRunning ||
@@ -68,8 +75,11 @@ namespace ruche.voiceroid
 
                 this.IsRunning = true;
 
-                // 保存ダイアログ状態確認
-                this.IsSaving = (this.FindSaveDialog() != null);
+                // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
+                this.IsSaving = (
+                    this.FindSaveDialog() != null ||
+                    this.FindSaveProgressDialog() != null);
+
                 if (!this.IsSaving)
                 {
                     // 保存ボタンが押せない状態＝再生中と判定
@@ -81,6 +91,11 @@ namespace ruche.voiceroid
             /// 保存ダイアログタイトル文字列。
             /// </summary>
             private const string SaveDialogTitle = @"音声ファイルの保存";
+
+            /// <summary>
+            /// 保存進捗ダイアログタイトル文字列。
+            /// </summary>
+            private const string SaveProgressDialogTitle = @"音声保存";
 
             /// <summary>
             /// WAVEファイル名末尾の角カッコ数値文字列にマッチする正規表現。
@@ -170,32 +185,40 @@ namespace ruche.voiceroid
                     dialog
                         .FindDescendants(className: "Edit")
                         .FirstOrDefault(
-                            c => c.GetAncestor(2).ClassName != "ComboBoxEx32");
+                            c =>
+                            {
+                                var name = c.GetAncestor(2)?.ClassName;
+                                return (name != null && name != "ComboBoxEx32");
+                            });
             }
 
             /// <summary>
-            /// 戻り値が null 以外になるまでデリゲートを呼び出し続ける。
+            /// 戻り値が条件を満たさない間、デリゲートを呼び出し続ける。
             /// </summary>
             /// <typeparam name="T">戻り値の型。</typeparam>
             /// <param name="func">デリゲート。</param>
+            /// <param name="condition">終了条件デリゲート。</param>
             /// <param name="loopCount">ループ回数。</param>
             /// <param name="interval">ループ間隔。</param>
-            /// <returns>最終的な戻り値。</returns>
-            private static T RepeatWhileNull<T>(
+            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
+            private static T RepeatUntil<T>(
                 Func<T> func,
+                Func<T, bool> condition,
                 int loopCount,
                 TimeSpan interval)
-                where T : class
             {
+                T value = default(T);
+
                 for (int i = 0; i < loopCount; ++i, Thread.Sleep(interval))
                 {
-                    var value = func();
-                    if (value != null)
+                    value = func();
+                    if (condition(value))
                     {
-                        return value;
+                        break;
                     }
                 }
-                return null;
+
+                return value;
             }
 
             /// <summary>
@@ -222,6 +245,11 @@ namespace ruche.voiceroid
             /// 保存ボタンコントロールを取得または設定する。
             /// </summary>
             private Win32Window SaveButton { get; set; } = null;
+
+            /// <summary>
+            /// WAVEファイル保存タスク実行中であるか否かを取得または設定する。
+            /// </summary>
+            private bool IsSaveTaskRunning { get; set; } = false;
 
             /// <summary>
             /// メインウィンドウのコントロール群を更新する。
@@ -273,7 +301,25 @@ namespace ruche.voiceroid
                     Win32Window.Desktop
                         .FindChildren(text: SaveDialogTitle)
                         .FirstOrDefault(
-                            w => w.GetAncestor().Handle == this.MainWindow.Handle);
+                            w => w.GetOwner()?.Handle == this.MainWindow.Handle);
+            }
+
+            /// <summary>
+            /// 保存進捗ダイアログを検索する。
+            /// </summary>
+            /// <returns>保存進捗ダイアログ。見つからなければ null 。</returns>
+            private Win32Window FindSaveProgressDialog()
+            {
+                if (this.MainWindow == null)
+                {
+                    return null;
+                }
+
+                return
+                    Win32Window.Desktop
+                        .FindChildren(text: SaveProgressDialogTitle)
+                        .FirstOrDefault(
+                            w => w.GetOwner()?.Handle == this.MainWindow.Handle);
             }
 
             /// <summary>
@@ -286,6 +332,7 @@ namespace ruche.voiceroid
                 this.PlayButton = null;
                 this.StopButton = null;
                 this.SaveButton = null;
+                this.IsSaveTaskRunning = false;
 
                 this.IsRunning = false;
                 this.IsPlaying = false;
@@ -309,6 +356,121 @@ namespace ruche.voiceroid
                 this.TalkEdit.SendMessage(EM_SETSEL);
 
                 return true;
+            }
+
+            /// <summary>
+            /// 保存ダイアログのファイル名エディットコントロールを検索する処理を行う。
+            /// </summary>
+            /// <returns>
+            /// ファイル名エディットコントロール。見つからなければ null 。
+            /// </returns>
+            private Win32Window DoFindFileNameEditTask()
+            {
+                // 保存ダイアログ検索
+                var dialog =
+                    RepeatUntil(
+                        this.FindSaveDialog,
+                        d => d != null,
+                        100,
+                        TimeSpan.FromMilliseconds(20));
+                if (dialog == null)
+                {
+                    return null;
+                }
+
+                // ダイアログ発見直後はコントロール作成が完了していないので少し待つ
+                Thread.Sleep(50);
+
+                // ファイルパス設定先のエディットコントロール取得
+                // ダイアログ作成直後は未作成の場合があるので何度か調べる
+                var fileNameEdit =
+                    RepeatUntil(
+                        () => FindFileDialogFileNameEdit(dialog),
+                        c => c != null,
+                        50,
+                        TimeSpan.FromMilliseconds(20));
+                if (fileNameEdit == null)
+                {
+                    return null;
+                }
+
+                return fileNameEdit;
+            }
+
+            /// <summary>
+            /// WAVEファイル保存のGUI操作処理を行う。
+            /// </summary>
+            /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
+            /// <param name="filePath">WAVEファイルパス。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            private bool DoSaveFileTask(Win32Window fileNameEdit, string filePath)
+            {
+                if (fileNameEdit == null || string.IsNullOrWhiteSpace(filePath))
+                {
+                    return false;
+                }
+
+                if (!fileNameEdit.SetText(filePath))
+                {
+                    return false;
+                }
+
+                fileNameEdit.PostMessage(
+                    WM_KEYDOWN,
+                    new IntPtr(VK_RETURN),
+                    new IntPtr(0x00000001));
+                fileNameEdit.PostMessage(
+                    WM_KEYUP,
+                    new IntPtr(VK_RETURN),
+                    new IntPtr(unchecked((int)0xC0000001)));
+
+                return true;
+            }
+
+            /// <summary>
+            /// WAVEファイルの保存確認処理を行う。
+            /// </summary>
+            /// <param name="filePath">WAVEファイルパス。</param>
+            /// <returns>保存されているならば true 。そうでなければ false 。</returns>
+            private bool DoCheckFileSavedTask(string filePath)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    return false;
+                }
+
+                // ファイル保存 or 保存進捗ダイアログ表示 を待つ
+                bool saved = false;
+                bool found =
+                    RepeatUntil(
+                        () =>
+                        {
+                            saved = File.Exists(filePath);
+                            return (saved || this.FindSaveProgressDialog() != null);
+                        },
+                        f => f,
+                        50,
+                        TimeSpan.FromMilliseconds(20));
+                if (saved)
+                {
+                    return true;
+                }
+
+                // 保存進捗ダイアログが閉じるまで待つ
+                if (found)
+                {
+                    while (this.FindSaveProgressDialog() != null)
+                    {
+                        Thread.Sleep(50);
+                    }
+                }
+
+                return
+                    RepeatUntil(
+                        () => File.Exists(filePath),
+                        r => r,
+                        10,
+                        TimeSpan.FromMilliseconds(20));
             }
 
             #region IProcess インタフェース実装
@@ -451,7 +613,10 @@ namespace ruche.voiceroid
             /// トークテキストをWAVEファイル保存する。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
-            /// <returns>実際のWAVEファイルパス。失敗した場合は null 。</returns>
+            /// <returns>
+            /// WAVEファイル保存タスク。保存開始できなかった場合は null 。
+            /// 成功すると実際のWAVEファイルパスを返す。失敗すると null を返す。
+            /// </returns>
             /// <remarks>
             /// 再生中の場合は停止させる。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -461,7 +626,7 @@ namespace ruche.voiceroid
             /// 
             /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
             /// </remarks>
-            public string Save(string filePath)
+            public Task<string> Save(string filePath)
             {
                 if (filePath == null)
                 {
@@ -488,49 +653,23 @@ namespace ruche.voiceroid
 
                 // 保存ボタン押下
                 this.SaveButton.PostMessage(BM_CLICK);
-                this.IsSaving = true; // 一応立てる
 
-                // 保存ダイアログ検索
-                var dialog =
-                    RepeatWhileNull(
-                        this.FindSaveDialog,
-                        100,
-                        TimeSpan.FromMilliseconds(20));
-                if (dialog == null)
-                {
-                    return null;
-                }
+                this.IsSaving = true;
+                this.IsSaveTaskRunning = true;
 
-                // ダイアログ発見直後はコントロール作成が完了していないので少し待つ
-                Thread.Sleep(50);
-
-                // ファイルパス設定先のエディットコントロール取得
-                // ダイアログ作成直後は未作成の場合があるので何度か調べる
-                var fileNameEdit =
-                    RepeatWhileNull(
-                        () => FindFileDialogFileNameEdit(dialog),
-                        50,
-                        TimeSpan.FromMilliseconds(20));
-                if (fileNameEdit == null)
-                {
-                    return null;
-                }
-
-                // ファイルパスをエディットコントロールに設定し、ENTERキー送信
-                if (!fileNameEdit.SetText(path))
-                {
-                    return null;
-                }
-                fileNameEdit.PostMessage(
-                    WM_KEYDOWN,
-                    new IntPtr(VK_RETURN),
-                    new IntPtr(0x00000001));
-                fileNameEdit.PostMessage(
-                    WM_KEYUP,
-                    new IntPtr(VK_RETURN),
-                    new IntPtr(unchecked((int)0xC0000001)));
-
-                return path;
+                return
+                    Task.Factory
+                        .StartNew(() => this.DoFindFileNameEditTask())
+                        .ContinueWith(
+                            edit => this.DoSaveFileTask(edit.Result, path),
+                            TaskScheduler.FromCurrentSynchronizationContext())
+                        .ContinueWith(
+                            r =>
+                            {
+                                bool ok = (r.Result && this.DoCheckFileSavedTask(path));
+                                this.IsSaveTaskRunning = false;
+                                return ok ? path : null;
+                            });
             }
 
             #endregion

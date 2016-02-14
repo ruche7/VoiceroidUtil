@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -137,6 +138,38 @@ namespace VoiceroidUtil
         public ReactiveCommand SelectDirectoryCommand { get; }
 
         /// <summary>
+        /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
+        /// 不正であればダイアログ表示を行う。
+        /// </summary>
+        /// <param name="path">パス。</param>
+        /// <returns>正常ならば true 。そうでなければ false 。</returns>
+        private static bool CheckValidPath(string path)
+        {
+            string invalidLetter = null;
+            if (FileSaveUtil.IsValidPath(path, out invalidLetter))
+            {
+                return true;
+            }
+
+            var message = "VOICEROID+ が対応していないパス文字が含まれています。";
+            if (invalidLetter != null)
+            {
+                message +=
+                    "\n\n" +
+                    "VOICEROID+ は Unicode のパス文字に対応していません。\n" +
+                    "フォルダ名に \"" + invalidLetter + "\" を含めないでください。";
+            }
+
+            MessageBox.Show(
+                message,
+                "エラー",
+                MessageBox.Button.Ok,
+                MessageBox.Icon.Error);
+
+            return false;
+        }
+
+        /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
@@ -219,7 +252,7 @@ namespace VoiceroidUtil
         private void ExecuteSaveCommand()
         {
             var filePath = this.MakeWaveFilePath();
-            if (filePath == null)
+            if (filePath == null || !CheckValidPath(filePath))
             {
                 return;
             }
@@ -233,9 +266,23 @@ namespace VoiceroidUtil
                 return;
             }
 
-            // WAVEファイル保存
-            filePath = process.Save(filePath);
-            if (!File.Exists(filePath))
+            process
+                .Save(filePath)
+                .ContinueWith(
+                    p => this.DoTaskAfterSaveCommand(p.Result, text),
+                    TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        /// <summary>
+        /// 保存コマンドの後処理を行う。
+        /// </summary>
+        /// <param name="filePath">
+        /// 保存されたWAVEファイルパス。保存失敗時は null 。
+        /// </param>
+        /// <param name="talkText">トークテキスト。</param>
+        private void DoTaskAfterSaveCommand(string filePath, string talkText)
+        {
+            if (filePath == null)
             {
                 return;
             }
@@ -245,10 +292,11 @@ namespace VoiceroidUtil
             {
                 var txtPath = Path.ChangeExtension(filePath, ".txt");
                 var encoding =
-                    this.Config.IsTextFileUtf8 ? Encoding.UTF8 : Encoding.GetEncoding(932);
+                    this.Config.IsTextFileUtf8 ?
+                        Encoding.UTF8 : Encoding.GetEncoding(932);
                 try
                 {
-                    File.WriteAllText(txtPath, text, encoding);
+                    File.WriteAllText(txtPath, talkText, encoding);
                 }
                 catch
                 {
@@ -256,7 +304,7 @@ namespace VoiceroidUtil
                 }
             }
 
-            // TODO: 保存後処理
+            // TODO: ファイル保存後処理
         }
 
         /// <summary>
@@ -286,25 +334,8 @@ namespace VoiceroidUtil
                 dirPath = dialog.FileName;
             }
 
-            // CodePage932 で表現可能なパスでなければダメ
-            string invalidLetter = null;
-            if (!FileSaveUtil.IsValidPath(dirPath, out invalidLetter))
+            if (!CheckValidPath(dirPath))
             {
-                var message =
-                    "VOICEROID+ が対応していない文字が含まれています。\n" +
-                    "VOICEROID+ は Unicode のファイルパスに対応していません。";
-                if (invalidLetter != null)
-                {
-                    message +=
-                        "\nフォルダ名に \"" + invalidLetter +
-                        "\" を使用しないでください。";
-                }
-
-                MessageBox.Show(
-                    message,
-                    "エラー",
-                    MessageBox.Button.Ok,
-                    MessageBox.Icon.Error);
                 return;
             }
 

@@ -60,21 +60,64 @@ namespace ruche.windows
         }
 
         /// <summary>
-        /// 指定した階層だけ上の親ウィンドウまたはオーナーウィンドウを取得する。
+        /// 指定した階層だけ上の親ウィンドウを取得する。
         /// </summary>
         /// <param name="count">階層数。既定値は 1 。</param>
-        /// <returns>親ウィンドウまたはオーナーウィンドウ。</returns>
+        /// <returns>親ウィンドウ。存在しない場合は null 。</returns>
         public Win32Window GetAncestor(int count = 1)
         {
-            if (count < 0)
+            if (count <= 0)
             {
                 throw new ArgumentOutOfRangeException("count");
             }
 
             var handle = this.Handle;
-            for (int i = 0; handle != IntPtr.Zero && i < count; ++i)
+            for (int i = 0; i < count; ++i)
             {
-                handle = GetParent(handle);
+                handle = GetAncestor(handle, GA_PARENT);
+                if (handle == IntPtr.Zero)
+                {
+                    return null;
+                }
+            }
+
+            return new Win32Window(handle);
+        }
+
+        /// <summary>
+        /// 指定した階層だけ上のオーナーウィンドウを取得する。
+        /// </summary>
+        /// <param name="count">階層数。既定値は 1 。</param>
+        /// <returns>
+        /// オーナーウィンドウ。このウィンドウが子ウィンドウの場合は null 。
+        /// </returns>
+        public Win32Window GetOwner(int count = 1)
+        {
+            if (count <= 0)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
+            var handle = this.Handle;
+            for (int i = 0; i < count; ++i)
+            {
+                // デスクトップにオーナーはいない
+                if (handle == Desktop.Handle)
+                {
+                    return null;
+                }
+
+                var h = GetWindow(handle, GW_OWNER);
+                if (h == IntPtr.Zero)
+                {
+                    // 親ウィンドウがいるなら子ウィンドウ
+                    if (GetAncestor(handle, GA_PARENT) != IntPtr.Zero)
+                    {
+                        return null;
+                    }
+                }
+
+                handle = h;
             }
 
             return new Win32Window(handle);
@@ -203,6 +246,9 @@ namespace ruche.windows
         private const uint EM_SETSEL = 0x00B1;
         private const uint BM_CLICK = 0x00F5;
 
+        private const uint GW_OWNER = 4;
+        private const uint GA_PARENT = 1;
+
         [return: MarshalAs(UnmanagedType.Bool)]
         private delegate bool EnumWindowProc(IntPtr windowHandle, IntPtr lparam);
 
@@ -220,8 +266,11 @@ namespace ruche.windows
             string className,
             string windowName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        private static extern IntPtr GetParent(IntPtr windowHandle);
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetWindow(IntPtr windowHandle, uint flags);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        private static extern IntPtr GetAncestor(IntPtr windowHandle, uint flags);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = false)]
         private static extern int GetClassName(

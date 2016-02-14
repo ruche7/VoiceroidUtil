@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace ruche.voiceroid
 {
@@ -72,7 +73,10 @@ namespace ruche.voiceroid
         /// トークテキストをWAVEファイル保存する。
         /// </summary>
         /// <param name="filePath">保存希望WAVEファイルパス。</param>
-        /// <returns>実際のWAVEファイルパス。失敗した場合は null 。</returns>
+        /// <returns>
+        /// WAVEファイル保存タスク。保存開始できなかった場合は null 。
+        /// 成功すると実際のWAVEファイルパスを返す。失敗すると null を返す。
+        /// </returns>
         /// <remarks>
         /// 再生中の場合は停止させる。
         /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -82,6 +86,6 @@ namespace ruche.voiceroid
         /// 
         /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
         /// </remarks>
-        string Save(string filePath);
+        Task<string> Save(string filePath);
     }
 }
