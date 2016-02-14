@@ -15,12 +15,12 @@ namespace voiceroidTest
                 if (process.IsRunning)
                 {
                     // 自身の名称をWAVEファイル保存してみる
-                    process.SetTalkText(process.Name);
+                    process.SetTalkText(process.WindowTitle);
                     process.Save(
                         Path.Combine(
                             Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                             "voiceroidTest",
-                            process.Name));
+                            process.WindowTitle));
                 }
             }
         }

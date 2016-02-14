@@ -1,0 +1,84 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    x:Class="VoiceroidUtil.SaveSettingsControl"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="resources/CommonStyles.xaml" />
+                <ResourceDictionary>
+                    <local:EnumValueDisplayConverter x:Key="enumDisplayConv" />
+                    <ObjectDataProvider
+                        x:Key="fileNameFormats"
+                        MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}">
+                        <ObjectDataProvider.MethodParameters>
+                            <x:Type TypeName="local:FileNameFormat" />
+                        </ObjectDataProvider.MethodParameters>
+                    </ObjectDataProvider>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel Orientation="Vertical">
+        <DockPanel>
+            <Button
+                Content="保存先(_D)..."
+                Command="{Binding SelectDirectoryCommand}"
+                DockPanel.Dock="Left" />
+            <TextBox
+                Text="{Binding Config.SaveDirectoryPath}"
+                IsReadOnly="True"
+                Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                Margin="2,0,0,0"
+                VerticalContentAlignment="Center" />
+        </DockPanel>
+        <DockPanel Margin="0,4,0,0">
+            <Label
+                Content="ファイル命名(_F):"
+                Target="{Binding ElementName=Setting_FileName}"
+                DockPanel.Dock="Left" />
+            <ComboBox
+                x:Name="Setting_FileName"
+                ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
+                SelectedItem="{Binding Config.FileNameFormat}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock
+                            Text="{Binding Converter={StaticResource enumDisplayConv}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </DockPanel>
+        <CheckBox
+            x:Name="Setting_ForceText"
+            Content="テキストファイルを必ず作成(_T)"
+            IsChecked="{Binding Config.IsTextFileForceMaking}"
+            Margin="0,4,0,0" />
+        <CheckBox
+            Content="文字コードUTF-8(BOM付き)で作成(_U)"
+            IsChecked="{Binding Config.IsTextFileUtf8}"
+            IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
+            Margin="20,4,0,0" />
+        <GroupBox Header="保存後処理" Margin="0,4,0,0">
+            <StackPanel Orientation="Vertical" Margin="4">
+                <CheckBox
+                    x:Name="Setting_ToYmm"
+                    Content="ゆっくりMovieMaker3にファイルパス設定(_Y)"
+                    IsChecked="{Binding Config.IsSavedFileToYmm}" />
+                <CheckBox
+                    Content="追加ボタンを自動で押す(_M)"
+                    IsChecked="{Binding Config.IsYmmAddButtonClicking}"
+                    IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
+                    Margin="20,4,0,0" />
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

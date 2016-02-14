@@ -1,0 +1,114 @@
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    x:Class="VoiceroidUtil.MainWindow"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}"
+    Title="VoiceroidUtil"
+    Width="400"
+    Height="240"
+    MinWidth="320"
+    MinHeight="200">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="resources/CommonStyles.xaml" />
+                <ResourceDictionary Source="resources/VoiceroidStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Gesture="Alt+Enter" Command="{Binding PlayStopCommand}" />
+        <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
+    </Window.InputBindings>
+
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0 -->
+        <ComboBox
+            ItemsSource="{Binding Processes}"
+            SelectedItem="{Binding SelectedProcess.Value}"
+            Grid.Row="0">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <Image
+                            Style="{StaticResource VoiceroidImage}"
+                            Margin="0,0,4,0"
+                            DockPanel.Dock="Left" />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding WindowTitle}" Margin="0,0,0,4" />
+                            <StackPanel Orientation="Horizontal">
+                                <Image Style="{StaticResource VoiceroidStatusIcon}" />
+                                <TextBlock
+                                    Style="{StaticResource VoiceroidStatusText}"
+                                    Margin="2,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <!-- Row 1 -->
+        <tk:WatermarkTextBox
+            Text="{Binding TalkText.Value, UpdateSourceTrigger=PropertyChanged}"
+            AcceptsReturn="True"
+            Margin="0,2,0,0"
+            Grid.Row="1">
+            <tk:WatermarkTextBox.Watermark>
+                <TextBlock>
+                    しゃべらせたい文章を入力してください。<LineBreak />
+                    Alt+Enter で再生します。<LineBreak />
+                    Ctrl+Enter で音声保存します。
+                </TextBlock>
+            </tk:WatermarkTextBox.Watermark>
+        </tk:WatermarkTextBox>
+
+        <!-- Row 2 -->
+        <Grid Margin="0,2,0,0" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Column 0 -->
+            <Button Command="{Binding PlayStopCommand}" ToolTip="Alt+Enter" Grid.Column="0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource VoiceroidPlayStopIcon}" />
+                    <AccessText
+                        Style="{StaticResource VoiceroidPlayStopText}"
+                        Margin="2,0,0,0" />
+                </StackPanel>
+            </Button>
+
+            <!-- Column 2 -->
+            <Button Command="{Binding SaveCommand}" ToolTip="Ctrl+Enter" Grid.Column="2">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="resources/icon/save.png" />
+                    <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />
+                </StackPanel>
+            </Button>
+
+            <!-- Column 3 -->
+            <tk:DropDownButton Content="保存設定(_C)" Margin="2,0,0,0" Grid.Column="3">
+                <tk:DropDownButton.DropDownContent>
+                    <local:SaveSettingsControl MaxWidth="400" Margin="4" />
+                </tk:DropDownButton.DropDownContent>
+            </tk:DropDownButton>
+        </Grid>
+    </Grid>
+</Window>

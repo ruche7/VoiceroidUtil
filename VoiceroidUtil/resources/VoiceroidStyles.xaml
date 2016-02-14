@@ -1,0 +1,130 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:VoiceroidUtil">
+
+    <!-- IProcess -->
+    
+    <Style x:Key="VoiceroidImage" x:Shared="False" TargetType="Image">
+        <Setter Property="Stretch" Value="None" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="YukariEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/yukari_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="YukariEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/yukari_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="MakiEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/maki_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="MakiEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/maki_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="ZunkoEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/zunko_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="ZunkoEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/zunko_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="Akane" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/akane_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="Akane" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/akane_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="Aoi" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/aoi_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="Aoi" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Source" Value="voiceroid/aoi_ok.png" />
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="VoiceroidStatusIcon" x:Shared="False" TargetType="Image">
+        <Setter Property="Stretch" Value="None" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Source" Value="icon/status_ng.png" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                <Setter Property="Source" Value="icon/status_ok.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="VoiceroidStatusText" x:Shared="False" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Text" Value="起動していません" />
+        <Setter Property="Foreground" Value="Red" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                <Setter Property="Text" Value="起動しています" />
+                <Setter Property="Foreground" Value="Green" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- MainWindowViewModel -->
+
+    <Style x:Key="VoiceroidPlayStopIcon" x:Shared="False" TargetType="Image">
+        <Setter Property="Stretch" Value="None" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Source" Value="icon/play.png" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsProcessPlaying.Value}" Value="True">
+                <Setter Property="Source" Value="icon/stop.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="VoiceroidPlayStopText" x:Shared="False" TargetType="AccessText">
+        <Setter Property="Text" Value="再生(_Q)" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsProcessPlaying.Value}" Value="True">
+                <Setter Property="Text" Value="停止(_Q)" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>
