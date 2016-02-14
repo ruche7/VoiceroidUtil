@@ -6,7 +6,7 @@ using ruche.util;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// App.xaml の相互作用ロジック
+    /// アプリケーションクラス。
     /// </summary>
     public partial class App : Application
     {
@@ -43,8 +43,16 @@ namespace VoiceroidUtil
             // メインウィンドウ作成
             var window = new MainWindow();
 
+            // ViewModel 作成
+            var viewModel = new MainWindowViewModel(this.AppConfig.Value);
+
+            // ダイアログ表示コマンド設定
+            viewModel.ErrorDialogCommand.Value = window.ErrorDialogCommand;
+            viewModel.SelectDirectoryDialogCommand.Value =
+                window.SelectDirectoryDialogCommand;
+
             // メインウィンドウのパラメータ設定
-            window.DataContext = new MainWindowViewModel(this.AppConfig.Value);
+            window.DataContext = viewModel;
             window.Closing += this.OnMainWindowClosing;
 
             // メインウィンドウ表示

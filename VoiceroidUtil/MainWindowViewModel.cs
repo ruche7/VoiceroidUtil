@@ -6,10 +6,9 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using ruche.util;
 using ruche.voiceroid;
 
 namespace VoiceroidUtil
@@ -77,8 +76,8 @@ namespace VoiceroidUtil
 
             // 保存先選択コマンド
             this.SelectDirectoryCommand =
-                Observable
-                    .Return(CommonOpenFileDialog.IsPlatformSupported)
+                this.SelectDirectoryDialogCommand
+                    .Select(cmd => cmd != null)
                     .ToReactiveCommand();
             this.SelectDirectoryCommand.Subscribe(
                 _ => this.ExecuteSelectDirectoryCommand());
@@ -138,12 +137,55 @@ namespace VoiceroidUtil
         public ReactiveCommand SelectDirectoryCommand { get; }
 
         /// <summary>
+        /// エラーダイアログ表示コマンドを取得または設定する。
+        /// </summary>
+        /// <remarks>
+        /// ViewModel 利用側から提供すること。
+        /// </remarks>
+        public ReactiveProperty<ICommand> ErrorDialogCommand { get; } =
+            new ReactiveProperty<ICommand>();
+
+        /// <summary>
+        /// ディレクトリ選択ダイアログ表示コマンドを取得または設定する。
+        /// </summary>
+        /// <remarks>
+        /// ViewModel 利用側から提供すること。
+        /// </remarks>
+        public ReactiveProperty<ICommand> SelectDirectoryDialogCommand { get; } =
+            new ReactiveProperty<ICommand>();
+
+        /// <summary>
+        /// SelectDirectoryDialogCommand のコマンドパラメータクラス。
+        /// </summary>
+        public class SelectDirectoryDialogCommandParam
+        {
+            /// <summary>
+            /// タイトルを取得または設定する。
+            /// </summary>
+            public string Title { get; set; } = null;
+
+            /// <summary>
+            /// ディレクトリパスを取得または設定する。
+            /// </summary>
+            /// <remarks>
+            /// ViewModel 利用側から提供するコマンドによって選択されたパスを設定すること。
+            /// キャンセルされた場合は null を設定すること。
+            /// </remarks>
+            public string Path { get; set; } = null;
+        }
+
+        /// <summary>
+        /// VOICEROIDプロセスファクトリを取得する。
+        /// </summary>
+        private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
+
+        /// <summary>
         /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
         /// 不正であればダイアログ表示を行う。
         /// </summary>
         /// <param name="path">パス。</param>
         /// <returns>正常ならば true 。そうでなければ false 。</returns>
-        private static bool CheckValidPath(string path)
+        private bool CheckValidPath(string path)
         {
             string invalidLetter = null;
             if (FileSaveUtil.IsValidPath(path, out invalidLetter))
@@ -160,19 +202,14 @@ namespace VoiceroidUtil
                     "フォルダ名に \"" + invalidLetter + "\" を含めないでください。";
             }
 
-            MessageBox.Show(
-                message,
-                "エラー",
-                MessageBox.Button.Ok,
-                MessageBox.Icon.Error);
+            var cmd = this.ErrorDialogCommand.Value;
+            if (cmd?.CanExecute(message) == true)
+            {
+                cmd.Execute(message);
+            }
 
             return false;
         }
-
-        /// <summary>
-        /// VOICEROIDプロセスファクトリを取得する。
-        /// </summary>
-        private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスのプロパティ変更を監視する
@@ -312,34 +349,26 @@ namespace VoiceroidUtil
         /// </summary>
         private void ExecuteSelectDirectoryCommand()
         {
-            if (!CommonOpenFileDialog.IsPlatformSupported)
-            {
-                return;
-            }
-
-            string dirPath = null;
-            using (var dialog = new CommonOpenFileDialog())
-            {
-                dialog.IsFolderPicker = true;
-                dialog.Title = @"音声保存先の選択";
-                dialog.DefaultDirectory = this.Config.SaveDirectoryPath;
-                dialog.EnsureValidNames = true;
-                dialog.EnsureFileExists = false;
-                dialog.EnsurePathExists = false;
-
-                if (dialog.ShowDialog() != CommonFileDialogResult.Ok)
+            var param =
+                new SelectDirectoryDialogCommandParam
                 {
-                    return;
-                }
-                dirPath = dialog.FileName;
-            }
+                    Title = @"音声保存先の選択",
+                    Path = this.Config.SaveDirectoryPath,
+                };
 
-            if (!CheckValidPath(dirPath))
+            var cmd = this.SelectDirectoryDialogCommand.Value;
+            if (cmd?.CanExecute(param) != true)
+            {
+                return;
+            }
+            cmd.Execute(param);
+
+            if (param.Path == null || !CheckValidPath(param.Path))
             {
                 return;
             }
 
-            this.Config.SaveDirectoryPath = dirPath;
+            this.Config.SaveDirectoryPath = param.Path;
         }
     }
 }

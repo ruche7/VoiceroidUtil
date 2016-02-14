@@ -4,10 +4,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Practices.Prism.Mvvm;
 using ruche.windows;
 
 namespace ruche.voiceroid
@@ -17,7 +17,7 @@ namespace ruche.voiceroid
         /// <summary>
         /// IProcess インタフェース実装クラス。
         /// </summary>
-        private class ProcessImpl : BindableBase, IProcess
+        private class ProcessImpl : IProcess
         {
             /// <summary>
             /// コンストラクタ。
@@ -473,6 +473,32 @@ namespace ruche.voiceroid
                         TimeSpan.FromMilliseconds(20));
             }
 
+            /// <summary>
+            /// プロパティ値を設定する。
+            /// </summary>
+            /// <typeparam name="T">プロパティ値の型。</typeparam>
+            /// <param name="field">設定先フィールド。</param>
+            /// <param name="value">設定値。</param>
+            /// <param name="propertyName">
+            /// プロパティ名。 CallerMemberNameAttribute により自動設定される。
+            /// </param>
+            private void SetProperty<T>(
+                ref T field,
+                T value,
+                [CallerMemberName] string propertyName = null)
+            {
+                if (!EqualityComparer<T>.Default.Equals(field, value))
+                {
+                    field = value;
+                    if (propertyName != null && this.PropertyChanged != null)
+                    {
+                        this.PropertyChanged(
+                            this,
+                            new PropertyChangedEventArgs(propertyName));
+                    }
+                }
+            }
+
             #region IProcess インタフェース実装
 
             /// <summary>
@@ -671,6 +697,12 @@ namespace ruche.voiceroid
                                 return ok ? path : null;
                             });
             }
+
+            #endregion
+
+            #region INotifyPropertyChanged の実装
+
+            public event PropertyChangedEventHandler PropertyChanged;
 
             #endregion
 
