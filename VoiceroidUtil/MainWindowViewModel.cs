@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Windows;
+using Livet;
+using Livet.Messaging;
+using Livet.Messaging.IO;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using ruche.util;
 using ruche.voiceroid;
 
 namespace VoiceroidUtil
@@ -16,27 +20,13 @@ namespace VoiceroidUtil
     /// <summary>
     /// MainWindow の ViewModel クラス。
     /// </summary>
-    public class MainWindowViewModel
+    public class MainWindowViewModel : ViewModel
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MainWindowViewModel() : this(new AppConfig())
+        public MainWindowViewModel()
         {
-        }
-
-        /// <summary>
-        /// コンストラクタ。
-        /// </summary>
-        /// <param name="config">アプリ設定。</param>
-        public MainWindowViewModel(AppConfig config)
-        {
-            if (config == null)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
-            this.Config = config;
-
             this.SelectedProcess =
                 new ReactiveProperty<IProcess>(
                     this.ProcessFactory.Get(VoiceroidId.YukariEx));
@@ -73,20 +63,15 @@ namespace VoiceroidUtil
                             !string.IsNullOrWhiteSpace(text) && running && !saving)
                     .ToReactiveCommand();
             this.SaveCommand.Subscribe(_ => this.ExecuteSaveCommand());
-
-            // 保存先選択コマンド
-            this.SelectDirectoryCommand =
-                this.SelectDirectoryDialogCommand
-                    .Select(cmd => cmd != null)
-                    .ToReactiveCommand();
-            this.SelectDirectoryCommand.Subscribe(
-                _ => this.ExecuteSelectDirectoryCommand());
         }
 
         /// <summary>
         /// アプリ設定を取得する。
         /// </summary>
-        public AppConfig Config { get; }
+        public AppConfig Config
+        {
+            get { return this.ConfigKeeper.Value; }
+        }
 
         /// <summary>
         /// VOICEROIDプロセスリストを取得する。
@@ -137,47 +122,47 @@ namespace VoiceroidUtil
         public ReactiveCommand SelectDirectoryCommand { get; }
 
         /// <summary>
-        /// エラーダイアログ表示コマンドを取得または設定する。
+        /// アプリ設定を初期化する。
         /// </summary>
-        /// <remarks>
-        /// ViewModel 利用側から提供すること。
-        /// </remarks>
-        public ReactiveProperty<ICommand> ErrorDialogCommand { get; } =
-            new ReactiveProperty<ICommand>();
-
-        /// <summary>
-        /// ディレクトリ選択ダイアログ表示コマンドを取得または設定する。
-        /// </summary>
-        /// <remarks>
-        /// ViewModel 利用側から提供すること。
-        /// </remarks>
-        public ReactiveProperty<ICommand> SelectDirectoryDialogCommand { get; } =
-            new ReactiveProperty<ICommand>();
-
-        /// <summary>
-        /// SelectDirectoryDialogCommand のコマンドパラメータクラス。
-        /// </summary>
-        public class SelectDirectoryDialogCommandParam
+        public void InitializeConfig()
         {
-            /// <summary>
-            /// タイトルを取得または設定する。
-            /// </summary>
-            public string Title { get; set; } = null;
+            // ロード
+            if (!this.ConfigKeeper.Load())
+            {
+                this.ConfigKeeper.Value = new AppConfig();
+            }
 
-            /// <summary>
-            /// ディレクトリパスを取得または設定する。
-            /// </summary>
-            /// <remarks>
-            /// ViewModel 利用側から提供するコマンドによって選択されたパスを設定すること。
-            /// キャンセルされた場合は null を設定すること。
-            /// </remarks>
-            public string Path { get; set; } = null;
+            // 設定変更時のイベント設定
+            this.ConfigKeeper.Value.PropertyChanged += OnConfigChanged;
+
+            // Config プロパティ変更通知
+            this.RaisePropertyChanged(nameof(this.Config));
+        }
+
+        /// <summary>
+        /// 保存先ディレクトリ選択時に呼び出される。
+        /// </summary>
+        /// <param name="m">フォルダ選択メッセージ。</param>
+        public void OnSaveDirectorySelected(FolderSelectionMessage m)
+        {
+            if (m.Response == null || !CheckValidPath(m.Response))
+            {
+                return;
+            }
+
+            this.Config.SaveDirectoryPath = m.Response;
         }
 
         /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
+
+        /// <summary>
+        /// アプリ設定キーパーを取得する。
+        /// </summary>
+        private ConfigKeeper<AppConfig> ConfigKeeper { get; } =
+            new ConfigKeeper<AppConfig>(nameof(VoiceroidUtil));
 
         /// <summary>
         /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
@@ -193,20 +178,25 @@ namespace VoiceroidUtil
                 return true;
             }
 
-            var message = "VOICEROID+ が対応していないパス文字が含まれています。";
+            var message = new StringBuilder();
+            message.Append(@"VOICEROID+ が対応していないパス文字が含まれています。");
             if (invalidLetter != null)
             {
-                message +=
-                    "\n\n" +
-                    "VOICEROID+ は Unicode のパス文字に対応していません。\n" +
-                    "フォルダ名に \"" + invalidLetter + "\" を含めないでください。";
+                message.AppendLine();
+                message.AppendLine();
+                message.Append(@"VOICEROID+ は Unicode のパス文字に対応していません。");
+                message.AppendLine();
+                message.Append(@"フォルダ名に """);
+                message.Append(invalidLetter);
+                message.Append(@""" を含めないでください。");
             }
 
-            var cmd = this.ErrorDialogCommand.Value;
-            if (cmd?.CanExecute(message) == true)
-            {
-                cmd.Execute(message);
-            }
+            this.Messenger.Raise(
+                new InformationMessage(
+                    message.ToString(),
+                    @"エラー",
+                    MessageBoxImage.Error,
+                    @"Info"));
 
             return false;
         }
@@ -286,7 +276,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 保存コマンド処理を行う。
         /// </summary>
-        private void ExecuteSaveCommand()
+        private async void ExecuteSaveCommand()
         {
             var filePath = this.MakeWaveFilePath();
             if (filePath == null || !CheckValidPath(filePath))
@@ -303,22 +293,8 @@ namespace VoiceroidUtil
                 return;
             }
 
-            process
-                .Save(filePath)
-                .ContinueWith(
-                    p => this.DoTaskAfterSaveCommand(p.Result, text),
-                    TaskScheduler.FromCurrentSynchronizationContext());
-        }
-
-        /// <summary>
-        /// 保存コマンドの後処理を行う。
-        /// </summary>
-        /// <param name="filePath">
-        /// 保存されたWAVEファイルパス。保存失敗時は null 。
-        /// </param>
-        /// <param name="talkText">トークテキスト。</param>
-        private void DoTaskAfterSaveCommand(string filePath, string talkText)
-        {
+            // WAVEファイルを非同期で保存
+            filePath = await process.Save(filePath);
             if (filePath == null)
             {
                 return;
@@ -333,7 +309,7 @@ namespace VoiceroidUtil
                         Encoding.UTF8 : Encoding.GetEncoding(932);
                 try
                 {
-                    File.WriteAllText(txtPath, talkText, encoding);
+                    File.WriteAllText(txtPath, text, encoding);
                 }
                 catch
                 {
@@ -345,30 +321,11 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 保存先選択コマンド処理を行う。
+        /// アプリ設定の変更時に呼び出される。
         /// </summary>
-        private void ExecuteSelectDirectoryCommand()
+        private void OnConfigChanged(object sender, PropertyChangedEventArgs e)
         {
-            var param =
-                new SelectDirectoryDialogCommandParam
-                {
-                    Title = @"音声保存先の選択",
-                    Path = this.Config.SaveDirectoryPath,
-                };
-
-            var cmd = this.SelectDirectoryDialogCommand.Value;
-            if (cmd?.CanExecute(param) != true)
-            {
-                return;
-            }
-            cmd.Execute(param);
-
-            if (param.Path == null || !CheckValidPath(param.Path))
-            {
-                return;
-            }
-
-            this.Config.SaveDirectoryPath = param.Path;
+            this.ConfigKeeper.Save();
         }
     }
 }
