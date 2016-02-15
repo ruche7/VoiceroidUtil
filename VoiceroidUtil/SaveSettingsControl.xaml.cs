@@ -1,25 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// SaveSettingsControl.xaml の相互作用ロジック
+    /// 保存設定ユーザコントロールクラス。
     /// </summary>
     public partial class SaveSettingsControl : UserControl
     {
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
         public SaveSettingsControl()
         {
             InitializeComponent();

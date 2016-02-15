@@ -3,16 +3,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:VoiceroidUtil"
     x:Class="VoiceroidUtil.MainWindow"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}"
     Title="VoiceroidUtil"
     Width="400"
     Height="240"
     MinWidth="320"
     MinHeight="200">
+    <Window.DataContext>
+        <local:MainWindowViewModel />
+    </Window.DataContext>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -26,6 +30,20 @@
         <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
     </Window.InputBindings>
 
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="ContentRendered">
+            <l:LivetCallMethodAction
+                MethodTarget="{Binding}"
+                MethodName="InitializeConfig" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closed">
+            <l:DataContextDisposeAction />
+        </i:EventTrigger>
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Info">
+            <local:InfoDialogInteractionMessageAction />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+    
     <Grid Margin="4">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

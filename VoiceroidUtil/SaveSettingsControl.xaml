@@ -3,6 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:util="clr-namespace:ruche.util"
@@ -30,10 +32,22 @@
 
     <StackPanel Orientation="Vertical">
         <DockPanel>
-            <Button
-                Content="保存先(_D)..."
-                Command="{Binding SelectDirectoryCommand}"
-                DockPanel.Dock="Left" />
+            <Button Content="保存先(_D)..." DockPanel.Dock="Left">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <l:FolderBrowserDialogInteractionMessageAction>
+                            <l:DirectInteractionMessage
+                                CallbackMethodTarget="{Binding}"
+                                CallbackMethodName="OnSaveDirectorySelected">
+                                <l:FolderSelectionMessage
+                                    Title="音声保存先の選択"
+                                    Description="音声保存先フォルダを選択してください。"
+                                    SelectedPath="{Binding Config.SaveDirectoryPath}" />
+                            </l:DirectInteractionMessage>
+                        </l:FolderBrowserDialogInteractionMessageAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Button>
             <TextBox
                 Text="{Binding Config.SaveDirectoryPath}"
                 IsReadOnly="True"

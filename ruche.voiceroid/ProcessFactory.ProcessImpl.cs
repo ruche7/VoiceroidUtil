@@ -449,7 +449,7 @@ namespace ruche.voiceroid
                             return (saved || this.FindSaveProgressDialog() != null);
                         },
                         f => f,
-                        50,
+                        100,
                         TimeSpan.FromMilliseconds(20));
                 if (saved)
                 {
@@ -652,7 +652,7 @@ namespace ruche.voiceroid
             /// 
             /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
             /// </remarks>
-            public Task<string> Save(string filePath)
+            public async Task<string> Save(string filePath)
             {
                 if (filePath == null)
                 {
@@ -681,21 +681,38 @@ namespace ruche.voiceroid
                 this.SaveButton.PostMessage(BM_CLICK);
 
                 this.IsSaving = true;
-                this.IsSaveTaskRunning = true;
 
-                return
-                    Task.Factory
-                        .StartNew(() => this.DoFindFileNameEditTask())
-                        .ContinueWith(
-                            edit => this.DoSaveFileTask(edit.Result, path),
-                            TaskScheduler.FromCurrentSynchronizationContext())
-                        .ContinueWith(
-                            r =>
-                            {
-                                bool ok = (r.Result && this.DoCheckFileSavedTask(path));
-                                this.IsSaveTaskRunning = false;
-                                return ok ? path : null;
-                            });
+                this.IsSaveTaskRunning = true;
+                try
+                {
+                    // ファイル名エディットコントロールを非同期で探す
+                    var fileNameEdit =
+                        await Task.Factory.StartNew(this.DoFindFileNameEditTask);
+                    if (fileNameEdit == null)
+                    {
+                        return null;
+                    }
+
+                    // ファイル保存
+                    if (!this.DoSaveFileTask(fileNameEdit, path))
+                    {
+                        return null;
+                    }
+
+                    // ファイル保存成否を非同期で確認
+                    bool saved =
+                        await Task.Factory.StartNew(() => this.DoCheckFileSavedTask(path));
+                    if (!saved)
+                    {
+                        return null;
+                    }
+                }
+                finally
+                {
+                    this.IsSaveTaskRunning = false;
+                }
+
+                return path;
             }
 
             #endregion
