@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -58,6 +59,46 @@ namespace ruche.windows
         {
             get { return IsWindowEnabled(this.Handle); }
             set { EnableWindow(this.Handle, value); }
+        }
+
+        /// <summary>
+        /// ウィンドウの表示状態を取得または設定する。
+        /// </summary>
+        public Win32WindowState State
+        {
+            get
+            {
+                return
+                    IsIconic(this.Handle) ?
+                        Win32WindowState.Minimized :
+                        IsZoomed(this.Handle) ?
+                            Win32WindowState.Maximized : Win32WindowState.Normal;
+            }
+            set
+            {
+                if (value != this.State)
+                {
+                    int command = 0;
+                    switch (value)
+                    {
+                    case Win32WindowState.Normal:
+                        command = SW_SHOWNOACTIVATE;
+                        break;
+                    case Win32WindowState.Maximized:
+                        command = SW_MAXIMIZED;
+                        break;
+                    case Win32WindowState.Minimized:
+                        command = SW_SHOWMINNOACTIVE;
+                        break;
+                    default:
+                        throw new InvalidEnumArgumentException(
+                            nameof(value),
+                            (int)value,
+                            value.GetType());
+                    }
+                    ShowWindow(this.Handle, command);
+                }
+            }
         }
 
         /// <summary>
@@ -198,7 +239,7 @@ namespace ruche.windows
                 return null;
             }
 
-            var text = new StringBuilder(size.Value.ToInt32());
+            var text = new StringBuilder(size.Value.ToInt32() + 1);
             var r =
                 await this.SendMessage(
                     WM_GETTEXT,
@@ -376,6 +417,9 @@ namespace ruche.windows
 
         private const uint GW_OWNER = 4;
         private const uint GA_PARENT = 1;
+        private const int SW_MAXIMIZED = 3;
+        private const int SW_SHOWNOACTIVATE = 4;
+        private const int SW_SHOWMINNOACTIVE = 7;
         private const uint SMTO_NORMAL = 0;
 
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -416,6 +460,18 @@ namespace ruche.windows
         private static extern bool EnableWindow(
             IntPtr windowHandle,
             [MarshalAs(UnmanagedType.Bool)] bool enable);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsIconic(IntPtr windowHandle);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsZoomed(IntPtr windowHandle);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool ShowWindow(IntPtr windowHandle, int command);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SendMessage(

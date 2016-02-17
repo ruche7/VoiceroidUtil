@@ -10,6 +10,7 @@
     x:Class="VoiceroidUtil.MainWindow"
     mc:Ignorable="d"
     Title="VoiceroidUtil"
+    Icon="resources/icon/main.ico"
     Width="400"
     Height="240"
     MinWidth="320"
@@ -40,7 +41,11 @@
             <l:DataContextDisposeAction />
         </i:EventTrigger>
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Info">
-            <local:InfoDialogInteractionMessageAction />
+            <local:InfoDialogInteractionMessageAction
+                InvokeActionOnlyWhenWindowIsActive="False" />
+        </l:InteractionMessageTrigger>
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Window">
+            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
         </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
     
