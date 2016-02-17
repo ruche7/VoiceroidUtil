@@ -38,9 +38,17 @@ namespace ruche.voiceroid
             }
 
             /// <summary>
-            /// プロセス列挙を基に状態を更新する。
+            /// 状態を更新する。
             /// </summary>
-            /// <param name="voiceroidApps">プロセス列挙。</param>
+            public void Update()
+            {
+                this.Update(Process.GetProcessesByName("VOICEROID"));
+            }
+
+            /// <summary>
+            /// 既知のVOICEROIDプロセス列挙を基に状態を更新する。
+            /// </summary>
+            /// <param name="voiceroidApps">VOICEROIDプロセス列挙。</param>
             public void Update(IEnumerable<Process> voiceroidApps)
             {
                 // 対象プロセス検索
@@ -691,22 +699,24 @@ namespace ruche.voiceroid
                     return null;
                 }
 
-                // ファイルパス作成
-                var path = MakeWaveFilePath(filePath);
-
-                // 保存先ディレクトリ作成
-                if (!MakeDirectory(Path.GetDirectoryName(path)))
-                {
-                    return null;
-                }
-
-                // 保存ボタン押下
-                this.SaveButton.PostMessage(BM_CLICK);
-
                 this.IsSaveTaskRunning = true;
                 this.IsSaving = true;
+
+                string path = null;
                 try
                 {
+                    // ファイルパス作成
+                    path = MakeWaveFilePath(filePath);
+
+                    // 保存先ディレクトリ作成
+                    if (!MakeDirectory(Path.GetDirectoryName(path)))
+                    {
+                        return null;
+                    }
+
+                    // 保存ボタン押下
+                    this.SaveButton.PostMessage(BM_CLICK);
+
                     // ファイル名エディットコントロールを非同期で探す
                     var fileNameEdit = await this.DoFindFileNameEditTask();
                     if (fileNameEdit == null)

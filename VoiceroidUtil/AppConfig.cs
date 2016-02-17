@@ -79,7 +79,7 @@ namespace VoiceroidUtil
                         value : FileNameFormat.NameText);
             }
         }
-        private FileNameFormat fileNameFormat = FileNameFormat.NameText;
+        private FileNameFormat fileNameFormat = FileNameFormat.DateTimeNameText;
 
         /// <summary>
         /// テキストファイルを必ず作成するか否かを取得または設定する。

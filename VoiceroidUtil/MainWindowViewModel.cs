@@ -11,6 +11,7 @@ using System.Windows;
 using Livet;
 using Livet.Messaging;
 using Livet.Messaging.IO;
+using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using ruche.util;
@@ -88,7 +89,7 @@ namespace VoiceroidUtil
                         this.IsProcessPlaying,
                         this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                     }
-                    .CombineLatest(flags => flags.Any()),
+                    .CombineLatest(flags => flags.Any(f => f)),
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReactiveCommand(false);
@@ -106,6 +107,10 @@ namespace VoiceroidUtil
                 .CombineLatestValuesAreAllTrue()
                 .ToReactiveCommand(false);
             this.SaveCommand.Subscribe(this.SaveCommandExecuter.Execute);
+
+            // プロセス更新タイマ設定＆開始
+            this.ProcessUpdateTimer.Subscribe(_ => this.ProcessFactory.Update());
+            this.ProcessUpdateTimer.Start();
         }
 
         /// <summary>
@@ -196,9 +201,9 @@ namespace VoiceroidUtil
         /// 保存先ディレクトリ選択時に呼び出される。
         /// </summary>
         /// <param name="m">フォルダ選択メッセージ。</param>
-        public void OnSaveDirectorySelected(FolderSelectionMessage m)
+        public async void OnSaveDirectorySelected(FolderSelectionMessage m)
         {
-            if (m.Response == null || !CheckValidPath(m.Response))
+            if (m.Response == null || !(await CheckValidPath(m.Response)))
             {
                 return;
             }
@@ -210,6 +215,17 @@ namespace VoiceroidUtil
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
+
+        /// <summary>
+        /// VOICEROIDプロセス更新タイマを取得する。
+        /// </summary>
+        private ReactiveTimer ProcessUpdateTimer { get; } =
+            new ReactiveTimer(TimeSpan.FromMilliseconds(100));
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker3』プロセス操作オブジェクトを取得する。
+        /// </summary>
+        private YmmProcess YmmProcess { get; } = new YmmProcess();
 
         /// <summary>
         /// アプリ設定キーパーを取得する。
@@ -232,8 +248,11 @@ namespace VoiceroidUtil
         /// 不正であればダイアログ表示を行う。
         /// </summary>
         /// <param name="path">パス。</param>
-        /// <returns>正常ならば true 。そうでなければ false 。</returns>
-        private bool CheckValidPath(string path)
+        /// <returns>
+        /// チェックタスク。
+        /// 正常ならば true を返す。そうでなければ false を返す。
+        /// </returns>
+        private async Task<bool> CheckValidPath(string path)
         {
             string invalidLetter = null;
             if (FileSaveUtil.IsValidPath(path, out invalidLetter))
@@ -254,7 +273,7 @@ namespace VoiceroidUtil
                 message.Append(@""" を含めないでください。");
             }
 
-            this.Messenger.Raise(
+            await this.Messenger.RaiseAsync(
                 new InformationMessage(
                     message.ToString(),
                     @"エラー",
@@ -313,6 +332,40 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 現在の設定を基にテキストをファイルへ書き出す。
+        /// </summary>
+        /// <param name="filePath">テキストファイルパス。</param>
+        /// <param name="text">書き出すテキスト。</param>
+        /// <returns>
+        /// 書き出しタスク。
+        /// 成功した場合は true を返す。そうでなければ false を返す。
+        /// </returns>
+        private async Task<bool> WriteTextFile(string filePath, string text)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || text == null)
+            {
+                return false;
+            }
+
+            var encoding =
+                this.Config.IsTextFileUtf8 ?
+                    Encoding.UTF8 : Encoding.GetEncoding(932);
+            try
+            {
+                using (var writer = new StreamWriter(filePath, false, encoding))
+                {
+                    await writer.WriteAsync(text);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// 再生/停止コマンド処理を行う。
         /// </summary>
         private async Task ExecutePlayStopCommand()
@@ -342,7 +395,7 @@ namespace VoiceroidUtil
         private async Task ExecuteSaveCommand()
         {
             var filePath = this.MakeWaveFilePath();
-            if (filePath == null || !CheckValidPath(filePath))
+            if (filePath == null || !(await CheckValidPath(filePath)))
             {
                 return;
             }
@@ -356,31 +409,44 @@ namespace VoiceroidUtil
                 return;
             }
 
-            // WAVEファイルを非同期で保存
-            filePath = await process.Save(filePath);
-            if (filePath == null)
+            try
             {
-                return;
-            }
-
-            // テキストファイル保存
-            if (this.Config.IsTextFileForceMaking)
-            {
-                var txtPath = Path.ChangeExtension(filePath, ".txt");
-                var encoding =
-                    this.Config.IsTextFileUtf8 ?
-                        Encoding.UTF8 : Encoding.GetEncoding(932);
-                try
-                {
-                    File.WriteAllText(txtPath, text, encoding);
-                }
-                catch
+                // WAVEファイル保存
+                filePath = await process.Save(filePath);
+                if (filePath == null)
                 {
                     return;
                 }
-            }
 
-            // TODO: ファイル保存後処理
+                // テキストファイル保存
+                if (this.Config.IsTextFileForceMaking)
+                {
+                    var txtPath = Path.ChangeExtension(filePath, ".txt");
+                    if (!(await this.WriteTextFile(txtPath, text)))
+                    {
+                        return;
+                    }
+                }
+
+                // ゆっくりMovieMaker処理
+                if (this.Config.IsSavedFileToYmm)
+                {
+                    this.YmmProcess.Update();
+                    if (
+                        this.YmmProcess.IsRunning &&
+                        (await this.YmmProcess.SetTimelineSpeechEditValue(filePath)) &&
+                        this.Config.IsYmmAddButtonClicking)
+                    {
+                        await this.YmmProcess.ClickTimelineSpeechAddButton();
+                    }
+                }
+            }
+            finally
+            {
+                // メインウィンドウを前面へ
+                await this.Messenger.RaiseAsync(
+                    new WindowActionMessage(WindowAction.Active, @"Window"));
+            }
         }
 
         /// <summary>
