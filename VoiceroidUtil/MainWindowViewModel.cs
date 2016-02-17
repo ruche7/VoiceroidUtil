@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using Livet;
 using Livet.Messaging;
@@ -27,42 +28,84 @@ namespace VoiceroidUtil
         /// </summary>
         public MainWindowViewModel()
         {
+            // ひとまず適当なVOICEROIDプロセスを選択
+            // InitializeConfig で前回終了時の選択が復元される
             this.SelectedProcess =
                 new ReactiveProperty<IProcess>(
                     this.ProcessFactory.Get(VoiceroidId.YukariEx));
-            this.IsProcessRunning =
-                this.ObserveSelectedProcessProperty(p => p.IsRunning).ToReactiveProperty();
-            this.IsProcessPlaying =
-                this.ObserveSelectedProcessProperty(p => p.IsPlaying).ToReactiveProperty();
-            this.IsProcessSaving =
-                this.ObserveSelectedProcessProperty(p => p.IsSaving).ToReactiveProperty();
 
+            // 選択プロセス変更時に Config へ反映
+            this.SelectedProcess.Subscribe(
+                p =>
+                {
+                    if (p != null && this.Config != null)
+                    {
+                        this.Config.VoiceroidId = p.Id;
+                    }
+                });
+
+            // 選択プロセス状態
+            this.IsProcessRunning =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsRunning)
+                    .ToReadOnlyReactiveProperty();
+            this.IsProcessPlaying =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsPlaying)
+                    .ToReadOnlyReactiveProperty();
+            this.IsProcessSaving =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsSaving)
+                    .ToReadOnlyReactiveProperty();
+
+            // トークテキスト
             this.TalkText = new ReactiveProperty<string>("");
+
+            // コマンド実行用
+            this.PlayStopCommandExecuter =
+                new AsyncCommandExecuter(this.ExecutePlayStopCommand);
+            this.SaveCommandExecuter = new AsyncCommandExecuter(this.ExecuteSaveCommand);
+
+            // どのコマンドも実行可能ならばアイドル状態とみなす
+            this.IsIdle =
+                new[]
+                {
+                    this.PlayStopCommandExecuter.IsExecutable,
+                    this.SaveCommandExecuter.IsExecutable,
+                }
+                .CombineLatestValuesAreAllTrue()
+                .ToReadOnlyReactiveProperty();
 
             // 再生/停止コマンド
             this.PlayStopCommand =
-                this.TalkText
-                    .CombineLatest(
-                        this.IsProcessRunning,
+                new[]
+                {
+                    this.IsIdle,
+                    this.IsProcessRunning,
+                    this.IsProcessSaving.Select(f => !f),
+                    new[]
+                    {
                         this.IsProcessPlaying,
-                        this.IsProcessSaving,
-                        (text, running, playing, saving) =>
-                            (playing || !string.IsNullOrWhiteSpace(text)) &&
-                            running &&
-                            !saving)
-                    .ToReactiveCommand(false);
-            this.PlayStopCommand.Subscribe(_ => this.ExecutePlayStopCommand());
+                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                    }
+                    .CombineLatest(flags => flags.Any()),
+                }
+                .CombineLatestValuesAreAllTrue()
+                .ToReactiveCommand(false);
+            this.PlayStopCommand.Subscribe(this.PlayStopCommandExecuter.Execute);
 
             // 保存コマンド
             this.SaveCommand =
-                this.TalkText
-                    .CombineLatest(
-                        this.IsProcessRunning,
-                        this.IsProcessSaving,
-                        (text, running, saving) =>
-                            !string.IsNullOrWhiteSpace(text) && running && !saving)
-                    .ToReactiveCommand();
-            this.SaveCommand.Subscribe(_ => this.ExecuteSaveCommand());
+                new[]
+                {
+                    this.IsIdle,
+                    this.IsProcessRunning,
+                    this.IsProcessSaving.Select(f => !f),
+                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                }
+                .CombineLatestValuesAreAllTrue()
+                .ToReactiveCommand(false);
+            this.SaveCommand.Subscribe(this.SaveCommandExecuter.Execute);
         }
 
         /// <summary>
@@ -89,22 +132,30 @@ namespace VoiceroidUtil
         /// <summary>
         /// 選択中のVOICEROIDプロセスが実行中であるか否かを取得する。
         /// </summary>
-        public ReactiveProperty<bool> IsProcessRunning { get; }
+        public ReadOnlyReactiveProperty<bool> IsProcessRunning { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスが再生中であるか否かを取得する。
         /// </summary>
-        public ReactiveProperty<bool> IsProcessPlaying { get; }
+        public ReadOnlyReactiveProperty<bool> IsProcessPlaying { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスがWAVEファイル保存中であるか否かを取得する。
         /// </summary>
-        public ReactiveProperty<bool> IsProcessSaving { get; }
+        public ReadOnlyReactiveProperty<bool> IsProcessSaving { get; }
 
         /// <summary>
         /// 入力文を取得する。
         /// </summary>
         public ReactiveProperty<string> TalkText { get; }
+
+        /// <summary>
+        /// アイドル状態であるか否かを取得する。
+        /// </summary>
+        /// <remarks>
+        /// いずれのコマンドも実行中でなければ true となる。
+        /// </remarks>
+        public ReadOnlyReactiveProperty<bool> IsIdle { get; }
 
         /// <summary>
         /// 再生/停止コマンドを取得する。
@@ -115,11 +166,6 @@ namespace VoiceroidUtil
         /// 保存コマンドを取得する。
         /// </summary>
         public ReactiveCommand SaveCommand { get; }
-
-        /// <summary>
-        /// 保存先選択コマンドを取得する。
-        /// </summary>
-        public ReactiveCommand SelectDirectoryCommand { get; }
 
         /// <summary>
         /// アプリ設定を初期化する。
@@ -137,6 +183,13 @@ namespace VoiceroidUtil
 
             // Config プロパティ変更通知
             this.RaisePropertyChanged(nameof(this.Config));
+
+            // 選択プロセス反映
+            var id = this.Config.VoiceroidId;
+            if (Enum.IsDefined(id.GetType(), id))
+            {
+                this.SelectedProcess.Value = this.ProcessFactory.Get(id);
+            }
         }
 
         /// <summary>
@@ -163,6 +216,16 @@ namespace VoiceroidUtil
         /// </summary>
         private ConfigKeeper<AppConfig> ConfigKeeper { get; } =
             new ConfigKeeper<AppConfig>(nameof(VoiceroidUtil));
+
+        /// <summary>
+        /// 再生/停止コマンドの非同期実行用オブジェクトを取得する。
+        /// </summary>
+        private AsyncCommandExecuter PlayStopCommandExecuter { get; }
+
+        /// <summary>
+        /// 保存コマンドの非同期実行用オブジェクトを取得する。
+        /// </summary>
+        private AsyncCommandExecuter SaveCommandExecuter { get; }
 
         /// <summary>
         /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
@@ -252,7 +315,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 再生/停止コマンド処理を行う。
         /// </summary>
-        private void ExecutePlayStopCommand()
+        private async Task ExecutePlayStopCommand()
         {
             var process = this.SelectedProcess.Value;
             if (process == null)
@@ -262,13 +325,13 @@ namespace VoiceroidUtil
 
             if (process.IsPlaying)
             {
-                process.Stop();
+                await process.Stop();
             }
             else
             {
-                if (process.SetTalkText(this.TalkText.Value))
+                if (await process.SetTalkText(this.TalkText.Value))
                 {
-                    process.Play();
+                    await process.Play();
                 }
             }
         }
@@ -276,7 +339,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 保存コマンド処理を行う。
         /// </summary>
-        private async void ExecuteSaveCommand()
+        private async Task ExecuteSaveCommand()
         {
             var filePath = this.MakeWaveFilePath();
             if (filePath == null || !CheckValidPath(filePath))
@@ -287,8 +350,8 @@ namespace VoiceroidUtil
             var process = this.SelectedProcess.Value;
             var text = this.TalkText.Value;
 
-            process.Stop();
-            if (!process.SetTalkText(text))
+            await process.Stop();
+            if (!(await process.SetTalkText(text)))
             {
                 return;
             }

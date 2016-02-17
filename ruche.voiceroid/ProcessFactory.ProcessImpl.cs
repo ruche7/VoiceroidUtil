@@ -88,6 +88,11 @@ namespace ruche.voiceroid
             }
 
             /// <summary>
+            /// UI操作のタイムアウトミリ秒数。
+            /// </summary>
+            private const int UIControlTimeout = 500;
+
+            /// <summary>
             /// 保存ダイアログタイトル文字列。
             /// </summary>
             private const string SaveDialogTitle = @"音声ファイルの保存";
@@ -183,7 +188,7 @@ namespace ruche.voiceroid
                 // 2つ上が ComboBoxEx32 の場合はアドレスバーなので除外
                 return
                     dialog
-                        .FindDescendants(className: "Edit")
+                        .FindDescendants("Edit")
                         .FirstOrDefault(
                             c =>
                             {
@@ -198,27 +203,37 @@ namespace ruche.voiceroid
             /// <typeparam name="T">戻り値の型。</typeparam>
             /// <param name="func">デリゲート。</param>
             /// <param name="condition">終了条件デリゲート。</param>
-            /// <param name="loopCount">ループ回数。</param>
-            /// <param name="interval">ループ間隔。</param>
-            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
-            private static T RepeatUntil<T>(
+            /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
+            /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
+            /// <returns>
+            /// 処理タスク。
+            /// 条件を満たした時、もしくはループ終了時の戻り値を返す。
+            /// </returns>
+            private static Task<T> RepeatUntil<T>(
                 Func<T> func,
                 Func<T, bool> condition,
-                int loopCount,
-                TimeSpan interval)
+                int loopCount = -1,
+                int intervalMilliseconds = 20)
             {
-                T value = default(T);
-
-                for (int i = 0; i < loopCount; ++i, Thread.Sleep(interval))
-                {
-                    value = func();
-                    if (condition(value))
+                return
+                    Task.Run(() =>
                     {
-                        break;
-                    }
-                }
+                        T value = default(T);
 
-                return value;
+                        for (
+                            int i = 0;
+                            loopCount < 0 || i < loopCount;
+                            ++i, Thread.Sleep(intervalMilliseconds))
+                        {
+                            value = func();
+                            if (condition(value))
+                            {
+                                break;
+                            }
+                        }
+
+                        return value;
+                    });
             }
 
             /// <summary>
@@ -342,53 +357,51 @@ namespace ruche.voiceroid
             /// <summary>
             /// トークテキストのカーソル位置を先頭に移動させる。
             /// </summary>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            /// <returns>
+            /// カーソル位置設定タスク。
+            /// 成功すると true を返す。そうでなければ false を返す。
+            /// </returns>
             /// <remarks>
             /// 再生中の場合は停止させる。既にWAVEファイル保存中である場合は失敗する。
             /// </remarks>
-            private bool SetTalkTextCursorToHead()
+            private async Task<bool> SetTalkTextCursorToHead()
             {
-                if (this.TalkEdit == null || this.IsSaving || !this.Stop())
+                if (this.TalkEdit == null || this.IsSaving || !(await this.Stop()))
                 {
                     return false;
                 }
 
-                this.TalkEdit.SendMessage(EM_SETSEL);
+                var r =
+                    await this.TalkEdit.SendMessage(
+                        EM_SETSEL,
+                        timeoutMilliseconds: UIControlTimeout);
 
-                return true;
+                return r.HasValue;
             }
 
             /// <summary>
             /// 保存ダイアログのファイル名エディットコントロールを検索する処理を行う。
             /// </summary>
             /// <returns>
-            /// ファイル名エディットコントロール。見つからなければ null 。
+            /// エディットコントロール検索タスク。
+            /// ファイル名エディットコントロールを返す。見つからなければ null を返す。
             /// </returns>
-            private Win32Window DoFindFileNameEditTask()
+            private async Task<Win32Window> DoFindFileNameEditTask()
             {
                 // 保存ダイアログ検索
-                var dialog =
-                    RepeatUntil(
-                        this.FindSaveDialog,
-                        d => d != null,
-                        100,
-                        TimeSpan.FromMilliseconds(20));
+                var dialog = await RepeatUntil(this.FindSaveDialog, d => d != null, 100);
                 if (dialog == null)
                 {
                     return null;
                 }
 
-                // ダイアログ発見直後はコントロール作成が完了していないので少し待つ
-                Thread.Sleep(50);
-
                 // ファイルパス設定先のエディットコントロール取得
                 // ダイアログ作成直後は未作成の場合があるので何度か調べる
                 var fileNameEdit =
-                    RepeatUntil(
+                    await RepeatUntil(
                         () => FindFileDialogFileNameEdit(dialog),
                         c => c != null,
-                        50,
-                        TimeSpan.FromMilliseconds(20));
+                        50);
                 if (fileNameEdit == null)
                 {
                     return null;
@@ -402,15 +415,20 @@ namespace ruche.voiceroid
             /// </summary>
             /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private bool DoSaveFileTask(Win32Window fileNameEdit, string filePath)
+            /// <returns>
+            /// GUI操作タスク。
+            /// 成功すると true を返す。そうでなければ false を返す。
+            /// </returns>
+            private async Task<bool> DoSaveFileTask(
+                Win32Window fileNameEdit,
+                string filePath)
             {
                 if (fileNameEdit == null || string.IsNullOrWhiteSpace(filePath))
                 {
                     return false;
                 }
 
-                if (!fileNameEdit.SetText(filePath))
+                if (!(await fileNameEdit.SetText(filePath)))
                 {
                     return false;
                 }
@@ -431,8 +449,11 @@ namespace ruche.voiceroid
             /// WAVEファイルの保存確認処理を行う。
             /// </summary>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <returns>保存されているならば true 。そうでなければ false 。</returns>
-            private bool DoCheckFileSavedTask(string filePath)
+            /// <returns>
+            /// 保存確認タスク。
+            /// 保存されているならば true を返す。そうでなければ false を返す。
+            /// </returns>
+            private async Task<bool> DoCheckFileSavedTask(string filePath)
             {
                 if (string.IsNullOrWhiteSpace(filePath))
                 {
@@ -442,15 +463,14 @@ namespace ruche.voiceroid
                 // ファイル保存 or 保存進捗ダイアログ表示 を待つ
                 bool saved = false;
                 bool found =
-                    RepeatUntil(
+                    await RepeatUntil(
                         () =>
                         {
                             saved = File.Exists(filePath);
                             return (saved || this.FindSaveProgressDialog() != null);
                         },
                         f => f,
-                        100,
-                        TimeSpan.FromMilliseconds(20));
+                        100);
                 if (saved)
                 {
                     return true;
@@ -459,18 +479,10 @@ namespace ruche.voiceroid
                 // 保存進捗ダイアログが閉じるまで待つ
                 if (found)
                 {
-                    while (this.FindSaveProgressDialog() != null)
-                    {
-                        Thread.Sleep(50);
-                    }
+                    await RepeatUntil(this.FindSaveProgressDialog, d => d == null);
                 }
 
-                return
-                    RepeatUntil(
-                        () => File.Exists(filePath),
-                        r => r,
-                        10,
-                        TimeSpan.FromMilliseconds(20));
+                return await RepeatUntil(() => File.Exists(filePath), r => r, 10);
             }
 
             /// <summary>
@@ -544,44 +556,53 @@ namespace ruche.voiceroid
             /// <summary>
             /// トークテキストを取得する。
             /// </summary>
-            /// <returns>トークテキスト。取得できない場合は null 。</returns>
-            public string GetTalkText()
+            /// <returns>
+            /// トークテキスト取得タスク。
+            /// 成功するとトークテキストを返す。そうでなければ null を返す。
+            /// </returns>
+            public async Task<string> GetTalkText()
             {
                 if (this.TalkEdit == null)
                 {
                     return null;
                 }
 
-                return this.TalkEdit.GetText();
+                return await this.TalkEdit.GetText(UIControlTimeout);
             }
 
             /// <summary>
             /// トークテキストを設定する。
             /// </summary>
             /// <param name="text">トークテキスト。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            /// <returns>
+            /// トークテキスト設定タスク。
+            /// 成功すると true を返す。そうでなければ false を返す。
+            /// </returns>
             /// <remarks>
             /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
             /// </remarks>
-            public bool SetTalkText(string text)
+            public async Task<bool> SetTalkText(string text)
             {
-                if (this.TalkEdit == null || this.IsSaving || !this.Stop())
+                if (this.TalkEdit == null || this.IsSaving || !(await this.Stop()))
                 {
                     return false;
                 }
 
-                return this.TalkEdit.SetText(text);
+                return await this.TalkEdit.SetText(text, UIControlTimeout);
             }
 
             /// <summary>
             /// トークテキストの再生を開始する。
             /// </summary>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            /// <returns>
+            /// 再生タスク。
+            /// 成功すると true を返す。そうでなければ false を返す。
+            /// </returns>
             /// <remarks>
             /// 再生中の場合は何もせず true を返す。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
             /// </remarks>
-            public bool Play()
+            public async Task<bool> Play()
             {
                 if (this.IsPlaying)
                 {
@@ -590,8 +611,8 @@ namespace ruche.voiceroid
                 if (
                     this.PlayButton == null ||
                     this.IsSaving ||
-                    string.IsNullOrWhiteSpace(this.GetTalkText()) ||
-                    !this.SetTalkTextCursorToHead())
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    !(await this.SetTalkTextCursorToHead()))
                 {
                     return false;
                 }
@@ -599,17 +620,23 @@ namespace ruche.voiceroid
                 this.PlayButton.PostMessage(BM_CLICK);
                 this.IsPlaying = true; // 一応立てる
 
+                // 一瞬で再生完了する可能性があるため、
+                // 保存ボタンが無効になるまで待つことはしない。
+
                 return true;
             }
 
             /// <summary>
             /// トークテキストの再生を停止する。
             /// </summary>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            /// <returns>
+            /// 停止タスク。
+            /// 成功すると true を返す。そうでなければ false を返す。
+            /// </returns>
             /// <remarks>
-            /// 再生中ではない場合やWAVEファイル保存中である場合は失敗する。
+            /// WAVEファイル保存中である場合は失敗する。
             /// </remarks>
-            public bool Stop()
+            public async Task<bool> Stop()
             {
                 if (this.StopButton == null || this.IsSaving)
                 {
@@ -623,16 +650,12 @@ namespace ruche.voiceroid
                 this.StopButton.PostMessage(BM_CLICK);
 
                 // 保存ボタンが有効になるまで少し待つ
-                for (int i = 0; i < 50; ++i)
-                {
-                    if (this.SaveButton == null || this.SaveButton.IsEnabled)
-                    {
-                        break;
-                    }
-                    Thread.Sleep(10);
-                }
-
-                return true;
+                var enabled =
+                    await RepeatUntil(
+                        () => this.SaveButton?.IsEnabled,
+                        e => e != false,
+                        25);
+                return (enabled == true);
             }
 
             /// <summary>
@@ -640,8 +663,8 @@ namespace ruche.voiceroid
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
             /// <returns>
-            /// WAVEファイル保存タスク。保存開始できなかった場合は null 。
-            /// 成功すると実際のWAVEファイルパスを返す。失敗すると null を返す。
+            /// WAVEファイル保存タスク。
+            /// 成功すると実際のWAVEファイルパスを返す。そうでなければ null を返す。
             /// </returns>
             /// <remarks>
             /// 再生中の場合は停止させる。
@@ -662,8 +685,8 @@ namespace ruche.voiceroid
                 if (
                     this.SaveButton == null ||
                     this.IsSaving ||
-                    string.IsNullOrWhiteSpace(this.GetTalkText()) ||
-                    !this.Stop())
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    !(await this.Stop()))
                 {
                     return null;
                 }
@@ -680,28 +703,25 @@ namespace ruche.voiceroid
                 // 保存ボタン押下
                 this.SaveButton.PostMessage(BM_CLICK);
 
-                this.IsSaving = true;
-
                 this.IsSaveTaskRunning = true;
+                this.IsSaving = true;
                 try
                 {
                     // ファイル名エディットコントロールを非同期で探す
-                    var fileNameEdit =
-                        await Task.Factory.StartNew(this.DoFindFileNameEditTask);
+                    var fileNameEdit = await this.DoFindFileNameEditTask();
                     if (fileNameEdit == null)
                     {
                         return null;
                     }
 
                     // ファイル保存
-                    if (!this.DoSaveFileTask(fileNameEdit, path))
+                    if (!(await this.DoSaveFileTask(fileNameEdit, path)))
                     {
                         return null;
                     }
 
                     // ファイル保存成否を非同期で確認
-                    bool saved =
-                        await Task.Factory.StartNew(() => this.DoCheckFileSavedTask(path));
+                    bool saved = await this.DoCheckFileSavedTask(path);
                     if (!saved)
                     {
                         return null;
