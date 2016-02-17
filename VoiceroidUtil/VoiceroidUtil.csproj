@@ -63,10 +63,6 @@
       <HintPath>..\packages\LivetExtensions.1.1.0.0\lib\net45\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ReactiveProperty.2.5\lib\net45\ReactiveProperty.dll</HintPath>
       <Private>True</Private>
@@ -129,6 +125,7 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="InfoDialogInteractionMessageAction.cs" />
+    <Compile Include="ruche.util\AsyncCommandExecuter.cs" />
     <Compile Include="ruche.util\ConfigKeeper.cs" />
     <Compile Include="ruche.util\EnumValueDisplayConverter.cs" />
     <Compile Include="FileNameFormat.cs" />

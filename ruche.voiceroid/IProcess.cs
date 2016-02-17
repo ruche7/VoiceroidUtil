@@ -37,45 +37,57 @@ namespace ruche.voiceroid
         /// <summary>
         /// トークテキストを取得する。
         /// </summary>
-        /// <returns>トークテキスト。取得できない場合は null 。</returns>
-        string GetTalkText();
+        /// <returns>
+        /// トークテキスト取得タスク。
+        /// 成功するとトークテキストを返す。そうでなければ null を返す。
+        /// </returns>
+        Task<string> GetTalkText();
 
         /// <summary>
         /// トークテキストを設定する。
         /// </summary>
         /// <param name="text">トークテキスト。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        /// <returns>
+        /// トークテキスト設定タスク。
+        /// 成功すると true を返す。そうでなければ false を返す。
+        /// </returns>
         /// <remarks>
         /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
         /// </remarks>
-        bool SetTalkText(string text);
+        Task<bool> SetTalkText(string text);
 
         /// <summary>
         /// トークテキストの再生を開始する。
         /// </summary>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        /// <returns>
+        /// 再生タスク。
+        /// 成功すると true を返す。そうでなければ false を返す。
+        /// </returns>
         /// <remarks>
         /// 再生中の場合は何もせず true を返す。
         /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
         /// </remarks>
-        bool Play();
+        Task<bool> Play();
 
         /// <summary>
         /// トークテキストの再生を停止する。
         /// </summary>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        /// <returns>
+        /// 停止タスク。
+        /// 成功すると true を返す。そうでなければ false を返す。
+        /// </returns>
         /// <remarks>
         /// WAVEファイル保存中である場合は失敗する。
         /// </remarks>
-        bool Stop();
+        Task<bool> Stop();
 
         /// <summary>
         /// トークテキストをWAVEファイル保存する。
         /// </summary>
         /// <param name="filePath">保存希望WAVEファイルパス。</param>
         /// <returns>
-        /// WAVEファイル保存タスク。保存開始できなかった場合は null 。
-        /// 成功すると実際のWAVEファイルパスを返す。失敗すると null を返す。
+        /// WAVEファイル保存タスク。
+        /// 成功すると実際のWAVEファイルパスを返す。そうでなければ null を返す。
         /// </returns>
         /// <remarks>
         /// 再生中の場合は停止させる。

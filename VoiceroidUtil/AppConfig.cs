@@ -32,6 +32,23 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 選択中VOICEROID識別IDを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public VoiceroidId VoiceroidId
+        {
+            get { return this.voiceroidId; }
+            set
+            {
+                this.SetProperty(
+                    ref this.voiceroidId,
+                    Enum.IsDefined(value.GetType(), value) ?
+                        value : VoiceroidId.YukariEx);
+            }
+        }
+        private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
+
+        /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
         /// </summary>
         [DataMember]
