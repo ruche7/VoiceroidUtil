@@ -3,8 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Automation;
-using ruche.windows;
+using RucheHome.Windows.WinApi;
 
 namespace VoiceroidUtil
 {
@@ -33,8 +34,7 @@ namespace VoiceroidUtil
         /// </summary>
         public void Update()
         {
-            var process =
-                Process.GetProcessesByName("YukkuriMovieMaker_v3").FirstOrDefault();
+            var process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
             if (process == null)
             {
                 this.MainWindow = null;
@@ -128,6 +128,16 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// UI操作のタイムアウトミリ秒数。
+        /// </summary>
+        private const int UIControlTimeout = 500;
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker3』プロセス名。
+        /// </summary>
+        private const string ProcessName = @"YukkuriMovieMaker_v3";
+
+        /// <summary>
         /// タイムラインウィンドウのタイトルプレフィクス文字列。
         /// </summary>
         private const string TimelineWindowTitlePrefix = @"タイムライン";
@@ -190,9 +200,9 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            if (mainWin.State == Win32WindowState.Minimized)
+            if (mainWin.State == WindowState.Minimized)
             {
-                mainWin.State = Win32WindowState.Normal;
+                mainWin.State = WindowState.Normal;
             }
 
             var tlWin = await this.FindTimelineWindow();
@@ -214,7 +224,7 @@ namespace VoiceroidUtil
                 await Win32Window.Desktop
                     .FindChildren()
                     .ToObservable()
-                    .SelectMany(async w => await this.IsTimelineWindow(w) ? w : null)
+                    .SelectMany(async w => (await this.IsTimelineWindow(w)) ? w : null)
                     .FirstOrDefaultAsync(w => w != null);
         }
 
@@ -226,11 +236,13 @@ namespace VoiceroidUtil
         private async Task<bool> IsTimelineWindow(Win32Window target)
         {
             var mainWin = this.MainWindow;
+            var textTask = target.GetTextAsync(UIControlTimeout);
+
             return (
                 mainWin != null &&
                 target != null &&
                 target.GetOwner()?.Handle == mainWin.Handle &&
-                (await target.GetText())?.StartsWith(TimelineWindowTitlePrefix) == true);
+                (await textTask)?.StartsWith(TimelineWindowTitlePrefix) == true);
         }
     }
 }

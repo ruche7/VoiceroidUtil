@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ruche.voiceroid", "ruche.voiceroid\ruche.voiceroid.csproj", "{E7C4802C-D723-44B6-A272-9E570C84E754}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ED14173C-9FAF-4E64-989A-B063E07CF13E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "voiceroidTest", "test\voiceroidTest\voiceroidTest.csproj", "{5B913F75-9454-4A8D-9175-5A9343DF3C2E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiceroidUtil", "VoiceroidUtil\VoiceroidUtil.csproj", "{5E0283FF-752B-45A6-A898-8C7FC6A730ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ruche.windows", "ruche.windows\ruche.windows.csproj", "{2A7E8BEA-A94A-4541-AFF0-B6C4535C8226}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RucheHomeLib", "RucheHomeLib\RucheHomeLib.csproj", "{DF1B25FE-0FDF-4C86-A779-AFF5217A7C6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RucheHome.Voiceroid", "RucheHome.Voiceroid\RucheHome.Voiceroid.csproj", "{E7C4802C-D723-44B6-A272-9E570C84E754}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E7C4802C-D723-44B6-A272-9E570C84E754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E7C4802C-D723-44B6-A272-9E570C84E754}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E7C4802C-D723-44B6-A272-9E570C84E754}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E7C4802C-D723-44B6-A272-9E570C84E754}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5B913F75-9454-4A8D-9175-5A9343DF3C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5B913F75-9454-4A8D-9175-5A9343DF3C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B913F75-9454-4A8D-9175-5A9343DF3C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -31,10 +27,14 @@ Global
 		{5E0283FF-752B-45A6-A898-8C7FC6A730ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E0283FF-752B-45A6-A898-8C7FC6A730ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E0283FF-752B-45A6-A898-8C7FC6A730ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2A7E8BEA-A94A-4541-AFF0-B6C4535C8226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A7E8BEA-A94A-4541-AFF0-B6C4535C8226}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A7E8BEA-A94A-4541-AFF0-B6C4535C8226}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A7E8BEA-A94A-4541-AFF0-B6C4535C8226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF1B25FE-0FDF-4C86-A779-AFF5217A7C6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF1B25FE-0FDF-4C86-A779-AFF5217A7C6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF1B25FE-0FDF-4C86-A779-AFF5217A7C6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF1B25FE-0FDF-4C86-A779-AFF5217A7C6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7C4802C-D723-44B6-A272-9E570C84E754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7C4802C-D723-44B6-A272-9E570C84E754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7C4802C-D723-44B6-A272-9E570C84E754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7C4802C-D723-44B6-A272-9E570C84E754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

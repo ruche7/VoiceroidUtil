@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using ruche.windows;
+using RucheHome.Windows.WinApi;
 
-namespace ruche.voiceroid
+namespace RucheHome.Voiceroid
 {
     partial class ProcessFactory
     {
@@ -25,7 +26,7 @@ namespace ruche.voiceroid
             /// <param name="id">VOICEROID識別ID。</param>
             public ProcessImpl(VoiceroidId id)
             {
-                if (!Enum.IsDefined(typeof(VoiceroidId), id))
+                if (!Enum.IsDefined(id.GetType(), id))
                 {
                     throw new InvalidEnumArgumentException(
                         nameof(id),
@@ -40,58 +41,71 @@ namespace ruche.voiceroid
             /// <summary>
             /// 状態を更新する。
             /// </summary>
-            public void Update()
+            public Task Update()
             {
-                this.Update(Process.GetProcessesByName("VOICEROID"));
+                return this.Update(FindProcesses());
             }
 
             /// <summary>
             /// 既知のVOICEROIDプロセス列挙を基に状態を更新する。
             /// </summary>
             /// <param name="voiceroidApps">VOICEROIDプロセス列挙。</param>
-            public void Update(IEnumerable<Process> voiceroidApps)
+            public async Task Update(IEnumerable<Process> voiceroidApps)
             {
-                // 対象プロセス検索
-                var app =
-                    voiceroidApps?.FirstOrDefault(
-                        p => p.MainWindowTitle.StartsWith(this.WindowTitle));
-                if (app == null)
-                {
-                    this.SetupDeadState();
-                    return;
-                }
-
-                // 保存タスク処理中なら更新しない
-                if (this.IsRunning && this.IsSaveTaskRunning)
+                if (this.IsUpdating)
                 {
                     return;
                 }
 
-                // 現在と同じウィンドウが取得できた場合はスキップ
-                if (
-                    !this.IsRunning ||
-                    this.MainWindow.Handle != app.MainWindowHandle)
+                this.IsUpdating = true;
+                try
                 {
-                    // コントロール群更新
-                    this.MainWindow = new Win32Window(app.MainWindowHandle);
-                    if (!this.UpdateControls())
+                    // 対象プロセス検索
+                    var app =
+                        voiceroidApps?.FirstOrDefault(
+                            p => p.MainWindowTitle.StartsWith(this.WindowTitle));
+                    if (app == null)
                     {
                         this.SetupDeadState();
                         return;
                     }
+
+                    // 保存タスク処理中なら更新しない
+                    if (this.IsRunning && this.IsSaveTaskRunning)
+                    {
+                        return;
+                    }
+
+                    // 現在と同じウィンドウが取得できた場合はスキップ
+                    if (
+                        !this.IsRunning ||
+                        this.MainWindow.Handle != app.MainWindowHandle)
+                    {
+                        // コントロール群更新
+                        this.MainWindow = new Win32Window(app.MainWindowHandle);
+                        if (!(await this.UpdateControls()))
+                        {
+                            this.SetupDeadState();
+                            return;
+                        }
+                    }
+
+                    this.IsRunning = true;
+
+                    // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
+                    this.IsSaving = (
+                        (await this.FindSaveDialog()) != null ||
+                        (await this.FindSaveProgressDialog()) != null);
+
+                    if (!this.IsSaving)
+                    {
+                        // 保存ボタンが押せない状態＝再生中と判定
+                        this.IsPlaying = !this.SaveButton.IsEnabled;
+                    }
                 }
-
-                this.IsRunning = true;
-
-                // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                this.IsSaving = (
-                    this.FindSaveDialog() != null ||
-                    this.FindSaveProgressDialog() != null);
-
-                if (!this.IsSaving)
+                finally
                 {
-                    // 保存ボタンが押せない状態＝再生中と判定
-                    this.IsPlaying = !this.SaveButton.IsEnabled;
+                    this.IsUpdating = false;
                 }
             }
 
@@ -129,7 +143,7 @@ namespace ruche.voiceroid
 
                 // 拡張子抜きのフルパスを作成
                 var basePath = Path.GetFullPath(filePath);
-                if (Path.GetExtension(basePath).ToLower() == ".wav")
+                if (Path.GetExtension(basePath).ToLower() == @".wav")
                 {
                     basePath = Path.ChangeExtension(basePath, null);
                 }
@@ -142,12 +156,12 @@ namespace ruche.voiceroid
                 var path = basePath;
                 for (
                     int i = 1;
-                    File.Exists(path + ".wav") || File.Exists(path + ".txt");
+                    File.Exists(path + @".wav") || File.Exists(path + @".txt");
                     ++i)
                 {
-                    path = basePath + "[" + i + "]";
+                    path = basePath + @"[" + i + @"]";
                 }
-                path += ".wav";
+                path += @".wav";
 
                 return path;
             }
@@ -186,7 +200,8 @@ namespace ruche.voiceroid
             /// <returns>
             /// ファイル名エディットコントロール。見つからなければ null 。
             /// </returns>
-            private static Win32Window FindFileDialogFileNameEdit(Win32Window dialog)
+            private static async Task<Win32Window> FindFileDialogFileNameEdit(
+                Win32Window dialog)
             {
                 if (dialog == null)
                 {
@@ -195,13 +210,12 @@ namespace ruche.voiceroid
 
                 // 2つ上が ComboBoxEx32 の場合はアドレスバーなので除外
                 return
-                    dialog
-                        .FindDescendants("Edit")
+                    (await dialog.FindDescendantsAsync(@"Edit"))
                         .FirstOrDefault(
                             c =>
                             {
                                 var name = c.GetAncestor(2)?.ClassName;
-                                return (name != null && name != "ComboBoxEx32");
+                                return (name != null && name != @"ComboBoxEx32");
                             });
             }
 
@@ -224,7 +238,33 @@ namespace ruche.voiceroid
                 int intervalMilliseconds = 20)
             {
                 return
-                    Task.Run(() =>
+                    RepeatUntil(
+                        () => Task.Run(func),
+                        condition,
+                        loopCount,
+                        intervalMilliseconds);
+            }
+
+            /// <summary>
+            /// 戻り値が条件を満たさない間、非同期デリゲートを呼び出し続ける。
+            /// </summary>
+            /// <typeparam name="T">戻り値の型。</typeparam>
+            /// <param name="funcAsync">非同期デリゲート。</param>
+            /// <param name="condition">終了条件デリゲート。</param>
+            /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
+            /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
+            /// <returns>
+            /// 処理タスク。
+            /// 条件を満たした時、もしくはループ終了時の戻り値を返す。
+            /// </returns>
+            private static Task<T> RepeatUntil<T>(
+                Func<Task<T>> funcAsync,
+                Func<T, bool> condition,
+                int loopCount = -1,
+                int intervalMilliseconds = 20)
+            {
+                return
+                    Task.Run(async () =>
                     {
                         T value = default(T);
 
@@ -233,7 +273,7 @@ namespace ruche.voiceroid
                             loopCount < 0 || i < loopCount;
                             ++i, Thread.Sleep(intervalMilliseconds))
                         {
-                            value = func();
+                            value = await funcAsync();
                             if (condition(value))
                             {
                                 break;
@@ -270,6 +310,11 @@ namespace ruche.voiceroid
             private Win32Window SaveButton { get; set; } = null;
 
             /// <summary>
+            /// 状態更新中であるか否かを取得または設定する。
+            /// </summary>
+            private bool IsUpdating { get; set; } = false;
+
+            /// <summary>
             /// WAVEファイル保存タスク実行中であるか否かを取得または設定する。
             /// </summary>
             private bool IsSaveTaskRunning { get; set; } = false;
@@ -278,9 +323,9 @@ namespace ruche.voiceroid
             /// メインウィンドウのコントロール群を更新する。
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private bool UpdateControls()
+            private async Task<bool> UpdateControls()
             {
-                var controls = this.MainWindow.FindDescendants();
+                var controls = await this.MainWindow.FindDescendantsAsync();
 
                 // トークテキスト入力欄取得
                 var talkEdit =
@@ -313,36 +358,38 @@ namespace ruche.voiceroid
             /// 保存ダイアログを検索する。
             /// </summary>
             /// <returns>保存ダイアログ。見つからなければ null 。</returns>
-            private Win32Window FindSaveDialog()
+            private async Task<Win32Window> FindSaveDialog()
             {
-                if (this.MainWindow == null)
+                var mainWin = this.MainWindow;
+                if (mainWin == null)
                 {
                     return null;
                 }
 
                 return
-                    Win32Window.Desktop
+                    await Win32Window.Desktop
                         .FindChildren(text: SaveDialogTitle)
-                        .FirstOrDefault(
-                            w => w.GetOwner()?.Handle == this.MainWindow.Handle);
+                        .ToObservable()
+                        .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainWin.Handle);
             }
 
             /// <summary>
             /// 保存進捗ダイアログを検索する。
             /// </summary>
             /// <returns>保存進捗ダイアログ。見つからなければ null 。</returns>
-            private Win32Window FindSaveProgressDialog()
+            private async Task<Win32Window> FindSaveProgressDialog()
             {
-                if (this.MainWindow == null)
+                var mainWin = this.MainWindow;
+                if (mainWin == null)
                 {
                     return null;
                 }
 
                 return
-                    Win32Window.Desktop
+                    await Win32Window.Desktop
                         .FindChildren(text: SaveProgressDialogTitle)
-                        .FirstOrDefault(
-                            w => w.GetOwner()?.Handle == this.MainWindow.Handle);
+                        .ToObservable()
+                        .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainWin.Handle);
             }
 
             /// <summary>
@@ -379,12 +426,16 @@ namespace ruche.voiceroid
                     return false;
                 }
 
-                var r =
-                    await this.TalkEdit.SendMessage(
+                var task =
+                    this.TalkEdit?.SendMessageAsync(
                         EM_SETSEL,
                         timeoutMilliseconds: UIControlTimeout);
+                if (task == null)
+                {
+                    return false;
+                }
 
-                return r.HasValue;
+                return (await task).HasValue;
             }
 
             /// <summary>
@@ -397,7 +448,11 @@ namespace ruche.voiceroid
             private async Task<Win32Window> DoFindFileNameEditTask()
             {
                 // 保存ダイアログ検索
-                var dialog = await RepeatUntil(this.FindSaveDialog, d => d != null, 100);
+                var dialog =
+                    await RepeatUntil(
+                        this.FindSaveDialog,
+                        (Win32Window d) => d != null,
+                        100);
                 if (dialog == null)
                 {
                     return null;
@@ -408,7 +463,7 @@ namespace ruche.voiceroid
                 var fileNameEdit =
                     await RepeatUntil(
                         () => FindFileDialogFileNameEdit(dialog),
-                        c => c != null,
+                        (Win32Window c) => c != null,
                         50);
                 if (fileNameEdit == null)
                 {
@@ -436,7 +491,7 @@ namespace ruche.voiceroid
                     return false;
                 }
 
-                if (!(await fileNameEdit.SetText(filePath)))
+                if (!(await fileNameEdit.SetTextAsync(filePath, UIControlTimeout)))
                 {
                     return false;
                 }
@@ -472,11 +527,9 @@ namespace ruche.voiceroid
                 bool saved = false;
                 bool found =
                     await RepeatUntil(
-                        () =>
-                        {
-                            saved = File.Exists(filePath);
-                            return (saved || this.FindSaveProgressDialog() != null);
-                        },
+                        async () =>
+                            File.Exists(filePath) ||
+                            (await this.FindSaveProgressDialog()) != null,
                         f => f,
                         100);
                 if (saved)
@@ -487,7 +540,9 @@ namespace ruche.voiceroid
                 // 保存進捗ダイアログが閉じるまで待つ
                 if (found)
                 {
-                    await RepeatUntil(this.FindSaveProgressDialog, d => d == null);
+                    await RepeatUntil(
+                        this.FindSaveProgressDialog,
+                        (Win32Window d) => d == null);
                 }
 
                 return await RepeatUntil(() => File.Exists(filePath), r => r, 10);
@@ -505,7 +560,7 @@ namespace ruche.voiceroid
             private void SetProperty<T>(
                 ref T field,
                 T value,
-                [CallerMemberName] string propertyName = null)
+                [CallerMemberName] string propertyName = "")
             {
                 if (!EqualityComparer<T>.Default.Equals(field, value))
                 {
@@ -570,12 +625,13 @@ namespace ruche.voiceroid
             /// </returns>
             public async Task<string> GetTalkText()
             {
-                if (this.TalkEdit == null)
+                var edit = this.TalkEdit;
+                if (edit == null)
                 {
                     return null;
                 }
 
-                return await this.TalkEdit.GetText(UIControlTimeout);
+                return await edit.GetTextAsync(UIControlTimeout);
             }
 
             /// <summary>
@@ -591,12 +647,13 @@ namespace ruche.voiceroid
             /// </remarks>
             public async Task<bool> SetTalkText(string text)
             {
-                if (this.TalkEdit == null || this.IsSaving || !(await this.Stop()))
+                var edit = this.TalkEdit;
+                if (edit == null || this.IsSaving || !(await this.Stop()))
                 {
                     return false;
                 }
 
-                return await this.TalkEdit.SetText(text, UIControlTimeout);
+                return await edit.SetTextAsync(text, UIControlTimeout);
             }
 
             /// <summary>
@@ -616,6 +673,7 @@ namespace ruche.voiceroid
                 {
                     return true;
                 }
+
                 if (
                     this.PlayButton == null ||
                     this.IsSaving ||
@@ -625,7 +683,10 @@ namespace ruche.voiceroid
                     return false;
                 }
 
-                this.PlayButton.PostMessage(BM_CLICK);
+                if (this.PlayButton?.PostMessage(BM_CLICK) != true)
+                {
+                    return false;
+                }
                 this.IsPlaying = true; // 一応立てる
 
                 // 一瞬で再生完了する可能性があるため、
@@ -655,7 +716,10 @@ namespace ruche.voiceroid
                     return true;
                 }
 
-                this.StopButton.PostMessage(BM_CLICK);
+                if (this.StopButton?.PostMessage(BM_CLICK) != true)
+                {
+                    return false;
+                }
 
                 // 保存ボタンが有効になるまで少し待つ
                 var enabled =
@@ -715,7 +779,10 @@ namespace ruche.voiceroid
                     }
 
                     // 保存ボタン押下
-                    this.SaveButton.PostMessage(BM_CLICK);
+                    if (this.SaveButton?.PostMessage(BM_CLICK) != true)
+                    {
+                        return null;
+                    }
 
                     // ファイル名エディットコントロールを非同期で探す
                     var fileNameEdit = await this.DoFindFileNameEditTask();

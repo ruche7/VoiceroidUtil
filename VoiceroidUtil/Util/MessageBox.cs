@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
-namespace ruche.util
+namespace VoiceroidUtil.Util
 {
     /// <summary>
     /// メッセージボックスの表示処理を提供する静的クラス。

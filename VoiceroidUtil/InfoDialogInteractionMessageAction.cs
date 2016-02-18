@@ -19,25 +19,25 @@ namespace VoiceroidUtil
                 return;
             }
 
-            var icon = ruche.util.MessageBox.Icon.None;
+            var icon = Util.MessageBox.Icon.None;
             switch (m.Image)
             {
             case MessageBoxImage.Information:
-                icon = ruche.util.MessageBox.Icon.Information;
+                icon = Util.MessageBox.Icon.Information;
                 break;
             case MessageBoxImage.Warning:
-                icon = ruche.util.MessageBox.Icon.Warning;
+                icon = Util.MessageBox.Icon.Warning;
                 break;
             case MessageBoxImage.Error:
-                icon = ruche.util.MessageBox.Icon.Error;
+                icon = Util.MessageBox.Icon.Error;
                 break;
             }
 
-            ruche.util.MessageBox.Show(
+            Util.MessageBox.Show(
                 this.AssociatedObject as Window,
                 m.Text,
                 m.Caption,
-                ruche.util.MessageBox.Button.Ok,
+                Util.MessageBox.Button.Ok,
                 icon);
         }
 

@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace ruche.voiceroid
+namespace RucheHome.Voiceroid
 {
     /// <summary>
     /// VOICEROIDプロセスインタフェース。

@@ -14,8 +14,9 @@ using Livet.Messaging.IO;
 using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using ruche.util;
-using ruche.voiceroid;
+using RucheHome.Util;
+using RucheHome.Voiceroid;
+using VoiceroidUtil.Util;
 
 namespace VoiceroidUtil
 {
@@ -328,7 +329,7 @@ namespace VoiceroidUtil
             var name =
                 FileSaveUtil.MakeFileName(this.Config.FileNameFormat, process.Id, text);
 
-            return Path.Combine(this.Config.SaveDirectoryPath, name + ".wav");
+            return Path.Combine(this.Config.SaveDirectoryPath, name + @".wav");
         }
 
         /// <summary>
