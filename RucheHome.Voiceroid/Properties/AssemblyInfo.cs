@@ -5,11 +5,11 @@ using System.Windows.Markup;
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("ruche.voiceroid")]
+[assembly: AssemblyTitle("RucheHome.Voiceroid")]
 [assembly: AssemblyDescription("Library for VOICEROID+.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ruche-home")]
-[assembly: AssemblyProduct("ruche.voiceroid")]
+[assembly: AssemblyProduct("RucheHome.Voiceroid")]
 [assembly: AssemblyCopyright("Copyright (C) 2016 ruche.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -35,4 +35,4 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("1.0.0.*")]
 
 // XML名前空間
-[assembly: XmlnsDefinition("http://schemas.ruche-home.net/xaml/voiceroid", "ruche.voiceroid")]
+[assembly: XmlnsDefinition("http://schemas.ruche-home.net/xaml/voiceroid", "RucheHome.Voiceroid")]
