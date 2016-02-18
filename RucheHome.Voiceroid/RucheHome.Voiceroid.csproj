@@ -7,8 +7,8 @@
     <ProjectGuid>{E7C4802C-D723-44B6-A272-9E570C84E754}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ruche.voiceroid</RootNamespace>
-    <AssemblyName>ruche.voiceroid</AssemblyName>
+    <RootNamespace>RucheHome.Voiceroid</RootNamespace>
+    <AssemblyName>RucheHome.Voiceroid</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
