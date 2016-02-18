@@ -47,12 +47,6 @@
     <Compile Include="VoiceroidId.cs" />
     <Compile Include="VoiceroidInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ruche.windows\ruche.windows.csproj">
-      <Project>{2a7e8bea-a94a-4541-aff0-b6c4535c8226}</Project>
-      <Name>ruche.windows</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
