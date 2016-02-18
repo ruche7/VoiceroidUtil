@@ -1,0 +1,3 @@
+[submodule "RucheHomeLib"]
+	path = RucheHomeLib
+	url = git@github.com:ruche7/RucheHomeLib.git

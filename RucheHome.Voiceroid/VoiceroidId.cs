@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace ruche.voiceroid
+namespace RucheHome.Voiceroid
 {
     /// <summary>
     /// VOICEROID識別ID列挙。

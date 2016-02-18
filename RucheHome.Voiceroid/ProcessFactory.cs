@@ -2,8 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
-namespace ruche.voiceroid
+namespace RucheHome.Voiceroid
 {
     /// <summary>
     /// VOICEROIDプロセスファクトリクラス。
@@ -37,10 +39,21 @@ namespace ruche.voiceroid
         /// <summary>
         /// 全プロセスの状態を更新する。
         /// </summary>
-        public void Update()
+        public Task Update()
         {
-            var voiceroidApps = Process.GetProcessesByName("VOICEROID");
-            Array.ForEach(this.Impls, impl => impl.Update(voiceroidApps));
+            var voiceroidApps = FindProcesses();
+            return
+                Task.WhenAll(
+                    Array.ConvertAll(this.Impls, p => p.Update(voiceroidApps)));
+        }
+
+        /// <summary>
+        /// VOICEROIDプロセスを検索する。
+        /// </summary>
+        /// <returns>VOICEROIDプロセス配列。</returns>
+        private static Process[] FindProcesses()
+        {
+            return Process.GetProcessesByName(@"VOICEROID");
         }
 
         /// <summary>

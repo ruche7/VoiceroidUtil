@@ -6,7 +6,7 @@ using System.Windows.Markup;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 [assembly: AssemblyTitle("RucheHome.Voiceroid")]
-[assembly: AssemblyDescription("Library for VOICEROID+.")]
+[assembly: AssemblyDescription("The library for VOICEROID+.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ruche-home")]
 [assembly: AssemblyProduct("RucheHome.Voiceroid")]
@@ -35,4 +35,6 @@ using System.Windows.Markup;
 [assembly: AssemblyVersion("1.0.0.*")]
 
 // XML名前空間
-[assembly: XmlnsDefinition("http://schemas.ruche-home.net/xaml/voiceroid", "RucheHome.Voiceroid")]
+[assembly: XmlnsDefinition(
+    @"http://schemas.ruche-home.net/xaml/voiceroid",
+    @"RucheHome.Voiceroid")]

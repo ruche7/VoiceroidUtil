@@ -42,9 +42,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ruche.voiceroid\ruche.voiceroid.csproj">
+    <ProjectReference Include="..\..\RucheHome.Voiceroid\RucheHome.Voiceroid.csproj">
       <Project>{e7c4802c-d723-44b6-a272-9e570c84e754}</Project>
-      <Name>ruche.voiceroid</Name>
+      <Name>RucheHome.Voiceroid</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

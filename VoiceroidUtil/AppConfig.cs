@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using ruche.voiceroid;
+using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
 {
@@ -22,7 +22,7 @@ namespace VoiceroidUtil
         public static readonly string DefaultSaveDirectoryPath =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "VoiceroidWaveFiles");
+                @"VoiceroidWaveFiles");
 
         /// <summary>
         /// コンストラクタ。

@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using ruche.util;
-using ruche.voiceroid;
+using RucheHome.Util;
+using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
 {

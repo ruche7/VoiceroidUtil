@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ruche.voiceroid
+namespace RucheHome.Voiceroid
 {
     /// <summary>
     /// VOICEROID識別IDに紐付く情報を保持するクラス。

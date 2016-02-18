@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Reactive.Bindings;
 using Reactive.Bindings.Notifiers;
 
-namespace ruche.util
+namespace VoiceroidUtil.Util
 {
     /// <summary>
     /// ReactiveCommand で非同期実行を行うためのジェネリッククラス。

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using ruche.voiceroid;
+using RucheHome.Voiceroid;
 
 namespace voiceroidTest
 {

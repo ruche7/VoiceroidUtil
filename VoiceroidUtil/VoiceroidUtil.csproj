@@ -130,17 +130,14 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="InfoDialogInteractionMessageAction.cs" />
-    <Compile Include="ruche.util\AsyncCommandExecuter.cs" />
-    <Compile Include="ruche.util\ConfigKeeper.cs" />
-    <Compile Include="ruche.util\EnumValueDisplayConverter.cs" />
+    <Compile Include="Util\AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
     <Compile Include="FileSaveUtil.cs" />
     <Compile Include="MainWindowConfig.cs" />
-    <Compile Include="ruche.util\MessageBox.cs" />
+    <Compile Include="Util\MessageBox.cs" />
     <Compile Include="SaveSettingsControl.xaml.cs">
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ruche.util\TextElementEnumerable.cs" />
     <Compile Include="YmmProcess.cs" />
     <Page Include="resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
@@ -180,16 +177,6 @@
     <None Include="Properties\App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ruche.voiceroid\ruche.voiceroid.csproj">
-      <Project>{e7c4802c-d723-44b6-a272-9e570c84e754}</Project>
-      <Name>ruche.voiceroid</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ruche.windows\ruche.windows.csproj">
-      <Project>{2a7e8bea-a94a-4541-aff0-b6c4535c8226}</Project>
-      <Name>ruche.windows</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="resources\voiceroid\akane_ng.png" />
     <Resource Include="resources\voiceroid\akane_ok.png" />
     <Resource Include="resources\voiceroid\aoi_ng.png" />
@@ -216,6 +203,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\icon\main.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RucheHome.Voiceroid\RucheHome.Voiceroid.csproj">
+      <Project>{e7c4802c-d723-44b6-a272-9e570c84e754}</Project>
+      <Name>RucheHome.Voiceroid</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RucheHomeLib\RucheHomeLib.csproj">
+      <Project>{df1b25fe-0fdf-4c86-a779-aff5217a7c6b}</Project>
+      <Name>RucheHomeLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
