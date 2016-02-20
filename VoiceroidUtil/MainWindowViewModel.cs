@@ -413,11 +413,12 @@ namespace VoiceroidUtil
             try
             {
                 // WAVEファイル保存
-                filePath = await process.Save(filePath);
-                if (filePath == null)
+                var result = await process.Save(filePath);
+                if (!result.IsSucceeded)
                 {
                     return;
                 }
+                filePath = result.FilePath;
 
                 // テキストファイル保存
                 if (this.Config.IsTextFileForceMaking)

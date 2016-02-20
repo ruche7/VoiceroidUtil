@@ -18,35 +18,16 @@
     <Window.DataContext>
         <local:MainWindowViewModel />
     </Window.DataContext>
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="resources/CommonStyles.xaml" />
-                <ResourceDictionary Source="resources/VoiceroidStyles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="Alt+Enter" Command="{Binding PlayStopCommand}" />
         <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
     </Window.InputBindings>
 
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="ContentRendered">
-            <l:LivetCallMethodAction
-                MethodTarget="{Binding}"
-                MethodName="InitializeConfig" />
-        </i:EventTrigger>
-        <i:EventTrigger EventName="Closed">
-            <l:DataContextDisposeAction />
-        </i:EventTrigger>
-        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Info">
-            <local:InfoDialogInteractionMessageAction
-                InvokeActionOnlyWhenWindowIsActive="False" />
-        </l:InteractionMessageTrigger>
-        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Window">
-            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
-        </l:InteractionMessageTrigger>
+        <StaticResource ResourceKey="triggerInitializeConfig" />
+        <StaticResource ResourceKey="triggerDataContextDispose" />
+        <StaticResource ResourceKey="triggerInfoMessage" />
+        <StaticResource ResourceKey="triggerWindowMessage" />
     </i:Interaction.Triggers>
     
     <Grid Margin="4">
