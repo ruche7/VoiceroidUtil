@@ -37,20 +37,14 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// トークテキストを取得する。
         /// </summary>
-        /// <returns>
-        /// トークテキスト取得タスク。
-        /// 成功するとトークテキストを返す。そうでなければ null を返す。
-        /// </returns>
+        /// <returns>トークテキスト。取得できなかったならば null 。</returns>
         Task<string> GetTalkText();
 
         /// <summary>
         /// トークテキストを設定する。
         /// </summary>
         /// <param name="text">トークテキスト。</param>
-        /// <returns>
-        /// トークテキスト設定タスク。
-        /// 成功すると true を返す。そうでなければ false を返す。
-        /// </returns>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
         /// <remarks>
         /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
         /// </remarks>
@@ -59,10 +53,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// トークテキストの再生を開始する。
         /// </summary>
-        /// <returns>
-        /// 再生タスク。
-        /// 成功すると true を返す。そうでなければ false を返す。
-        /// </returns>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
         /// <remarks>
         /// 再生中の場合は何もせず true を返す。
         /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -72,10 +63,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// トークテキストの再生を停止する。
         /// </summary>
-        /// <returns>
-        /// 停止タスク。
-        /// 成功すると true を返す。そうでなければ false を返す。
-        /// </returns>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
         /// <remarks>
         /// WAVEファイル保存中である場合は失敗する。
         /// </remarks>
@@ -85,10 +73,7 @@ namespace RucheHome.Voiceroid
         /// トークテキストをWAVEファイル保存する。
         /// </summary>
         /// <param name="filePath">保存希望WAVEファイルパス。</param>
-        /// <returns>
-        /// WAVEファイル保存タスク。
-        /// 成功すると実際のWAVEファイルパスを返す。そうでなければ null を返す。
-        /// </returns>
+        /// <returns>保存処理結果。</returns>
         /// <remarks>
         /// 再生中の場合は停止させる。
         /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -98,6 +83,6 @@ namespace RucheHome.Voiceroid
         /// 
         /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
         /// </remarks>
-        Task<string> Save(string filePath);
+        Task<FileSaveResult> Save(string filePath);
     }
 }

@@ -619,10 +619,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// トークテキストを取得する。
             /// </summary>
-            /// <returns>
-            /// トークテキスト取得タスク。
-            /// 成功するとトークテキストを返す。そうでなければ null を返す。
-            /// </returns>
+            /// <returns>トークテキスト。取得できなかったならば null 。</returns>
             public async Task<string> GetTalkText()
             {
                 var edit = this.TalkEdit;
@@ -638,10 +635,7 @@ namespace RucheHome.Voiceroid
             /// トークテキストを設定する。
             /// </summary>
             /// <param name="text">トークテキスト。</param>
-            /// <returns>
-            /// トークテキスト設定タスク。
-            /// 成功すると true を返す。そうでなければ false を返す。
-            /// </returns>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
             /// <remarks>
             /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
             /// </remarks>
@@ -659,10 +653,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// トークテキストの再生を開始する。
             /// </summary>
-            /// <returns>
-            /// 再生タスク。
-            /// 成功すると true を返す。そうでなければ false を返す。
-            /// </returns>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
             /// <remarks>
             /// 再生中の場合は何もせず true を返す。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -698,10 +689,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// トークテキストの再生を停止する。
             /// </summary>
-            /// <returns>
-            /// 停止タスク。
-            /// 成功すると true を返す。そうでなければ false を返す。
-            /// </returns>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
             /// <remarks>
             /// WAVEファイル保存中である場合は失敗する。
             /// </remarks>
@@ -734,10 +722,7 @@ namespace RucheHome.Voiceroid
             /// トークテキストをWAVEファイル保存する。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
-            /// <returns>
-            /// WAVEファイル保存タスク。
-            /// 成功すると実際のWAVEファイルパスを返す。そうでなければ null を返す。
-            /// </returns>
+            /// <returns>保存処理結果。</returns>
             /// <remarks>
             /// 再生中の場合は停止させる。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
@@ -747,7 +732,7 @@ namespace RucheHome.Voiceroid
             /// 
             /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
             /// </remarks>
-            public async Task<string> Save(string filePath)
+            public async Task<FileSaveResult> Save(string filePath)
             {
                 if (filePath == null)
                 {
@@ -757,10 +742,17 @@ namespace RucheHome.Voiceroid
                 if (
                     this.SaveButton == null ||
                     this.IsSaving ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
-                    !(await this.Stop()))
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()))
                 {
-                    return null;
+                    return new FileSaveResult(
+                        false,
+                        error: @"ファイル保存を開始できませんでした。");
+                }
+                if (!(await this.Stop()))
+                {
+                    return new FileSaveResult(
+                        false,
+                        error: @"再生中の音声を停止できませんでした。");
                 }
 
                 this.IsSaveTaskRunning = true;
@@ -775,33 +767,43 @@ namespace RucheHome.Voiceroid
                     // 保存先ディレクトリ作成
                     if (!MakeDirectory(Path.GetDirectoryName(path)))
                     {
-                        return null;
+                        return new FileSaveResult(
+                            false,
+                            error: @"保存先フォルダを作成できませんでした。");
                     }
 
                     // 保存ボタン押下
                     if (this.SaveButton?.PostMessage(BM_CLICK) != true)
                     {
-                        return null;
+                        return new FileSaveResult(
+                            false,
+                            error: @"音声保存ボタンを押下できませんでした。");
                     }
 
                     // ファイル名エディットコントロールを非同期で探す
                     var fileNameEdit = await this.DoFindFileNameEditTask();
                     if (fileNameEdit == null)
                     {
-                        return null;
+                        return new FileSaveResult(
+                            false,
+                            error: @"ファイル保存ダイアログが見つかりませんでした。");
                     }
 
                     // ファイル保存
                     if (!(await this.DoSaveFileTask(fileNameEdit, path)))
                     {
-                        return null;
+                        return new FileSaveResult(
+                            false,
+                            error: @"ファイル保存処理に失敗しました。");
                     }
 
                     // ファイル保存成否を非同期で確認
                     bool saved = await this.DoCheckFileSavedTask(path);
                     if (!saved)
                     {
-                        return null;
+                        return new FileSaveResult(
+                            false,
+                            error: @"ファイル保存を確認できませんでした。");
                     }
                 }
                 finally
@@ -809,7 +811,7 @@ namespace RucheHome.Voiceroid
                     this.IsSaveTaskRunning = false;
                 }
 
-                return path;
+                return new FileSaveResult(true, path);
             }
 
             #endregion
