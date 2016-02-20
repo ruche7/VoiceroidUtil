@@ -1,0 +1,12 @@
+﻿<local:AppStatusForDesign
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:VoiceroidUtil.Design"
+
+    StatusType="Success"
+    StatusText="成功しました。"
+    Command="{x:Static local:AppStatusForDesign.DummyCommand}"
+    CommandText="コマンド実行"
+    SubStatusType="Fail"
+    SubStatusText="失敗しました。"
+    />

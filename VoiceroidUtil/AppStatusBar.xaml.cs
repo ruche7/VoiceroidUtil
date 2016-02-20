@@ -4,14 +4,14 @@ using System.Windows.Controls;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// 保存設定ユーザコントロールクラス。
+    /// AppStatus 情報表示ステータスバーを保持するユーザコントロールクラス。
     /// </summary>
-    public partial class SaveSettingsControl : UserControl
+    public partial class AppStatusBar : UserControl
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public SaveSettingsControl()
+        public AppStatusBar()
         {
             InitializeComponent();
         }

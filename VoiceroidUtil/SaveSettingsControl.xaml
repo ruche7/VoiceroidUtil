@@ -12,22 +12,40 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}">
     <UserControl.Resources>
-        <ru:EnumValueDisplayConverter x:Key="enumDisplayConv" />
-        <ObjectDataProvider
-            x:Key="fileNameFormats"
-            MethodName="GetValues"
-            ObjectType="{x:Type sys:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:FileNameFormat" />
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="resources/CommonStyles.xaml" />
+                <ResourceDictionary>
+                    <ru:EnumValueDisplayConverter x:Key="enumDisplayConv" />
+                    <ObjectDataProvider
+                        x:Key="fileNameFormats"
+                        MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}">
+                        <ObjectDataProvider.MethodParameters>
+                            <x:Type TypeName="local:FileNameFormat" />
+                        </ObjectDataProvider.MethodParameters>
+                    </ObjectDataProvider>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel Orientation="Vertical">
         <DockPanel>
             <Button Content="保存先(_D)..." DockPanel.Dock="Left">
                 <i:Interaction.Triggers>
-                    <StaticResource ResourceKey="triggerSaveDirectoryButtonClicked" />
+                    <i:EventTrigger EventName="Click">
+                        <l:FolderBrowserDialogInteractionMessageAction>
+                            <l:DirectInteractionMessage
+                                CallbackMethodTarget="{Binding}"
+                                CallbackMethodName="OnSaveDirectorySelected">
+                                <l:FolderSelectionMessage
+                                    Title="音声保存先の選択"
+                                    Description="音声保存先フォルダを選択してください。"
+                                    SelectedPath="{Binding Config.SaveDirectoryPath}" />
+                            </l:DirectInteractionMessage>
+                        </l:FolderBrowserDialogInteractionMessageAction>
+                    </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
             <TextBox
@@ -45,7 +63,8 @@
             <ComboBox
                 x:Name="Setting_FileName"
                 ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
-                SelectedItem="{Binding Config.FileNameFormat}">
+                SelectedItem="{Binding Config.FileNameFormat}"
+                Margin="4,0,0,0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock

@@ -123,6 +123,20 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 直近のアプリ状態を取得する。
+        /// </summary>
+        public AppStatus LastStatus
+        {
+            get { return this.lastStatus; }
+            private set
+            {
+                this.lastStatus = value;
+                this.RaisePropertyChanged();
+            }
+        }
+        private AppStatus lastStatus = new AppStatus();
+
+        /// <summary>
         /// VOICEROIDプロセスリストを取得する。
         /// </summary>
         public ReadOnlyCollection<IProcess> Processes
