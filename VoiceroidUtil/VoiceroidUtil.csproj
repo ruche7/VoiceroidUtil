@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
@@ -55,8 +55,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\LivetCask.1.3.1.0\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\LivetExtensions.1.1.0.0\lib\net45\Microsoft.WindowsAPICodePack.dll</HintPath>
@@ -149,6 +149,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
+    <Compile Include="AppStatus.cs" />
+    <Compile Include="AppStatusBar.xaml.cs">
+      <DependentUpon>AppStatusBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AppStatusType.cs" />
+    <Compile Include="Design\AppStatusForDesign.cs" />
+    <Compile Include="IAppStatus.cs" />
     <Compile Include="InfoDialogInteractionMessageAction.cs" />
     <Compile Include="Util\AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
@@ -159,6 +166,13 @@
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmProcess.cs" />
+    <Page Include="AppStatusBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <DesignDataWithDesignTimeCreatableTypes Include="Design\AppStatus.xaml">
+      <SubType>Designer</SubType>
+    </DesignDataWithDesignTimeCreatableTypes>
     <Page Include="resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -175,10 +189,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="resources\Triggers.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="resources\VoiceroidStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -241,7 +251,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <Resource Include="resources\icon\status_warn.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
