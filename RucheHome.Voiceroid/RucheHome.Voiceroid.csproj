@@ -52,6 +52,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileSaveResult.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="ProcessFactory.cs" />
     <Compile Include="ProcessFactory.ProcessImpl.cs" />
