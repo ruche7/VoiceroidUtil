@@ -15,9 +15,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="resources/CommonStyles.xaml" />
                 <ResourceDictionary>
-                    <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
-                        <Setter Property="Margin" Value="4,1" />
-                    </Style>
                     <Style
                         x:Key="statusIcon"
                         x:Shared="False"
@@ -98,7 +95,7 @@
                     Grid.Row="0" Grid.Column="0" />
 
                 <!-- Row 0, Column 1 -->
-                <Label Grid.Row="0" Grid.Column="1">
+                <Label Margin="4,1" Grid.Row="0" Grid.Column="1">
                     <TextBlock>
                         <Run Text="{Binding StatusText, Mode=OneWay}" />
                         <TextBlock>
@@ -130,8 +127,8 @@
                 <!-- Row 1, Column 1 -->
                 <Label
                     Content="{Binding SubStatusText, Mode=OneWay}"
-                    Grid.Row="1"
-                    Grid.Column="1">
+                    Margin="4,1"
+                    Grid.Row="1" Grid.Column="1">
                     <Label.Style>
                         <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
                             <Style.Triggers>
