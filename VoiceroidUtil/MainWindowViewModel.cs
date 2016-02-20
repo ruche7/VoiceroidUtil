@@ -109,6 +109,11 @@ namespace VoiceroidUtil
                 .ToReactiveCommand(false);
             this.SaveCommand.Subscribe(this.SaveCommandExecuter.Execute);
 
+            // 保存先ディレクトリ選択コマンド
+            this.SaveDirectoryCommand = this.IsIdle.ToReactiveCommand(false);
+            this.SaveDirectoryCommand.Subscribe(
+                _ => this.Messenger.RaiseAsync(new InteractionMessage(@"SaveDirectory")));
+
             // プロセス更新タイマ設定＆開始
             this.ProcessUpdateTimer.Subscribe(_ => this.ProcessFactory.Update());
             this.ProcessUpdateTimer.Start();
@@ -186,6 +191,11 @@ namespace VoiceroidUtil
         /// 保存コマンドを取得する。
         /// </summary>
         public ReactiveCommand SaveCommand { get; }
+
+        /// <summary>
+        /// 保存先ディレクトリ選択コマンドを取得する。
+        /// </summary>
+        public ReactiveCommand SaveDirectoryCommand { get; }
 
         /// <summary>
         /// アプリ設定を初期化する。

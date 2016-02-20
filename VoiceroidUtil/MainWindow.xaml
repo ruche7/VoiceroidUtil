@@ -29,7 +29,9 @@
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="Alt+Enter" Command="{Binding PlayStopCommand}" />
+        <KeyBinding Gesture="Ctrl+Q" Command="{Binding PlayStopCommand}" />
         <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
     </Window.InputBindings>
 
     <i:Interaction.Triggers>
@@ -41,19 +43,34 @@
         <i:EventTrigger EventName="Closed">
             <l:DataContextDisposeAction />
         </i:EventTrigger>
+        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Window">
+            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
+        </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Info">
             <local:InfoDialogInteractionMessageAction
                 InvokeActionOnlyWhenWindowIsActive="False" />
         </l:InteractionMessageTrigger>
-        <l:InteractionMessageTrigger Messenger="{Binding Messenger}" MessageKey="Window">
-            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
+        <l:InteractionMessageTrigger
+            Messenger="{Binding Messenger}"
+            MessageKey="SaveDirectory">
+            <l:FolderBrowserDialogInteractionMessageAction
+                InvokeActionOnlyWhenWindowIsActive="False">
+                <l:DirectInteractionMessage
+                    CallbackMethodTarget="{Binding}"
+                    CallbackMethodName="OnSaveDirectorySelected">
+                    <l:FolderSelectionMessage
+                        Title="音声保存先の選択"
+                        Description="音声保存先フォルダを選択してください。"
+                        SelectedPath="{Binding Config.SaveDirectoryPath}" />
+                </l:DirectInteractionMessage>
+            </l:FolderBrowserDialogInteractionMessageAction>
         </l:InteractionMessageTrigger>
     </i:Interaction.Triggers>
 
     <DockPanel>
         <local:AppStatusBar
             DataContext="{Binding LastStatus}"
-            MinHeight="42"
+            MinHeight="36"
             DockPanel.Dock="Bottom" />
         <Grid Margin="4">
             <Grid.RowDefinitions>
@@ -101,8 +118,8 @@
                 <tk:WatermarkTextBox.Watermark>
                     <TextBlock>
                         しゃべらせたい文章を入力してください。<LineBreak />
-                        Alt+Enter で再生します。<LineBreak />
-                        Ctrl+Enter で音声保存します。
+                        Alt+Enter または Ctrl+Q で再生します。<LineBreak />
+                        Ctrl+Enter または Ctrl+S で音声保存します。
                     </TextBlock>
                 </tk:WatermarkTextBox.Watermark>
             </tk:WatermarkTextBox>
