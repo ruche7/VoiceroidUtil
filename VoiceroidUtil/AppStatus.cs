@@ -4,63 +4,45 @@ using System.Windows.Input;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// アプリ状態を提供する構造体。
+    /// アプリ状態を提供するクラス。
     /// </summary>
-    public class AppStatus : IAppStatus
+    internal class AppStatus : IAppStatus
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="statusType">状態種別。</param>
-        /// <param name="statusText">状態テキスト。</param>
-        /// <param name="command">付随コマンド。</param>
-        /// <param name="commandText">付随コマンドテキスト。</param>
-        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
-        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
-        public AppStatus(
-            AppStatusType statusType = AppStatusType.None,
-            string statusText = null,
-            ICommand command = null,
-            string commandText = null,
-            AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = null)
+        public AppStatus()
         {
-            this.StatusType = statusType;
-            this.StatusText = statusText ?? "";
-            this.Command = command;
-            this.CommandText = commandText ?? "";
-            this.SubStatusType = subStatusType;
-            this.SubStatusText = subStatusText ?? "";
         }
 
         /// <summary>
-        /// 状態種別を取得する。
+        /// 状態種別を取得または設定する。
         /// </summary>
-        public AppStatusType StatusType { get; private set; }
+        public AppStatusType StatusType { get; set; } = AppStatusType.None;
 
         /// <summary>
-        /// 状態テキストを取得する。
+        /// 状態テキストを取得または設定する。
         /// </summary>
-        public string StatusText { get; private set; }
+        public string StatusText { get; set; } = "";
 
         /// <summary>
-        /// 付随コマンドを取得する。
+        /// 付随コマンドを取得または設定する。
         /// </summary>
-        public ICommand Command { get; private set; }
+        public ICommand Command { get; set; } = null;
 
         /// <summary>
-        /// 付随コマンドテキストを取得する。
+        /// 付随コマンドテキストを取得または設定する。
         /// </summary>
-        public string CommandText { get; private set; }
+        public string CommandText { get; set; } = "";
 
         /// <summary>
-        /// オプショナルなサブ状態種別を取得する。
+        /// オプショナルなサブ状態種別を取得または設定する。
         /// </summary>
-        public AppStatusType SubStatusType { get; private set; }
+        public AppStatusType SubStatusType { get; set; } = AppStatusType.None;
 
         /// <summary>
-        /// オプショナルなサブ状態テキストを取得する。
+        /// オプショナルなサブ状態テキストを取得または設定する。
         /// </summary>
-        public string SubStatusText { get; private set; }
+        public string SubStatusText { get; set; } = "";
     }
 }
