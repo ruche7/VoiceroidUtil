@@ -1,0 +1,10 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
+    xmlns:local="clr-namespace:VoiceroidUtil">
+
+    <ru:BooleanInverter x:Key="boolInverter" />
+    <ru:EnumValueDisplayConverter x:Key="enumDisplayConverter" />
+
+</ResourceDictionary>

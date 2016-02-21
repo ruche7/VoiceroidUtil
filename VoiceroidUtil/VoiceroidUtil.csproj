@@ -150,11 +150,10 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
-    <Compile Include="AppStatusBar.xaml.cs">
-      <DependentUpon>AppStatusBar.xaml</DependentUpon>
+    <Compile Include="LastStatusBar.xaml.cs">
+      <DependentUpon>LastStatusBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppStatusType.cs" />
-    <Compile Include="Design\AppStatusForDesign.cs" />
     <Compile Include="IAppStatus.cs" />
     <Compile Include="InfoDialogInteractionMessageAction.cs" />
     <Compile Include="Util\AsyncCommandExecuter.cs" />
@@ -166,13 +165,10 @@
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmProcess.cs" />
-    <Page Include="AppStatusBar.xaml">
+    <Page Include="LastStatusBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <DesignDataWithDesignTimeCreatableTypes Include="Design\AppStatus.xaml">
-      <SubType>Designer</SubType>
-    </DesignDataWithDesignTimeCreatableTypes>
     <Page Include="resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -189,6 +185,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="resources\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="resources\VoiceroidStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -252,6 +252,14 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\icon\status_warn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\status_big_ok.png" />
+    <Resource Include="resources\icon\status_big_ng.png" />
+    <Resource Include="resources\icon\status_big_warn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\open.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

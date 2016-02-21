@@ -769,7 +769,7 @@ namespace RucheHome.Voiceroid
                     {
                         return new FileSaveResult(
                             false,
-                            error: @"保存先フォルダを作成できませんでした。");
+                            error: @"保存先フォルダーを作成できませんでした。");
                     }
 
                     // 保存ボタン押下

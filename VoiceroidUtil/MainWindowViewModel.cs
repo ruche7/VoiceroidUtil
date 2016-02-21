@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Input;
 using Livet;
 using Livet.Messaging;
 using Livet.Messaging.IO;
@@ -36,14 +37,18 @@ namespace VoiceroidUtil
                 new ReactiveProperty<IProcess>(
                     this.ProcessFactory.Get(VoiceroidId.YukariEx));
 
-            // 選択プロセス変更時に Config へ反映
+            // 選択プロセス変更時処理
             this.SelectedProcess.Subscribe(
                 p =>
                 {
+                    // Config へ反映
                     if (p != null && this.Config != null)
                     {
                         this.Config.VoiceroidId = p.Id;
                     }
+
+                    // アプリ状態リセット
+                    this.ResetLastStatus();
                 });
 
             // 選択プロセス状態
@@ -67,6 +72,8 @@ namespace VoiceroidUtil
             this.PlayStopCommandExecuter =
                 new AsyncCommandExecuter(this.ExecutePlayStopCommand);
             this.SaveCommandExecuter = new AsyncCommandExecuter(this.ExecuteSaveCommand);
+            this.SaveDirectoryCommandExecuter =
+                new AsyncCommandExecuter(this.ExecuteSaveDirectoryCommand);
 
             // どのコマンドも実行可能ならばアイドル状態とみなす
             this.IsIdle =
@@ -74,6 +81,7 @@ namespace VoiceroidUtil
                 {
                     this.PlayStopCommandExecuter.IsExecutable,
                     this.SaveCommandExecuter.IsExecutable,
+                    this.SaveDirectoryCommandExecuter.IsExecutable,
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty();
@@ -111,8 +119,11 @@ namespace VoiceroidUtil
 
             // 保存先ディレクトリ選択コマンド
             this.SaveDirectoryCommand = this.IsIdle.ToReactiveCommand(false);
-            this.SaveDirectoryCommand.Subscribe(
-                _ => this.Messenger.RaiseAsync(new InteractionMessage(@"SaveDirectory")));
+            this.SaveDirectoryCommand.Subscribe(this.SaveDirectoryCommandExecuter.Execute);
+
+            // 保存先ディレクトリオープンコマンド
+            this.DirectoryOpenCommand = this.IsIdle.ToReactiveCommand(false);
+            this.DirectoryOpenCommand.Subscribe(_ => this.ExecuteDirectoryOpenCommand());
 
             // プロセス更新タイマ設定＆開始
             this.ProcessUpdateTimer.Subscribe(_ => this.ProcessFactory.Update());
@@ -130,16 +141,19 @@ namespace VoiceroidUtil
         /// <summary>
         /// 直近のアプリ状態を取得する。
         /// </summary>
-        public AppStatus LastStatus
+        public IAppStatus LastStatus
         {
             get { return this.lastStatus; }
             private set
             {
-                this.lastStatus = value;
-                this.RaisePropertyChanged();
+                if (value != this.lastStatus)
+                {
+                    this.lastStatus = value ?? (new AppStatus());
+                    this.RaisePropertyChanged();
+                }
             }
         }
-        private AppStatus lastStatus = new AppStatus();
+        private IAppStatus lastStatus = new AppStatus();
 
         /// <summary>
         /// VOICEROIDプロセスリストを取得する。
@@ -198,6 +212,11 @@ namespace VoiceroidUtil
         public ReactiveCommand SaveDirectoryCommand { get; }
 
         /// <summary>
+        /// 保存先ディレクトリオープンコマンドを取得する。
+        /// </summary>
+        public ReactiveCommand DirectoryOpenCommand { get; }
+
+        /// <summary>
         /// アプリ設定を初期化する。
         /// </summary>
         public void InitializeConfig()
@@ -220,15 +239,20 @@ namespace VoiceroidUtil
             {
                 this.SelectedProcess.Value = this.ProcessFactory.Get(id);
             }
+
+            // 保存先ディレクトリ変更時にアプリ状態リセット
+            this.ConfigKeeper.Value
+                .ObserveProperty(c => c.SaveDirectoryPath)
+                .Subscribe(_ => this.ResetLastStatus());
         }
 
         /// <summary>
         /// 保存先ディレクトリ選択時に呼び出される。
         /// </summary>
-        /// <param name="m">フォルダ選択メッセージ。</param>
-        public async void OnSaveDirectorySelected(FolderSelectionMessage m)
+        /// <param name="m">フォルダー選択メッセージ。</param>
+        public void OnSaveDirectorySelected(FolderSelectionMessage m)
         {
-            if (m.Response == null || !(await CheckValidPath(m.Response)))
+            if (m.Response == null || !this.CheckValidPath(m.Response))
             {
                 return;
             }
@@ -269,41 +293,84 @@ namespace VoiceroidUtil
         private AsyncCommandExecuter SaveCommandExecuter { get; }
 
         /// <summary>
+        /// 保存先ディレクトリ選択コマンドの非同期実行用オブジェクトを取得する。
+        /// </summary>
+        private AsyncCommandExecuter SaveDirectoryCommandExecuter { get; }
+
+        /// <summary>
+        /// 直近のアプリ状態をリセットする。
+        /// </summary>
+        private void ResetLastStatus()
+        {
+            this.LastStatus = null;
+        }
+
+        /// <summary>
+        /// 直近のアプリ状態を設定する。
+        /// </summary>
+        /// <param name="statusType">状態種別。</param>
+        /// <param name="statusText">状態テキスト。</param>
+        /// <param name="command">付随コマンド。</param>
+        /// <param name="commandText">付随コマンドテキスト。</param>
+        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
+        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        private void SetLastStatus(
+            AppStatusType statusType = AppStatusType.None,
+            string statusText = "",
+            ICommand command = null,
+            string commandText = "",
+            AppStatusType subStatusType = AppStatusType.None,
+            string subStatusText = "")
+        {
+            this.LastStatus =
+                new AppStatus
+                {
+                    StatusType = statusType,
+                    StatusText = statusText ?? "",
+                    Command = command,
+                    CommandText = commandText ?? "",
+                    SubStatusType = subStatusType,
+                    SubStatusText = subStatusText ?? "",
+                };
+        }
+
+        /// <summary>
         /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
-        /// 不正であればダイアログ表示を行う。
+        /// 不正ならばアプリ状態を更新する。
         /// </summary>
         /// <param name="path">パス。</param>
-        /// <returns>
-        /// チェックタスク。
-        /// 正常ならば true を返す。そうでなければ false を返す。
-        /// </returns>
-        private async Task<bool> CheckValidPath(string path)
+        /// <returns>正常ならば true 。そうでなければ false 。</returns>
+        private bool CheckValidPath(string path)
         {
-            string invalidLetter = null;
-            if (FileSaveUtil.IsValidPath(path, out invalidLetter))
+            string text = null;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                text = @"保存先フォルダーが未設定です。";
+            }
+            else
+            {
+                string invalidLetter = null;
+                if (!FileSaveUtil.IsValidPath(path, out invalidLetter))
+                {
+                    text =
+                        (invalidLetter == null) ?
+                            @"VOICEROID+ が対応していない保存先フォルダーです。" :
+                            @"保存先フォルダーパスに文字 """ +
+                            invalidLetter +
+                            @""" を含めないでください。";
+                }
+            }
+
+            if (text == null)
             {
                 return true;
             }
 
-            var message = new StringBuilder();
-            message.Append(@"VOICEROID+ が対応していないパス文字が含まれています。");
-            if (invalidLetter != null)
-            {
-                message.AppendLine();
-                message.AppendLine();
-                message.Append(@"VOICEROID+ は Unicode のパス文字に対応していません。");
-                message.AppendLine();
-                message.Append(@"フォルダ名に """);
-                message.Append(invalidLetter);
-                message.Append(@""" を含めないでください。");
-            }
-
-            await this.Messenger.RaiseAsync(
-                new InformationMessage(
-                    message.ToString(),
-                    @"エラー",
-                    MessageBoxImage.Error,
-                    @"Info"));
+            this.SetLastStatus(
+                AppStatusType.Warning,
+                text,
+                this.SaveDirectoryCommand,
+                @"保存先選択...");
 
             return false;
         }
@@ -395,22 +462,37 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecutePlayStopCommand()
         {
+            this.ResetLastStatus();
+
             var process = this.SelectedProcess.Value;
             if (process == null)
             {
+                this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
                 return;
             }
 
             if (process.IsPlaying)
             {
-                await process.Stop();
+                if (!(await process.Stop()))
+                {
+                    this.SetLastStatus(AppStatusType.Fail, @"停止処理に失敗しました。");
+                    return;
+                }
+                this.SetLastStatus(AppStatusType.Success, @"停止処理に成功しました。");
             }
             else
             {
-                if (await process.SetTalkText(this.TalkText.Value))
+                if (!(await process.SetTalkText(this.TalkText.Value)))
                 {
-                    await process.Play();
+                    this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
+                    return;
                 }
+                if (!(await process.Play()))
+                {
+                    this.SetLastStatus(AppStatusType.Fail, @"再生処理に失敗しました。");
+                    return;
+                }
+                this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
             }
         }
 
@@ -419,8 +501,15 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecuteSaveCommand()
         {
+            this.ResetLastStatus();
+
             var filePath = this.MakeWaveFilePath();
-            if (filePath == null || !(await CheckValidPath(filePath)))
+            if (filePath == null)
+            {
+                this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                return;
+            }
+            if (!this.CheckValidPath(filePath))
             {
                 return;
             }
@@ -431,6 +520,7 @@ namespace VoiceroidUtil
             await process.Stop();
             if (!(await process.SetTalkText(text)))
             {
+                this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
                 return;
             }
 
@@ -440,38 +530,99 @@ namespace VoiceroidUtil
                 var result = await process.Save(filePath);
                 if (!result.IsSucceeded)
                 {
+                    this.SetLastStatus(AppStatusType.Fail, result.Error);
                     return;
                 }
+
                 filePath = result.FilePath;
+                var fileName = Path.GetFileName(filePath);
 
                 // テキストファイル保存
                 if (this.Config.IsTextFileForceMaking)
                 {
-                    var txtPath = Path.ChangeExtension(filePath, ".txt");
+                    var txtPath = Path.ChangeExtension(filePath, @".txt");
                     if (!(await this.WriteTextFile(txtPath, text)))
                     {
+                        this.SetLastStatus(
+                            AppStatusType.Success,
+                            fileName + @" を保存しました。",
+                            subStatusType: AppStatusType.Fail,
+                            subStatusText: @"テキストファイルを保存できませんでした。");
                         return;
                     }
                 }
+
+                string warnText = null;
 
                 // ゆっくりMovieMaker処理
                 if (this.Config.IsSavedFileToYmm)
                 {
                     this.YmmProcess.Update();
-                    if (
-                        this.YmmProcess.IsRunning &&
-                        (await this.YmmProcess.SetTimelineSpeechEditValue(filePath)) &&
-                        this.Config.IsYmmAddButtonClicking)
+                    if (this.YmmProcess.IsRunning)
                     {
-                        await this.YmmProcess.ClickTimelineSpeechAddButton();
+                        if (!(await this.YmmProcess.SetTimelineSpeechEditValue(filePath)))
+                        {
+                            warnText =
+                                @"ゆっくりMovieMaker3へのパス設定に失敗しました。";
+                        }
+                        else if (
+                            this.Config.IsYmmAddButtonClicking &&
+                            !(await this.YmmProcess.ClickTimelineSpeechAddButton()))
+                        {
+                            warnText =
+                                @"ゆっくりMovieMaker3のボタン押下に失敗しました。";
+                        }
                     }
                 }
+
+                this.SetLastStatus(
+                    AppStatusType.Success,
+                    fileName + @" を保存しました。",
+                    (warnText == null) ? this.DirectoryOpenCommand : null,
+                    (warnText == null) ? @"保存先フォルダーを開く..." : "",
+                    (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
+                    warnText);
             }
             finally
             {
                 // メインウィンドウを前面へ
                 await this.Messenger.RaiseAsync(
                     new WindowActionMessage(WindowAction.Active, @"Window"));
+            }
+        }
+
+        /// <summary>
+        /// 保存先ディレクトリ選択コマンド処理を行う。
+        /// </summary>
+        private Task ExecuteSaveDirectoryCommand()
+        {
+            return this.Messenger.RaiseAsync(new InteractionMessage(@"SaveDirectory"));
+        }
+
+        /// <summary>
+        /// 保存先ディレクトリオープンコマンド処理を行う。
+        /// </summary>
+        private void ExecuteDirectoryOpenCommand()
+        {
+            var dirPath = this.Config.SaveDirectoryPath;
+            if (Directory.Exists(dirPath))
+            {
+                try
+                {
+                    Process.Start(dirPath);
+                }
+                catch
+                {
+                    this.SetLastStatus(
+                        AppStatusType.Fail,
+                        @"保存先フォルダーを開けませんでした。");
+                }
+            }
+            else
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    @"保存先フォルダーが見つかりませんでした。");
             }
         }
 
