@@ -91,8 +91,13 @@
                                 Margin="0,0,4,0"
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding WindowTitle}" Margin="0,0,0,4" />
                                 <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" />
+                                    <TextBlock Text=" (" />
+                                    <TextBlock Text="{Binding WindowTitle}" />
+                                    <TextBlock Text=")" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                     <Image Style="{StaticResource VoiceroidStatusIcon}" />
                                     <TextBlock
                                         Style="{StaticResource VoiceroidStatusText}"

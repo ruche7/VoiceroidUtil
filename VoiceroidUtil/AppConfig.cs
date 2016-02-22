@@ -14,6 +14,7 @@ namespace VoiceroidUtil
     [DataContract(Namespace = "")]
     [KnownType(typeof(VoiceroidId))]
     [KnownType(typeof(FileNameFormat))]
+    [KnownType(typeof(YmmCharaRelationSet))]
     public class AppConfig : INotifyPropertyChanged, IExtensibleDataObject
     {
         /// <summary>
@@ -34,7 +35,6 @@ namespace VoiceroidUtil
         /// <summary>
         /// 選択中VOICEROID識別IDを取得または設定する。
         /// </summary>
-        [DataMember]
         public VoiceroidId VoiceroidId
         {
             get { return this.voiceroidId; }
@@ -47,6 +47,21 @@ namespace VoiceroidUtil
             }
         }
         private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
+
+        /// <summary>
+        /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
+        /// </summary>
+        [DataMember(Name = nameof(VoiceroidId))]
+        private string VoiceroidIdString
+        {
+            get { return this.VoiceroidId.ToString(); }
+            set
+            {
+                VoiceroidId id;
+                this.VoiceroidId =
+                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
+            }
+        }
 
         /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
@@ -67,7 +82,6 @@ namespace VoiceroidUtil
         /// <summary>
         /// ファイル名フォーマットを取得または設定する。
         /// </summary>
-        [DataMember]
         public FileNameFormat FileNameFormat
         {
             get { return this.fileNameFormat; }
@@ -80,6 +94,21 @@ namespace VoiceroidUtil
             }
         }
         private FileNameFormat fileNameFormat = FileNameFormat.DateTimeNameText;
+
+        /// <summary>
+        /// FileNameFormat プロパティのシリアライズ用ラッパプロパティ。
+        /// </summary>
+        [DataMember(Name = nameof(FileNameFormat))]
+        private string FileNameFormatString
+        {
+            get { return this.FileNameFormat.ToString(); }
+            set
+            {
+                FileNameFormat f;
+                this.FileNameFormat =
+                    Enum.TryParse(value, out f) ? f : FileNameFormat.DateTimeNameText;
+            }
+        }
 
         /// <summary>
         /// テキストファイルを必ず作成するか否かを取得または設定する。
@@ -127,6 +156,22 @@ namespace VoiceroidUtil
         private bool ymmAddButtonClicking = true;
 
         /// <summary>
+        /// VOICEROIDと『ゆっくりMovieMaker3』のキャラ名との紐付けを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public YmmCharaRelationSet YmmCharaRelations
+        {
+            get { return this.ymmCharaRelations; }
+            set
+            {
+                this.SetProperty(
+                    ref this.ymmCharaRelations,
+                    value ?? (new YmmCharaRelationSet()));
+            }
+        }
+        private YmmCharaRelationSet ymmCharaRelations = new YmmCharaRelationSet();
+
+        /// <summary>
         /// プロパティ値を設定する。
         /// </summary>
         /// <typeparam name="T">プロパティ値の型。</typeparam>
@@ -150,6 +195,17 @@ namespace VoiceroidUtil
                         new PropertyChangedEventArgs(propertyName));
                 }
             }
+        }
+
+        /// <summary>
+        /// デシリアライズの直前に呼び出される。
+        /// </summary>
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context)
+        {
+            // null 回避
+            this.SaveDirectoryPath = DefaultSaveDirectoryPath;
+            this.YmmCharaRelations = new YmmCharaRelationSet();
         }
 
         #region INotifyPropertyChanged の実装

@@ -35,6 +35,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 this.Id = id;
+                this.Name = id.GetInfo().Name;
                 this.WindowTitle = id.GetInfo().WindowTitle;
             }
 
@@ -580,6 +581,11 @@ namespace RucheHome.Voiceroid
             /// VOICEROID識別IDを取得する。
             /// </summary>
             public VoiceroidId Id { get; }
+
+            /// <summary>
+            /// 名前を取得する。
+            /// </summary>
+            public string Name { get; }
 
             /// <summary>
             /// メインウィンドウタイトルを取得する。
