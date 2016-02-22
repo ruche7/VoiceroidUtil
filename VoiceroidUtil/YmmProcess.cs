@@ -48,10 +48,7 @@ namespace VoiceroidUtil
         /// タイムラインウィンドウのセリフエディットにテキストを設定する。
         /// </summary>
         /// <param name="text">設定するテキスト。</param>
-        /// <returns>
-        /// テキスト設定タスク。
-        /// 成功すると true を返す。そうでなければ false を返す。
-        /// </returns>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> SetTimelineSpeechEditValue(string text)
         {
             // セリフエディットUIを探す
@@ -60,7 +57,7 @@ namespace VoiceroidUtil
                     await this.DoMakeTimelineWindowElement(),
                     new PropertyCondition(
                         AutomationElement.AutomationIdProperty,
-                        @"SerifuTB"));
+                        TimelineSpeechEditAutomationId));
             if (editElem == null)
             {
                 return false;
@@ -87,12 +84,67 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// タイムラインウィンドウのキャラ選択コンボボックスからキャラを選択する。
+        /// </summary>
+        /// <param name="name">選択するキャラ名。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        public async Task<bool> SelectTimelineCharaComboBoxItem(string name)
+        {
+            // キャラ選択コンボボックスUIを探す
+            var comboElem =
+                FindDescendant(
+                    await this.DoMakeTimelineWindowElement(),
+                    new PropertyCondition(
+                        AutomationElement.AutomationIdProperty,
+                        TimelineCharaComboBoxAutomationId));
+            if (comboElem == null)
+            {
+                return false;
+            }
+
+            // SelectionPattern 取得
+            var combo = GetPattern<SelectionPattern>(comboElem, SelectionPattern.Pattern);
+            if (combo == null)
+            {
+                return false;
+            }
+
+            // Name がキャラ名の子を持つコンボボックスアイテムUIを探す
+            var nameCond = new PropertyCondition(AutomationElement.NameProperty, name);
+            var itemElem =
+                await combo.Current.GetSelection()
+                    .ToObservable()
+                    .FirstOrDefaultAsync(e => FindDescendant(e, nameCond) != null);
+            if (itemElem == null)
+            {
+                return false;
+            }
+
+            // SelectionItemPattern 取得
+            var item =
+                GetPattern<SelectionItemPattern>(itemElem, SelectionItemPattern.Pattern);
+            if (item == null)
+            {
+                return false;
+            }
+
+            // アイテム選択
+            try
+            {
+                item.Select();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// タイムラインウィンドウの追加ボタンを押下する。
         /// </summary>
-        /// <returns>
-        /// ボタン押下タスク。
-        /// 成功すると true を返す。そうでなければ false を返す。
-        /// </returns>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> ClickTimelineSpeechAddButton()
         {
             // 追加ボタンUIを探す
@@ -146,6 +198,11 @@ namespace VoiceroidUtil
         /// タイムラインウィンドウ内セリフエディットのオートメーションID。
         /// </summary>
         private const string TimelineSpeechEditAutomationId = @"SerifuTB";
+
+        /// <summary>
+        /// タイムラインウィンドウ内キャラ選択コンボボックスのオートメーションID。
+        /// </summary>
+        private const string TimelineCharaComboBoxAutomationId = @"CharactersCB";
 
         /// <summary>
         /// タイムラインウィンドウ内追加ボタンの名前。

@@ -164,6 +164,8 @@
     <Compile Include="SaveSettingsControl.xaml.cs">
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="YmmCharaRelation.cs" />
+    <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
     <Page Include="LastStatusBar.xaml">
       <SubType>Designer</SubType>
