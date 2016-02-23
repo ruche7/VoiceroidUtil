@@ -1,0 +1,60 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    x:Class="VoiceroidUtil.YmmCharaRelationsControl"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance
+        Type={x:Type local:YmmCharaRelationSet},
+        IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="resources/CommonStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ItemsControl ItemsSource="{Binding}">
+        <ItemsControl.Template>
+            <ControlTemplate TargetType="ItemsControl">
+                <StackPanel Orientation="Vertical">
+                    <DockPanel Margin="0,0,0,1">
+                        <Label
+                            Content="VOICEROID"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            Width="80"
+                            DockPanel.Dock="Left" />
+                        <Label
+                            Content="ゆっくりMovieMaker3"
+                            FontSize="11"
+                            FontWeight="Bold" />
+                    </DockPanel>
+                    <StackPanel IsItemsHost="True" Orientation="Vertical" />
+                </StackPanel>
+            </ControlTemplate>
+        </ItemsControl.Template>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <DockPanel Margin="0,1,0,0">
+                    <Label
+                        Content="{Binding VoiceroidName}"
+                        Width="64"
+                        DockPanel.Dock="Left" />
+                    <Image
+                        Source="resources/icon/arrow_right.png"
+                        Width="16"
+                        DockPanel.Dock="Left" />
+                    <tk:WatermarkTextBox
+                        Text="{Binding YmmCharaName, UpdateSourceTrigger=PropertyChanged}"
+                        Watermark="キャラクター名"
+                        MaxLength="256" />
+                </DockPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>

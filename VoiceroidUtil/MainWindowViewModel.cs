@@ -35,7 +35,8 @@ namespace VoiceroidUtil
             // InitializeConfig で前回終了時の選択が復元される
             this.SelectedProcess =
                 new ReactiveProperty<IProcess>(
-                    this.ProcessFactory.Get(VoiceroidId.YukariEx));
+                    this.ProcessFactory.Get(VoiceroidId.YukariEx))
+                    .AddTo(this.CompositeDisposable);
 
             // 選択プロセス変更時処理
             this.SelectedProcess.Subscribe(
@@ -55,18 +56,23 @@ namespace VoiceroidUtil
             this.IsProcessRunning =
                 this
                     .ObserveSelectedProcessProperty(p => p.IsRunning)
-                    .ToReadOnlyReactiveProperty();
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
             this.IsProcessPlaying =
                 this
                     .ObserveSelectedProcessProperty(p => p.IsPlaying)
-                    .ToReadOnlyReactiveProperty();
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
             this.IsProcessSaving =
                 this
                     .ObserveSelectedProcessProperty(p => p.IsSaving)
-                    .ToReadOnlyReactiveProperty();
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
 
             // トークテキスト
-            this.TalkText = new ReactiveProperty<string>("");
+            this.TalkText =
+                new ReactiveProperty<string>("")
+                    .AddTo(this.CompositeDisposable);
 
             // コマンド実行用
             this.PlayStopCommandExecuter =
@@ -84,7 +90,8 @@ namespace VoiceroidUtil
                     this.SaveDirectoryCommandExecuter.IsExecutable,
                 }
                 .CombineLatestValuesAreAllTrue()
-                .ToReadOnlyReactiveProperty();
+                .ToReadOnlyReactiveProperty()
+                .AddTo(this.CompositeDisposable);
 
             // 再生/停止コマンド
             this.PlayStopCommand =
@@ -101,7 +108,8 @@ namespace VoiceroidUtil
                     .CombineLatest(flags => flags.Any(f => f)),
                 }
                 .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false);
+                .ToReactiveCommand(false)
+                .AddTo(this.CompositeDisposable);
             this.PlayStopCommand.Subscribe(this.PlayStopCommandExecuter.Execute);
 
             // 保存コマンド
@@ -114,18 +122,28 @@ namespace VoiceroidUtil
                     this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                 }
                 .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false);
+                .ToReactiveCommand(false)
+                .AddTo(this.CompositeDisposable);
             this.SaveCommand.Subscribe(this.SaveCommandExecuter.Execute);
 
             // 保存先ディレクトリ選択コマンド
-            this.SaveDirectoryCommand = this.IsIdle.ToReactiveCommand(false);
+            this.SaveDirectoryCommand =
+                this.IsIdle
+                    .ToReactiveCommand(false)
+                    .AddTo(this.CompositeDisposable);
             this.SaveDirectoryCommand.Subscribe(this.SaveDirectoryCommandExecuter.Execute);
 
             // 保存先ディレクトリオープンコマンド
-            this.DirectoryOpenCommand = this.IsIdle.ToReactiveCommand(false);
+            this.DirectoryOpenCommand =
+                this.IsIdle
+                    .ToReactiveCommand(false)
+                    .AddTo(this.CompositeDisposable);
             this.DirectoryOpenCommand.Subscribe(_ => this.ExecuteDirectoryOpenCommand());
 
             // プロセス更新タイマ設定＆開始
+            this.ProcessUpdateTimer =
+                new ReactiveTimer(TimeSpan.FromMilliseconds(100))
+                    .AddTo(this.CompositeDisposable);
             this.ProcessUpdateTimer.Subscribe(_ => this.ProcessFactory.Update());
             this.ProcessUpdateTimer.Start();
         }
@@ -226,22 +244,27 @@ namespace VoiceroidUtil
             {
                 this.ConfigKeeper.Value = new AppConfig();
             }
-
-            // 設定変更時のイベント設定
-            this.ConfigKeeper.Value.PropertyChanged += OnConfigChanged;
+            var config = this.ConfigKeeper.Value;
 
             // Config プロパティ変更通知
             this.RaisePropertyChanged(nameof(this.Config));
 
+            // 設定変更時のイベント設定
+            config.PropertyChanged += this.OnConfigChanged;
+            foreach (var r in config.YmmCharaRelations)
+            {
+                r.PropertyChanged += this.OnConfigChanged;
+            }
+
             // 選択プロセス反映
-            var id = this.Config.VoiceroidId;
+            var id = config.VoiceroidId;
             if (Enum.IsDefined(id.GetType(), id))
             {
                 this.SelectedProcess.Value = this.ProcessFactory.Get(id);
             }
 
             // 保存先ディレクトリ変更時にアプリ状態リセット
-            this.ConfigKeeper.Value
+            config
                 .ObserveProperty(c => c.SaveDirectoryPath)
                 .Subscribe(_ => this.ResetLastStatus());
         }
@@ -268,8 +291,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// VOICEROIDプロセス更新タイマを取得する。
         /// </summary>
-        private ReactiveTimer ProcessUpdateTimer { get; } =
-            new ReactiveTimer(TimeSpan.FromMilliseconds(100));
+        private ReactiveTimer ProcessUpdateTimer { get; }
 
         /// <summary>
         /// 『ゆっくりMovieMaker3』プロセス操作オブジェクトを取得する。
