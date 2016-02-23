@@ -93,6 +93,20 @@
                     x:Name="Setting_ToYmm"
                     Content="ゆっくりMovieMaker3にファイルパス設定(_Y)"
                     IsChecked="{Binding Config.IsSavedFileToYmm}" />
+                <Label
+                    Content="※カスタムボイス機能は働きません。"
+                    FontSize="11"
+                    Margin="20,0,0,0" />
+                <CheckBox
+                    x:Name="Setting_YmmChara"
+                    Content="キャラクターを自動選択(_C)"
+                    IsChecked="{Binding Config.IsYmmCharaSelecting}"
+                    IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
+                    Margin="20,4,0,0" />
+                <local:YmmCharaRelationsControl
+                    DataContext="{Binding Config.YmmCharaRelations}"
+                    IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
+                    Margin="44,2,0,0" />
                 <CheckBox
                     Content="追加ボタンを自動で押す(_M)"
                     IsChecked="{Binding Config.IsYmmAddButtonClicking}"

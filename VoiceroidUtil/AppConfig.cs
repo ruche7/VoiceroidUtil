@@ -145,15 +145,15 @@ namespace VoiceroidUtil
         private bool savedFileToYmm = true;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker3』の追加ボタンを自動押下するか否かを取得または設定する。
+        /// 『ゆっくりMovieMaker3』のキャラを自動選択するか否かを取得または設定する。
         /// </summary>
         [DataMember]
-        public bool IsYmmAddButtonClicking
+        public bool IsYmmCharaSelecting
         {
-            get { return this.ymmAddButtonClicking; }
-            set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
+            get { return this.ymmCharaSelecting; }
+            set { this.SetProperty(ref this.ymmCharaSelecting, value); }
         }
-        private bool ymmAddButtonClicking = true;
+        private bool ymmCharaSelecting = true;
 
         /// <summary>
         /// VOICEROIDと『ゆっくりMovieMaker3』のキャラ名との紐付けを取得または設定する。
@@ -170,6 +170,17 @@ namespace VoiceroidUtil
             }
         }
         private YmmCharaRelationSet ymmCharaRelations = new YmmCharaRelationSet();
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker3』の追加ボタンを自動押下するか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsYmmAddButtonClicking
+        {
+            get { return this.ymmAddButtonClicking; }
+            set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
+        }
+        private bool ymmAddButtonClicking = true;
 
         /// <summary>
         /// プロパティ値を設定する。

@@ -156,6 +156,7 @@
     <Compile Include="AppStatusType.cs" />
     <Compile Include="IAppStatus.cs" />
     <Compile Include="InfoDialogInteractionMessageAction.cs" />
+    <Compile Include="SaveSettingsBehavior.cs" />
     <Compile Include="Util\AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
     <Compile Include="FileSaveUtil.cs" />
@@ -165,6 +166,9 @@
       <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmCharaRelation.cs" />
+    <Compile Include="YmmCharaRelationsControl.xaml.cs">
+      <DependentUpon>YmmCharaRelationsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
     <Page Include="LastStatusBar.xaml">
@@ -196,6 +200,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SaveSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="YmmCharaRelationsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -262,6 +270,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\icon\open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\arrow_right.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
