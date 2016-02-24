@@ -1,6 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.Serialization;
+using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -10,7 +10,7 @@ namespace VoiceroidUtil
     /// </summary>
     [DataContract(Namespace = "")]
     [KnownType(typeof(VoiceroidId))]
-    public class YmmCharaRelation : INotifyPropertyChanged
+    public class YmmCharaRelation : BindableConfigBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -58,19 +58,7 @@ namespace VoiceroidUtil
         public string YmmCharaName
         {
             get { return this.ymmCharaName; }
-            set
-            {
-                if (value != this.ymmCharaName)
-                {
-                    this.ymmCharaName = value ?? "";
-                    if (this.PropertyChanged != null)
-                    {
-                        this.PropertyChanged(
-                            this,
-                            new PropertyChangedEventArgs(nameof(this.YmmCharaName)));
-                    }
-                }
-            }
+            set { this.SetProperty(ref this.ymmCharaName, value ?? ""); }
         }
         private string ymmCharaName = "";
 
@@ -83,11 +71,5 @@ namespace VoiceroidUtil
             // null 回避
             this.YmmCharaName = "";
         }
-
-        #region INotifyPropertyChanged の実装
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
     }
 }

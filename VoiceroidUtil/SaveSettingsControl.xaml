@@ -28,7 +28,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Orientation="Vertical">
+    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsIdle}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -99,16 +99,18 @@
                     Margin="20,0,0,0" />
                 <CheckBox
                     x:Name="Setting_YmmChara"
-                    Content="キャラクターを自動選択(_C)"
+                    Content="キャラクターを自動選択(_N)"
                     IsChecked="{Binding Config.IsYmmCharaSelecting}"
                     IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
                     Margin="20,4,0,0" />
-                <local:YmmCharaRelationsControl
-                    DataContext="{Binding Config.YmmCharaRelations}"
-                    IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
-                    Margin="44,2,0,0" />
+                <StackPanel
+                    IsEnabled="{Binding IsYmmCharaRelationsEditable.Value}"
+                    Margin="44,2,0,0">
+                    <local:YmmCharaRelationsControl
+                        DataContext="{Binding Config.YmmCharaRelations}" />
+                </StackPanel>
                 <CheckBox
-                    Content="追加ボタンを自動で押す(_M)"
+                    Content="追加ボタンを自動で押す(_B)"
                     IsChecked="{Binding Config.IsYmmAddButtonClicking}"
                     IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
                     Margin="20,4,0,0" />

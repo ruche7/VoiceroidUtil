@@ -67,28 +67,23 @@ namespace RucheHome.Voiceroid
                 new VoiceroidInfo(
                     VoiceroidId.YukariEx,
                     @"VOICEROID＋ 結月ゆかり EX",
-                    @"結月ゆかり",
-                    @"yukari"),
+                    @"結月ゆかり"),
                 new VoiceroidInfo(
                     VoiceroidId.MakiEx,
                     @"VOICEROID＋ 民安ともえ EX",
-                    @"弦巻マキ",
-                    @"maki"),
+                    @"弦巻マキ"),
                 new VoiceroidInfo(
                     VoiceroidId.ZunkoEx,
                     @"VOICEROID＋ 東北ずん子 EX",
-                    @"東北ずん子",
-                    @"zunko"),
+                    @"東北ずん子"),
                 new VoiceroidInfo(
                     VoiceroidId.Akane,
                     @"VOICEROID＋ 琴葉茜",
-                    @"琴葉茜",
-                    @"akane"),
+                    @"琴葉茜"),
                 new VoiceroidInfo(
                     VoiceroidId.Aoi,
                     @"VOICEROID＋ 琴葉葵",
-                    @"琴葉葵",
-                    @"aoi"),
+                    @"琴葉葵"),
             }
             .ToDictionary(info => info.Id);
     }
