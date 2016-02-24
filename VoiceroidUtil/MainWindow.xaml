@@ -36,11 +36,6 @@
     </Window.InputBindings>
 
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="ContentRendered">
-            <l:LivetCallMethodAction
-                MethodTarget="{Binding}"
-                MethodName="InitializeConfig" />
-        </i:EventTrigger>
         <i:EventTrigger EventName="Closed">
             <l:DataContextDisposeAction />
         </i:EventTrigger>

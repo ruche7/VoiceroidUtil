@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -31,26 +30,30 @@ namespace VoiceroidUtil
         /// </summary>
         public MainWindowViewModel()
         {
-            // ひとまず適当なVOICEROIDプロセスを選択
-            // InitializeConfig で前回終了時の選択が復元される
+            // アプリ設定初期化
+            this.InitializeConfig();
+
+            // 選択中VOICEROIDプロセス
             this.SelectedProcess =
                 new ReactiveProperty<IProcess>(
-                    this.ProcessFactory.Get(VoiceroidId.YukariEx))
+                    this.ProcessFactory.Get(this.Config.VoiceroidId))
                     .AddTo(this.CompositeDisposable);
 
             // 選択プロセス変更時処理
-            this.SelectedProcess.Subscribe(
-                p =>
-                {
-                    // Config へ反映
-                    if (p != null && this.Config != null)
+            this.SelectedProcess
+                .Subscribe(
+                    p =>
                     {
-                        this.Config.VoiceroidId = p.Id;
-                    }
+                        // Config へ反映
+                        if (p != null && this.Config != null)
+                        {
+                            this.Config.VoiceroidId = p.Id;
+                        }
 
-                    // アプリ状態リセット
-                    this.ResetLastStatus();
-                });
+                        // アプリ状態リセット
+                        this.ResetLastStatus();
+                    })
+                .AddTo(this.CompositeDisposable);
 
             // 選択プロセス状態
             this.IsProcessRunning =
@@ -74,12 +77,27 @@ namespace VoiceroidUtil
                 new ReactiveProperty<string>("")
                     .AddTo(this.CompositeDisposable);
 
+            // キャラ紐付け定義編集可否
+            this.IsYmmCharaRelationsEditable =
+                new[]
+                {
+                    this.Config.ObserveProperty(c => c.IsSavedFileToYmm),
+                    this.Config.ObserveProperty(c => c.IsYmmCharaSelecting),
+                }
+                .CombineLatestValuesAreAllTrue()
+                .ToReadOnlyReactiveProperty()
+                .AddTo(this.CompositeDisposable);
+
             // コマンド実行用
             this.PlayStopCommandExecuter =
-                new AsyncCommandExecuter(this.ExecutePlayStopCommand);
-            this.SaveCommandExecuter = new AsyncCommandExecuter(this.ExecuteSaveCommand);
+                new AsyncCommandExecuter(this.ExecutePlayStopCommand)
+                    .AddTo(this.CompositeDisposable);
+            this.SaveCommandExecuter =
+                new AsyncCommandExecuter(this.ExecuteSaveCommand)
+                    .AddTo(this.CompositeDisposable);
             this.SaveDirectoryCommandExecuter =
-                new AsyncCommandExecuter(this.ExecuteSaveDirectoryCommand);
+                new AsyncCommandExecuter(this.ExecuteSaveDirectoryCommand)
+                    .AddTo(this.CompositeDisposable);
 
             // どのコマンドも実行可能ならばアイドル状態とみなす
             this.IsIdle =
@@ -110,7 +128,9 @@ namespace VoiceroidUtil
                 .CombineLatestValuesAreAllTrue()
                 .ToReactiveCommand(false)
                 .AddTo(this.CompositeDisposable);
-            this.PlayStopCommand.Subscribe(this.PlayStopCommandExecuter.Execute);
+            this.PlayStopCommand
+                .Subscribe(this.PlayStopCommandExecuter.Execute)
+                .AddTo(this.CompositeDisposable);
 
             // 保存コマンド
             this.SaveCommand =
@@ -124,27 +144,35 @@ namespace VoiceroidUtil
                 .CombineLatestValuesAreAllTrue()
                 .ToReactiveCommand(false)
                 .AddTo(this.CompositeDisposable);
-            this.SaveCommand.Subscribe(this.SaveCommandExecuter.Execute);
+            this.SaveCommand
+                .Subscribe(this.SaveCommandExecuter.Execute)
+                .AddTo(this.CompositeDisposable);
 
             // 保存先ディレクトリ選択コマンド
             this.SaveDirectoryCommand =
                 this.IsIdle
                     .ToReactiveCommand(false)
                     .AddTo(this.CompositeDisposable);
-            this.SaveDirectoryCommand.Subscribe(this.SaveDirectoryCommandExecuter.Execute);
+            this.SaveDirectoryCommand
+                .Subscribe(this.SaveDirectoryCommandExecuter.Execute)
+                .AddTo(this.CompositeDisposable);
 
             // 保存先ディレクトリオープンコマンド
             this.DirectoryOpenCommand =
                 this.IsIdle
                     .ToReactiveCommand(false)
                     .AddTo(this.CompositeDisposable);
-            this.DirectoryOpenCommand.Subscribe(_ => this.ExecuteDirectoryOpenCommand());
+            this.DirectoryOpenCommand
+                .Subscribe(_ => this.ExecuteDirectoryOpenCommand())
+                .AddTo(this.CompositeDisposable);
 
             // プロセス更新タイマ設定＆開始
             this.ProcessUpdateTimer =
                 new ReactiveTimer(TimeSpan.FromMilliseconds(100))
                     .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer.Subscribe(_ => this.ProcessFactory.Update());
+            this.ProcessUpdateTimer
+                .Subscribe(_ => this.ProcessFactory.Update())
+                .AddTo(this.CompositeDisposable);
             this.ProcessUpdateTimer.Start();
         }
 
@@ -207,6 +235,14 @@ namespace VoiceroidUtil
         public ReactiveProperty<string> TalkText { get; }
 
         /// <summary>
+        /// 『ゆっくりMovieMaker3』のキャラ名との紐付け定義を編集可能か否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsYmmCharaRelationsEditable
+        {
+            get; private set;
+        }
+
+        /// <summary>
         /// アイドル状態であるか否かを取得する。
         /// </summary>
         /// <remarks>
@@ -233,41 +269,6 @@ namespace VoiceroidUtil
         /// 保存先ディレクトリオープンコマンドを取得する。
         /// </summary>
         public ReactiveCommand DirectoryOpenCommand { get; }
-
-        /// <summary>
-        /// アプリ設定を初期化する。
-        /// </summary>
-        public void InitializeConfig()
-        {
-            // ロード
-            if (!this.ConfigKeeper.Load())
-            {
-                this.ConfigKeeper.Value = new AppConfig();
-            }
-            var config = this.ConfigKeeper.Value;
-
-            // Config プロパティ変更通知
-            this.RaisePropertyChanged(nameof(this.Config));
-
-            // 設定変更時のイベント設定
-            config.PropertyChanged += this.OnConfigChanged;
-            foreach (var r in config.YmmCharaRelations)
-            {
-                r.PropertyChanged += this.OnConfigChanged;
-            }
-
-            // 選択プロセス反映
-            var id = config.VoiceroidId;
-            if (Enum.IsDefined(id.GetType(), id))
-            {
-                this.SelectedProcess.Value = this.ProcessFactory.Get(id);
-            }
-
-            // 保存先ディレクトリ変更時にアプリ状態リセット
-            config
-                .ObserveProperty(c => c.SaveDirectoryPath)
-                .Subscribe(_ => this.ResetLastStatus());
-        }
 
         /// <summary>
         /// 保存先ディレクトリ選択時に呼び出される。
@@ -318,6 +319,41 @@ namespace VoiceroidUtil
         /// 保存先ディレクトリ選択コマンドの非同期実行用オブジェクトを取得する。
         /// </summary>
         private AsyncCommandExecuter SaveDirectoryCommandExecuter { get; }
+
+        /// <summary>
+        /// アプリ設定を初期化する。
+        /// </summary>
+        private void InitializeConfig()
+        {
+            // ロード
+            if (!this.ConfigKeeper.Load())
+            {
+                this.ConfigKeeper.Value = new AppConfig();
+            }
+            var config = this.ConfigKeeper.Value;
+
+            // Config プロパティ変更通知
+            this.RaisePropertyChanged(nameof(this.Config));
+
+            // 設定変更時にセーブ
+            config
+                .PropertyChangedAsObservable()
+                .Subscribe(_ => this.ConfigKeeper.Save())
+                .AddTo(this.CompositeDisposable);
+            foreach (var relation in config.YmmCharaRelations)
+            {
+                relation
+                    .PropertyChangedAsObservable()
+                    .Subscribe(_ => this.ConfigKeeper.Save())
+                    .AddTo(this.CompositeDisposable);
+            }
+
+            // 保存先ディレクトリ変更時にアプリ状態リセット
+            config
+                .ObserveProperty(c => c.SaveDirectoryPath)
+                .Subscribe(_ => this.ResetLastStatus())
+                .AddTo(this.CompositeDisposable);
+        }
 
         /// <summary>
         /// 直近のアプリ状態をリセットする。
@@ -646,14 +682,6 @@ namespace VoiceroidUtil
                     AppStatusType.Warning,
                     @"保存先フォルダーが見つかりませんでした。");
             }
-        }
-
-        /// <summary>
-        /// アプリ設定の変更時に呼び出される。
-        /// </summary>
-        private void OnConfigChanged(object sender, PropertyChangedEventArgs e)
-        {
-            this.ConfigKeeper.Save();
         }
     }
 }

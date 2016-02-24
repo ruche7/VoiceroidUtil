@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -15,7 +13,7 @@ namespace VoiceroidUtil
     [KnownType(typeof(VoiceroidId))]
     [KnownType(typeof(FileNameFormat))]
     [KnownType(typeof(YmmCharaRelationSet))]
-    public class AppConfig : INotifyPropertyChanged, IExtensibleDataObject
+    public class AppConfig : BindableConfigBase
     {
         /// <summary>
         /// 既定の保存先ディレクトリパス。
@@ -183,52 +181,12 @@ namespace VoiceroidUtil
         private bool ymmAddButtonClicking = true;
 
         /// <summary>
-        /// プロパティ値を設定する。
-        /// </summary>
-        /// <typeparam name="T">プロパティ値の型。</typeparam>
-        /// <param name="field">設定先フィールド。</param>
-        /// <param name="value">設定値。</param>
-        /// <param name="propertyName">
-        /// プロパティ名。 CallerMemberNameAttribute により自動設定される。
-        /// </param>
-        private void SetProperty<T>(
-            ref T field,
-            T value,
-            [CallerMemberName] string propertyName = null)
-        {
-            if (!EqualityComparer<T>.Default.Equals(field, value))
-            {
-                field = value;
-                if (propertyName != null && this.PropertyChanged != null)
-                {
-                    this.PropertyChanged(
-                        this,
-                        new PropertyChangedEventArgs(propertyName));
-                }
-            }
-        }
-
-        /// <summary>
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
         private void OnDeserializing(StreamingContext context)
         {
-            // null 回避
-            this.SaveDirectoryPath = DefaultSaveDirectoryPath;
-            this.YmmCharaRelations = new YmmCharaRelationSet();
+            this.ResetDataMembers();
         }
-
-        #region INotifyPropertyChanged の実装
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        #region IExtensibleDataObject の明示的実装
-
-        ExtensionDataObject IExtensibleDataObject.ExtensionData { get; set; }
-
-        #endregion
     }
 }

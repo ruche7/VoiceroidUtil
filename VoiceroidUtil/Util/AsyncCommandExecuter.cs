@@ -9,7 +9,7 @@ namespace VoiceroidUtil.Util
     /// ReactiveCommand で非同期実行を行うためのジェネリッククラス。
     /// </summary>
     /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-    public class AsyncCommandExecuter<T>
+    public class AsyncCommandExecuter<T> : IDisposable
     {
         /// <summary>
         /// コンストラクタ。
@@ -56,6 +56,14 @@ namespace VoiceroidUtil.Util
                     this.ExecutableNotifier.TurnOn();
                 }
             }
+        }
+
+        /// <summary>
+        /// リソースを破棄する。
+        /// </summary>
+        public void Dispose()
+        {
+            this.IsExecutable?.Dispose();
         }
 
         /// <summary>

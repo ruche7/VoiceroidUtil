@@ -67,38 +67,26 @@ namespace VoiceroidUtil
             var text = MakeFileNamePartFromText(talkText);
             var time = DateTime.Now.ToString("yyMMdd_hhmmss");
 
-            var name = text;
+            string name;
             switch (format)
             {
             case FileNameFormat.Text:
                 name = text;
                 break;
-            case FileNameFormat.NameText:
-                name = string.Join("_", info.Name, text);
-                break;
-            case FileNameFormat.ShortNameText:
-                name = string.Join("_", info.ShortName, text);
-                break;
             case FileNameFormat.DateTimeText:
                 name = string.Join("_", time, text);
+                break;
+            case FileNameFormat.NameText:
+                name = string.Join("_", info.Name, text);
                 break;
             case FileNameFormat.DateTimeNameText:
                 name = string.Join("_", time, info.Name, text);
                 break;
-            case FileNameFormat.DateTimeShortNameText:
-                name = string.Join("_", time, info.ShortName, text);
-                break;
             case FileNameFormat.TextInNameDirectory:
                 name = Path.Combine(info.Name, text);
                 break;
-            case FileNameFormat.TextInShortNameDirectory:
-                name = Path.Combine(info.ShortName, text);
-                break;
             case FileNameFormat.DateTimeTextInNameDirectory:
                 name = Path.Combine(info.Name, string.Join("_", time, text));
-                break;
-            case FileNameFormat.DateTimeTextInShortNameDirectory:
-                name = Path.Combine(info.ShortName, string.Join("_", time, text));
                 break;
             default:
                 throw new InvalidEnumArgumentException(
