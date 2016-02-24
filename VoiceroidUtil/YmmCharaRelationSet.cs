@@ -13,7 +13,7 @@ namespace VoiceroidUtil
     /// YmmCharaRelation インスタンスセットクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(List))]
+    [KnownType(typeof(YmmCharaRelation))]
     public class YmmCharaRelationSet : IEnumerable<YmmCharaRelation>
     {
         /// <summary>
@@ -68,17 +68,53 @@ namespace VoiceroidUtil
         /// <summary>
         /// 内部リストクラス。
         /// </summary>
-        [CollectionDataContract(ItemName = @"Item", Namespace = "")]
-        [KnownType(typeof(YmmCharaRelation))]
-        private class List : Collection<YmmCharaRelation>
+        private class InnerList : Collection<YmmCharaRelation>
         {
+            /// <summary>
+            /// 指定したVOICEROID識別IDを持つ要素が存在するか否かを取得する。
+            /// </summary>
+            /// <param name="id">VOICEROID識別ID。</param>
+            /// <returns></returns>
+            public bool Contains(VoiceroidId id)
+            {
+                return this.Any(r => r?.VoiceroidId == id);
+            }
+
+            #region Collection<YmmCharaRelation> のオーバライド
+
+            protected override void InsertItem(int index, YmmCharaRelation item)
+            {
+                // null もしくはID重複なら無視
+                if (item == null || this.Contains(item.VoiceroidId))
+                {
+                    return;
+                }
+
+                base.InsertItem(index, item);
+            }
+
+            protected override void SetItem(int index, YmmCharaRelation item)
+            {
+                // null もしくはID重複なら無視
+                if (
+                    item == null ||
+                    (this[index].VoiceroidId != item.VoiceroidId &&
+                     this.Contains(item.VoiceroidId)))
+                {
+                    return;
+                }
+
+                base.SetItem(index, item);
+            }
+
+            #endregion
         }
 
         /// <summary>
         /// 内部リストを取得または設定する。
         /// </summary>
         [DataMember]
-        private List Table { get; set; } = new List();
+        private InnerList Table { get; set; } = new InnerList();
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
@@ -87,7 +123,7 @@ namespace VoiceroidUtil
         private void OnDeserializing(StreamingContext context)
         {
             // null 回避
-            this.Table = new List();
+            this.Table = new InnerList();
         }
 
         #region IEnumerable の明示的実装
