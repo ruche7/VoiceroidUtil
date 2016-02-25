@@ -393,7 +393,7 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// パスが VOICEROID+ の保存パスとして正常か否かをチェックし、
+        /// パスがVOICEROIDの保存パスとして正常か否かをチェックし、
         /// 不正ならばアプリ状態を更新する。
         /// </summary>
         /// <param name="path">パス。</param>
@@ -412,7 +412,7 @@ namespace VoiceroidUtil
                 {
                     text =
                         (invalidLetter == null) ?
-                            @"VOICEROID+ が対応していない保存先フォルダーです。" :
+                            @"VOICEROIDが対応していない保存先フォルダーです。" :
                             @"保存先フォルダーパスに文字 """ +
                             invalidLetter +
                             @""" を含めないでください。";
@@ -516,6 +516,58 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 現在の設定を基に『ゆっくりMovieMaker3』の操作を行う。
+        /// </summary>
+        /// <param name="filePath">WAVEファイルパス。</param>
+        /// <returns>警告文字列。問題ないならば null 。</returns>
+        private async Task<string> DoOperateYmm(string filePath)
+        {
+            if (!this.Config.IsSavedFileToYmm)
+            {
+                return null;
+            }
+
+            this.YmmProcess.Update();
+            if (!this.YmmProcess.IsRunning)
+            {
+                return null;
+            }
+
+            // ファイルパス設定
+            if (!(await this.YmmProcess.SetTimelineSpeechEditValue(filePath)))
+            {
+                return @"ゆっくりMovieMaker3へのパス設定に失敗しました。";
+            }
+
+            string warnText = null;
+
+            // キャラ選択
+            // そもそもキャラ名が存在しない場合は失敗しても警告にしない
+            if (this.Config.IsYmmCharaSelecting)
+            {
+                var name =
+                    this.Config.YmmCharaRelations[this.Config.VoiceroidId].YmmCharaName;
+                if (
+                    !string.IsNullOrEmpty(name) &&
+                    (await this.YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                {
+                    warnText = @"ゆっくりMovieMaker3のキャラ選択に失敗しました。";
+                }
+            }
+
+            // ボタン押下
+            // キャラ選択に失敗していても行う
+            if (
+                this.Config.IsYmmAddButtonClicking &&
+                !(await this.YmmProcess.ClickTimelineSpeechAddButton()))
+            {
+                warnText = @"ゆっくりMovieMaker3のボタン押下に失敗しました。";
+            }
+
+            return warnText;
+        }
+
+        /// <summary>
         /// 再生/停止コマンド処理を行う。
         /// </summary>
         private async Task ExecutePlayStopCommand()
@@ -610,28 +662,8 @@ namespace VoiceroidUtil
                     }
                 }
 
-                string warnText = null;
-
                 // ゆっくりMovieMaker処理
-                if (this.Config.IsSavedFileToYmm)
-                {
-                    this.YmmProcess.Update();
-                    if (this.YmmProcess.IsRunning)
-                    {
-                        if (!(await this.YmmProcess.SetTimelineSpeechEditValue(filePath)))
-                        {
-                            warnText =
-                                @"ゆっくりMovieMaker3へのパス設定に失敗しました。";
-                        }
-                        else if (
-                            this.Config.IsYmmAddButtonClicking &&
-                            !(await this.YmmProcess.ClickTimelineSpeechAddButton()))
-                        {
-                            warnText =
-                                @"ゆっくりMovieMaker3のボタン押下に失敗しました。";
-                        }
-                    }
-                }
+                var warnText = await this.DoOperateYmm(filePath);
 
                 this.SetLastStatus(
                     AppStatusType.Success,

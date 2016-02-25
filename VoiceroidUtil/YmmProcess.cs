@@ -87,8 +87,12 @@ namespace VoiceroidUtil
         /// タイムラインウィンドウのキャラ選択コンボボックスからキャラを選択する。
         /// </summary>
         /// <param name="name">選択するキャラ名。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        public async Task<bool> SelectTimelineCharaComboBoxItem(string name)
+        /// <returns>
+        /// 成功したならば true 。
+        /// キャラ名が存在しないならば null 。
+        /// どちらでもなければ false 。
+        /// </returns>
+        public async Task<bool?> SelectTimelineCharaComboBoxItem(string name)
         {
             // キャラ選択コンボボックスUIを探す
             var comboElem =
@@ -102,22 +106,33 @@ namespace VoiceroidUtil
                 return false;
             }
 
-            // SelectionPattern 取得
-            var combo = GetPattern<SelectionPattern>(comboElem, SelectionPattern.Pattern);
-            if (combo == null)
+            // すべてのアイテムを有効化させるためにコンボボックスを開く
+            var expand =
+                GetPattern<ExpandCollapsePattern>(
+                    comboElem,
+                    ExpandCollapsePattern.Pattern);
+            if (expand == null)
             {
                 return false;
             }
+            expand.Expand();
 
             // Name がキャラ名の子を持つコンボボックスアイテムUIを探す
+            var itemCond =
+                new PropertyCondition(
+                    AutomationElement.ControlTypeProperty,
+                    ControlType.ListItem);
             var nameCond = new PropertyCondition(AutomationElement.NameProperty, name);
             var itemElem =
-                await combo.Current.GetSelection()
+                await comboElem
+                    .FindAll(TreeScope.Children, itemCond)
+                    .OfType<AutomationElement>()
                     .ToObservable()
-                    .FirstOrDefaultAsync(e => FindDescendant(e, nameCond) != null);
+                    .FirstOrDefaultAsync(i => FindDescendant(i, nameCond) != null);
             if (itemElem == null)
             {
-                return false;
+                // キャラ名存在せず
+                return null;
             }
 
             // SelectionItemPattern 取得
