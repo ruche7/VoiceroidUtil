@@ -10,12 +10,12 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// VOICEROID+ のファイル保存に関するユーティリティ静的クラス。
+    /// VOICEROIDのファイル保存に関するユーティリティ静的クラス。
     /// </summary>
     public static class FileSaveUtil
     {
         /// <summary>
-        /// VOICEROID+ の保存パスとして正常か否かを取得する。
+        /// VOICEROIDの保存パスとして正常か否かを取得する。
         /// </summary>
         /// <param name="path">調べるパス。</param>
         /// <param name="invalidLetter">
