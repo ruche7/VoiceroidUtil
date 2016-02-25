@@ -6,7 +6,7 @@ using System.Windows.Markup;
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
 [assembly: AssemblyTitle("RucheHome.Voiceroid")]
-[assembly: AssemblyDescription("The library for VOICEROID+.")]
+[assembly: AssemblyDescription("The library for VOICEROID.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ruche-home")]
 [assembly: AssemblyProduct("RucheHome.Voiceroid")]
