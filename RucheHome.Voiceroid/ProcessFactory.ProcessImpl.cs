@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using RucheHome.Windows.WinApi;
 
@@ -228,10 +227,7 @@ namespace RucheHome.Voiceroid
             /// <param name="condition">終了条件デリゲート。</param>
             /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
             /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
-            /// <returns>
-            /// 処理タスク。
-            /// 条件を満たした時、もしくはループ終了時の戻り値を返す。
-            /// </returns>
+            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
             private static Task<T> RepeatUntil<T>(
                 Func<T> func,
                 Func<T, bool> condition,
@@ -254,35 +250,22 @@ namespace RucheHome.Voiceroid
             /// <param name="condition">終了条件デリゲート。</param>
             /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
             /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
-            /// <returns>
-            /// 処理タスク。
-            /// 条件を満たした時、もしくはループ終了時の戻り値を返す。
-            /// </returns>
-            private static Task<T> RepeatUntil<T>(
+            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
+            private static async Task<T> RepeatUntil<T>(
                 Func<Task<T>> funcAsync,
                 Func<T, bool> condition,
                 int loopCount = -1,
                 int intervalMilliseconds = 20)
             {
-                return
-                    Task.Run(async () =>
-                    {
-                        T value = default(T);
+                T value = await funcAsync();
 
-                        for (
-                            int i = 0;
-                            loopCount < 0 || i < loopCount;
-                            ++i, Thread.Sleep(intervalMilliseconds))
-                        {
-                            value = await funcAsync();
-                            if (condition(value))
-                            {
-                                break;
-                            }
-                        }
+                for (int i = 0; !condition(value) && (loopCount < 0 || i < loopCount); ++i)
+                {
+                    await Task.Delay(intervalMilliseconds);
+                    value = await funcAsync();
+                }
 
-                        return value;
-                    });
+                return value;
             }
 
             /// <summary>
@@ -529,7 +512,7 @@ namespace RucheHome.Voiceroid
                 bool found =
                     await RepeatUntil(
                         async () =>
-                            File.Exists(filePath) ||
+                            (saved = File.Exists(filePath)) ||
                             (await this.FindSaveProgressDialog()) != null,
                         f => f,
                         100);
