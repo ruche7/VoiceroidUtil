@@ -16,7 +16,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -87,17 +87,17 @@
                                 <DataTrigger Binding="{Binding}" Value="Fail">
                                     <Setter
                                         Property="Source"
-                                        Value="/resources/icon/status_big_ng.png" />
+                                        Value="/VoiceroidUtil;component/resources/icon/status_big_ng.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding}" Value="Warning">
                                     <Setter
                                         Property="Source"
-                                        Value="/resources/icon/status_big_warn.png" />
+                                        Value="/VoiceroidUtil;component/resources/icon/status_big_warn.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding}" Value="Success">
                                     <Setter
                                         Property="Source"
-                                        Value="/resources/icon/status_big_ok.png" />
+                                        Value="/VoiceroidUtil;component/resources/icon/status_big_ok.png" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -129,17 +129,17 @@
                                         <DataTrigger Binding="{Binding}" Value="Fail">
                                             <Setter
                                                 Property="Source"
-                                                Value="/resources/icon/status_ng.png" />
+                                                Value="/VoiceroidUtil;component/resources/icon/status_ng.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding}" Value="Warning">
                                             <Setter
                                                 Property="Source"
-                                                Value="/resources/icon/status_warn.png" />
+                                                Value="/VoiceroidUtil;component/resources/icon/status_warn.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding}" Value="Success">
                                             <Setter
                                                 Property="Source"
-                                                Value="/resources/icon/status_ok.png" />
+                                                Value="/VoiceroidUtil;component/resources/icon/status_ok.png" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

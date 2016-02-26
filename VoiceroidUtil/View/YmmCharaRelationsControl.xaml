@@ -14,7 +14,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -47,7 +47,7 @@
                         Width="64"
                         DockPanel.Dock="Left" />
                     <Image
-                        Source="pack://application:,,,/resources/icon/arrow_right.png"
+                        Source="/VoiceroidUtil;component/resources/icon/arrow_right.png"
                         Width="16"
                         DockPanel.Dock="Left" />
                     <tk:WatermarkTextBox

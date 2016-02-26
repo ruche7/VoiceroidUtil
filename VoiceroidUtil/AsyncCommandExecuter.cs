@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Reactive.Bindings;
-using Reactive.Bindings.Notifiers;
 
-namespace VoiceroidUtil.Util
+namespace VoiceroidUtil
 {
     /// <summary>
     /// ReactiveCommand で非同期実行を行うためのジェネリッククラス。
@@ -23,16 +22,20 @@ namespace VoiceroidUtil.Util
             }
 
             this.AsyncFunc = asyncFunc;
-            this.IsExecutable = this.ExecutableNotifier.ToReadOnlyReactiveProperty(true);
+            this.IsExecutable = new ReactiveProperty<bool>(true);
         }
 
         /// <summary>
-        /// 非同期実行可能な状態であるか否かを提供するオブジェクトを取得する。
+        /// 非同期実行可能な状態であるか否かを監視可能なオブジェクトを取得する。
         /// </summary>
         /// <remarks>
+        /// Subscribe 時にまず最新値を返す。
         /// ReactiveCommand の実行可能条件として利用するとよい。
         /// </remarks>
-        public ReadOnlyReactiveProperty<bool> IsExecutable { get; }
+        public IObservable<bool> ObserveExecutable()
+        {
+            return this.IsExecutable;
+        }
 
         /// <summary>
         /// 非同期実行を行う。
@@ -44,16 +47,16 @@ namespace VoiceroidUtil.Util
         /// </remarks>
         public async void Execute(T parameter)
         {
-            if (this.ExecutableNotifier.Value)
+            if (this.IsExecutable.Value)
             {
-                this.ExecutableNotifier.TurnOff();
                 try
                 {
+                    this.IsExecutable.Value = false;
                     await this.AsyncFunc(parameter);
                 }
                 finally
                 {
-                    this.ExecutableNotifier.TurnOn();
+                    this.IsExecutable.Value = true;
                 }
             }
         }
@@ -67,14 +70,25 @@ namespace VoiceroidUtil.Util
         }
 
         /// <summary>
-        /// 非同期処理デリゲートを取得する。
+        /// コンストラクタ。
         /// </summary>
-        private Func<T, Task> AsyncFunc { get; }
+        /// <remarks>
+        /// 派生クラスで AsyncFunc を設定する場合に利用する。
+        /// </remarks>
+        protected AsyncCommandExecuter()
+        {
+            this.IsExecutable = new ReactiveProperty<bool>(true);
+        }
 
         /// <summary>
-        /// 非同期実行可能か否かの通知オブジェクトを取得する。
+        /// 非同期処理デリゲートを取得または設定する。
         /// </summary>
-        private BooleanNotifier ExecutableNotifier { get; } = new BooleanNotifier(true);
+        protected Func<T, Task> AsyncFunc { get; set; } = null;
+
+        /// <summary>
+        /// 非同期実行可能な状態であるか否かを取得する。
+        /// </summary>
+        private ReactiveProperty<bool> IsExecutable { get; }
     }
 
     /// <summary>
@@ -95,6 +109,16 @@ namespace VoiceroidUtil.Util
         /// </summary>
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
         public AsyncCommandExecuter(Func<Task> asyncFunc) : this(_ => asyncFunc())
+        {
+        }
+
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
+        /// <remarks>
+        /// 派生クラスで AsyncFunc を設定する場合に利用する。
+        /// </remarks>
+        protected AsyncCommandExecuter() : base()
         {
         }
     }
