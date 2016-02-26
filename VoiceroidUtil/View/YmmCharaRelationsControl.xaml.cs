@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Controls;
 
-namespace VoiceroidUtil
+namespace VoiceroidUtil.View
 {
     /// <summary>
     /// YmmCharaRelation 列挙をリスト表示するユーザコントロールクラス。

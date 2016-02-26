@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Windows.Controls;
 
-namespace VoiceroidUtil
+namespace VoiceroidUtil.View
 {
     /// <summary>
-    /// 保存設定ユーザコントロールクラス。
+    /// アプリ設定ビューを保持するユーザコントロールクラス。
     /// </summary>
-    public partial class SaveSettingsControl : UserControl
+    public partial class AppConfigView : UserControl
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public SaveSettingsControl()
+        public AppConfigView()
         {
             InitializeComponent();
         }

@@ -30,4 +30,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
+    <Style TargetType="TabItem">
+        <Setter Property="Padding" Value="12,4" />
+    </Style>
 </ResourceDictionary>

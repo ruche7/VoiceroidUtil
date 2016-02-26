@@ -6,14 +6,20 @@
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:VoiceroidUtil"
-    x:Class="VoiceroidUtil.SaveSettingsControl"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    x:Class="VoiceroidUtil.View.AppConfigView"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance {x:Type local:MainWindowViewModel}}">
+    d:DataContext="{d:DesignInstance
+        Type={x:Type vm:AppConfigViewModel},
+        IsDesignTimeCreatable=True}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="resources/CommonStyles.xaml" />
-                <ResourceDictionary Source="resources/Converters.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/Converters.xaml" />
                 <ResourceDictionary>
                     <ObjectDataProvider
                         x:Key="fileNameFormats"
@@ -28,7 +34,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Orientation="Vertical" IsEnabled="{Binding IsIdle}">
+    <StackPanel Orientation="Vertical">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -38,10 +44,10 @@
 
             <Button
                 Content="保存先(_D)..."
-                Command="{Binding SaveDirectoryCommand}"
+                Command="{Binding SelectSaveDirectoryCommand}"
                 Grid.Column="0" />
             <tk:AutoSelectTextBox
-                Text="{Binding Config.SaveDirectoryPath}"
+                Text="{Binding Value.SaveDirectoryPath}"
                 AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
                 IsReadOnly="True"
                 IsReadOnlyCaretVisible="True"
@@ -50,12 +56,12 @@
                 VerticalContentAlignment="Center"
                 Grid.Column="1" />
             <Button
-                Command="{Binding DirectoryOpenCommand}"
+                Command="{Binding OpenSaveDirectoryCommand}"
                 ToolTip="保存先フォルダーを開く (Ctrl+E)"
                 Margin="1,0,0,0"
                 Padding="3,0"
                 Grid.Column="2">
-                <Image Source="resources/icon/open.png" />
+                <Image Source="pack://application:,,,/resources/icon/open.png" />
             </Button>
         </Grid>
         <DockPanel Margin="0,4,0,0">
@@ -66,7 +72,7 @@
             <ComboBox
                 x:Name="Setting_FileName"
                 ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
-                SelectedItem="{Binding Config.FileNameFormat}"
+                SelectedItem="{Binding Value.FileNameFormat}"
                 Margin="4,0,0,0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -80,11 +86,11 @@
         <CheckBox
             x:Name="Setting_ForceText"
             Content="テキストファイルを必ず作成(_T)"
-            IsChecked="{Binding Config.IsTextFileForceMaking}"
+            IsChecked="{Binding Value.IsTextFileForceMaking}"
             Margin="0,4,0,0" />
         <CheckBox
             Content="文字コード UTF-8 で作成(_U)"
-            IsChecked="{Binding Config.IsTextFileUtf8}"
+            IsChecked="{Binding Value.IsTextFileUtf8}"
             IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
             Margin="20,4,0,0" />
         <GroupBox Header="保存後処理" Margin="0,4,0,0">
@@ -92,28 +98,28 @@
                 <CheckBox
                     x:Name="Setting_ToYmm"
                     Content="ゆっくりMovieMaker3にファイルパス設定(_Y)"
-                    IsChecked="{Binding Config.IsSavedFileToYmm}" />
+                    IsChecked="{Binding Value.IsSavedFileToYmm}" />
                 <Label
                     Content="※カスタムボイス機能は働きません。"
                     FontSize="11"
                     Margin="20,0,0,0" />
-                <CheckBox
-                    x:Name="Setting_YmmChara"
-                    Content="キャラクターを自動選択(_N)"
-                    IsChecked="{Binding Config.IsYmmCharaSelecting}"
-                    IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
-                    Margin="20,4,0,0" />
                 <StackPanel
-                    IsEnabled="{Binding IsYmmCharaRelationsEditable.Value}"
-                    Margin="44,2,0,0">
-                    <local:YmmCharaRelationsControl
-                        DataContext="{Binding Config.YmmCharaRelations}" />
-                </StackPanel>
-                <CheckBox
-                    Content="追加ボタンを自動で押す(_B)"
-                    IsChecked="{Binding Config.IsYmmAddButtonClicking}"
                     IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
-                    Margin="20,4,0,0" />
+                    Margin="20,4,0,0">
+                    <CheckBox
+                        x:Name="Setting_YmmChara"
+                        Content="キャラクターを自動選択(_N)"
+                        IsChecked="{Binding Value.IsYmmCharaSelecting}"
+                        IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}" />
+                    <v:YmmCharaRelationsControl
+                        DataContext="{Binding Value.YmmCharaRelations}"
+                        IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
+                        Margin="24,2,0,0" />
+                    <CheckBox
+                        Content="追加ボタンを自動で押す(_B)"
+                        IsChecked="{Binding Value.IsYmmAddButtonClicking}"
+                        Margin="0,4,0,0" />
+                </StackPanel>
             </StackPanel>
         </GroupBox>
     </StackPanel>

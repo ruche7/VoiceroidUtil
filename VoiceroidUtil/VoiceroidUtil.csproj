@@ -50,20 +50,20 @@
       <HintPath>..\packages\LivetCask.1.3.1.0\lib\net45\Livet.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Livet.Extensions, Version=1.0.3.0, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
-      <HintPath>..\packages\LivetExtensions.1.1.0.0\lib\net45\Livet.Extensions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\LivetCask.1.3.1.0\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\LivetExtensions.1.1.0.0\lib\net45\Microsoft.WindowsAPICodePack.dll</HintPath>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Core.1.1.0.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\LivetExtensions.1.1.0.0\lib\net45\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.ShellExtensions, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.WindowsAPICodePack-Shell.1.1.0.0\lib\Microsoft.WindowsAPICodePack.ShellExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -150,28 +150,42 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
-    <Compile Include="LastStatusBar.xaml.cs">
-      <DependentUpon>LastStatusBar.xaml</DependentUpon>
+    <Compile Include="Messaging\AppSaveDirectorySelectionMessage.cs" />
+    <Compile Include="Messaging\AppSaveDirectorySelectionMessageAction.cs" />
+    <Compile Include="Messaging\DirectoryOpenMessage.cs" />
+    <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
+    <Compile Include="Messaging\MessageKeys.cs" />
+    <Compile Include="ViewModel\AppConfigViewModel.cs" />
+    <Compile Include="ViewModel\AppStatusViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\VoiceroidViewModel.cs" />
+    <Compile Include="View\AppStatusBar.xaml.cs">
+      <DependentUpon>AppStatusBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="AppStatusType.cs" />
     <Compile Include="IAppStatus.cs" />
-    <Compile Include="InfoDialogInteractionMessageAction.cs" />
-    <Compile Include="SaveSettingsBehavior.cs" />
     <Compile Include="Util\AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
     <Compile Include="FileSaveUtil.cs" />
     <Compile Include="MainWindowConfig.cs" />
     <Compile Include="Util\MessageBox.cs" />
-    <Compile Include="SaveSettingsControl.xaml.cs">
-      <DependentUpon>SaveSettingsControl.xaml</DependentUpon>
+    <Compile Include="View\AppConfigView.xaml.cs">
+      <DependentUpon>AppConfigView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MainWindowConfigBehavior.cs" />
+    <Compile Include="View\VoiceroidView.xaml.cs">
+      <DependentUpon>VoiceroidView.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmCharaRelation.cs" />
-    <Compile Include="YmmCharaRelationsControl.xaml.cs">
+    <Compile Include="View\YmmCharaRelationsControl.xaml.cs">
       <DependentUpon>YmmCharaRelationsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
-    <Page Include="LastStatusBar.xaml">
+    <Page Include="View\AppStatusBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -179,16 +193,12 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="View\MainWindow.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="resources\Converters.xaml">
@@ -199,17 +209,20 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SaveSettingsControl.xaml">
+    <Page Include="View\AppConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="YmmCharaRelationsControl.xaml">
+    <Page Include="View\VoiceroidView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\YmmCharaRelationsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -273,6 +286,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\icon\arrow_right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\config.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\main16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Windows.Controls;
 
-namespace VoiceroidUtil
+namespace VoiceroidUtil.View
 {
     /// <summary>
     /// AppStatus 情報表示ステータスバーを保持するユーザコントロールクラス。
     /// </summary>
-    public partial class LastStatusBar : UserControl
+    public partial class AppStatusBar : UserControl
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public LastStatusBar()
+        public AppStatusBar()
         {
             InitializeComponent();
         }

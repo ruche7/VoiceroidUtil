@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:VoiceroidUtil"
-    x:Class="VoiceroidUtil.YmmCharaRelationsControl"
+    x:Class="VoiceroidUtil.View.YmmCharaRelationsControl"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance
         Type={x:Type local:YmmCharaRelationSet},
@@ -13,7 +13,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="resources/CommonStyles.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -46,7 +47,7 @@
                         Width="64"
                         DockPanel.Dock="Left" />
                     <Image
-                        Source="resources/icon/arrow_right.png"
+                        Source="pack://application:,,,/resources/icon/arrow_right.png"
                         Width="16"
                         DockPanel.Dock="Left" />
                     <tk:WatermarkTextBox

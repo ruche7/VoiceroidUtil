@@ -26,7 +26,7 @@ namespace VoiceroidUtil
         {
             invalidLetter = null;
 
-            if (path == null)
+            if (string.IsNullOrWhiteSpace(path))
             {
                 return false;
             }
@@ -44,6 +44,42 @@ namespace VoiceroidUtil
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// VOICEROIDの保存パスとして正常か調べ、結果のアプリ状態を返す。
+        /// </summary>
+        /// <param name="path">調べるパス。</param>
+        /// <returns>
+        /// 正常ならば StatusType が AppStatusType.None のアプリ状態。
+        /// そうでなければ StatusType が AppStatusType.Warning のアプリ状態。
+        /// </returns>
+        public static IAppStatus CheckPathStatus(string path)
+        {
+            var status = new AppStatus();
+
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                status.StatusType = AppStatusType.Warning;
+                status.StatusText = @"保存先フォルダーが設定されていません。";
+                return status;
+            }
+
+            string invalidLetter = null;
+            if (!IsValidPath(path, out invalidLetter))
+            {
+                status.StatusType = AppStatusType.Warning;
+                status.StatusText = @"VOICEROIDが対応していない保存先フォルダーです。";
+                status.SubStatusText =
+                    (invalidLetter == null) ?
+                        null :
+                        @"保存先フォルダーパスに文字 """ +
+                        invalidLetter +
+                        @""" を含めないでください。";
+                return status;
+            }
+
+            return status;
         }
 
         /// <summary>
