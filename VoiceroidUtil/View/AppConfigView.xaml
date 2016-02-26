@@ -17,9 +17,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/Converters.xaml" />
+                    Source="/VoiceroidUtil;component/resources/Converters.xaml" />
                 <ResourceDictionary>
                     <ObjectDataProvider
                         x:Key="fileNameFormats"
@@ -48,12 +48,13 @@
                 Grid.Column="0" />
             <tk:AutoSelectTextBox
                 Text="{Binding Value.SaveDirectoryPath}"
-                AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
+                IsEnabled="{Binding CanModify}"
                 IsReadOnly="True"
                 IsReadOnlyCaretVisible="True"
                 Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
                 Margin="2,0,0,0"
                 VerticalContentAlignment="Center"
+                AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
                 Grid.Column="1" />
             <Button
                 Command="{Binding OpenSaveDirectoryCommand}"
@@ -61,66 +62,68 @@
                 Margin="1,0,0,0"
                 Padding="3,0"
                 Grid.Column="2">
-                <Image Source="pack://application:,,,/resources/icon/open.png" />
+                <Image Source="/VoiceroidUtil;component/resources/icon/open.png" />
             </Button>
         </Grid>
-        <DockPanel Margin="0,4,0,0">
-            <Label
-                Content="ファイル命名(_F):"
-                Target="{Binding ElementName=Setting_FileName}"
-                DockPanel.Dock="Left" />
-            <ComboBox
-                x:Name="Setting_FileName"
-                ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
-                SelectedItem="{Binding Value.FileNameFormat}"
-                Margin="4,0,0,0">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock
-                            Text="{Binding
-                                Converter={StaticResource enumDisplayConverter}}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
-        </DockPanel>
-        <CheckBox
-            x:Name="Setting_ForceText"
-            Content="テキストファイルを必ず作成(_T)"
-            IsChecked="{Binding Value.IsTextFileForceMaking}"
-            Margin="0,4,0,0" />
-        <CheckBox
-            Content="文字コード UTF-8 で作成(_U)"
-            IsChecked="{Binding Value.IsTextFileUtf8}"
-            IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
-            Margin="20,4,0,0" />
-        <GroupBox Header="保存後処理" Margin="0,4,0,0">
-            <StackPanel Orientation="Vertical" Margin="4">
-                <CheckBox
-                    x:Name="Setting_ToYmm"
-                    Content="ゆっくりMovieMaker3にファイルパス設定(_Y)"
-                    IsChecked="{Binding Value.IsSavedFileToYmm}" />
+        <StackPanel IsEnabled="{Binding CanModify}" Margin="0,4,0,0">
+            <DockPanel>
                 <Label
-                    Content="※カスタムボイス機能は働きません。"
-                    FontSize="11"
-                    Margin="20,0,0,0" />
-                <StackPanel
-                    IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
-                    Margin="20,4,0,0">
+                    Content="ファイル命名(_F):"
+                    Target="{Binding ElementName=Setting_FileName}"
+                    DockPanel.Dock="Left" />
+                <ComboBox
+                    x:Name="Setting_FileName"
+                    ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
+                    SelectedItem="{Binding Value.FileNameFormat}"
+                    Margin="4,0,0,0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                Text="{Binding
+                                    Converter={StaticResource enumDisplayConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </DockPanel>
+            <CheckBox
+                x:Name="Setting_ForceText"
+                Content="テキストファイルを必ず作成(_T)"
+                IsChecked="{Binding Value.IsTextFileForceMaking}"
+                Margin="0,4,0,0" />
+            <CheckBox
+                Content="文字コード UTF-8 で作成(_U)"
+                IsChecked="{Binding Value.IsTextFileUtf8}"
+                IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
+                Margin="20,4,0,0" />
+            <GroupBox Header="保存後処理" Margin="0,4,0,0">
+                <StackPanel Orientation="Vertical" Margin="4">
                     <CheckBox
-                        x:Name="Setting_YmmChara"
-                        Content="キャラクターを自動選択(_N)"
-                        IsChecked="{Binding Value.IsYmmCharaSelecting}"
-                        IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}" />
-                    <v:YmmCharaRelationsControl
-                        DataContext="{Binding Value.YmmCharaRelations}"
-                        IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
-                        Margin="24,2,0,0" />
-                    <CheckBox
-                        Content="追加ボタンを自動で押す(_B)"
-                        IsChecked="{Binding Value.IsYmmAddButtonClicking}"
-                        Margin="0,4,0,0" />
+                        x:Name="Setting_ToYmm"
+                        Content="ゆっくりMovieMaker3にファイルパス設定(_Y)"
+                        IsChecked="{Binding Value.IsSavedFileToYmm}" />
+                    <Label
+                        Content="※カスタムボイス機能は働きません。"
+                        FontSize="11"
+                        Margin="20,0,0,0" />
+                    <StackPanel
+                        IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
+                        Margin="20,4,0,0">
+                        <CheckBox
+                            x:Name="Setting_YmmChara"
+                            Content="キャラクターを自動選択(_N)"
+                            IsChecked="{Binding Value.IsYmmCharaSelecting}"
+                            IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}" />
+                        <v:YmmCharaRelationsControl
+                            DataContext="{Binding Value.YmmCharaRelations}"
+                            IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
+                            Margin="24,2,0,0" />
+                        <CheckBox
+                            Content="追加ボタンを自動で押す(_B)"
+                            IsChecked="{Binding Value.IsYmmAddButtonClicking}"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </GroupBox>
+            </GroupBox>
+        </StackPanel>
     </StackPanel>
 </UserControl>

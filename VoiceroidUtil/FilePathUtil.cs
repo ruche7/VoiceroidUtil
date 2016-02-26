@@ -10,9 +10,9 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// VOICEROIDのファイル保存に関するユーティリティ静的クラス。
+    /// VOICEROIDのファイルパスに関するユーティリティ静的クラス。
     /// </summary>
-    public static class FileSaveUtil
+    public static class FilePathUtil
     {
         /// <summary>
         /// VOICEROIDの保存パスとして正常か否かを取得する。

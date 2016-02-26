@@ -3,4 +3,4 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:VoiceroidUtil"
     x:Class="VoiceroidUtil.App"
-    StartupUri="pack://application:,,,/View/MainWindow.xaml" />
+    StartupUri="/VoiceroidUtil;component/View/MainWindow.xaml" />

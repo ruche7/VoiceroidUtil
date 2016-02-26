@@ -87,7 +87,7 @@ namespace VoiceroidUtil.Messaging
             }
 
             // パスが正常かチェック
-            m.Response = FileSaveUtil.CheckPathStatus(path);
+            m.Response = FilePathUtil.CheckPathStatus(path);
             if (m.Response.StatusType == AppStatusType.None)
             {
                 // 正常ならアプリ設定を上書き

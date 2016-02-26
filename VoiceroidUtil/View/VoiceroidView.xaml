@@ -15,11 +15,11 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/VoiceroidStyles.xaml" />
+                    Source="/VoiceroidUtil;component/resources/VoiceroidStyles.xaml" />
                 <ResourceDictionary
-                    Source="pack://application:,,,/resources/Converters.xaml" />
+                    Source="/VoiceroidUtil;component/resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -100,7 +100,7 @@
             </Button>
             <Button Command="{Binding SaveCommand}" ToolTip="Ctrl+S" Margin="2,0,0,0">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="pack://application:,,,/resources/icon/save.png" />
+                    <Image Source="/VoiceroidUtil;component/resources/icon/save.png" />
                     <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />
                 </StackPanel>
             </Button>

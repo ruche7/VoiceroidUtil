@@ -155,6 +155,7 @@
     <Compile Include="Messaging\DirectoryOpenMessage.cs" />
     <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
     <Compile Include="Messaging\MessageKeys.cs" />
+    <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
@@ -164,11 +165,10 @@
     </Compile>
     <Compile Include="AppStatusType.cs" />
     <Compile Include="IAppStatus.cs" />
-    <Compile Include="Util\AsyncCommandExecuter.cs" />
+    <Compile Include="AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
-    <Compile Include="FileSaveUtil.cs" />
+    <Compile Include="FilePathUtil.cs" />
     <Compile Include="MainWindowConfig.cs" />
-    <Compile Include="Util\MessageBox.cs" />
     <Compile Include="View\AppConfigView.xaml.cs">
       <DependentUpon>AppConfigView.xaml</DependentUpon>
     </Compile>
