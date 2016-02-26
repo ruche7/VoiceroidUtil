@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace VoiceroidUtil
+namespace VoiceroidUtil.View
 {
     /// <summary>
     /// メインウィンドウクラス。

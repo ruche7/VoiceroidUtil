@@ -1,0 +1,110 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    x:Class="VoiceroidUtil.View.VoiceroidView"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance
+        Type={x:Type vm:VoiceroidViewModel},
+        IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/CommonStyles.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/VoiceroidStyles.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/resources/Converters.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0 -->
+        <ComboBox
+            ItemsSource="{Binding Processes}"
+            SelectedItem="{Binding SelectedProcess.Value}"
+            IsEnabled="{Binding IsIdle.Value}"
+            Grid.Row="0">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <Image
+                            Style="{StaticResource VoiceroidImage}"
+                            Margin="0,0,4,0"
+                            DockPanel.Dock="Left" />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text=" (" />
+                                <TextBlock Text="{Binding WindowTitle}" />
+                                <TextBlock Text=")" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Image Style="{StaticResource VoiceroidStatusIcon}" />
+                                <TextBlock
+                                    Style="{StaticResource VoiceroidStatusText}"
+                                    Margin="2,0,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <!-- Row 1 -->
+        <tk:WatermarkTextBox
+            Text="{Binding TalkText.Value, UpdateSourceTrigger=PropertyChanged}"
+            IsReadOnly="{Binding IsIdle.Value, Converter={StaticResource boolInverter}}"
+            IsReadOnlyCaretVisible="True"
+            AcceptsReturn="True"
+            Margin="0,2,0,0"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            Grid.Row="1">
+            <tk:WatermarkTextBox.InputBindings>
+                <KeyBinding Gesture="Alt+Enter" Command="{Binding PlayStopCommand}" />
+                <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
+            </tk:WatermarkTextBox.InputBindings>
+
+            <tk:WatermarkTextBox.Watermark>
+                <TextBlock>
+                    しゃべらせたい文章を入力してください。<LineBreak />
+                    Ctrl+Q または入力中に Alt+Enter で再生します。<LineBreak />
+                    Ctrl+S または入力中に Ctrl+Enter で音声保存します。<LineBreak />
+                    Ctrl+E で保存先フォルダーを開きます。
+                </TextBlock>
+            </tk:WatermarkTextBox.Watermark>
+        </tk:WatermarkTextBox>
+
+        <!-- Row 2 -->
+        <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Grid.Row="2">
+            <Button Command="{Binding PlayStopCommand}" ToolTip="Ctrl+Q">
+                <StackPanel Orientation="Horizontal">
+                    <Image Style="{StaticResource VoiceroidPlayStopIcon}" />
+                    <AccessText
+                        Style="{StaticResource VoiceroidPlayStopText}"
+                        Margin="2,0,0,0" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding SaveCommand}" ToolTip="Ctrl+S" Margin="2,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="pack://application:,,,/resources/icon/save.png" />
+                    <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />
+                </StackPanel>
+            </Button>
+            <StackPanel />
+        </StackPanel>
+    </Grid>
+</UserControl>

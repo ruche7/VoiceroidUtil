@@ -19,16 +19,6 @@ namespace VoiceroidUtil
         string StatusText { get; }
 
         /// <summary>
-        /// 付随コマンドを取得する。
-        /// </summary>
-        ICommand Command { get; }
-
-        /// <summary>
-        /// 付随コマンドテキストを取得する。
-        /// </summary>
-        string CommandText { get; }
-
-        /// <summary>
         /// オプショナルなサブ状態種別を取得する。
         /// </summary>
         AppStatusType SubStatusType { get; }
