@@ -89,6 +89,9 @@ namespace VoiceroidUtil.ViewModel
             this.TalkText =
                 new ReactiveProperty<string>("")
                     .AddTo(this.CompositeDisposable);
+            this.TalkTextLengthLimit =
+                new ReactiveProperty<int>(100000)
+                    .AddTo(this.CompositeDisposable);
 
             // コマンド実行用
             this.PlayStopCommandExecuter =
@@ -230,6 +233,15 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveProperty<string> TalkText { get; }
 
         /// <summary>
+        /// トークテキストの最大許容文字数を取得する。
+        /// </summary>
+        /// <remarks>
+        /// 0 ならば上限を定めない。
+        /// TalkText に直接文字列を設定する場合、この値は考慮されない。
+        /// </remarks>
+        public ReactiveProperty<int> TalkTextLengthLimit { get; }
+
+        /// <summary>
         /// アイドル状態であるか否かを取得する。
         /// </summary>
         /// <remarks>
@@ -256,6 +268,53 @@ namespace VoiceroidUtil.ViewModel
         /// トークテキスト用ファイルドロップコマンドを取得する。
         /// </summary>
         public ReactiveCommand<DragEventArgs> DropTalkTextFileCommand { get; }
+
+        /// <summary>
+        /// IDataObject オブジェクトからファイルパス配列を取得する。
+        /// </summary>
+        /// <param name="data">IDataObject オブジェクト。</param>
+        /// <returns>ファイルパス配列。取得できなければ null 。</returns>
+        private static string[] GetFilePathes(IDataObject data)
+        {
+            if (data == null || !data.GetDataPresent(DataFormats.FileDrop, true))
+            {
+                return null;
+            }
+
+            var pathes = data.GetData(DataFormats.FileDrop, true) as string[];
+            if (pathes == null || pathes.Length == 0)
+            {
+                return null;
+            }
+
+            return pathes.All(p => File.Exists(p)) ? pathes : null;
+        }
+
+        /// <summary>
+        /// テキストファイルを非同期で読み取り、 StringBuilder に追加する。
+        /// </summary>
+        /// <param name="reader">リーダー。</param>
+        /// <param name="fileInfo">ファイル情報。</param>
+        /// <param name="dest">追加先の StringBuilder 。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        private static Task<bool> AppendTextFromFile(
+            FileReader reader,
+            FileInfo fileInfo,
+            StringBuilder dest)
+        {
+            return
+                Task.Run(
+                    () =>
+                    {
+                        reader.Read(fileInfo);
+                        if (reader.Text == null)
+                        {
+                            return false;
+                        }
+                        dest.Append(reader.Text);
+                        return true;
+                    });
+        }
 
         /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
@@ -370,7 +429,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="e">ドラッグイベントデータ。</param>
         private void ExecuteDragOverTalkTextFileCommand(DragEventArgs e)
         {
-            if (e?.Data?.GetDataPresent(DataFormats.FileDrop, true) == true)
+            if (GetFilePathes(e?.Data) != null)
             {
                 e.Effects = DragDropEffects.Move;
                 e.Handled = true;
@@ -378,9 +437,9 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// トークテキスト用ファイルのMB単位の最大許容サイズ。
+        /// トークテキスト用ファイル単体のMB単位の最大許容サイズ。
         /// </summary>
-        private const int TalkTextFileSizeLimitMB = 2;
+        private const int TalkTextFileSizeLimitMB = 5;
 
         /// <summary>
         /// DropTalkTextFileCommand コマンドの実処理を行う。
@@ -388,26 +447,13 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="e">ドラッグイベントデータ。</param>
         private async Task ExecuteDropTalkTextFileCommand(DragEventArgs e)
         {
-            if (e?.Data?.GetDataPresent(DataFormats.FileDrop, true) != true)
+            var pathes = GetFilePathes(e?.Data);
+            if (pathes == null)
             {
                 return;
             }
 
             e.Handled = true;
-
-            var pathes = e.Data.GetData(DataFormats.FileDrop, true) as string[];
-            if (pathes == null || pathes.Length == 0)
-            {
-                return;
-            }
-
-            if (pathes.Any(p => !File.Exists(p)))
-            {
-                this.SetLastStatus(
-                    AppStatusType.Warning,
-                    @"テキストファイル以外はドロップできません。");
-                return;
-            }
 
             // ファイルに関する情報を取得
             var f =
@@ -421,17 +467,22 @@ namespace VoiceroidUtil.ViewModel
                         return new { infos, maxInfo, totalSize };
                     });
 
-            // 総ファイルサイズチェック
-            if (f.totalSize > TalkTextFileSizeLimitMB * 1024L * 1024)
+            // ファイルサイズチェック
+            if (f.maxInfo.Length > TalkTextFileSizeLimitMB * 1024L * 1024)
             {
                 this.SetLastStatus(
                     AppStatusType.Warning,
-                    (f.infos.Length == 1) ?
-                        f.maxInfo.Name + @" のファイルサイズが大きすぎます。" :
-                        @"総ファイルサイズが大きすぎます。",
+                    f.maxInfo.Name + @" のファイルサイズが大きすぎます。",
                     subStatusText:
                         @"許容サイズは " + TalkTextFileSizeLimitMB + @" MBまでです。");
                 return;
+            }
+
+            // 最大文字数
+            int lenLimit = this.TalkTextLengthLimit.Value;
+            if (lenLimit == 0)
+            {
+                lenLimit = int.MaxValue;
             }
 
             // 全ファイル読み取り
@@ -440,15 +491,22 @@ namespace VoiceroidUtil.ViewModel
             {
                 foreach (var info in f.infos)
                 {
-                    await Task.Run(() =>
+                    // 空文字列でなく、末尾が改行以外ならば改行追加
+                    if (text.Length > 0)
                     {
-                        reader.Read(info);
-                        if (reader.Text != null)
+                        var end = text[text.Length - 1];
+                        if (end != '\r' && end != '\n')
                         {
-                            text.AppendLine(reader.Text.TrimEnd());
+                            text.AppendLine();
                         }
-                    });
-                    if (reader.Text == null)
+                    }
+                    if (text.Length >= lenLimit)
+                    {
+                        break;
+                    }
+
+                    // 読み取り
+                    if (!(await AppendTextFromFile(reader, info, text)))
                     {
                         this.SetLastStatus(
                             AppStatusType.Warning,
@@ -459,8 +517,22 @@ namespace VoiceroidUtil.ViewModel
                 }
             }
 
-            this.TalkText.Value = text.ToString().TrimEnd();
-            this.ResetLastStatus();
+            // 許容文字数以上は切り捨てる
+            string warnText = null;
+            if (text.Length > lenLimit)
+            {
+                text.Remove(lenLimit, text.Length - lenLimit);
+                warnText = lenLimit + @" 文字以上は切り捨てました。";
+            }
+
+            // テキスト設定
+            this.TalkText.Value = text.ToString();
+
+            this.SetLastStatus(
+                AppStatusType.Success,
+                @"テキストファイルから文章を設定しました。",
+                (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
+                warnText);
         }
 
         /// <summary>
