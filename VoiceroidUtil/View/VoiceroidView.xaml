@@ -68,9 +68,11 @@
         <!-- Row 1 -->
         <tk:WatermarkTextBox
             Text="{Binding TalkText.Value, UpdateSourceTrigger=PropertyChanged}"
+            MaxLength="{Binding TalkTextLengthLimit.Value}"
             IsReadOnly="{Binding IsIdle.Value, Converter={StaticResource boolInverter}}"
             IsReadOnlyCaretVisible="True"
             AcceptsReturn="True"
+            AcceptsTab="True"
             Margin="0,2,0,0"
             ScrollViewer.HorizontalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
