@@ -636,7 +636,10 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                return await edit.SetTextAsync(text, UIControlTimeout);
+                // 1000文字あたり1ミリ秒をタイムアウト値に追加
+                var timeout = UIControlTimeout + (text.Length / 1000);
+
+                return await edit.SetTextAsync(text, timeout);
             }
 
             /// <summary>
@@ -669,8 +672,13 @@ namespace RucheHome.Voiceroid
                 }
                 this.IsPlaying = true; // 一応立てる
 
-                // 一瞬で再生完了する可能性があるため、
-                // 保存ボタンが無効になるまで待つことはしない。
+                // 保存ボタンが無効になるまで少し待つ
+                // 一瞬で再生完了する可能性があるためあまり待たず、失敗にもしない
+                await RepeatUntil(
+                    () => this.SaveButton?.IsEnabled,
+                    e => e != true,
+                    15,
+                    10);
 
                 return true;
             }
