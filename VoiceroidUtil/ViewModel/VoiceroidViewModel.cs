@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using Hnx8.ReadJEnc;
 using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -97,13 +101,18 @@ namespace VoiceroidUtil.ViewModel
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
                     .AddTo(this.CompositeDisposable);
+            this.DropTalkTextFileCommandExecuter =
+                new AsyncCommandExecuter<DragEventArgs>(
+                    this.ExecuteDropTalkTextFileCommand)
+                    .AddTo(this.CompositeDisposable);
 
-            // どのコマンドも実行可能ならばアイドル状態とみなす
+            // どの非同期コマンドも実行可能ならばアイドル状態とみなす
             this.IsIdle =
                 new[]
                 {
                     this.PlayStopCommandExecuter.ObserveExecutable(),
                     this.SaveCommandExecuter.ObserveExecutable(),
+                    this.DropTalkTextFileCommandExecuter.ObserveExecutable(),
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty()
@@ -144,6 +153,24 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
             this.SaveCommand
                 .Subscribe(this.SaveCommandExecuter.Execute)
+                .AddTo(this.CompositeDisposable);
+
+            // トークテキスト用ファイルドラッグオーバーコマンド
+            this.DragOverTalkTextFileCommand =
+                this.IsIdle
+                    .ToReactiveCommand<DragEventArgs>(false)
+                    .AddTo(this.CompositeDisposable);
+            this.DragOverTalkTextFileCommand
+                .Subscribe(this.ExecuteDragOverTalkTextFileCommand)
+                .AddTo(this.CompositeDisposable);
+
+            // トークテキスト用ファイルドロップコマンド
+            this.DropTalkTextFileCommand =
+                this.IsIdle
+                    .ToReactiveCommand<DragEventArgs>(false)
+                    .AddTo(this.CompositeDisposable);
+            this.DropTalkTextFileCommand
+                .Subscribe(this.DropTalkTextFileCommandExecuter.Execute)
                 .AddTo(this.CompositeDisposable);
 
             // プロセス更新タイマ設定＆開始
@@ -206,7 +233,7 @@ namespace VoiceroidUtil.ViewModel
         /// アイドル状態であるか否かを取得する。
         /// </summary>
         /// <remarks>
-        /// いずれのコマンドも実行中でなければ true となる。
+        /// いずれの非同期コマンドも実行中でなければ true となる。
         /// </remarks>
         public ReadOnlyReactiveProperty<bool> IsIdle { get; }
 
@@ -219,6 +246,16 @@ namespace VoiceroidUtil.ViewModel
         /// 保存コマンドを取得する。
         /// </summary>
         public ReactiveCommand SaveCommand { get; }
+
+        /// <summary>
+        /// トークテキスト用ファイルドラッグオーバーコマンドを取得する。
+        /// </summary>
+        public ReactiveCommand<DragEventArgs> DragOverTalkTextFileCommand { get; }
+
+        /// <summary>
+        /// トークテキスト用ファイルドロップコマンドを取得する。
+        /// </summary>
+        public ReactiveCommand<DragEventArgs> DropTalkTextFileCommand { get; }
 
         /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
@@ -239,6 +276,14 @@ namespace VoiceroidUtil.ViewModel
         /// 保存コマンドの非同期実行用オブジェクトを取得する。
         /// </summary>
         private SaveCommandExecuter SaveCommandExecuter { get; }
+
+        /// <summary>
+        /// トークテキスト用ファイルドロップコマンドの非同期実行用オブジェクトを取得する。
+        /// </summary>
+        private AsyncCommandExecuter<DragEventArgs> DropTalkTextFileCommandExecuter
+        {
+            get;
+        }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスのプロパティ変更を監視する
@@ -265,7 +310,7 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// 再生/停止コマンド処理を行う。
+        /// PlayStopCommand コマンドの実処理を行う。
         /// </summary>
         private async Task ExecutePlayStopCommand()
         {
@@ -302,7 +347,7 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// 保存コマンド完了時処理を行う。
+        /// SaveCommand コマンド完了時処理を行う。
         /// </summary>
         private async Task OnSaveCommandExecuted(IAppStatus result)
         {
@@ -317,6 +362,105 @@ namespace VoiceroidUtil.ViewModel
                 new WindowActionMessage(
                     WindowAction.Active,
                     MessageKeys.WindowActionMessageKey));
+        }
+
+        /// <summary>
+        /// DragOverTalkTextFileCommand コマンドの実処理を行う。
+        /// </summary>
+        /// <param name="e">ドラッグイベントデータ。</param>
+        private void ExecuteDragOverTalkTextFileCommand(DragEventArgs e)
+        {
+            if (e?.Data?.GetDataPresent(DataFormats.FileDrop, true) == true)
+            {
+                e.Effects = DragDropEffects.Move;
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// トークテキスト用ファイルのMB単位の最大許容サイズ。
+        /// </summary>
+        private const int TalkTextFileSizeLimitMB = 2;
+
+        /// <summary>
+        /// DropTalkTextFileCommand コマンドの実処理を行う。
+        /// </summary>
+        /// <param name="e">ドラッグイベントデータ。</param>
+        private async Task ExecuteDropTalkTextFileCommand(DragEventArgs e)
+        {
+            if (e?.Data?.GetDataPresent(DataFormats.FileDrop, true) != true)
+            {
+                return;
+            }
+
+            e.Handled = true;
+
+            var pathes = e.Data.GetData(DataFormats.FileDrop, true) as string[];
+            if (pathes == null || pathes.Length == 0)
+            {
+                return;
+            }
+
+            if (pathes.Any(p => !File.Exists(p)))
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    @"テキストファイル以外はドロップできません。");
+                return;
+            }
+
+            // ファイルに関する情報を取得
+            var f =
+                await Task.Run(
+                    () =>
+                    {
+                        var infos = Array.ConvertAll(pathes, p => new FileInfo(p));
+                        var maxInfo =
+                            infos.Aggregate((i1, i2) => (i1.Length > i2.Length) ? i1 : i2);
+                        var totalSize = infos.Sum(i => i.Length);
+                        return new { infos, maxInfo, totalSize };
+                    });
+
+            // 総ファイルサイズチェック
+            if (f.totalSize > TalkTextFileSizeLimitMB * 1024L * 1024)
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    (f.infos.Length == 1) ?
+                        f.maxInfo.Name + @" のファイルサイズが大きすぎます。" :
+                        @"総ファイルサイズが大きすぎます。",
+                    subStatusText:
+                        @"許容サイズは " + TalkTextFileSizeLimitMB + @" MBまでです。");
+                return;
+            }
+
+            // 全ファイル読み取り
+            var text = new StringBuilder();
+            using (var reader = new FileReader((int)f.maxInfo.Length))
+            {
+                foreach (var info in f.infos)
+                {
+                    await Task.Run(() =>
+                    {
+                        reader.Read(info);
+                        if (reader.Text != null)
+                        {
+                            text.AppendLine(reader.Text.TrimEnd());
+                        }
+                    });
+                    if (reader.Text == null)
+                    {
+                        this.SetLastStatus(
+                            AppStatusType.Warning,
+                            info.Name + @" の読み取りに失敗しました。",
+                            subStatusText: @"テキストファイルではない可能性があります。");
+                        return;
+                    }
+                }
+            }
+
+            this.TalkText.Value = text.ToString().TrimEnd();
+            this.ResetLastStatus();
         }
 
         /// <summary>

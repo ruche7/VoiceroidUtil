@@ -16,7 +16,7 @@
     ResizeMode="CanResizeWithGrip"
     UseLayoutRounding="True"
     Width="400"
-    Height="280"
+    Height="460"
     MinWidth="320"
     MinHeight="232">
     <Window.DataContext>
