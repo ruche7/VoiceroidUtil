@@ -224,7 +224,7 @@ namespace VoiceroidUtil.ViewModel
             // 有効なパスがあれば受け入れエフェクト設定
             if (FindDirectoryPath(e?.Data) != null)
             {
-                e.Effects = DragDropEffects.Copy;
+                e.Effects = DragDropEffects.Move;
                 e.Handled = true;
             }
         }
@@ -240,6 +240,8 @@ namespace VoiceroidUtil.ViewModel
             {
                 return;
             }
+
+            e.Handled = true;
 
             // 末尾がディレクトリ区切り文字なら削除し、フルパスにする
             if (Path.GetFileName(path) == "")
