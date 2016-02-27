@@ -30,6 +30,7 @@ namespace VoiceroidUtil.Messaging
         {
             try
             {
+                // 存在するパスが見つかるまで親ディレクトリを辿る
                 while (!string.IsNullOrWhiteSpace(path) && !Directory.Exists(path))
                 {
                     path = Path.GetDirectoryName(path);

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Util;
@@ -40,6 +42,24 @@ namespace VoiceroidUtil.ViewModel
                 (new ReactiveCommand()).AddTo(this.CompositeDisposable);
             this.OpenSaveDirectoryCommand
                 .Subscribe(async _ => await this.ExecuteOpenSaveDirectoryCommand())
+                .AddTo(this.CompositeDisposable);
+
+            // 保存先ディレクトリドラッグオーバーコマンド
+            this.DragOverSaveDirectoryCommand =
+                this.CanModify
+                    .ToReactiveCommand<DragEventArgs>()
+                    .AddTo(this.CompositeDisposable);
+            this.DragOverSaveDirectoryCommand
+                .Subscribe(e => this.ExecuteDragOverSaveDirectoryCommand(e))
+                .AddTo(this.CompositeDisposable);
+
+            // 保存先ディレクトリドロップコマンド
+            this.DropSaveDirectoryCommand =
+                this.CanModify
+                    .ToReactiveCommand<DragEventArgs>()
+                    .AddTo(this.CompositeDisposable);
+            this.DropSaveDirectoryCommand
+                .Subscribe(e => this.ExecuteDropSaveDirectoryCommand(e))
                 .AddTo(this.CompositeDisposable);
 
             // ロードコマンド
@@ -97,6 +117,16 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveCommand OpenSaveDirectoryCommand { get; }
 
         /// <summary>
+        /// 保存先ディレクトリドラッグオーバーコマンドを取得する。
+        /// </summary>
+        public ReactiveCommand<DragEventArgs> DragOverSaveDirectoryCommand { get; }
+
+        /// <summary>
+        /// 保存先ディレクトリドロップコマンドを取得する。
+        /// </summary>
+        public ReactiveCommand<DragEventArgs> DropSaveDirectoryCommand { get; }
+
+        /// <summary>
         /// アプリ設定ロードコマンドを取得する。
         /// </summary>
         public ReactiveCommand LoadCommand { get; }
@@ -105,6 +135,44 @@ namespace VoiceroidUtil.ViewModel
         /// アプリ設定セーブコマンドを取得する。
         /// </summary>
         public ReactiveCommand SaveCommand { get; }
+
+        /// <summary>
+        /// IDataObject オブジェクトから有効なディレクトリパスを検索する。
+        /// </summary>
+        /// <param name="data">IDataObject オブジェクト。</param>
+        /// <returns>ディレクトリパス。見つからなければ null 。</returns>
+        private static string FindDirectoryPath(IDataObject data)
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            string path = null;
+
+            if (data.GetDataPresent(DataFormats.FileDrop, true))
+            {
+                // 複数ディレクトリドロップは不可とする
+                var pathes = data.GetData(DataFormats.FileDrop, true) as string[];
+                path = (pathes?.Length == 1) ? pathes[0] : null;
+            }
+            else if (data.GetDataPresent(DataFormats.Text, true))
+            {
+                path = (data.GetData(DataFormats.Text, true) as string)?.Trim();
+                if (path != null)
+                {
+                    // 相対パスは不可とする
+                    if (
+                        path.IndexOfAny(Path.GetInvalidPathChars()) >= 0 ||
+                        !Path.IsPathRooted(path))
+                    {
+                        path = null;
+                    }
+                }
+            }
+
+            return (path != null && Directory.Exists(path)) ? path : null;
+        }
 
         /// <summary>
         /// アプリ設定の保持と読み書きを行うオブジェクトを取得する。
@@ -144,6 +212,53 @@ namespace VoiceroidUtil.ViewModel
             if (msg.Response != null && msg.Response.StatusType != AppStatusType.None)
             {
                 this.LastStatus.Value = msg.Response;
+            }
+        }
+
+        /// <summary>
+        /// DragOverSaveDirectoryCommand の実処理を行う。
+        /// </summary>
+        /// <param name="e">ドラッグイベントデータ。</param>
+        private void ExecuteDragOverSaveDirectoryCommand(DragEventArgs e)
+        {
+            // 有効なパスがあれば受け入れエフェクト設定
+            if (FindDirectoryPath(e?.Data) != null)
+            {
+                e.Effects = DragDropEffects.Copy;
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// DropSaveDirectoryCommand の実処理を行う。
+        /// </summary>
+        /// <param name="e">ドラッグイベントデータ。</param>
+        private void ExecuteDropSaveDirectoryCommand(DragEventArgs e)
+        {
+            var path = FindDirectoryPath(e?.Data);
+            if (path == null)
+            {
+                return;
+            }
+
+            // 末尾がディレクトリ区切り文字なら削除し、フルパスにする
+            if (Path.GetFileName(path) == "")
+            {
+                path = Path.GetDirectoryName(path);
+            }
+            path = Path.GetFullPath(path);
+
+            // パスが正常かチェック
+            var status = FilePathUtil.CheckPathStatus(path);
+            if (status != null)
+            {
+                // 正常ならパス上書き
+                if (status.StatusType == AppStatusType.None)
+                {
+                    this.Value.SaveDirectoryPath = path;
+                }
+
+                this.LastStatus.Value = status;
             }
         }
 

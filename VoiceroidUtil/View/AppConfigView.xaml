@@ -3,7 +3,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:v="clr-namespace:VoiceroidUtil.View"
@@ -55,7 +57,13 @@
                 Margin="2,0,0,0"
                 VerticalContentAlignment="Center"
                 AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
-                Grid.Column="1" />
+                Grid.Column="1">
+                <i:Interaction.Behaviors>
+                    <ru:DragDropCommandBehavior
+                        PreviewDragOverCommand="{Binding DragOverSaveDirectoryCommand}"
+                        DropCommand="{Binding DropSaveDirectoryCommand}" />
+                </i:Interaction.Behaviors>
+            </tk:AutoSelectTextBox>
             <Button
                 Command="{Binding OpenSaveDirectoryCommand}"
                 ToolTip="保存先フォルダーを開く (Ctrl+E)"
