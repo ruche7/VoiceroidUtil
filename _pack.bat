@@ -41,6 +41,11 @@ if errorlevel 1 goto ON_ERROR
 xcopy /Y "%SRC_DOC_FILE%" "%DEST_BASE_DIR%"
 if errorlevel 1 goto ON_ERROR
 
+REM ---- remove unused files
+
+del /S /Q "%DEST_SYSTEM_DIR%"\Xceed.Wpf.AvalonDock.* >nul 2>&1
+del /S /Q "%DEST_SYSTEM_DIR%"\Xceed.Wpf.DataGrid.dll >nul 2>&1
+
 exit /b 0
 
 :ON_ERROR
