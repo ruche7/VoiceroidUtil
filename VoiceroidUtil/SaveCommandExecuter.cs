@@ -181,11 +181,23 @@ namespace VoiceroidUtil
             {
                 await this.NotifyResult(
                     AppStatusType.Fail,
-                    @"処理を開始できませんでした。");
+                    @"ファイル保存を開始できませんでした。");
                 return;
             }
 
             var process = this.ProcessFactory.Get(config.VoiceroidId);
+            if (
+                process == null ||
+                !process.IsRunning ||
+                process.IsSaving ||
+                process.IsDialogShowing)
+            {
+                await this.NotifyResult(
+                    AppStatusType.Fail,
+                    @"ファイル保存を開始できませんでした。");
+                return;
+            }
+
             var text = this.TalkTextGetter();
 
             // WAVEファイルパス作成
@@ -194,7 +206,7 @@ namespace VoiceroidUtil
             {
                 await this.NotifyResult(
                     AppStatusType.Fail,
-                    @"処理を開始できませんでした。");
+                    @"ファイル保存を開始できませんでした。");
                 return;
             }
 
