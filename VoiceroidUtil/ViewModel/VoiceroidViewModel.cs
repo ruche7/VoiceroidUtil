@@ -84,6 +84,11 @@ namespace VoiceroidUtil.ViewModel
                     .ObserveSelectedProcessProperty(p => p.IsSaving)
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
+            this.IsProcessDialogShowing =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsDialogShowing)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
 
             // トークテキスト
             this.TalkText =
@@ -128,6 +133,7 @@ namespace VoiceroidUtil.ViewModel
                     this.IsIdle,
                     this.IsProcessRunning,
                     this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f),
                     new[]
                     {
                         this.IsProcessPlaying,
@@ -149,6 +155,7 @@ namespace VoiceroidUtil.ViewModel
                     this.IsIdle,
                     this.IsProcessRunning,
                     this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f),
                     this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                 }
                 .CombineLatestValuesAreAllTrue()
@@ -226,6 +233,11 @@ namespace VoiceroidUtil.ViewModel
         /// 選択中のVOICEROIDプロセスがWAVEファイル保存中であるか否かを取得する。
         /// </summary>
         public ReadOnlyReactiveProperty<bool> IsProcessSaving { get; }
+
+        /// <summary>
+        /// 選択中のVOICEROIDプロセスがダイアログ表示中であるか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsProcessDialogShowing { get; }
 
         /// <summary>
         /// トークテキストを取得する。
