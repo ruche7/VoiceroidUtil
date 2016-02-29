@@ -158,19 +158,25 @@ namespace VoiceroidUtil
         /// テキストからファイル名の一部を作成する。
         /// </summary>
         /// <param name="text">テキスト。</param>
-        /// <param name="maxLength">最大文字数。 1 以上であること。</param>
+        /// <param name="maxLength">最大文字数。 2 以上であること。</param>
         /// <returns>作成した文字列。</returns>
-        private static string MakeFileNamePartFromText(string text, int maxLength = 12)
+        /// <remarks>
+        /// テキストが最大文字数を超える場合、末尾に "+残り文字数" が付与され、
+        /// それと合わせて最大文字数となるようにテキストが削られる。
+        /// "+残り文字数" を入れる余裕がない場合は代わりに "-" が付与される。
+        /// </remarks>
+        private static string MakeFileNamePartFromText(string text, int maxLength = 13)
         {
             if (text == null)
             {
                 throw new ArgumentNullException(nameof(text));
             }
-            if (maxLength <= 0)
+            if (maxLength < 2)
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
+            // CP932で表せない文字はVOICEROIDで扱えないため変換
             var dest = ToCodePage932String(text);
 
             // 空白文字を半角スペース1文字に短縮
@@ -182,13 +188,23 @@ namespace VoiceroidUtil
                     from c in RegexBlank.Replace(dest, " ")
                     select (Array.IndexOf(invalidChars, c) < 0) ? c : '_');
 
-            // 文字数制限
-            if (dest.Length > maxLength)
+            if (dest.Length <= maxLength)
             {
-                dest = dest.Substring(0, maxLength - 1) + "-";
+                return dest;
             }
 
-            return dest;
+            // "+残り文字数" 付与を試みる
+            for (int len = maxLength - 2; len > 0; --len)
+            {
+                var tail = @"+" + (dest.Length - len);
+                if (len + tail.Length <= maxLength)
+                {
+                    return dest.Substring(0, len) + tail;
+                }
+            }
+
+            // "-" を付与して返す
+            return dest.Substring(0, maxLength - 1) + @"-";
         }
     }
 }
