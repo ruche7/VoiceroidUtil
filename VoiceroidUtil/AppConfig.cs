@@ -109,6 +109,18 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 直前と同じキャラ＆トークテキストの場合にファイルを上書きするか否かを
+        /// 取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsOverwritingIfSame
+        {
+            get { return this.overwritingIfSame; }
+            set { this.SetProperty(ref this.overwritingIfSame, value); }
+        }
+        private bool overwritingIfSame = true;
+
+        /// <summary>
         /// テキストファイルを必ず作成するか否かを取得または設定する。
         /// </summary>
         [DataMember]

@@ -94,6 +94,10 @@
                 </ComboBox>
             </DockPanel>
             <CheckBox
+                Content="直前と同じキャラ＆入力文ならファイルを上書き(_W)"
+                IsChecked="{Binding Value.IsOverwritingIfSame}"
+                Margin="0,4,0,0" />
+            <CheckBox
                 x:Name="Setting_ForceText"
                 Content="テキストファイルを必ず作成(_T)"
                 IsChecked="{Binding Value.IsTextFileForceMaking}"
