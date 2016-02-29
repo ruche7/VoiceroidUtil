@@ -40,6 +40,11 @@ namespace RucheHome.Voiceroid
         bool IsSaving { get; }
 
         /// <summary>
+        /// いずれかのダイアログが表示中であるか否かを取得する。
+        /// </summary>
+        bool IsDialogShowing { get; }
+
+        /// <summary>
         /// トークテキストを取得する。
         /// </summary>
         /// <returns>トークテキスト。取得できなかったならば null 。</returns>
@@ -83,8 +88,7 @@ namespace RucheHome.Voiceroid
         /// 再生中の場合は停止させる。
         /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
         /// 
-        /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
-        /// 角カッコ数値文字列が追加される。
+        /// 既に同じ名前のWAVEファイルが存在する場合は上書きする。
         /// 
         /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
         /// </remarks>

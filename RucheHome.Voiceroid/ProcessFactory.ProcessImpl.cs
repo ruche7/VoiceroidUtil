@@ -97,10 +97,16 @@ namespace RucheHome.Voiceroid
                         (await this.FindSaveDialog()) != null ||
                         (await this.FindSaveProgressDialog()) != null);
 
-                    if (!this.IsSaving)
+                    if (this.IsSaving)
+                    {
+                        this.IsDialogShowing = true;
+                    }
+                    else
                     {
                         // 保存ボタンが押せない状態＝再生中と判定
                         this.IsPlaying = !this.SaveButton.IsEnabled;
+
+                        await this.UpdateDialogShowing();
                     }
                 }
                 finally
@@ -141,29 +147,31 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(filePath));
                 }
 
-                // 拡張子抜きのフルパスを作成
-                var basePath = Path.GetFullPath(filePath);
-                if (Path.GetExtension(basePath).ToLower() == @".wav")
+                var path = Path.GetFullPath(filePath);
+                if (Path.GetExtension(path)?.ToLower() != @".wav")
                 {
-                    basePath = Path.ChangeExtension(basePath, null);
+                    path += @".wav";
                 }
-
-                // 終端の "[数値]" を削除
-                basePath = RegexWaveFileDigit.Replace(basePath, "");
-
-                // 重複しないパスを作成
-                // テキストファイルが同時出力されるのでそちらもチェック
-                var path = basePath;
-                for (
-                    int i = 1;
-                    File.Exists(path + @".wav") || File.Exists(path + @".txt");
-                    ++i)
-                {
-                    path = basePath + @"[" + i + @"]";
-                }
-                path += @".wav";
 
                 return path;
+            }
+
+            /// <summary>
+            /// WAVEファイルまたはテキストファイルが存在するか否かを取得する。
+            /// </summary>
+            /// <param name="filePath">ファイルパス。拡張子は無視される。</param>
+            /// <returns>存在するならば true 。そうでなければ false 。</returns>
+            private static bool IsWaveOrTextFileExists(string filePath)
+            {
+                if (filePath == null)
+                {
+                    throw new ArgumentNullException(nameof(filePath));
+                }
+
+                var wav = Path.ChangeExtension(filePath, @".wav");
+                var txt = Path.ChangeExtension(filePath, @".txt");
+
+                return (File.Exists(wav) || File.Exists(txt));
             }
 
             /// <summary>
@@ -339,10 +347,11 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// 保存ダイアログを検索する。
+            /// メインウィンドウをオーナーとするダイアログを検索する。
             /// </summary>
-            /// <returns>保存ダイアログ。見つからなければ null 。</returns>
-            private async Task<Win32Window> FindSaveDialog()
+            /// <param name="title">タイトル文字列。限定しないならば null 。</param>
+            /// <returns>ダイアログ。見つからなければ null 。</returns>
+            private async Task<Win32Window> FindDialog(string title = null)
             {
                 var mainWin = this.MainWindow;
                 if (mainWin == null)
@@ -352,28 +361,27 @@ namespace RucheHome.Voiceroid
 
                 return
                     await Win32Window.Desktop
-                        .FindChildren(text: SaveDialogTitle)
+                        .FindChildren(text: title)
                         .ToObservable()
                         .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainWin.Handle);
+            }
+
+            /// <summary>
+            /// 保存ダイアログを検索する。
+            /// </summary>
+            /// <returns>保存ダイアログ。見つからなければ null 。</returns>
+            private Task<Win32Window> FindSaveDialog()
+            {
+                return this.FindDialog(SaveDialogTitle);
             }
 
             /// <summary>
             /// 保存進捗ダイアログを検索する。
             /// </summary>
             /// <returns>保存進捗ダイアログ。見つからなければ null 。</returns>
-            private async Task<Win32Window> FindSaveProgressDialog()
+            private Task<Win32Window> FindSaveProgressDialog()
             {
-                var mainWin = this.MainWindow;
-                if (mainWin == null)
-                {
-                    return null;
-                }
-
-                return
-                    await Win32Window.Desktop
-                        .FindChildren(text: SaveProgressDialogTitle)
-                        .ToObservable()
-                        .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainWin.Handle);
+                return this.FindDialog(SaveProgressDialogTitle);
             }
 
             /// <summary>
@@ -391,6 +399,21 @@ namespace RucheHome.Voiceroid
                 this.IsRunning = false;
                 this.IsPlaying = false;
                 this.IsSaving = false;
+            }
+
+            /// <summary>
+            /// IsDialogShowing プロパティ値を更新する。
+            /// </summary>
+            /// <returns>更新した値。</returns>
+            private async Task<bool> UpdateDialogShowing()
+            {
+                // 開いていても影響のないダイアログは無視
+                this.IsDialogShowing =
+                    ((await this.FindSaveDialog()) != null) ||
+                    ((await this.FindSaveProgressDialog()) != null) ||
+                    ((await this.FindDialog(@"注意")) != null);
+
+                return this.IsDialogShowing;
             }
 
             /// <summary>
@@ -431,19 +454,23 @@ namespace RucheHome.Voiceroid
             /// </returns>
             private async Task<Win32Window> DoFindFileNameEditTask()
             {
-                // 保存ダイアログ検索
-                var dialog =
-                    await RepeatUntil(
-                        this.FindSaveDialog,
-                        (Win32Window d) => d != null,
-                        100);
+                // いずれかのダイアログが出るまで待つ
+                if (!(await RepeatUntil(this.UpdateDialogShowing, f => f, 100)))
+                {
+                    return null;
+                }
+
+                // 保存ダイアログ取得
+                var dialog = await this.FindSaveDialog();
                 if (dialog == null)
                 {
                     return null;
                 }
 
+                // 表示直後はコントロール生成し終わっていないので少し待つ
+                await Task.Delay(100);
+
                 // ファイルパス設定先のエディットコントロール取得
-                // ダイアログ作成直後は未作成の場合があるので何度か調べる
                 var fileNameEdit =
                     await RepeatUntil(
                         () => FindFileDialogFileNameEdit(dialog),
@@ -480,6 +507,18 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
+                // 既存のファイルを削除
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+                var txtPath = Path.ChangeExtension(filePath, @".txt");
+                if (File.Exists(txtPath))
+                {
+                    File.Delete(txtPath);
+                }
+
+                // ENTERキー押下
                 fileNameEdit.PostMessage(
                     WM_KEYDOWN,
                     new IntPtr(VK_RETURN),
@@ -606,6 +645,16 @@ namespace RucheHome.Voiceroid
             private bool saving = false;
 
             /// <summary>
+            /// いずれかのダイアログが表示中であるか否かを取得する。
+            /// </summary>
+            public bool IsDialogShowing
+            {
+                get { return this.dialogShowing; }
+                set { this.SetProperty(ref this.dialogShowing, value); }
+            }
+            private bool dialogShowing = false;
+
+            /// <summary>
             /// トークテキストを取得する。
             /// </summary>
             /// <returns>トークテキスト。取得できなかったならば null 。</returns>
@@ -661,6 +710,7 @@ namespace RucheHome.Voiceroid
                     this.PlayButton == null ||
                     this.IsSaving ||
                     string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    (await this.UpdateDialogShowing()) ||
                     !(await this.SetTalkTextCursorToHead()))
                 {
                     return false;
@@ -672,15 +722,16 @@ namespace RucheHome.Voiceroid
                 }
                 this.IsPlaying = true; // 一応立てる
 
-                // 保存ボタンが無効になるまで少し待つ
-                // 一瞬で再生完了する可能性があるためあまり待たず、失敗にもしない
+                // 保存ボタンが無効になるかダイアログが出るまで待つ
+                // ダイアログが出ない限りは失敗にしない
                 await RepeatUntil(
-                    () => this.SaveButton?.IsEnabled,
-                    e => e != true,
-                    15,
+                    async () =>
+                        this.SaveButton?.IsEnabled != true ||
+                        (await this.UpdateDialogShowing()),
+                    f => f,
+                    20,
                     10);
-
-                return true;
+                return !this.IsDialogShowing;
             }
 
             /// <summary>
@@ -724,8 +775,7 @@ namespace RucheHome.Voiceroid
             /// 再生中の場合は停止させる。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
             /// 
-            /// 既に同じ名前のWAVEファイルが存在する場合は拡張子の手前に "[1]" 等の
-            /// 角カッコ数値文字列が追加される。
+            /// 既に同じ名前のWAVEファイルが存在する場合は上書きする。
             /// 
             /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
             /// </remarks>
@@ -739,12 +789,14 @@ namespace RucheHome.Voiceroid
                 if (
                     this.SaveButton == null ||
                     this.IsSaving ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()))
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    (await this.UpdateDialogShowing()))
                 {
                     return new FileSaveResult(
                         false,
                         error: @"ファイル保存を開始できませんでした。");
                 }
+
                 if (!(await this.Stop()))
                 {
                     return new FileSaveResult(
@@ -781,9 +833,11 @@ namespace RucheHome.Voiceroid
                     var fileNameEdit = await this.DoFindFileNameEditTask();
                     if (fileNameEdit == null)
                     {
-                        return new FileSaveResult(
-                            false,
-                            error: @"ファイル保存ダイアログが見つかりませんでした。");
+                        var msg =
+                            (await this.UpdateDialogShowing()) ?
+                                @"ファイル保存を開始できませんでした。" :
+                                @"ファイル保存ダイアログが見つかりませんでした。";
+                        return new FileSaveResult(false, error: msg);
                     }
 
                     // ファイル保存
