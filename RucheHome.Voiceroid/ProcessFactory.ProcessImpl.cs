@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
 namespace RucheHome.Voiceroid
@@ -216,15 +217,10 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(dialog));
                 }
 
-                // 2つ上が ComboBoxEx32 の場合はアドレスバーなので除外
+                // 5つ上の親がファイルダイアログ自身である Edit を探す
                 return
                     (await dialog.FindDescendantsAsync(@"Edit"))
-                        .FirstOrDefault(
-                            c =>
-                            {
-                                var name = c.GetAncestor(2)?.ClassName;
-                                return (name != null && name != @"ComboBoxEx32");
-                            });
+                        .FirstOrDefault(c => c.GetAncestor(5)?.Handle == dialog.Handle);
             }
 
             /// <summary>
@@ -467,8 +463,7 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                // 表示直後はコントロール生成し終わっていないので少し待つ
-                await Task.Delay(100);
+                ThreadDebug.WriteLine(@"dialog found");
 
                 // ファイルパス設定先のエディットコントロール取得
                 var fileNameEdit =
@@ -480,6 +475,8 @@ namespace RucheHome.Voiceroid
                 {
                     return null;
                 }
+
+                ThreadDebug.WriteLine(@"edit found");
 
                 return fileNameEdit;
             }
@@ -518,6 +515,8 @@ namespace RucheHome.Voiceroid
                     File.Delete(txtPath);
                 }
 
+                ThreadDebug.WriteLine(@"push ENTER key");
+
                 // ENTERキー押下
                 fileNameEdit.PostMessage(
                     WM_KEYDOWN,
@@ -546,6 +545,8 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
+                ThreadDebug.WriteLine(@"wait");
+
                 // ファイル保存 or 保存進捗ダイアログ表示 を待つ
                 bool saved = false;
                 bool found =
@@ -557,18 +558,28 @@ namespace RucheHome.Voiceroid
                         100);
                 if (saved)
                 {
+                    ThreadDebug.WriteLine(@"saved");
+
                     return true;
                 }
 
                 // 保存進捗ダイアログが閉じるまで待つ
                 if (found)
                 {
+                    ThreadDebug.WriteLine(@"dialog found");
+
                     await RepeatUntil(
                         this.FindSaveProgressDialog,
                         (Win32Window d) => d == null);
+
+                    ThreadDebug.WriteLine(@"dialog closed");
                 }
 
-                return await RepeatUntil(() => File.Exists(filePath), r => r, 10);
+                saved = await RepeatUntil(() => File.Exists(filePath), r => r, 10);
+
+                ThreadDebug.WriteLine(@"saved=" + saved);
+
+                return saved;
             }
 
             /// <summary>
@@ -781,6 +792,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public async Task<FileSaveResult> Save(string filePath)
             {
+                ThreadDebug.WriteLine(@"init Save");
+
                 if (filePath == null)
                 {
                     throw new ArgumentNullException(nameof(filePath));
@@ -804,6 +817,8 @@ namespace RucheHome.Voiceroid
                         error: @"再生中の音声を停止できませんでした。");
                 }
 
+                ThreadDebug.WriteLine(@"begin running");
+
                 this.IsSaveTaskRunning = true;
                 this.IsSaving = true;
 
@@ -821,6 +836,8 @@ namespace RucheHome.Voiceroid
                             error: @"保存先フォルダーを作成できませんでした。");
                     }
 
+                    ThreadDebug.WriteLine(@"push button");
+
                     // 保存ボタン押下
                     if (this.SaveButton?.PostMessage(BM_CLICK) != true)
                     {
@@ -828,6 +845,8 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"音声保存ボタンを押下できませんでした。");
                     }
+
+                    ThreadDebug.WriteLine(@"begin DoFindFileNameEditTask");
 
                     // ファイル名エディットコントロールを非同期で探す
                     var fileNameEdit = await this.DoFindFileNameEditTask();
@@ -840,6 +859,9 @@ namespace RucheHome.Voiceroid
                         return new FileSaveResult(false, error: msg);
                     }
 
+                    ThreadDebug.WriteLine(@"end DoFindFileNameEditTask");
+                    ThreadDebug.WriteLine(@"begin DoSaveFileTask");
+
                     // ファイル保存
                     if (!(await this.DoSaveFileTask(fileNameEdit, path)))
                     {
@@ -847,6 +869,9 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"ファイル保存処理に失敗しました。");
                     }
+
+                    ThreadDebug.WriteLine(@"end DoSaveFileTask");
+                    ThreadDebug.WriteLine(@"begin DoCheckFileSavedTask");
 
                     // ファイル保存成否を非同期で確認
                     bool saved = await this.DoCheckFileSavedTask(path);
@@ -856,11 +881,17 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"ファイル保存を確認できませんでした。");
                     }
+
+                    ThreadDebug.WriteLine(@"end DoCheckFileSavedTask");
                 }
                 finally
                 {
                     this.IsSaveTaskRunning = false;
+
+                    ThreadDebug.WriteLine(@"end running");
                 }
+
+                ThreadDebug.WriteLine(@"exit Save");
 
                 return new FileSaveResult(true, path);
             }

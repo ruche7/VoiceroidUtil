@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -88,6 +89,8 @@ namespace VoiceroidUtil
             string text,
             bool utf8)
         {
+            ThreadDebug.WriteLine(@"init WriteTextFile");
+
             if (string.IsNullOrWhiteSpace(filePath) || text == null)
             {
                 return false;
@@ -105,6 +108,8 @@ namespace VoiceroidUtil
             {
                 return false;
             }
+
+            ThreadDebug.WriteLine(@"exit WriteTextFile");
 
             return true;
         }
@@ -202,6 +207,8 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecuteAsync()
         {
+            ThreadDebug.WriteLine(@"init ExecuteAsync");
+
             var config = this.ConfigGetter();
             if (config == null)
             {
@@ -260,6 +267,8 @@ namespace VoiceroidUtil
                 return;
             }
 
+            ThreadDebug.WriteLine(@"begin process.Save");
+
             // WAVEファイル保存
             var result = await process.Save(filePath);
             if (!result.IsSucceeded)
@@ -267,6 +276,8 @@ namespace VoiceroidUtil
                 await this.NotifyResult(AppStatusType.Fail, result.Error);
                 return;
             }
+
+            ThreadDebug.WriteLine(@"end process.Save");
 
             filePath = result.FilePath;
 
@@ -282,6 +293,8 @@ namespace VoiceroidUtil
             // テキストファイル保存
             if (config.IsTextFileForceMaking)
             {
+                ThreadDebug.WriteLine(@"begin WriteTextFile");
+
                 var txtPath = Path.ChangeExtension(filePath, @".txt");
                 if (!(await WriteTextFile(txtPath, text, config.IsTextFileUtf8)))
                 {
@@ -292,16 +305,24 @@ namespace VoiceroidUtil
                         @"テキストファイルを保存できませんでした。");
                     return;
                 }
+
+                ThreadDebug.WriteLine(@"end WriteTextFile");
             }
+
+            ThreadDebug.WriteLine(@"begin DoOperateYmm");
 
             // ゆっくりMovieMaker処理
             var warnText = await DoOperateYmm(filePath, config);
+
+            ThreadDebug.WriteLine(@"end DoOperateYmm");
 
             await this.NotifyResult(
                 AppStatusType.Success,
                 statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText);
+
+            ThreadDebug.WriteLine(@"exit ExecuteAsync");
         }
 
         /// <summary>
