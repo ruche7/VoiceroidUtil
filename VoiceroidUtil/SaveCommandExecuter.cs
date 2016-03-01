@@ -56,8 +56,19 @@ namespace VoiceroidUtil
 
             var name =
                 FilePathUtil.MakeFileName(config.FileNameFormat, process.Id, talkText);
+            var basePath = Path.Combine(config.SaveDirectoryPath, name);
 
-            return Path.Combine(config.SaveDirectoryPath, name + @".wav");
+            // 同名ファイルがあるならば名前の末尾に "[数字]" を付ける
+            var path = basePath;
+            for (
+                int i = 1;
+                File.Exists(path + @".wav") || File.Exists(path + @".txt");
+                ++i)
+            {
+                path = basePath + @"[" + i + @"]";
+            }
+
+            return path;
         }
 
         /// <summary>
@@ -172,6 +183,21 @@ namespace VoiceroidUtil
         private Func<IAppStatus, Task> ResultNotifier { get; }
 
         /// <summary>
+        /// 直近のVOICEROID識別IDを取得または設定する。
+        /// </summary>
+        private VoiceroidId LastVoiceroidId { get; set; } = VoiceroidId.YukariEx;
+
+        /// <summary>
+        /// 直近のトークテキストを取得または設定する。
+        /// </summary>
+        private string LastTalkText { get; set; } = null;
+
+        /// <summary>
+        /// 直近のWAVEファイルパスを取得または設定する。
+        /// </summary>
+        private string LastWaveFilePath { get; set; } = null;
+
+        /// <summary>
         /// 非同期の実処理を行う。
         /// </summary>
         private async Task ExecuteAsync()
@@ -200,8 +226,17 @@ namespace VoiceroidUtil
 
             var text = this.TalkTextGetter();
 
-            // WAVEファイルパス作成
-            var filePath = MakeWaveFilePath(config, process, text);
+            // 前回と同じファイルパスを使うか否か
+            bool overwrite = (
+                config.IsOverwritingIfSame &&
+                this.LastWaveFilePath != null &&
+                this.LastVoiceroidId == process.Id &&
+                this.LastTalkText == text);
+
+            // WAVEファイルパス決定
+            var filePath =
+                overwrite ?
+                    this.LastWaveFilePath : MakeWaveFilePath(config, process, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
@@ -234,7 +269,15 @@ namespace VoiceroidUtil
             }
 
             filePath = result.FilePath;
-            var fileName = Path.GetFileName(filePath);
+
+            var statusText =
+                Path.GetFileName(filePath) +
+                (overwrite ? @" を上書き保存しました。" : @" を保存しました。");
+
+            // 最新保存情報記録
+            this.LastVoiceroidId = process.Id;
+            this.LastTalkText = text;
+            this.LastWaveFilePath = filePath;
 
             // テキストファイル保存
             if (config.IsTextFileForceMaking)
@@ -244,7 +287,7 @@ namespace VoiceroidUtil
                 {
                     await this.NotifyResult(
                         AppStatusType.Success,
-                        fileName + @" を保存しました。",
+                        statusText,
                         AppStatusType.Fail,
                         @"テキストファイルを保存できませんでした。");
                     return;
@@ -256,7 +299,7 @@ namespace VoiceroidUtil
 
             await this.NotifyResult(
                 AppStatusType.Success,
-                fileName + @" を保存しました。",
+                statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText);
         }
