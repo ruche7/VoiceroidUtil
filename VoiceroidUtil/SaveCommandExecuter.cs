@@ -89,31 +89,38 @@ namespace VoiceroidUtil
             string text,
             bool utf8)
         {
-            ThreadTrace.WriteLine(@"init WriteTextFile");
-
             if (string.IsNullOrWhiteSpace(filePath) || text == null)
             {
                 return false;
             }
 
             var encoding = utf8 ? Encoding.UTF8 : Encoding.GetEncoding(932);
-            try
+
+            // VOICEROID側がテキストファイル書き出し中だと失敗するので複数回試行
+            bool saved = false;
+            for (int i = 0; !saved && i < 10; ++i)
             {
-                using (var writer = new StreamWriter(filePath, false, encoding))
+                try
                 {
-                    await writer.WriteAsync(text);
+                    using (var writer = new StreamWriter(filePath, false, encoding))
+                    {
+                        await writer.WriteAsync(text);
+                    }
+
+                    saved = true;
                 }
-
-                ThreadTrace.WriteLine(Path.GetFileName(filePath) + @" saved");
+                catch (IOException)
+                {
+                    await Task.Delay(50);
+                    continue;
+                }
+                catch
+                {
+                    break;
+                }
             }
-            catch
-            {
-                return false;
-            }
 
-            ThreadTrace.WriteLine(@"exit WriteTextFile");
-
-            return true;
+            return saved;
         }
 
         /// <summary>
@@ -209,8 +216,6 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecuteAsync()
         {
-            ThreadTrace.WriteLine(@"init ExecuteAsync");
-
             var config = this.ConfigGetter();
             if (config == null)
             {
@@ -269,8 +274,6 @@ namespace VoiceroidUtil
                 return;
             }
 
-            ThreadTrace.WriteLine(@"begin process.Save");
-
             // WAVEファイル保存
             var result = await process.Save(filePath);
             if (!result.IsSucceeded)
@@ -278,8 +281,6 @@ namespace VoiceroidUtil
                 await this.NotifyResult(AppStatusType.Fail, result.Error);
                 return;
             }
-
-            ThreadTrace.WriteLine(@"end process.Save");
 
             filePath = result.FilePath;
 
@@ -295,8 +296,6 @@ namespace VoiceroidUtil
             // テキストファイル保存
             if (config.IsTextFileForceMaking)
             {
-                ThreadTrace.WriteLine(@"begin WriteTextFile");
-
                 var txtPath = Path.ChangeExtension(filePath, @".txt");
                 if (!(await WriteTextFile(txtPath, text, config.IsTextFileUtf8)))
                 {
@@ -307,24 +306,16 @@ namespace VoiceroidUtil
                         @"テキストファイルを保存できませんでした。");
                     return;
                 }
-
-                ThreadTrace.WriteLine(@"end WriteTextFile");
             }
-
-            ThreadTrace.WriteLine(@"begin DoOperateYmm");
 
             // ゆっくりMovieMaker処理
             var warnText = await DoOperateYmm(filePath, config);
-
-            ThreadTrace.WriteLine(@"end DoOperateYmm");
 
             await this.NotifyResult(
                 AppStatusType.Success,
                 statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText);
-
-            ThreadTrace.WriteLine(@"exit ExecuteAsync");
         }
 
         /// <summary>
