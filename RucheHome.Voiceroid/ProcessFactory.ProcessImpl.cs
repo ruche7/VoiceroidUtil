@@ -407,7 +407,8 @@ namespace RucheHome.Voiceroid
                 this.IsDialogShowing =
                     ((await this.FindSaveDialog()) != null) ||
                     ((await this.FindSaveProgressDialog()) != null) ||
-                    ((await this.FindDialog(@"注意")) != null);
+                    ((await this.FindDialog(@"注意")) != null) ||
+                    ((await this.FindDialog(@"エラー")) != null);
 
                 return this.IsDialogShowing;
             }
@@ -463,8 +464,6 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                ThreadTrace.WriteLine(@"save dialog found");
-
                 // ファイルパス設定先のエディットコントロール取得
                 var fileNameEdit =
                     await RepeatUntil(
@@ -475,8 +474,6 @@ namespace RucheHome.Voiceroid
                 {
                     return null;
                 }
-
-                ThreadTrace.WriteLine(@"edit found");
 
                 return fileNameEdit;
             }
@@ -515,8 +512,6 @@ namespace RucheHome.Voiceroid
                     File.Delete(txtPath);
                 }
 
-                ThreadTrace.WriteLine(@"push ENTER key");
-
                 // ENTERキー押下
                 fileNameEdit.PostMessage(
                     WM_KEYDOWN,
@@ -538,8 +533,6 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                ThreadTrace.WriteLine(@"save dialog closed");
-
                 return true;
             }
 
@@ -558,8 +551,6 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                ThreadTrace.WriteLine(@"wait");
-
                 // ファイル保存 or 保存進捗ダイアログ表示 を待つ
                 bool saved = false;
                 bool found =
@@ -569,28 +560,26 @@ namespace RucheHome.Voiceroid
                             (await this.FindSaveProgressDialog()) != null,
                         f => f,
                         100);
+                if (!saved)
+                {
+                    // 保存進捗ダイアログが閉じるまで待つ
+                    if (found)
+                    {
+                        await RepeatUntil(
+                            this.FindSaveProgressDialog,
+                            (Win32Window d) => d == null);
+                    }
+
+                    saved = await RepeatUntil(() => File.Exists(filePath), f => f, 10);
+                }
+
                 if (saved)
                 {
-                    ThreadTrace.WriteLine(Path.GetFileName(filePath) + @" saved");
-
-                    return true;
+                    // 同時にテキストファイルが保存される場合があるため少し待つ
+                    // 保存されていなくても失敗にはしない
+                    var txtPath = Path.ChangeExtension(filePath, @".txt");
+                    await RepeatUntil(() => File.Exists(txtPath), f => f, 5);
                 }
-
-                // 保存進捗ダイアログが閉じるまで待つ
-                if (found)
-                {
-                    ThreadTrace.WriteLine(@"progress dialog found");
-
-                    await RepeatUntil(
-                        this.FindSaveProgressDialog,
-                        (Win32Window d) => d == null);
-
-                    ThreadTrace.WriteLine(@"progress dialog closed");
-                }
-
-                saved = await RepeatUntil(() => File.Exists(filePath), r => r, 10);
-
-                ThreadTrace.WriteLine(Path.GetFileName(filePath) + @" saved=" + saved);
 
                 return saved;
             }
@@ -805,8 +794,6 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public async Task<FileSaveResult> Save(string filePath)
             {
-                ThreadTrace.WriteLine(@"init Save");
-
                 if (filePath == null)
                 {
                     throw new ArgumentNullException(nameof(filePath));
@@ -830,8 +817,6 @@ namespace RucheHome.Voiceroid
                         error: @"再生中の音声を停止できませんでした。");
                 }
 
-                ThreadTrace.WriteLine(@"begin running");
-
                 this.IsSaveTaskRunning = true;
                 this.IsSaving = true;
 
@@ -849,8 +834,6 @@ namespace RucheHome.Voiceroid
                             error: @"保存先フォルダーを作成できませんでした。");
                     }
 
-                    ThreadTrace.WriteLine(@"push button");
-
                     // 保存ボタン押下
                     if (this.SaveButton?.PostMessage(BM_CLICK) != true)
                     {
@@ -858,8 +841,6 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"音声保存ボタンを押下できませんでした。");
                     }
-
-                    ThreadTrace.WriteLine(@"begin DoFindFileNameEditTask");
 
                     // ファイル名エディットコントロールを非同期で探す
                     var fileNameEdit = await this.DoFindFileNameEditTask();
@@ -872,9 +853,6 @@ namespace RucheHome.Voiceroid
                         return new FileSaveResult(false, error: msg);
                     }
 
-                    ThreadTrace.WriteLine(@"end DoFindFileNameEditTask");
-                    ThreadTrace.WriteLine(@"begin DoSaveFileTask");
-
                     // ファイル保存
                     if (!(await this.DoSaveFileTask(fileNameEdit, path)))
                     {
@@ -882,9 +860,6 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"ファイル保存処理に失敗しました。");
                     }
-
-                    ThreadTrace.WriteLine(@"end DoSaveFileTask");
-                    ThreadTrace.WriteLine(@"begin DoCheckFileSavedTask");
 
                     // ファイル保存成否を非同期で確認
                     bool saved = await this.DoCheckFileSavedTask(path);
@@ -894,17 +869,11 @@ namespace RucheHome.Voiceroid
                             false,
                             error: @"ファイル保存を確認できませんでした。");
                     }
-
-                    ThreadTrace.WriteLine(@"end DoCheckFileSavedTask");
                 }
                 finally
                 {
                     this.IsSaveTaskRunning = false;
-
-                    ThreadTrace.WriteLine(@"end running");
                 }
-
-                ThreadTrace.WriteLine(@"exit Save");
 
                 return new FileSaveResult(true, path);
             }
