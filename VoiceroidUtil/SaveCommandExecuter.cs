@@ -94,7 +94,7 @@ namespace VoiceroidUtil
                 return false;
             }
 
-            var encoding = utf8 ? Encoding.UTF8 : Encoding.GetEncoding(932);
+            var encoding = utf8 ? (new UTF8Encoding(false)) : Encoding.GetEncoding(932);
 
             // VOICEROID側がテキストファイル書き出し中だと失敗するので複数回試行
             bool saved = false;
