@@ -101,7 +101,7 @@ namespace VoiceroidUtil
             }
 
             var text = MakeFileNamePartFromText(talkText);
-            var time = DateTime.Now.ToString("yyMMdd_hhmmss");
+            var time = DateTime.Now.ToString("yyMMdd_HHmmss");
 
             string name;
             switch (format)
