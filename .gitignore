@@ -237,3 +237,8 @@ _Pvt_Extensions
 
 # Others
 __*
+*.avi
+*.wav
+*.mp3
+/data/movie/voice
+/data/movie/*.png
