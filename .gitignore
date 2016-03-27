@@ -240,5 +240,7 @@ __*
 *.avi
 *.wav
 *.mp3
+*.exo
 /data/movie/voice
 /data/movie/*.png
+/data/movie/project
