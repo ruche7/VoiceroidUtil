@@ -238,9 +238,11 @@ _Pvt_Extensions
 # Others
 __*
 *.avi
+*.mp4
 *.wav
 *.mp3
 *.exo
+*.lwi
 /data/movie/voice
 /data/movie/*.png
 /data/movie/project

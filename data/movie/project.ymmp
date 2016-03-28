@@ -743,7 +743,7 @@
     <CommonItem xsi:type="ImageItem">
       <DoubleTimelineX>29668</DoubleTimelineX>
       <TimelineY>4</TimelineY>
-      <DoubleItemEnd>9250</DoubleItemEnd>
+      <DoubleItemEnd>8661</DoubleItemEnd>
       <HeadColor>
         <A>255</A>
         <R>0</R>
@@ -764,7 +764,8 @@
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawY>-45</DrawY>
+      <DrawY>-45.5</DrawY>
+      <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\app.png</FilePath>
     </CommonItem>
     <CommonItem xsi:type="ImageItem">
@@ -791,8 +792,8 @@
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-17.039906103286427</DrawX>
-      <DrawY>-81.084507042253549</DrawY>
+      <DrawX>-21.399999999999864</DrawX>
+      <DrawY>-83.199999999999818</DrawY>
       <Zoom>1.1</Zoom>
       <FadeOut>5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\nc50656.png</FilePath>
@@ -906,8 +907,8 @@
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-66.154929577464827</DrawX>
-      <DrawY>-49.115023474178358</DrawY>
+      <DrawX>-66</DrawX>
+      <DrawY>-50</DrawY>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\voiceroid_logo.png</FilePath>
     </CommonItem>
     <CommonItem xsi:type="ImageItem">
@@ -934,8 +935,8 @@
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>97.227699530516361</DrawX>
-      <DrawY>5.0117370892018016</DrawY>
+      <DrawX>97</DrawX>
+      <DrawY>3</DrawY>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\ymm_logo.png</FilePath>
     </CommonItem>
     <CommonItem xsi:type="AudioItem">
@@ -1134,6 +1135,7 @@ VOICEROIDのセリフが登録される。</Serihu>
         <ScB>1</ScB>
       </FootColor>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\app_ctrl.avi</FilePath>
+      <DrawY>-15</DrawY>
     </CommonItem>
     <CommonItem xsi:type="FaceSetItem">
       <DoubleTimelineX>42839</DoubleTimelineX>
@@ -2067,7 +2069,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawY>70</DrawY>
+      <DrawY>68.5</DrawY>
       <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\config.png</FilePath>
     </CommonItem>
@@ -2279,8 +2281,8 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-1.0023474178403493</DrawX>
-      <DrawY>-79.185446009389722</DrawY>
+      <DrawX>6.7060045117557521E-14</DrawX>
+      <DrawY>-80</DrawY>
       <FadeIn>0.5</FadeIn>
       <FadeOut>0.5</FadeOut>
       <RotationAngle>-0.0025948587882434508</RotationAngle>
@@ -2409,13 +2411,13 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-94.220657276995141</DrawX>
-      <DrawY>-10.023474178403831</DrawY>
+      <DrawX>-96.004694835680752</DrawX>
+      <DrawY>-13.030516431925065</DrawY>
       <FadeIn>0.5</FadeIn>
       <FadeOut>0.5</FadeOut>
       <RotationAngle>-0.0025948587882434508</RotationAngle>
-      <Size>230</Size>
-      <Aspect>-71</Aspect>
+      <Size>210</Size>
+      <Aspect>-68.8</Aspect>
       <StrokeThickness>8</StrokeThickness>
       <Stroke>
         <A>255</A>
@@ -2452,6 +2454,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
+      <DrawY>-45.5</DrawY>
       <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\app.png</FilePath>
     </CommonItem>
@@ -2506,12 +2509,12 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-59.138497652582032</DrawX>
-      <DrawY>72.169014084507069</DrawY>
+      <DrawX>-59</DrawX>
+      <DrawY>27</DrawY>
       <FadeIn>0.5</FadeIn>
       <FadeOut>0.5</FadeOut>
-      <Size>145</Size>
-      <Aspect>-53.9</Aspect>
+      <Size>130</Size>
+      <Aspect>-56</Aspect>
       <StrokeThickness>8</StrokeThickness>
       <Stroke>
         <A>255</A>
@@ -2523,7 +2526,6 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>0</ScB>
       </Stroke>
-      <ShapeType>Circle</ShapeType>
     </CommonItem>
     <CommonItem xsi:type="VoiceItem">
       <DoubleTimelineX>96873</DoubleTimelineX>
@@ -2606,6 +2608,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
+      <DrawY>-50</DrawY>
       <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\ymm_logo.png</FilePath>
     </CommonItem>
@@ -2718,8 +2721,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawX>-3.0070422535211492</DrawX>
-      <DrawY>-25</DrawY>
+      <DrawY>-30</DrawY>
       <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\ymm_timeline.png</FilePath>
     </CommonItem>
@@ -2989,7 +2991,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScG>0</ScG>
         <ScB>1</ScB>
       </FootColor>
-      <DrawY>-151.35446009389671</DrawY>
+      <DrawY>-151.5</DrawY>
       <FadeOut>0.5</FadeOut>
       <FilePath>E:\Users\ruche\Develop\Git\VoiceroidUtil\data\movie\config.png</FilePath>
     </CommonItem>
@@ -3045,7 +3047,7 @@ VOICEROID+ 琴葉茜・葵</Text>
         <ScB>1</ScB>
       </FootColor>
       <DrawX>9.02112676056339</DrawX>
-      <DrawY>-77.1807511737089</DrawY>
+      <DrawY>-77</DrawY>
       <FadeIn>0.5</FadeIn>
       <FadeOut>0.5</FadeOut>
       <Size>369</Size>
@@ -6218,10 +6220,10 @@ VoiceroidUtil</Text>
     </CharacterSetting>
   </UsedCharacters>
   <DoubleTimelineLength>205999</DoubleTimelineLength>
-  <DoubleCurrentPosition>206006.2856</DoubleCurrentPosition>
-  <DoubleTimelineViewOffset>196117</DoubleTimelineViewOffset>
+  <DoubleCurrentPosition>10656.3682</DoubleCurrentPosition>
+  <DoubleTimelineViewOffset>9884</DoubleTimelineViewOffset>
   <Width>854</Width>
   <Height>480</Height>
-  <FPS>60</FPS>
+  <FPS>30</FPS>
   <Hz>48000</Hz>
 </YukkuriMovieMakerProject>
