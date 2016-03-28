@@ -197,7 +197,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// UI操作のタイムアウトミリ秒数。
         /// </summary>
-        private const int UIControlTimeout = 500;
+        private const int UIControlTimeout = 1000;
 
         /// <summary>
         /// 『ゆっくりMovieMaker』プロセス名。
