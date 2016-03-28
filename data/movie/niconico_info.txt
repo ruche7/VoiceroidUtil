@@ -1,6 +1,7 @@
 VoiceroidUtil - VOICEROID実況動画制作支援ツール
 
 VOICEROID実況動画制作支援ツール『VoiceroidUtil』の紹介動画です。<br>
+Windows 7 SP1, 8.1, 10 で動作します。 Windows XP では動作しません。<br>
 ツールを利用して制作した動画をニコ動に投稿する際は、当動画を親作品に登録してくれると嬉しいです。（必須ではありません）<br>
 <br>
 ■ツールのダウンロード： http://www.ruche-home.net/download#voiceroid-util<br>
@@ -8,5 +9,7 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の紹介動画です。<br>
 <br>
 ツール内のVOICEROIDキャラ画像には阿国氏の素材を利用しています。<br>
 その他、当動画も含めた使用ツール・使用素材の一覧はコンテンツツリーをご参照ください。<br>
+<br>
+動画の最後に少しだけ百合要素があるので苦手な方はご注意ください。百合要素を注意するツール紹介動画とはいったい…。<br>
 <br>
 ■他の自作ツール・プラグイン紹介動画： mylist/43969934
