@@ -1,4 +1,5 @@
-VoiceroidUtil - VOICEROID実況動画制作支援ツール
+title: VoiceroidUtil - VOICEROID実況動画制作支援ツール
+tags: VOICEROID ゆっくりMovieMaker ゆかマキ
 
 VOICEROID実況動画制作支援ツール『VoiceroidUtil』の紹介動画です。<br>
 Windows 7 SP1, 8.1, 10 で動作します。 Windows XP では動作しません。<br>
