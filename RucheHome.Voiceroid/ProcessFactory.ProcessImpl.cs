@@ -8,7 +8,6 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
 namespace RucheHome.Voiceroid
@@ -119,7 +118,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// UI操作のタイムアウトミリ秒数。
             /// </summary>
-            private const int UIControlTimeout = 500;
+            private const int UIControlTimeout = 1000;
 
             /// <summary>
             /// 保存ダイアログタイトル文字列。
@@ -452,7 +451,7 @@ namespace RucheHome.Voiceroid
             private async Task<Win32Window> DoFindFileNameEditTask()
             {
                 // いずれかのダイアログが出るまで待つ
-                if (!(await RepeatUntil(this.UpdateDialogShowing, f => f, 100)))
+                if (!(await RepeatUntil(this.UpdateDialogShowing, f => f, 150)))
                 {
                     return null;
                 }
@@ -527,7 +526,7 @@ namespace RucheHome.Voiceroid
                     await RepeatUntil(
                         this.FindSaveDialog,
                         (Win32Window d) => d == null,
-                        50);
+                        100);
                 if (dialog != null)
                 {
                     return false;
@@ -559,7 +558,7 @@ namespace RucheHome.Voiceroid
                             (saved = File.Exists(filePath)) ||
                             (await this.FindSaveProgressDialog()) != null,
                         f => f,
-                        100);
+                        150);
                 if (!saved)
                 {
                     // 保存進捗ダイアログが閉じるまで待つ
@@ -578,7 +577,7 @@ namespace RucheHome.Voiceroid
                     // 同時にテキストファイルが保存される場合があるため少し待つ
                     // 保存されていなくても失敗にはしない
                     var txtPath = Path.ChangeExtension(filePath, @".txt");
-                    await RepeatUntil(() => File.Exists(txtPath), f => f, 5);
+                    await RepeatUntil(() => File.Exists(txtPath), f => f, 10);
                 }
 
                 return saved;
@@ -698,8 +697,8 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                // 1000文字あたり1ミリ秒をタイムアウト値に追加
-                var timeout = UIControlTimeout + (text.Length / 1000);
+                // 500文字あたり1ミリ秒をタイムアウト値に追加
+                var timeout = UIControlTimeout + (text.Length / 500);
 
                 return await edit.SetTextAsync(text, timeout);
             }
@@ -742,8 +741,7 @@ namespace RucheHome.Voiceroid
                         this.SaveButton?.IsEnabled != true ||
                         (await this.UpdateDialogShowing()),
                     f => f,
-                    20,
-                    10);
+                    25);
                 return !this.IsDialogShowing;
             }
 
