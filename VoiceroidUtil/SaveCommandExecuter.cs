@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -124,7 +123,7 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 設定を基に『ゆっくりMovieMaker3』の操作を行う。
+        /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="config">アプリ設定。</param>
@@ -146,7 +145,7 @@ namespace VoiceroidUtil
             // ファイルパス設定
             if (!(await ymm.SetTimelineSpeechEditValue(filePath)))
             {
-                return @"ゆっくりMovieMaker3へのパス設定に失敗しました。";
+                return @"ゆっくりMovieMakerへのパス設定に失敗しました。";
             }
 
             string warnText = null;
@@ -160,7 +159,7 @@ namespace VoiceroidUtil
                     !string.IsNullOrEmpty(name) &&
                     (await ymm.SelectTimelineCharaComboBoxItem(name)) == false)
                 {
-                    warnText = @"ゆっくりMovieMaker3のキャラ選択に失敗しました。";
+                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
                 }
             }
 
@@ -170,7 +169,7 @@ namespace VoiceroidUtil
                 config.IsYmmAddButtonClicking &&
                 !(await ymm.ClickTimelineSpeechAddButton()))
             {
-                warnText = @"ゆっくりMovieMaker3のボタン押下に失敗しました。";
+                warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
             }
 
             return warnText;
@@ -195,21 +194,6 @@ namespace VoiceroidUtil
         /// 処理結果のアプリ状態通知デリゲートを取得する。
         /// </summary>
         private Func<IAppStatus, Task> ResultNotifier { get; }
-
-        /// <summary>
-        /// 直近のVOICEROID識別IDを取得または設定する。
-        /// </summary>
-        private VoiceroidId LastVoiceroidId { get; set; } = VoiceroidId.YukariEx;
-
-        /// <summary>
-        /// 直近のトークテキストを取得または設定する。
-        /// </summary>
-        private string LastTalkText { get; set; } = null;
-
-        /// <summary>
-        /// 直近のWAVEファイルパスを取得または設定する。
-        /// </summary>
-        private string LastWaveFilePath { get; set; } = null;
 
         /// <summary>
         /// 非同期の実処理を行う。
@@ -240,17 +224,8 @@ namespace VoiceroidUtil
 
             var text = this.TalkTextGetter();
 
-            // 前回と同じファイルパスを使うか否か
-            bool overwrite = (
-                config.IsOverwritingIfSame &&
-                this.LastWaveFilePath != null &&
-                this.LastVoiceroidId == process.Id &&
-                this.LastTalkText == text);
-
             // WAVEファイルパス決定
-            var filePath =
-                overwrite ?
-                    this.LastWaveFilePath : MakeWaveFilePath(config, process, text);
+            var filePath = MakeWaveFilePath(config, process, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
@@ -284,14 +259,7 @@ namespace VoiceroidUtil
 
             filePath = result.FilePath;
 
-            var statusText =
-                Path.GetFileName(filePath) +
-                (overwrite ? @" を上書き保存しました。" : @" を保存しました。");
-
-            // 最新保存情報記録
-            this.LastVoiceroidId = process.Id;
-            this.LastTalkText = text;
-            this.LastWaveFilePath = filePath;
+            var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 
             // テキストファイル保存
             if (config.IsTextFileForceMaking)
