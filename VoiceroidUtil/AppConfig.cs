@@ -109,18 +109,6 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 直前と同じキャラ＆トークテキストの場合にファイルを上書きするか否かを
-        /// 取得または設定する。
-        /// </summary>
-        [DataMember]
-        public bool IsOverwritingIfSame
-        {
-            get { return this.overwritingIfSame; }
-            set { this.SetProperty(ref this.overwritingIfSame, value); }
-        }
-        private bool overwritingIfSame = true;
-
-        /// <summary>
         /// テキストファイルを必ず作成するか否かを取得または設定する。
         /// </summary>
         [DataMember]
@@ -143,7 +131,7 @@ namespace VoiceroidUtil
         private bool textFileUtf8 = true;
 
         /// <summary>
-        /// 保存したファイルのパスを『ゆっくりMovieMaker3』に設定するか否かを
+        /// 保存したファイルのパスを『ゆっくりMovieMaker』に設定するか否かを
         /// 取得または設定する。
         /// </summary>
         [DataMember]
@@ -155,7 +143,7 @@ namespace VoiceroidUtil
         private bool savedFileToYmm = true;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker3』のキャラを自動選択するか否かを取得または設定する。
+        /// 『ゆっくりMovieMaker』のキャラを自動選択するか否かを取得または設定する。
         /// </summary>
         [DataMember]
         public bool IsYmmCharaSelecting
@@ -166,7 +154,7 @@ namespace VoiceroidUtil
         private bool ymmCharaSelecting = true;
 
         /// <summary>
-        /// VOICEROIDと『ゆっくりMovieMaker3』のキャラ名との紐付けを取得または設定する。
+        /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを取得または設定する。
         /// </summary>
         [DataMember]
         public YmmCharaRelationSet YmmCharaRelations
@@ -182,7 +170,7 @@ namespace VoiceroidUtil
         private YmmCharaRelationSet ymmCharaRelations = new YmmCharaRelationSet();
 
         /// <summary>
-        /// 『ゆっくりMovieMaker3』の追加ボタンを自動押下するか否かを取得または設定する。
+        /// 『ゆっくりMovieMaker』の追加ボタンを自動押下するか否かを取得または設定する。
         /// </summary>
         [DataMember]
         public bool IsYmmAddButtonClicking

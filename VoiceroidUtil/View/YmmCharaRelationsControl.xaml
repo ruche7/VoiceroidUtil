@@ -31,7 +31,7 @@
                             Width="80"
                             DockPanel.Dock="Left" />
                         <Label
-                            Content="ゆっくりMovieMaker3"
+                            Content="ゆっくりMovieMaker"
                             FontSize="11"
                             FontWeight="Bold" />
                     </DockPanel>

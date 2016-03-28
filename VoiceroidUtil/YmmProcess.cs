@@ -10,7 +10,7 @@ using RucheHome.Windows.WinApi;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// 『ゆっくりMovieMaker3』プロセスを操作するクラス。
+    /// 『ゆっくりMovieMaker』プロセスを操作するクラス。
     /// </summary>
     public class YmmProcess
     {
@@ -200,7 +200,7 @@ namespace VoiceroidUtil
         private const int UIControlTimeout = 500;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker3』プロセス名。
+        /// 『ゆっくりMovieMaker』プロセス名。
         /// </summary>
         private const string ProcessName = @"YukkuriMovieMaker_v3";
 
