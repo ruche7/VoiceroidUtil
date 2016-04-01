@@ -2,7 +2,6 @@ title: VoiceroidUtil - VOICEROID実況動画制作支援ツール
 tags: VOICEROID ゆっくりMovieMaker ゆかマキ
 
 VOICEROID実況動画制作支援ツール『VoiceroidUtil』の紹介動画です。<br>
-Windows 7 SP1, 8.1, 10 で動作します。 Windows XP では動作しません。<br>
 ツールを利用して制作した動画をニコ動に投稿する際は、当動画を親作品に登録してくれると嬉しいです。（必須ではありません）<br>
 <br>
 ■ツールのダウンロード： http://www.ruche-home.net/download#voiceroid-util<br>
@@ -11,4 +10,7 @@ Windows 7 SP1, 8.1, 10 で動作します。 Windows XP では動作しません。<br>
 ツール内のVOICEROIDキャラ画像には阿国氏の素材を利用しています。<br>
 その他、当動画も含めた使用ツール・使用素材の一覧はコンテンツツリーをご参照ください。<br>
 <br>
-■他の自作ツール・プラグイン紹介動画： mylist/43969934
+■他の自作ツール・プラグイン紹介動画： mylist/43969934<br>
+<br>
+【2016/04/01追記】<br>
+上記URLがavastに危険なサイトと誤認されていましたが、問い合わせて修正済みです。ウィルス定義を更新してください。コメ10番さん連絡ありがとう。
