@@ -15,14 +15,14 @@ namespace RucheHome.Voiceroid
         VoiceroidId Id { get; }
 
         /// <summary>
-        /// 名前を取得する。
+        /// VOICEROID名を取得する。
         /// </summary>
         string Name { get; }
 
         /// <summary>
-        /// メインウィンドウタイトルを取得する。
+        /// プロダクト名を取得する。
         /// </summary>
-        string WindowTitle { get; }
+        string Product { get; }
 
         /// <summary>
         /// プロセスが実行中であるか否かを取得する。
