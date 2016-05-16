@@ -11,16 +11,16 @@ namespace RucheHome.Voiceroid
         /// コンストラクタ。
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>
-        /// <param name="windowTitle">メインウィンドウタイトル。</param>
-        /// <param name="name">名前。</param>
+        /// <param name="name">VOICEROID名。</param>
+        /// <param name="product">プロダクト名。</param>
         internal VoiceroidInfo(
             VoiceroidId id,
-            string windowTitle,
-            string name)
+            string name,
+            string product)
         {
             this.Id = id;
-            this.WindowTitle = windowTitle;
             this.Name = name;
+            this.Product = product;
         }
 
         /// <summary>
@@ -29,13 +29,13 @@ namespace RucheHome.Voiceroid
         public VoiceroidId Id { get; }
 
         /// <summary>
-        /// メインウィンドウタイトルを取得する。
-        /// </summary>
-        public string WindowTitle { get; }
-
-        /// <summary>
-        /// 名前を取得する。
+        /// VOICEROID名を取得する。
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// プロダクト名を取得する。
+        /// </summary>
+        public string Product { get; }
     }
 }

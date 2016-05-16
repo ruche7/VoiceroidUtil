@@ -35,7 +35,7 @@ namespace RucheHome.Voiceroid
 
                 this.Id = id;
                 this.Name = id.GetInfo().Name;
-                this.WindowTitle = id.GetInfo().WindowTitle;
+                this.Product = id.GetInfo().Product;
             }
 
             /// <summary>
@@ -60,13 +60,20 @@ namespace RucheHome.Voiceroid
                 this.IsUpdating = true;
                 try
                 {
-                    // 対象プロセス検索
+                    // 対象プロセスをプロダクト名で検索する
                     var app =
                         voiceroidApps?.FirstOrDefault(
-                            p => p.MainWindowTitle.StartsWith(this.WindowTitle));
+                            p => p?.MainModule.FileVersionInfo.ProductName == this.Product);
                     if (app == null)
                     {
                         this.SetupDeadState();
+                        return;
+                    }
+
+                    // メインウィンドウタイトルが空文字列なら
+                    // メニュー等のウィンドウがメインウィンドウになっているため更新しない
+                    if (app.MainWindowTitle == "")
+                    {
                         return;
                     }
 
@@ -617,14 +624,14 @@ namespace RucheHome.Voiceroid
             public VoiceroidId Id { get; }
 
             /// <summary>
-            /// 名前を取得する。
+            /// VOICEROID名を取得する。
             /// </summary>
             public string Name { get; }
 
             /// <summary>
-            /// メインウィンドウタイトルを取得する。
+            /// プロダクト名を取得する。
             /// </summary>
-            public string WindowTitle { get; }
+            public string Product { get; }
 
             /// <summary>
             /// プロセスが実行中であるか否かを取得する。
