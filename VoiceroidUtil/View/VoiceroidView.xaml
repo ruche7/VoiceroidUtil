@@ -50,7 +50,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding Name}" />
                                 <TextBlock Text=" (" />
-                                <TextBlock Text="{Binding Product}" />
+                                <TextBlock Text="{Binding DisplayProduct}" />
                                 <TextBlock Text=")" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">

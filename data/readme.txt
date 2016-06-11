@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2016-03-29
-  Version : 1.0.0
+   Update : 2016-06-11
+  Version : 1.1.0
        By : ルーチェ
 
 ================================================================================
@@ -48,6 +48,7 @@ VOICEROID+は、株式会社AHSから発売されている合成音声ソフトウェアです。
         - VOICEROID+ 民安ともえ(弦巻マキ) EX [1.7.3]
         - VOICEROID+ 東北ずん子 EX           [1.7.3]
         - VOICEROID+ 琴葉茜・葵              [1.7.3]
+        - VOICEROID+ 京町セイカ EX           [1.7.4]
 
 - ゆっくりMovieMaker
     - 動作確認済みバージョンは 3.4.8.1 です。
@@ -118,11 +119,16 @@ VOICEROID+は、株式会社AHSから発売されている合成音声ソフトウェアです。
 - The MIT License
 - http://hp.vector.co.jp/authors/VA055804/
 
-また、阿国氏のVOICEROIDキャラクター画像素材を利用しています。
-- http://seiga.nicovideo.jp/seiga/im4538340
-- http://seiga.nicovideo.jp/seiga/im4608092
-- http://seiga.nicovideo.jp/seiga/im4654903
-- http://seiga.nicovideo.jp/seiga/im4681154
+また、下記の画像素材を利用しています。
+
+阿国様
+- 結月ゆかり    http://seiga.nicovideo.jp/seiga/im4538340
+- 弦巻マキ      http://seiga.nicovideo.jp/seiga/im4608092
+- 東北ずん子    http://seiga.nicovideo.jp/seiga/im4654903
+- 琴葉茜・葵    http://seiga.nicovideo.jp/seiga/im4681154
+
+blueberry様
+- SD京町セイカ  http://seiga.nicovideo.jp/seiga/im5837297
 
 ライブラリ、素材の提供者各位には厚く御礼申し上げます。
 
@@ -151,6 +157,12 @@ VOICEROID+は、株式会社AHSから発売されている合成音声ソフトウェアです。
 
 ================================================================================
 ■更新履歴
+
+------------------------------------------------------------
+◆2016-06-11 [1.1.0]
+
+- 『VOICEROID+ 京町セイカ EX』に対応。
+- VOICEROID+本体側のメニュー等を開いた時に未起動判定されていた不具合を修正。
 
 ------------------------------------------------------------
 ◆2016-03-29 [1.0.0]
