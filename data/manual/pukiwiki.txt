@@ -215,7 +215,8 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 *更新履歴 [#history]
 
 :2016-06-11|
---version 1.1.0 の『VOICEROID+ 京町セイカ EX』追加に対応。
+--version 1.1.0 に対応。
+---『VOICEROID+ 京町セイカ EX』追加
 :2016-05-03|
 --[[基本的な使い方>#basic]]および[[画面説明>#explain]]/[[設定画面>#explain-config]]に、『ゆっくりMovieMaker』のタイムラインウィンドウ表示について追記。
 --[[Q＆A>#qa]]を更新。
