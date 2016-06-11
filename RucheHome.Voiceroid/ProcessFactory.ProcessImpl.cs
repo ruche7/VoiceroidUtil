@@ -34,8 +34,6 @@ namespace RucheHome.Voiceroid
                 }
 
                 this.Id = id;
-                this.Name = id.GetInfo().Name;
-                this.Product = id.GetInfo().Product;
             }
 
             /// <summary>
@@ -626,12 +624,26 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// VOICEROID名を取得する。
             /// </summary>
-            public string Name { get; }
+            public string Name
+            {
+                get { return this.Id.GetInfo().Name; }
+            }
 
             /// <summary>
             /// プロダクト名を取得する。
             /// </summary>
-            public string Product { get; }
+            public string Product
+            {
+                get { return this.Id.GetInfo().Product; }
+            }
+
+            /// <summary>
+            /// 表示プロダクト名を取得する。
+            /// </summary>
+            public string DisplayProduct
+            {
+                get { return this.Id.GetInfo().DisplayProduct; }
+            }
 
             /// <summary>
             /// プロセスが実行中であるか否かを取得する。

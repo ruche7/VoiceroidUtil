@@ -13,14 +13,19 @@ namespace RucheHome.Voiceroid
         /// <param name="id">VOICEROID識別ID。</param>
         /// <param name="name">VOICEROID名。</param>
         /// <param name="product">プロダクト名。</param>
+        /// <param name="displayProduct">
+        /// 表示プロダクト名。プロダクト名と同一ならば null を指定してよい。
+        /// </param>
         internal VoiceroidInfo(
             VoiceroidId id,
             string name,
-            string product)
+            string product,
+            string displayProduct = null)
         {
             this.Id = id;
             this.Name = name;
             this.Product = product;
+            this.DisplayProduct = displayProduct ?? product;
         }
 
         /// <summary>
@@ -37,5 +42,10 @@ namespace RucheHome.Voiceroid
         /// プロダクト名を取得する。
         /// </summary>
         public string Product { get; }
+
+        /// <summary>
+        /// 表示プロダクト名を取得する。
+        /// </summary>
+        public string DisplayProduct { get; }
     }
 }

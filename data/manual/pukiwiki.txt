@@ -8,11 +8,12 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.0.0
+-VoiceroidUtil version 1.1.0
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
 -[[VOICEROID+ 琴葉茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]] version 1.7.3
+-[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] version 1.7.4
 -[[ゆっくりMovieMaker3>http://manjubox.net/YukkuriMovieMaker.php]] version 3.4.8.1
 --動作に必須ではありません。
 
@@ -40,8 +41,9 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]]
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]]
 -[[VOICEROID+ 琴葉茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]]
+-[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] （version 1.1.0 より）
 
-利用サンプルは紹介動画をご覧ください。
+利用サンプルは紹介動画（version 1.0.0 版）をご覧ください。
 
 #nicovideo(sm28526328);
 
@@ -212,6 +214,8 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 *更新履歴 [#history]
 
+:2016-06-11|
+--version 1.1.0 の『VOICEROID+ 京町セイカ EX』追加に対応。
 :2016-05-03|
 --[[基本的な使い方>#basic]]および[[画面説明>#explain]]/[[設定画面>#explain-config]]に、『ゆっくりMovieMaker』のタイムラインウィンドウ表示について追記。
 --[[Q＆A>#qa]]を更新。

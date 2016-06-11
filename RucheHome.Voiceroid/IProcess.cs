@@ -25,6 +25,11 @@ namespace RucheHome.Voiceroid
         string Product { get; }
 
         /// <summary>
+        /// 表示プロダクト名を取得する。
+        /// </summary>
+        string DisplayProduct { get; }
+
+        /// <summary>
         /// プロセスが実行中であるか否かを取得する。
         /// </summary>
         bool IsRunning { get; }
