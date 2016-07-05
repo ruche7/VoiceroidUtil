@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Automation;
 using RucheHome.Windows.WinApi;
 
@@ -30,18 +29,76 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// タイムラインウィンドウが開いているか否かを取得する。
+        /// </summary>
+        public bool IsTimelineOpened
+        {
+            get { return (this.TimelineWindow != null); }
+        }
+
+        /// <summary>
         /// 状態を更新する。
         /// </summary>
-        public void Update()
+        /// <returns>
+        /// タイムラインウィンドウが開いているならば true 。そうでなければ false 。
+        /// </returns>
+        public async Task<bool> Update()
         {
+            // プロセス検索
             var process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
             if (process == null)
             {
                 this.MainWindow = null;
-                return;
+                this.TimelineWindow = null;
+                return false;
             }
 
+            // メインウィンドウ設定
             this.MainWindow = new Win32Window(process.MainWindowHandle);
+
+            // タイムラインウィンドウ検索
+            var tlWin = await this.FindTimelineWindow();
+            if (tlWin == null)
+            {
+                this.TimelineWindow = null;
+                return false;
+            }
+
+            // 初回 or 前回と異なるハンドル
+            if (this.TimelineWindow == null || tlWin.Handle != this.TimelineWindow.Handle)
+            {
+                this.TimelineWindow = tlWin;
+
+                // タイムラインウィンドウの AutomationElement 作成
+                var tlElem = AutomationElement.FromHandle(tlWin.Handle);
+
+                // 各UIの AutomationElement 作成
+                // アイテムが多いと時間が掛かるので非同期で
+                await Task.Run(
+                    () =>
+                    {
+                        this.SpeechEditElement =
+                            FindDescendant(
+                                tlElem,
+                                new PropertyCondition(
+                                    AutomationElement.AutomationIdProperty,
+                                    TimelineSpeechEditAutomationId));
+                        this.CharaComboElement =
+                            FindDescendant(
+                                tlElem,
+                                new PropertyCondition(
+                                    AutomationElement.AutomationIdProperty,
+                                    TimelineCharaComboBoxAutomationId));
+                        this.AddButtonElement =
+                            FindDescendant(
+                                tlElem,
+                                new PropertyCondition(
+                                    AutomationElement.NameProperty,
+                                    TimelineSpeechAddButtonName));
+                    });
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -49,22 +106,16 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="text">設定するテキスト。</param>
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        public async Task<bool> SetTimelineSpeechEditValue(string text)
+        public bool SetTimelineSpeechEditValue(string text)
         {
-            // セリフエディットUIを探す
-            var editElem =
-                FindDescendant(
-                    await this.DoMakeTimelineWindowElement(),
-                    new PropertyCondition(
-                        AutomationElement.AutomationIdProperty,
-                        TimelineSpeechEditAutomationId));
-            if (editElem == null)
+            if (!this.IsTimelineOpened || this.SpeechEditElement == null)
             {
                 return false;
             }
 
             // ValuePattern 取得
-            var edit = GetPattern<ValuePattern>(editElem, ValuePattern.Pattern);
+            var edit =
+                GetPattern<ValuePattern>(this.SpeechEditElement, ValuePattern.Pattern);
             if (edit == null || edit.Current.IsReadOnly)
             {
                 return false;
@@ -94,14 +145,7 @@ namespace VoiceroidUtil
         /// </returns>
         public async Task<bool?> SelectTimelineCharaComboBoxItem(string name)
         {
-            // キャラ選択コンボボックスUIを探す
-            var comboElem =
-                FindDescendant(
-                    await this.DoMakeTimelineWindowElement(),
-                    new PropertyCondition(
-                        AutomationElement.AutomationIdProperty,
-                        TimelineCharaComboBoxAutomationId));
-            if (comboElem == null)
+            if (!this.IsTimelineOpened || this.CharaComboElement == null)
             {
                 return false;
             }
@@ -109,7 +153,7 @@ namespace VoiceroidUtil
             // すべてのアイテムを有効化させるためにコンボボックスを開く
             var expand =
                 GetPattern<ExpandCollapsePattern>(
-                    comboElem,
+                    this.CharaComboElement,
                     ExpandCollapsePattern.Pattern);
             if (expand == null)
             {
@@ -124,7 +168,7 @@ namespace VoiceroidUtil
                     ControlType.ListItem);
             var nameCond = new PropertyCondition(AutomationElement.NameProperty, name);
             var itemElem =
-                await comboElem
+                await this.CharaComboElement
                     .FindAll(TreeScope.Children, itemCond)
                     .OfType<AutomationElement>()
                     .ToObservable()
@@ -160,22 +204,16 @@ namespace VoiceroidUtil
         /// タイムラインウィンドウの追加ボタンを押下する。
         /// </summary>
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        public async Task<bool> ClickTimelineSpeechAddButton()
+        public bool ClickTimelineSpeechAddButton()
         {
-            // 追加ボタンUIを探す
-            var buttonElem =
-                FindDescendant(
-                    await this.DoMakeTimelineWindowElement(),
-                    new PropertyCondition(
-                        AutomationElement.NameProperty,
-                        TimelineSpeechAddButtonName));
-            if (buttonElem == null)
+            if (!this.IsTimelineOpened || this.AddButtonElement == null)
             {
                 return false;
             }
 
             // InvokePattern 取得
-            var button = GetPattern<InvokePattern>(buttonElem, InvokePattern.Pattern);
+            var button =
+                GetPattern<InvokePattern>(this.AddButtonElement, InvokePattern.Pattern);
             if (button == null)
             {
                 return false;
@@ -261,35 +299,32 @@ namespace VoiceroidUtil
         private Win32Window MainWindow { get; set; } = null;
 
         /// <summary>
-        /// タイムラインウィンドウの AutomationElement を作成する。
+        /// タイムラインウィンドウを取得または設定する。
         /// </summary>
-        /// <returns>作成タスク。</returns>
-        private async Task<AutomationElement> DoMakeTimelineWindowElement()
-        {
-            var mainWin = this.MainWindow;
-            if (mainWin == null)
-            {
-                return null;
-            }
+        private Win32Window TimelineWindow { get; set; } = null;
 
-            if (mainWin.State == WindowState.Minimized)
-            {
-                mainWin.State = WindowState.Normal;
-            }
+        /// <summary>
+        /// セリフエディットの AutomationElement を取得または設定する。
+        /// </summary>
+        /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
+        private AutomationElement SpeechEditElement { get; set; } = null;
 
-            var tlWin = await this.FindTimelineWindow();
-            if (tlWin == null)
-            {
-                return null;
-            }
+        /// <summary>
+        /// キャラ選択コンボボックスの AutomationElement を取得または設定する。
+        /// </summary>
+        /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
+        private AutomationElement CharaComboElement { get; set; } = null;
 
-            return AutomationElement.FromHandle(tlWin.Handle);
-        }
+        /// <summary>
+        /// 追加ボタンの AutomationElement を取得または設定する。
+        /// </summary>
+        /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
+        private AutomationElement AddButtonElement { get; set; } = null;
 
         /// <summary>
         /// タイムラインウィンドウを検索する。
         /// </summary>
-        /// <returns>検索タスク。</returns>
+        /// <returns>タイムラインウィンドウ。見つからなければ null 。</returns>
         private async Task<Win32Window> FindTimelineWindow()
         {
             return
@@ -304,7 +339,7 @@ namespace VoiceroidUtil
         /// タイムラインウィンドウであるか否かを取得する。
         /// </summary>
         /// <param name="target">調べるウィンドウ。</param>
-        /// <returns>検査タスク。</returns>
+        /// <returns>タイムラインウィンドウならば true 。そうでなければ false 。</returns>
         private async Task<bool> IsTimelineWindow(Win32Window target)
         {
             var mainWin = this.MainWindow;

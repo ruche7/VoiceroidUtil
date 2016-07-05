@@ -123,59 +123,6 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
-        /// </summary>
-        /// <param name="filePath">WAVEファイルパス。</param>
-        /// <param name="config">アプリ設定。</param>
-        /// <returns>警告文字列。問題ないならば null 。</returns>
-        private static async Task<string> DoOperateYmm(string filePath, AppConfig config)
-        {
-            if (!config.IsSavedFileToYmm)
-            {
-                return null;
-            }
-
-            var ymm = new YmmProcess();
-            ymm.Update();
-            if (!ymm.IsRunning)
-            {
-                return null;
-            }
-
-            // ファイルパス設定
-            if (!(await ymm.SetTimelineSpeechEditValue(filePath)))
-            {
-                return @"ゆっくりMovieMakerへのパス設定に失敗しました。";
-            }
-
-            string warnText = null;
-
-            // キャラ選択
-            // そもそもキャラ名が存在しない場合は失敗しても警告にしない
-            if (config.IsYmmCharaSelecting)
-            {
-                var name = config.YmmCharaRelations[config.VoiceroidId].YmmCharaName;
-                if (
-                    !string.IsNullOrEmpty(name) &&
-                    (await ymm.SelectTimelineCharaComboBoxItem(name)) == false)
-                {
-                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
-                }
-            }
-
-            // ボタン押下
-            // キャラ選択に失敗していても行う
-            if (
-                config.IsYmmAddButtonClicking &&
-                !(await ymm.ClickTimelineSpeechAddButton()))
-            {
-                warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
-            }
-
-            return warnText;
-        }
-
-        /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; }
@@ -194,6 +141,11 @@ namespace VoiceroidUtil
         /// 処理結果のアプリ状態通知デリゲートを取得する。
         /// </summary>
         private Func<IAppStatus, Task> ResultNotifier { get; }
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
+        /// </summary>
+        private YmmProcess YmmProcess { get; } = new YmmProcess();
 
         /// <summary>
         /// 非同期の実処理を行う。
@@ -284,6 +236,67 @@ namespace VoiceroidUtil
                 statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText);
+        }
+
+        /// <summary>
+        /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
+        /// </summary>
+        /// <param name="filePath">WAVEファイルパス。</param>
+        /// <param name="config">アプリ設定。</param>
+        /// <returns>警告文字列。問題ないならば null 。</returns>
+        private async Task<string> DoOperateYmm(string filePath, AppConfig config)
+        {
+            if (!config.IsSavedFileToYmm)
+            {
+                return null;
+            }
+
+            // 状態更新
+            await this.YmmProcess.Update();
+
+            // そもそも起動していないなら何もしない
+            if (!this.YmmProcess.IsRunning)
+            {
+                return null;
+            }
+
+            // タイムラインウィンドウが開いていない？
+            if (!this.YmmProcess.IsTimelineOpened)
+            {
+                return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
+            }
+
+            // ファイルパス設定
+            if (!this.YmmProcess.SetTimelineSpeechEditValue(filePath))
+            {
+                return @"ゆっくりMovieMakerへのパス設定に失敗しました。";
+            }
+
+            string warnText = null;
+
+            // キャラ選択
+            // そもそもキャラ名が存在しない場合は失敗しても警告にしない
+            if (config.IsYmmCharaSelecting)
+            {
+                var name = config.YmmCharaRelations[config.VoiceroidId].YmmCharaName;
+                if (
+                    !string.IsNullOrEmpty(name) &&
+                    (await this.YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                {
+                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
+                }
+            }
+
+            // ボタン押下
+            // キャラ選択に失敗していても行う
+            if (
+                config.IsYmmAddButtonClicking &&
+                !this.YmmProcess.ClickTimelineSpeechAddButton())
+            {
+                warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
+            }
+
+            return warnText;
         }
 
         /// <summary>
