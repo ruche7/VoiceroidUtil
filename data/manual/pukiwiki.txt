@@ -8,7 +8,7 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.1.0
+-VoiceroidUtil version 1.2.0
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -151,7 +151,7 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 :&#9329;「ゆっくりMovieMakerにファイルパス設定」チェックボックス|
 --チェックを入れると、音声ファイルの保存成功時に、『ゆっくりMovieMaker』のタイムラインウィンドウにある入力欄に音声ファイルのパスを設定します。
 --『ゆっくりMovieMaker』が起動していない場合は何も行わず、エラーにもなりません。
---『ゆっくりMovieMaker』のタイムラインウィンドウを表示していない場合、「ゆっくりMovieMakerへのパス設定に失敗しました。」と警告表示され、処理に失敗します。
+--『ゆっくりMovieMaker』のタイムラインウィンドウを表示していない場合、「ゆっくりMovieMakerのタイムラインが見つかりません。」と警告表示され、処理に失敗します。
 ---『ゆっくりMovieMaker』側で、プレビューウィンドウの「表示」メニューから「タイムライン」を選んで表示させておいてください。
 :&#9320;「キャラクターを自動選択」チェックボックス|
 --チェックを入れると、『ゆっくりMovieMaker』のタイムラインウィンドウにあるキャラ選択コンボボックスからキャラクターを自動選択します。
@@ -214,6 +214,9 @@ VOICEROID実況動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 *更新履歴 [#history]
 
+:2016-07-06|
+--version 1.2.0 に対応。
+--- 『ゆっくりMovieMaker』のタイムラインウィンドウが見つからない場合の警告メッセージを変更。
 :2016-06-11|
 --version 1.1.0 に対応。
 ---『VOICEROID+ 京町セイカ EX』追加
