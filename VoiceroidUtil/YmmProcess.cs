@@ -67,8 +67,6 @@ namespace VoiceroidUtil
             // 初回 or 前回と異なるハンドル
             if (this.TimelineWindow == null || tlWin.Handle != this.TimelineWindow.Handle)
             {
-                this.TimelineWindow = tlWin;
-
                 // タイムラインウィンドウの AutomationElement 作成
                 var tlElem = AutomationElement.FromHandle(tlWin.Handle);
 
@@ -96,6 +94,18 @@ namespace VoiceroidUtil
                                     AutomationElement.NameProperty,
                                     TimelineSpeechAddButtonName));
                     });
+
+                // 1つでもUIが見つからなければ不可
+                if (
+                    this.SpeechEditElement == null ||
+                    this.CharaComboElement == null ||
+                    this.AddButtonElement == null)
+                {
+                    this.TimelineWindow = null;
+                    return false;
+                }
+
+                this.TimelineWindow = tlWin;
             }
 
             return true;
