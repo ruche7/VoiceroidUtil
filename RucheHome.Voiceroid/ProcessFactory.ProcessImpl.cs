@@ -646,6 +646,21 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// メインウィンドウハンドルを取得する。
+            /// </summary>
+            /// <remarks>
+            /// メインウィンドウが見つかっていない場合は IntPtr.Zero を返す。
+            /// </remarks>
+            public IntPtr MainWindowHandle
+            {
+                get
+                {
+                    return
+                        (this.MainWindow == null) ? IntPtr.Zero : this.MainWindow.Handle;
+                }
+            }
+
+            /// <summary>
             /// プロセスが実行中であるか否かを取得する。
             /// </summary>
             public bool IsRunning
