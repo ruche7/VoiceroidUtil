@@ -414,6 +414,12 @@ namespace VoiceroidUtil.ViewModel
                     return;
                 }
                 this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
+
+                // 再生に成功したら対象VOICEROIDをアクティブにする
+                await this.Messenger.RaiseAsync(
+                    new VoiceroidActivateMessage(
+                        process,
+                        MessageKeys.VoiceroidActivateMessageKey));
             }
         }
 
@@ -422,10 +428,18 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private async Task OnSaveCommandExecuted(IAppStatus result)
         {
-            // アプリ状態更新
             if (result != null)
             {
+                // アプリ状態更新
                 this.LastStatus.Value = result;
+
+                // 保存成功時のトークテキストクリア処理
+                if (
+                    this.Config.Value?.IsTextClearing == true &&
+                    result.StatusType == AppStatusType.Success)
+                {
+                    this.TalkText.Value = "";
+                }
             }
 
             // メインウィンドウを前面へ

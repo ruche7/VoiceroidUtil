@@ -14,11 +14,14 @@
     Title="VoiceroidUtil"
     Icon="/VoiceroidUtil;component/resources/icon/main.ico"
     ResizeMode="CanResizeWithGrip"
+    Topmost="{Binding Config.Value.IsTopmost}"
     UseLayoutRounding="True"
     Width="400"
-    Height="488"
+    Height="480"
     MinWidth="320"
-    MinHeight="232">
+    MinHeight="232"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
@@ -56,6 +59,11 @@
             Messenger="{Binding Messenger}"
             MessageKey="{x:Static msg:MessageKeys.DirectoryOpenMessageKey}">
             <msg:DirectoryOpenMessageAction />
+        </l:InteractionMessageTrigger>
+        <l:InteractionMessageTrigger
+            Messenger="{Binding Messenger}"
+            MessageKey="{x:Static msg:MessageKeys.VoiceroidActivateMessageKey}">
+            <msg:VoiceroidActivateMessageAction />
         </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"

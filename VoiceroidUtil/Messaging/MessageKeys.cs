@@ -21,6 +21,12 @@ namespace VoiceroidUtil.Messaging
             DirectoryOpenMessage.DefaultMessageKey;
 
         /// <summary>
+        /// VoiceroidActivateMessage 用のメッセージキー文字列を取得する。
+        /// </summary>
+        public static string VoiceroidActivateMessageKey { get; } =
+            VoiceroidActivateMessage.DefaultMessageKey;
+
+        /// <summary>
         /// WindowActionMessage 用のメッセージキー文字列を取得する。
         /// </summary>
         public static string WindowActionMessageKey { get; } =
