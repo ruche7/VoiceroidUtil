@@ -10,6 +10,7 @@ namespace VoiceroidUtil.Messaging
     /// </summary>
     /// <remarks>
     /// 実際には、ZオーダーをVoiceroidUtilのメインウィンドウの次に設定する。
+    /// ただし最前面表示状態にすることはない。
     /// </remarks>
     public class VoiceroidActivateMessage : InteractionMessage
     {

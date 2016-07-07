@@ -48,8 +48,17 @@ namespace VoiceroidUtil.Messaging
                 processWin.Restore();
             }
 
-            // VoiceroidUtilのすぐ後ろにZオーダーを設定
-            processWin.MoveZOrderAfter(mainWin);
+            // VoiceroidUtilが最前面表示されているか？
+            if (mainWin.IsTopmost)
+            {
+                // アクティブにして非最前面ウィンドウ内の先頭へ
+                processWin.Activate();
+            }
+            else
+            {
+                // VoiceroidUtilのすぐ後ろにZオーダーを設定
+                processWin.MoveZOrderAfter(mainWin);
+            }
         }
 
         protected override Freezable CreateInstanceCore()
