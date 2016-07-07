@@ -62,6 +62,17 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// ウィンドウを常に最前面に表示するか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsTopmost
+        {
+            get { return this.topmost; }
+            set { this.SetProperty(ref this.topmost, value); }
+        }
+        private bool topmost = false;
+
+        /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
         /// </summary>
         [DataMember]
@@ -88,7 +99,7 @@ namespace VoiceroidUtil
                 this.SetProperty(
                     ref this.fileNameFormat,
                     Enum.IsDefined(value.GetType(), value) ?
-                        value : FileNameFormat.NameText);
+                        value : FileNameFormat.DateTimeNameText);
             }
         }
         private FileNameFormat fileNameFormat = FileNameFormat.DateTimeNameText;
@@ -129,6 +140,17 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.textFileUtf8, value); }
         }
         private bool textFileUtf8 = true;
+
+        /// <summary>
+        /// 音声保存成功時にテキストをクリアするか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsTextClearing
+        {
+            get { return this.textClearing; }
+            set { this.SetProperty(ref this.textClearing, value); }
+        }
+        private bool textClearing = false;
 
         /// <summary>
         /// 保存したファイルのパスを『ゆっくりMovieMaker』に設定するか否かを

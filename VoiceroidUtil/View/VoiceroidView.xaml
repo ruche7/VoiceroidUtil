@@ -12,7 +12,10 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance
         Type={x:Type vm:VoiceroidViewModel},
-        IsDesignTimeCreatable=True}">
+        IsDesignTimeCreatable=True}"
+    UseLayoutRounding="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -38,6 +41,7 @@
             ItemsSource="{Binding Processes}"
             SelectedItem="{Binding SelectedProcess.Value}"
             IsEnabled="{Binding IsIdle.Value}"
+            Padding="2,1"
             Grid.Row="0">
             <ComboBox.ItemTemplate>
                 <DataTemplate>
