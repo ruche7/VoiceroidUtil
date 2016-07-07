@@ -30,6 +30,14 @@ namespace RucheHome.Voiceroid
         string DisplayProduct { get; }
 
         /// <summary>
+        /// メインウィンドウハンドルを取得する。
+        /// </summary>
+        /// <remarks>
+        /// メインウィンドウが見つかっていない場合は IntPtr.Zero を返す。
+        /// </remarks>
+        IntPtr MainWindowHandle { get; }
+
+        /// <summary>
         /// プロセスが実行中であるか否かを取得する。
         /// </summary>
         bool IsRunning { get; }
