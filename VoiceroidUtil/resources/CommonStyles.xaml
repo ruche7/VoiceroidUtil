@@ -22,6 +22,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style TargetType="CheckBox">
+        <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
