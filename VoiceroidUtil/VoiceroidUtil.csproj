@@ -292,6 +292,10 @@
     <Resource Include="resources\voiceroid\seika_ng.png" />
     <Resource Include="resources\voiceroid\seika_ok.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\ai_ng.png" />
+    <Resource Include="resources\voiceroid\ai_ok.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

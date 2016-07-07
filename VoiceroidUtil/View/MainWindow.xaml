@@ -17,7 +17,7 @@
     Topmost="{Binding Config.Value.IsTopmost}"
     UseLayoutRounding="True"
     Width="400"
-    Height="480"
+    Height="420"
     MinWidth="320"
     MinHeight="232"
     TextOptions.TextFormattingMode="Display"

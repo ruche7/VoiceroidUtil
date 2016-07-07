@@ -42,7 +42,13 @@
             SelectedItem="{Binding SelectedProcess.Value}"
             IsEnabled="{Binding IsIdle.Value}"
             Padding="2,1"
+            MaxDropDownHeight="480"
             Grid.Row="0">
+            <ComboBox.Resources>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Padding" Value="0" />
+                </Style>
+            </ComboBox.Resources>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel>
@@ -57,7 +63,7 @@
                                 <TextBlock Text="{Binding DisplayProduct}" />
                                 <TextBlock Text=")" />
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                 <Image Style="{StaticResource VoiceroidStatusIcon}" />
                                 <TextBlock
                                     Style="{StaticResource VoiceroidStatusText}"
