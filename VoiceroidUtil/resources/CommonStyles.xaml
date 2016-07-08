@@ -33,7 +33,8 @@
     <Style TargetType="TabItem">
         <Setter Property="Padding" Value="12,4" />
     </Style>
-    <Style TargetType="GroupBox">
-        <Setter Property="Padding" Value="4" />
+    <Style TargetType="Expander">
+        <Setter Property="ExpandDirection" Value="Down" />
+        <Setter Property="IsExpanded" Value="True" />
     </Style>
 </ResourceDictionary>

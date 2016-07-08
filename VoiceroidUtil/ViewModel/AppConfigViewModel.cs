@@ -22,8 +22,14 @@ namespace VoiceroidUtil.ViewModel
         {
             this.ConfigKeeper.Value = new AppConfig();
 
+            // UI設定値
+            this.UIConfig =
+                new ReactiveProperty<UIConfig>(new UIConfig())
+                    .AddTo(this.CompositeDisposable);
+
             // 修正可否
-            this.CanModify = new ReactiveProperty<bool>(true);
+            this.CanModify =
+                (new ReactiveProperty<bool>(true)).AddTo(this.CompositeDisposable);
 
             // 直近のアプリ状態値
             this.LastStatus =
@@ -77,14 +83,6 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// 設定値を修正可能な状態であるか否かを取得する。
-        /// </summary>
-        /// <remarks>
-        /// 既定では常に true を返す。外部からの設定以外で更新されることはない。
-        /// </remarks>
-        public ReactiveProperty<bool> CanModify { get; }
-
-        /// <summary>
         /// アプリ設定値を取得または設定する。
         /// </summary>
         public AppConfig Value
@@ -100,6 +98,19 @@ namespace VoiceroidUtil.ViewModel
                 }
             }
         }
+
+        /// <summary>
+        /// UI設定値を取得する。
+        /// </summary>
+        public ReactiveProperty<UIConfig> UIConfig { get; }
+
+        /// <summary>
+        /// 設定値を修正可能な状態であるか否かを取得する。
+        /// </summary>
+        /// <remarks>
+        /// 既定では常に true を返す。外部からの設定以外で更新されることはない。
+        /// </remarks>
+        public ReactiveProperty<bool> CanModify { get; }
 
         /// <summary>
         /// 直近のアプリ状態値を取得する。
