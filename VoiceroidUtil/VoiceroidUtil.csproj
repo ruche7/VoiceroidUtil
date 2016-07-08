@@ -151,6 +151,7 @@
     <Compile Include="Messaging\VoiceroidActivateMessage.cs" />
     <Compile Include="Messaging\VoiceroidActivateMessageAction.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
+    <Compile Include="UIConfig.cs" />
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />

@@ -14,7 +14,7 @@
     Title="VoiceroidUtil"
     Icon="/VoiceroidUtil;component/resources/icon/main.ico"
     ResizeMode="CanResizeWithGrip"
-    Topmost="{Binding Config.Value.IsTopmost}"
+    Topmost="{Binding AppConfig.Value.IsTopmost}"
     UseLayoutRounding="True"
     Width="400"
     Height="420"
@@ -34,7 +34,9 @@
         </ResourceDictionary>
     </Window.Resources>
     <Window.InputBindings>
-        <KeyBinding Gesture="Ctrl+E" Command="{Binding Config.OpenSaveDirectoryCommand}" />
+        <KeyBinding
+            Gesture="Ctrl+E"
+            Command="{Binding AppConfig.OpenSaveDirectoryCommand}" />
     </Window.InputBindings>
 
     <i:Interaction.Behaviors>
@@ -42,13 +44,18 @@
     </i:Interaction.Behaviors>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
             <l:DataContextDisposeAction />
         </i:EventTrigger>
         <i:EventTrigger EventName="ContentRendered">
-            <i:InvokeCommandAction Command="{Binding Config.LoadCommand}" />
+            <i:InvokeCommandAction Command="{Binding UIConfigLoadCommand}" />
+            <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
         </i:EventTrigger>
-        <i:EventTrigger SourceObject="{Binding Config.Value}" EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding Config.SaveCommand}" />
+        <i:EventTrigger SourceObject="{Binding UIConfig}" EventName="PropertyChanged">
+            <i:InvokeCommandAction Command="{Binding UIConfigSaveCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger SourceObject="{Binding AppConfig.Value}" EventName="PropertyChanged">
+            <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
         </i:EventTrigger> 
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
@@ -103,7 +110,7 @@
                     </StackPanel>
                 </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <v:AppConfigView DataContext="{Binding Config}" Margin="2" />
+                    <v:AppConfigView DataContext="{Binding AppConfig}" Margin="2" />
                 </ScrollViewer>
             </TabItem>
         </TabControl>

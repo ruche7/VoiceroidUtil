@@ -40,122 +40,133 @@
     </UserControl.Resources>
 
     <StackPanel Orientation="Vertical">
-        <GroupBox Header="表示">
-            <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
-                <CheckBox
-                    x:Name="Setting_IsTopmost"
-                    Content="ウィンドウを常に最前面に表示(_W)"
-                    IsChecked="{Binding Value.IsTopmost}" />
-            </StackPanel>
-        </GroupBox>
-        <GroupBox Header="音声保存" Margin="0,4,0,0">
-            <StackPanel Orientation="Vertical">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+        <Expander Header="表示" IsExpanded="{Binding UIConfig.Value.IsViewConfigExpanded}">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+                <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
+                    <CheckBox
+                        Content="ウィンドウを常に最前面に表示(_W)"
+                        IsChecked="{Binding Value.IsTopmost}" />
+                </StackPanel>
+            </Border>
+        </Expander>
+        <Expander
+            Header="音声保存"
+            IsExpanded="{Binding UIConfig.Value.IsSaveConfigExpanded}"
+            Margin="0,2,0,0">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+                <StackPanel Orientation="Vertical">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button
-                        Content="保存先(_D)..."
-                        Command="{Binding SelectSaveDirectoryCommand}"
+                        <Button
+                            Content="保存先(_D)..."
+                            Command="{Binding SelectSaveDirectoryCommand}"
+                            IsEnabled="{Binding CanModify}"
+                            Grid.Column="0" />
+                        <tk:AutoSelectTextBox
+                            Text="{Binding Value.SaveDirectoryPath}"
+                            IsEnabled="{Binding CanModify}"
+                            IsReadOnly="True"
+                            IsReadOnlyCaretVisible="True"
+                            Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                            Margin="2,0,0,0"
+                            VerticalContentAlignment="Center"
+                            AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
+                            Grid.Column="1">
+                            <i:Interaction.Behaviors>
+                                <ru:DragDropCommandBehavior
+                                    PreviewDragOverCommand="{Binding DragOverSaveDirectoryCommand}"
+                                    DropCommand="{Binding DropSaveDirectoryCommand}" />
+                            </i:Interaction.Behaviors>
+                        </tk:AutoSelectTextBox>
+                        <Button
+                            Command="{Binding OpenSaveDirectoryCommand}"
+                            ToolTip="保存先フォルダーを開く (Ctrl+E)"
+                            Margin="1,0,0,0"
+                            Padding="3,0"
+                            Grid.Column="2">
+                            <Image Source="/VoiceroidUtil;component/resources/icon/open.png" />
+                        </Button>
+                    </Grid>
+                    <StackPanel
+                        Orientation="Vertical"
                         IsEnabled="{Binding CanModify}"
-                        Grid.Column="0" />
-                    <tk:AutoSelectTextBox
-                        Text="{Binding Value.SaveDirectoryPath}"
-                        IsEnabled="{Binding CanModify}"
-                        IsReadOnly="True"
-                        IsReadOnlyCaretVisible="True"
-                        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                        Margin="2,0,0,0"
-                        VerticalContentAlignment="Center"
-                        AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
-                        Grid.Column="1">
-                        <i:Interaction.Behaviors>
-                            <ru:DragDropCommandBehavior
-                                PreviewDragOverCommand="{Binding DragOverSaveDirectoryCommand}"
-                                DropCommand="{Binding DropSaveDirectoryCommand}" />
-                        </i:Interaction.Behaviors>
-                    </tk:AutoSelectTextBox>
-                    <Button
-                        Command="{Binding OpenSaveDirectoryCommand}"
-                        ToolTip="保存先フォルダーを開く (Ctrl+E)"
-                        Margin="1,0,0,0"
-                        Padding="3,0"
-                        Grid.Column="2">
-                        <Image Source="/VoiceroidUtil;component/resources/icon/open.png" />
-                    </Button>
-                </Grid>
-                <StackPanel
-                    Orientation="Vertical"
-                    IsEnabled="{Binding CanModify}"
-                    Margin="0,4,0,0">
-                    <DockPanel>
-                        <Label
-                            Content="ファイル命名(_F):"
-                            Target="{Binding ElementName=Setting_FileName}"
-                            DockPanel.Dock="Left" />
-                        <ComboBox
-                            x:Name="Setting_FileName"
-                            ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
-                            SelectedItem="{Binding Value.FileNameFormat}"
-                            Margin="4,0,0,0">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock
-                                        Text="{Binding
-                                            Converter={StaticResource enumDisplayConverter}}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </DockPanel>
-                    <CheckBox
-                        x:Name="Setting_ForceText"
-                        Content="テキストファイルを必ず作成(_T)"
-                        IsChecked="{Binding Value.IsTextFileForceMaking}"
-                        Margin="0,4,0,0" />
-                    <CheckBox
-                        Content="文字コード UTF-8 で作成(_U)"
-                        IsChecked="{Binding Value.IsTextFileUtf8}"
-                        IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
-                        Margin="20,4,0,0" />
-                    <CheckBox
-                        x:Name="Setting_IsTextClearing"
-                        Content="保存成功時に入力文をクリア(_C)"
-                        IsChecked="{Binding Value.IsTextClearing}"
-                        Margin="0,4,0,0" />
+                        Margin="0,4,0,0">
+                        <DockPanel>
+                            <Label
+                                Content="ファイル命名(_F):"
+                                Target="{Binding ElementName=Setting_FileName}"
+                                DockPanel.Dock="Left" />
+                            <ComboBox
+                                x:Name="Setting_FileName"
+                                ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
+                                SelectedItem="{Binding Value.FileNameFormat}"
+                                Margin="4,0,0,0">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Text="{Binding
+                                                Converter={StaticResource enumDisplayConverter}}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                        <CheckBox
+                            x:Name="Setting_ForceText"
+                            Content="テキストファイルを必ず作成(_T)"
+                            IsChecked="{Binding Value.IsTextFileForceMaking}"
+                            Margin="0,4,0,0" />
+                        <CheckBox
+                            Content="文字コード UTF-8 で作成(_U)"
+                            IsChecked="{Binding Value.IsTextFileUtf8}"
+                            IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
+                            Margin="20,4,0,0" />
+                        <CheckBox
+                            x:Name="Setting_IsTextClearing"
+                            Content="保存成功時に入力文をクリア(_C)"
+                            IsChecked="{Binding Value.IsTextClearing}"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </GroupBox>
-        <GroupBox Header="ゆっくりMovieMaker連携" Margin="0,4,0,0">
-            <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
-                <CheckBox
-                    x:Name="Setting_ToYmm"
-                    Content="音声保存時、タイムラインにファイルパス設定(_Y)"
-                    IsChecked="{Binding Value.IsSavedFileToYmm}" />
-                <Label
-                    Content="※カスタムボイス機能は働きません。"
-                    FontSize="11"
-                    Margin="20,0,0,0" />
-                <StackPanel
-                    IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
-                    Margin="20,4,0,0">
+            </Border>
+        </Expander>
+        <Expander
+            Header="ゆっくりMovieMaker連携"
+            IsExpanded="{Binding UIConfig.Value.IsYmmConfigExpanded}"
+            Margin="0,2,0,0">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+                <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
                     <CheckBox
-                        x:Name="Setting_YmmChara"
-                        Content="キャラクターを自動選択(_N)"
-                        IsChecked="{Binding Value.IsYmmCharaSelecting}"
-                        IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}" />
-                    <v:YmmCharaRelationsControl
-                        DataContext="{Binding Value.YmmCharaRelations}"
-                        IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
-                        Margin="24,2,0,0" />
-                    <CheckBox
-                        Content="追加ボタンを自動で押す(_B)"
-                        IsChecked="{Binding Value.IsYmmAddButtonClicking}"
-                        Margin="0,4,0,0" />
+                        x:Name="Setting_ToYmm"
+                        Content="音声保存時、タイムラインにファイルパス設定(_Y)"
+                        IsChecked="{Binding Value.IsSavedFileToYmm}" />
+                    <Label
+                        Content="※カスタムボイス機能は働きません。"
+                        FontSize="11"
+                        Margin="20,0,0,0" />
+                    <StackPanel
+                        IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}"
+                        Margin="20,4,0,0">
+                        <CheckBox
+                            x:Name="Setting_YmmChara"
+                            Content="キャラクターを自動選択(_N)"
+                            IsChecked="{Binding Value.IsYmmCharaSelecting}"
+                            IsEnabled="{Binding IsChecked, ElementName=Setting_ToYmm}" />
+                        <v:YmmCharaRelationsControl
+                            DataContext="{Binding Value.YmmCharaRelations}"
+                            IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
+                            Margin="24,2,0,0" />
+                        <CheckBox
+                            Content="追加ボタンを自動で押す(_B)"
+                            IsChecked="{Binding Value.IsYmmAddButtonClicking}"
+                            Margin="0,4,0,0" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </GroupBox>
+            </Border>
+        </Expander>
     </StackPanel>
 </UserControl>
