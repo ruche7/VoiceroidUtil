@@ -381,6 +381,18 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// メインウィンドウをアクティブにする。
+        /// </summary>
+        private Task ActivateMainWindow()
+        {
+            return
+                this.Messenger.RaiseAsync(
+                    new WindowActionMessage(
+                        WindowAction.Active,
+                        MessageKeys.WindowActionMessageKey));
+        }
+
+        /// <summary>
         /// PlayStopCommand コマンドの実処理を行う。
         /// </summary>
         private async Task ExecutePlayStopCommand()
@@ -417,9 +429,12 @@ namespace VoiceroidUtil.ViewModel
 
                 // 再生に成功したら対象VOICEROIDをアクティブにする
                 await this.Messenger.RaiseAsync(
-                    new VoiceroidActivateMessage(
+                    new VoiceroidForwardMessage(
                         process,
-                        MessageKeys.VoiceroidActivateMessageKey));
+                        MessageKeys.VoiceroidForwardMessageKey));
+
+                // メインウィンドウを前面へ
+                await this.ActivateMainWindow();
             }
         }
 
@@ -443,10 +458,7 @@ namespace VoiceroidUtil.ViewModel
             }
 
             // メインウィンドウを前面へ
-            await this.Messenger.RaiseAsync(
-                new WindowActionMessage(
-                    WindowAction.Active,
-                    MessageKeys.WindowActionMessageKey));
+            await this.ActivateMainWindow();
         }
 
         /// <summary>

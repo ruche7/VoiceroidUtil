@@ -8,15 +8,14 @@ using RucheHome.Windows.WinApi;
 namespace VoiceroidUtil.Messaging
 {
     /// <summary>
-    /// VoiceroidActivateMessage を受け取って処理するアクションクラス。
+    /// VoiceroidForwardMessage を受け取って処理するアクションクラス。
     /// </summary>
-    public class VoiceroidActivateMessageAction
-        : InteractionMessageAction<FrameworkElement>
+    public class VoiceroidForwardMessageAction : InteractionMessageAction<FrameworkElement>
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidActivateMessageAction()
+        public VoiceroidForwardMessageAction()
         {
         }
 
@@ -24,7 +23,7 @@ namespace VoiceroidUtil.Messaging
 
         protected override void InvokeAction(InteractionMessage message)
         {
-            var m = message as VoiceroidActivateMessage;
+            var m = message as VoiceroidForwardMessage;
             if (m?.Process == null || m.Process.MainWindowHandle == IntPtr.Zero)
             {
                 return;
@@ -63,7 +62,7 @@ namespace VoiceroidUtil.Messaging
 
         protected override Freezable CreateInstanceCore()
         {
-            return new VoiceroidActivateMessageAction();
+            return new VoiceroidForwardMessageAction();
         }
 
         #endregion

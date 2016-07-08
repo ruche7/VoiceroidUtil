@@ -42,7 +42,9 @@
     <StackPanel Orientation="Vertical">
         <Expander Header="表示" IsExpanded="{Binding UIConfig.Value.IsViewConfigExpanded}">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
-                <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
+                <StackPanel
+                    Orientation="Vertical"
+                    IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
                     <CheckBox
                         Content="ウィンドウを常に最前面に表示(_W)"
                         IsChecked="{Binding Value.IsTopmost}" />
@@ -65,11 +67,11 @@
                         <Button
                             Content="保存先(_D)..."
                             Command="{Binding SelectSaveDirectoryCommand}"
-                            IsEnabled="{Binding CanModify}"
+                            IsEnabled="{Binding CanModify.Value, Mode=OneWay}"
                             Grid.Column="0" />
                         <tk:AutoSelectTextBox
                             Text="{Binding Value.SaveDirectoryPath}"
-                            IsEnabled="{Binding CanModify}"
+                            IsEnabled="{Binding CanModify.Value, Mode=OneWay}"
                             IsReadOnly="True"
                             IsReadOnlyCaretVisible="True"
                             Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
@@ -94,7 +96,7 @@
                     </Grid>
                     <StackPanel
                         Orientation="Vertical"
-                        IsEnabled="{Binding CanModify}"
+                        IsEnabled="{Binding CanModify.Value, Mode=OneWay}"
                         Margin="0,4,0,0">
                         <DockPanel>
                             <Label
@@ -139,7 +141,9 @@
             IsExpanded="{Binding UIConfig.Value.IsYmmConfigExpanded}"
             Margin="0,2,0,0">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
-                <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify}">
+                <StackPanel
+                    Orientation="Vertical"
+                    IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
                     <CheckBox
                         x:Name="Setting_ToYmm"
                         Content="音声保存時、タイムラインにファイルパス設定(_Y)"
