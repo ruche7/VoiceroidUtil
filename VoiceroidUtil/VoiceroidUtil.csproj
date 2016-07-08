@@ -148,8 +148,8 @@
     <Compile Include="Messaging\DirectoryOpenMessage.cs" />
     <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
     <Compile Include="Messaging\MessageKeys.cs" />
-    <Compile Include="Messaging\VoiceroidActivateMessage.cs" />
-    <Compile Include="Messaging\VoiceroidActivateMessageAction.cs" />
+    <Compile Include="Messaging\VoiceroidForwardMessage.cs" />
+    <Compile Include="Messaging\VoiceroidForwardMessageAction.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="UIConfig.cs" />
     <Compile Include="ViewModel\AppConfigViewModel.cs" />

@@ -6,24 +6,24 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil.Messaging
 {
     /// <summary>
-    /// VOICEROIDプロセスのメインウィンドウをアクティブにするためのメッセージクラス。
+    /// VOICEROIDプロセスのメインウィンドウを前面に出すためのメッセージクラス。
     /// </summary>
     /// <remarks>
     /// 実際には、ZオーダーをVoiceroidUtilのメインウィンドウの次に設定する。
     /// ただし最前面表示状態にすることはない。
     /// </remarks>
-    public class VoiceroidActivateMessage : InteractionMessage
+    public class VoiceroidForwardMessage : InteractionMessage
     {
         /// <summary>
         /// 既定のメッセージキー文字列を取得する。
         /// </summary>
         public static string DefaultMessageKey { get; } =
-            typeof(VoiceroidActivateMessage).FullName;
+            typeof(VoiceroidForwardMessage).FullName;
 
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidActivateMessage() : this(DefaultMessageKey)
+        public VoiceroidForwardMessage() : this(DefaultMessageKey)
         {
         }
 
@@ -31,7 +31,7 @@ namespace VoiceroidUtil.Messaging
         /// コンストラクタ。
         /// </summary>
         /// <param name="messageKey">メッセージキー文字列。</param>
-        public VoiceroidActivateMessage(string messageKey) : base(messageKey)
+        public VoiceroidForwardMessage(string messageKey) : base(messageKey)
         {
         }
 
@@ -39,7 +39,7 @@ namespace VoiceroidUtil.Messaging
         /// コンストラクタ。
         /// </summary>
         /// <param name="process">VOICEROIDプロセス。</param>
-        public VoiceroidActivateMessage(IProcess process) : this()
+        public VoiceroidForwardMessage(IProcess process) : this()
         {
             this.Process = process;
         }
@@ -49,7 +49,7 @@ namespace VoiceroidUtil.Messaging
         /// </summary>
         /// <param name="process">VOICEROIDプロセス。</param>
         /// <param name="messageKey">メッセージキー文字列。</param>
-        public VoiceroidActivateMessage(IProcess process, string messageKey)
+        public VoiceroidForwardMessage(IProcess process, string messageKey)
             : this(messageKey)
         {
             this.Process = process;
@@ -62,7 +62,7 @@ namespace VoiceroidUtil.Messaging
             DependencyProperty.Register(
                 nameof(Process),
                 typeof(IProcess),
-                typeof(VoiceroidActivateMessage),
+                typeof(VoiceroidForwardMessage),
                 new PropertyMetadata(null));
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace VoiceroidUtil.Messaging
 
         protected override Freezable CreateInstanceCore()
         {
-            return new VoiceroidActivateMessage();
+            return new VoiceroidForwardMessage();
         }
 
         #endregion
