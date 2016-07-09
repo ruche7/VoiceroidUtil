@@ -21,10 +21,10 @@ namespace VoiceroidUtil.Messaging
             DirectoryOpenMessage.DefaultMessageKey;
 
         /// <summary>
-        /// VoiceroidForwardMessage 用のメッセージキー文字列を取得する。
+        /// VoiceroidActionMessage 用のメッセージキー文字列を取得する。
         /// </summary>
-        public static string VoiceroidForwardMessageKey { get; } =
-            VoiceroidForwardMessage.DefaultMessageKey;
+        public static string VoiceroidActionMessageKey { get; } =
+            VoiceroidActionMessage.DefaultMessageKey;
 
         /// <summary>
         /// WindowActionMessage 用のメッセージキー文字列を取得する。

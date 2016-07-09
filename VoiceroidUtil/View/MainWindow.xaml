@@ -69,8 +69,8 @@
         </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.VoiceroidForwardMessageKey}">
-            <msg:VoiceroidForwardMessageAction />
+            MessageKey="{x:Static msg:MessageKeys.VoiceroidActionMessageKey}">
+            <msg:VoiceroidActionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
         </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
