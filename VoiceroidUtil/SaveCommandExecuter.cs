@@ -25,6 +25,23 @@ namespace VoiceroidUtil
             Func<IAppStatus, Task> resultNotifier)
             : base()
         {
+            if (processFactory == null)
+            {
+                throw new ArgumentNullException(nameof(processFactory));
+            }
+            if (configGetter == null)
+            {
+                throw new ArgumentNullException(nameof(configGetter));
+            }
+            if (talkTextGetter == null)
+            {
+                throw new ArgumentNullException(nameof(talkTextGetter));
+            }
+            if (resultNotifier == null)
+            {
+                throw new ArgumentNullException(nameof(resultNotifier));
+            }
+
             this.AsyncFunc = _ => this.ExecuteAsync();
 
             this.ProcessFactory = processFactory;

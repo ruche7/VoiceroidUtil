@@ -6,24 +6,20 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil.Messaging
 {
     /// <summary>
-    /// VOICEROIDプロセスのメインウィンドウを前面に出すためのメッセージクラス。
+    /// VOICEROIDプロセスに対してアクションを行うメッセージクラス。
     /// </summary>
-    /// <remarks>
-    /// 実際には、ZオーダーをVoiceroidUtilのメインウィンドウの次に設定する。
-    /// ただし最前面表示状態にすることはない。
-    /// </remarks>
-    public class VoiceroidForwardMessage : InteractionMessage
+    public class VoiceroidActionMessage : InteractionMessage
     {
         /// <summary>
         /// 既定のメッセージキー文字列を取得する。
         /// </summary>
         public static string DefaultMessageKey { get; } =
-            typeof(VoiceroidForwardMessage).FullName;
+            typeof(VoiceroidActionMessage).FullName;
 
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidForwardMessage() : this(DefaultMessageKey)
+        public VoiceroidActionMessage() : this(DefaultMessageKey)
         {
         }
 
@@ -31,7 +27,8 @@ namespace VoiceroidUtil.Messaging
         /// コンストラクタ。
         /// </summary>
         /// <param name="messageKey">メッセージキー文字列。</param>
-        public VoiceroidForwardMessage(string messageKey) : base(messageKey)
+        public VoiceroidActionMessage(string messageKey)
+            : this(null, VoiceroidAction.None, messageKey)
         {
         }
 
@@ -39,20 +36,26 @@ namespace VoiceroidUtil.Messaging
         /// コンストラクタ。
         /// </summary>
         /// <param name="process">VOICEROIDプロセス。</param>
-        public VoiceroidForwardMessage(IProcess process) : this()
+        /// <param name="action">アクション種別。</param>
+        public VoiceroidActionMessage(IProcess process, VoiceroidAction action)
+            : this(process, action, DefaultMessageKey)
         {
-            this.Process = process;
         }
 
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         /// <param name="process">VOICEROIDプロセス。</param>
+        /// <param name="action">アクション種別。</param>
         /// <param name="messageKey">メッセージキー文字列。</param>
-        public VoiceroidForwardMessage(IProcess process, string messageKey)
-            : this(messageKey)
+        public VoiceroidActionMessage(
+            IProcess process,
+            VoiceroidAction action,
+            string messageKey)
+            : base(messageKey)
         {
             this.Process = process;
+            this.Action = action;
         }
 
         /// <summary>
@@ -62,7 +65,7 @@ namespace VoiceroidUtil.Messaging
             DependencyProperty.Register(
                 nameof(Process),
                 typeof(IProcess),
-                typeof(VoiceroidForwardMessage),
+                typeof(VoiceroidActionMessage),
                 new PropertyMetadata(null));
 
         /// <summary>
@@ -74,11 +77,30 @@ namespace VoiceroidUtil.Messaging
             set { this.SetValue(ProcessProperty, value); }
         }
 
+        /// <summary>
+        /// Action 依存関係プロパティ。
+        /// </summary>
+        public static readonly DependencyProperty ActionProperty =
+            DependencyProperty.Register(
+                nameof(Action),
+                typeof(VoiceroidAction),
+                typeof(VoiceroidActionMessage),
+                new PropertyMetadata(VoiceroidAction.None));
+
+        /// <summary>
+        /// アクション種別を取得または設定する。
+        /// </summary>
+        public VoiceroidAction Action
+        {
+            get { return (VoiceroidAction)this.GetValue(ActionProperty); }
+            set { this.SetValue(ActionProperty, value); }
+        }
+
         #region InteractionMessage のオーバライド
 
         protected override Freezable CreateInstanceCore()
         {
-            return new VoiceroidForwardMessage();
+            return new VoiceroidActionMessage();
         }
 
         #endregion

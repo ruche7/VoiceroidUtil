@@ -393,6 +393,21 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// VOICEROIDプロセスに対してアクションを行う。
+        /// </summary>
+        /// <param name="process">VOICEROIDプロセス。</param>
+        /// <param name="action">アクション種別。</param>
+        private Task RaiseVoiceroidAction(IProcess process, VoiceroidAction action)
+        {
+            return
+                this.Messenger.RaiseAsync(
+                    new VoiceroidActionMessage(
+                        process,
+                        action,
+                        MessageKeys.VoiceroidActionMessageKey));
+        }
+
+        /// <summary>
         /// PlayStopCommand コマンドの実処理を行う。
         /// </summary>
         private async Task ExecutePlayStopCommand()
@@ -420,21 +435,26 @@ namespace VoiceroidUtil.ViewModel
                     this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
                     return;
                 }
-                if (!(await process.Play()))
+
+                try
                 {
-                    this.SetLastStatus(AppStatusType.Fail, @"再生処理に失敗しました。");
-                    return;
+                    if (!(await process.Play()))
+                    {
+                        this.SetLastStatus(
+                            AppStatusType.Fail,
+                            @"再生処理に失敗しました。");
+                        return;
+                    }
+                    this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
                 }
-                this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
+                finally
+                {
+                    // 対象VOICEROIDを前面へ
+                    await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
 
-                // 再生に成功したら対象VOICEROIDをアクティブにする
-                await this.Messenger.RaiseAsync(
-                    new VoiceroidForwardMessage(
-                        process,
-                        MessageKeys.VoiceroidForwardMessageKey));
-
-                // メインウィンドウを前面へ
-                await this.ActivateMainWindow();
+                    // メインウィンドウを前面へ
+                    await this.ActivateMainWindow();
+                }
             }
         }
 
@@ -456,6 +476,11 @@ namespace VoiceroidUtil.ViewModel
                     this.TalkText.Value = "";
                 }
             }
+
+            // 対象VOICEROIDのタスクバーボタン点滅を止める
+            await this.RaiseVoiceroidAction(
+                this.SelectedProcess.Value,
+                VoiceroidAction.StopFlash);
 
             // メインウィンドウを前面へ
             await this.ActivateMainWindow();
