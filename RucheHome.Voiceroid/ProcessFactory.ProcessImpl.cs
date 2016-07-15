@@ -58,61 +58,25 @@ namespace RucheHome.Voiceroid
                 this.IsUpdating = true;
                 try
                 {
-                    // 対象プロセスをプロダクト名で検索する
-                    var app =
-                        voiceroidApps?.FirstOrDefault(
-                            p => p?.MainModule.FileVersionInfo.ProductName == this.Product);
+                    // 対象プロセスを検索
+                    var app = voiceroidApps?.FirstOrDefault(p => this.IsOwnProcess(p));
                     if (app == null)
                     {
                         this.SetupDeadState();
                         return;
                     }
 
-                    // メインウィンドウタイトルが空文字列なら
-                    // メニュー等のウィンドウがメインウィンドウになっているため更新しない
-                    if (app.MainWindowTitle == "")
-                    {
-                        return;
-                    }
-
-                    // 保存タスク処理中なら更新しない
-                    if (this.IsRunning && this.IsSaveTaskRunning)
-                    {
-                        return;
-                    }
-
-                    // 現在と同じウィンドウが取得できた場合はスキップ
-                    if (
-                        !this.IsRunning ||
-                        this.MainWindow.Handle != app.MainWindowHandle)
-                    {
-                        // コントロール群更新
-                        this.MainWindow = new Win32Window(app.MainWindowHandle);
-                        if (!(await this.UpdateControls()))
-                        {
-                            this.SetupDeadState();
-                            return;
-                        }
-                    }
-
-                    this.IsRunning = true;
-
-                    // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                    this.IsSaving = (
-                        (await this.FindSaveDialog()) != null ||
-                        (await this.FindSaveProgressDialog()) != null);
-
-                    if (this.IsSaving)
-                    {
-                        this.IsDialogShowing = true;
-                    }
-                    else
-                    {
-                        // 保存ボタンが押せない状態＝再生中と判定
-                        this.IsPlaying = !this.SaveButton.IsEnabled;
-
-                        await this.UpdateDialogShowing();
-                    }
+                    // 状態更新
+                    await this.UpdateState(app);
+                }
+                catch (Win32Exception ex)
+                {
+                    // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
+                    // 複数回発生する場合がある
+                    // 起動しきっていない時にアクセスしようとしているせい？
+                    Debug.WriteLine(ex);
+                    this.SetupDeadState();
+                    return;
                 }
                 finally
                 {
@@ -277,9 +241,32 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// プロセスを取得または設定する。
+            /// </summary>
+            private Process Process
+            {
+                get { return this.process; }
+                set
+                {
+                    this.process = value;
+                    this.ExecutablePath = value?.MainModule.FileName;
+                }
+            }
+            private Process process = null;
+
+            /// <summary>
             /// メインウィンドウを取得または設定する。
             /// </summary>
-            private Win32Window MainWindow { get; set; } = null;
+            private Win32Window MainWindow
+            {
+                get { return this.mainWindow; }
+                set
+                {
+                    this.mainWindow = value;
+                    this.MainWindowHandle = (value == null) ? IntPtr.Zero : value.Handle;
+                }
+            }
+            private Win32Window mainWindow = null;
 
             /// <summary>
             /// トークテキストエディットコントロールを取得または設定する。
@@ -310,6 +297,89 @@ namespace RucheHome.Voiceroid
             /// WAVEファイル保存タスク実行中であるか否かを取得または設定する。
             /// </summary>
             private bool IsSaveTaskRunning { get; set; } = false;
+
+            /// <summary>
+            /// 対象プロセスであるか否かを取得する。
+            /// </summary>
+            /// <param name="process">調べるプロセス。</param>
+            /// <returns>対象プロセスであるならば true 。そうでなければ false 。</returns>
+            private bool IsOwnProcess(Process process)
+            {
+                try
+                {
+                    return (
+                        process != null &&
+                        process.MainModule.FileVersionInfo.ProductName == this.Product);
+                }
+                catch (Win32Exception ex)
+                {
+                    // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
+                    // 複数回発生する場合がある
+                    // 起動しきっていない時にアクセスしようとしているせい？
+                    Debug.WriteLine(ex);
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// プロセス情報から状態を更新する。
+            /// </summary>
+            /// <param name="process">プロセス。</param>
+            private async Task UpdateState(Process process)
+            {
+                if (process == null)
+                {
+                    throw new ArgumentNullException(nameof(process));
+                }
+
+                // メインウィンドウタイトルが空文字列なら
+                // メニュー等のウィンドウがメインウィンドウになっているため更新しない
+                if (process.MainWindowTitle == "")
+                {
+                    return;
+                }
+
+                // 保存タスク処理中なら更新しない
+                if (this.IsRunning && this.IsSaveTaskRunning)
+                {
+                    return;
+                }
+
+                // 現在と同じウィンドウが取得できた場合はスキップ
+                if (
+                    !this.IsRunning ||
+                    this.MainWindow.Handle != process.MainWindowHandle)
+                {
+                    // プロパティ群更新
+                    this.Process = process;
+                    this.MainWindow = new Win32Window(process.MainWindowHandle);
+                    if (!(await this.UpdateControls()))
+                    {
+                        this.SetupDeadState();
+                        return;
+                    }
+                }
+
+                this.IsRunning = true;
+
+                // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
+                this.IsSaving = (
+                    (await this.FindSaveDialog()) != null ||
+                    (await this.FindSaveProgressDialog()) != null);
+
+                if (this.IsSaving)
+                {
+                    this.IsDialogShowing = true;
+                }
+                else
+                {
+                    // 保存ボタンが押せない状態＝再生中と判定
+                    this.IsPlaying = !this.SaveButton.IsEnabled;
+
+                    await this.UpdateDialogShowing();
+                }
+            }
 
             /// <summary>
             /// メインウィンドウのコントロール群を更新する。
@@ -389,6 +459,12 @@ namespace RucheHome.Voiceroid
             /// </summary>
             private void SetupDeadState()
             {
+                if (this.Process != null)
+                {
+                    this.Process.Close();
+                }
+                this.Process = null;
+
                 this.MainWindow = null;
                 this.TalkEdit = null;
                 this.PlayButton = null;
@@ -399,6 +475,7 @@ namespace RucheHome.Voiceroid
                 this.IsRunning = false;
                 this.IsPlaying = false;
                 this.IsSaving = false;
+                this.IsDialogShowing = false;
             }
 
             /// <summary>
@@ -646,19 +723,32 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// 実行ファイルのパスを取得する。
+            /// </summary>
+            /// <remarks>
+            /// プロセスが見つかっていない場合は null を返す。
+            /// 値の設定は Process プロパティで行われる。
+            /// </remarks>
+            public string ExecutablePath
+            {
+                get { return this.executablePath; }
+                private set { this.SetProperty(ref this.executablePath, value); }
+            }
+            private string executablePath = null;
+
+            /// <summary>
             /// メインウィンドウハンドルを取得する。
             /// </summary>
             /// <remarks>
             /// メインウィンドウが見つかっていない場合は IntPtr.Zero を返す。
+            /// 値の設定は MainWindow プロパティで行われる。
             /// </remarks>
             public IntPtr MainWindowHandle
             {
-                get
-                {
-                    return
-                        (this.MainWindow == null) ? IntPtr.Zero : this.MainWindow.Handle;
-                }
+                get { return this.mainWindowHandle; }
+                private set { this.SetProperty(ref this.mainWindowHandle, value); }
             }
+            private IntPtr mainWindowHandle = IntPtr.Zero;
 
             /// <summary>
             /// プロセスが実行中であるか否かを取得する。
@@ -908,6 +998,109 @@ namespace RucheHome.Voiceroid
                 }
 
                 return new FileSaveResult(true, path);
+            }
+
+            /// <summary>
+            /// 指定した実行ファイルをVOICEROIDプロセスとして実行する。
+            /// </summary>
+            /// <param name="executablePath">実行ファイルパス。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            public async Task<bool> Run(string executablePath)
+            {
+                if (executablePath == null)
+                {
+                    throw new ArgumentNullException(nameof(executablePath));
+                }
+                if (!File.Exists(executablePath))
+                {
+                    throw new FileNotFoundException(nameof(executablePath));
+                }
+
+                // 既に実行中なら不可
+                if (this.Process != null)
+                {
+                    return false;
+                }
+
+                // プロセス実行
+                var process =
+                    await Task.Run(
+                        () =>
+                        {
+                            var app = Process.Start(executablePath);
+                            app.WaitForInputIdle(1000);
+
+                            if (!this.IsOwnProcess(app))
+                            {
+                                if (!app.CloseMainWindow())
+                                {
+                                    app.Kill();
+                                }
+                                app.Close();
+                                return null;
+                            }
+
+                            return app;
+                        });
+                if (process == null)
+                {
+                    return false;
+                }
+
+                // 状態更新
+                if (this.Process == null)
+                {
+                    await this.UpdateState(process);
+                }
+
+                return (this.Process != null);
+            }
+
+            /// <summary>
+            /// VOICEROIDプロセスを終了させる。
+            /// </summary>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            public async Task<bool> Exit()
+            {
+                if (this.Process == null)
+                {
+                    return false;
+                }
+
+                // 更新中なら待つ
+                if (await RepeatUntil(() => this.IsUpdating, f => !f, 100, 10))
+                {
+                    return false;
+                }
+
+                this.IsUpdating = true;
+                try
+                {
+                    if (this.Process == null)
+                    {
+                        return false;
+                    }
+
+                    return
+                        await Task.Run(
+                            () =>
+                            {
+                                // プロセス終了
+                                if (!this.Process.CloseMainWindow())
+                                {
+                                    return false;
+                                }
+                                if (!this.Process.WaitForExit(300))
+                                {
+                                    return false;
+                                }
+                                return true;
+                            });
+                }
+                finally
+                {
+                    this.IsUpdating = false;
+                }
             }
 
             #endregion
