@@ -62,6 +62,7 @@ namespace RucheHome.Voiceroid
                     var app = voiceroidApps?.FirstOrDefault(p => this.IsOwnProcess(p));
                     if (app == null)
                     {
+                        this.IsStartup = false;
                         this.SetupDeadState();
                         return;
                     }
@@ -334,9 +335,14 @@ namespace RucheHome.Voiceroid
                 }
 
                 // メインウィンドウタイトルが空文字列なら
-                // メニュー等のウィンドウがメインウィンドウになっているため更新しない
+                // スプラッシュウィンドウやメニューウィンドウがメインウィンドウになっている
                 if (process.MainWindowTitle == "")
                 {
+                    // 実行中でないなら起動中と判断
+                    if (!this.IsRunning)
+                    {
+                        this.IsStartup = true;
+                    }
                     return;
                 }
 
@@ -459,12 +465,7 @@ namespace RucheHome.Voiceroid
             /// </summary>
             private void SetupDeadState()
             {
-                if (this.Process != null)
-                {
-                    this.Process.Close();
-                }
                 this.Process = null;
-
                 this.MainWindow = null;
                 this.TalkEdit = null;
                 this.PlayButton = null;
@@ -751,12 +752,33 @@ namespace RucheHome.Voiceroid
             private IntPtr mainWindowHandle = IntPtr.Zero;
 
             /// <summary>
+            /// プロセスが起動中であるか否かを取得する。
+            /// </summary>
+            /// <remarks>
+            /// IsRunning プロパティの値が変化すると false になる。
+            /// SetupDeadState メソッドでは値設定されない。
+            /// </remarks>
+            public bool IsStartup
+            {
+                get { return this.startup; }
+                private set { this.SetProperty(ref this.startup, value); }
+            }
+            private bool startup = false;
+
+            /// <summary>
             /// プロセスが実行中であるか否かを取得する。
             /// </summary>
             public bool IsRunning
             {
                 get { return this.running; }
-                private set { this.SetProperty(ref this.running, value); }
+                private set
+                {
+                    if (value != this.running)
+                    {
+                        this.SetProperty(ref this.running, value);
+                        this.IsStartup = false;
+                    }
+                }
             }
             private bool running = false;
 
@@ -1023,7 +1045,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // プロセス実行
-                var process =
+                bool ok =
                     await Task.Run(
                         () =>
                         {
@@ -1037,23 +1059,19 @@ namespace RucheHome.Voiceroid
                                     app.Kill();
                                 }
                                 app.Close();
-                                return null;
+                                return false;
                             }
 
-                            return app;
+                            return true;
                         });
-                if (process == null)
+                if (!ok)
                 {
                     return false;
                 }
 
-                // 状態更新
-                if (this.Process == null)
-                {
-                    await this.UpdateState(process);
-                }
-
-                return (this.Process != null);
+                // スタートアップ状態になるまで少し待つ
+                return
+                    await RepeatUntil(() => this.IsStartup || this.IsRunning, f => f, 25);
             }
 
             /// <summary>
@@ -1090,7 +1108,7 @@ namespace RucheHome.Voiceroid
                                 {
                                     return false;
                                 }
-                                if (!this.Process.WaitForExit(300))
+                                if (!this.Process.WaitForExit(500))
                                 {
                                     return false;
                                 }
@@ -1099,6 +1117,7 @@ namespace RucheHome.Voiceroid
                 }
                 finally
                 {
+                    await this.UpdateDialogShowing();
                     this.IsUpdating = false;
                 }
             }

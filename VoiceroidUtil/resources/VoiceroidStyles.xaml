@@ -165,7 +165,31 @@
         </Style.Triggers>
     </Style>
 
-    <!-- MainWindowViewModel -->
+    <!-- VoiceroidViewModel -->
+
+    <Style x:Key="VoiceroidRunExitIcon" x:Shared="False" TargetType="Image">
+        <Setter Property="Stretch" Value="None" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter
+            Property="Source"
+            Value="/VoiceroidUtil;component/resources/icon/exited_notfound.png" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsProcessRunning.Value}" Value="True">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/icon/running.png" />
+            </DataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding IsProcessRunning.Value}" Value="False" />
+                    <Condition Binding="{Binding IsProcessExecutable.Value}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/icon/exited_executable.png" />
+            </MultiDataTrigger>
+        </Style.Triggers>
+    </Style>
 
     <Style x:Key="VoiceroidPlayStopIcon" x:Shared="False" TargetType="Image">
         <Setter Property="Stretch" Value="None" />

@@ -40,7 +40,7 @@
     </UserControl.Resources>
 
     <StackPanel Orientation="Vertical">
-        <Expander Header="表示" IsExpanded="{Binding UIConfig.Value.IsViewConfigExpanded}">
+        <Expander Header="一般" IsExpanded="{Binding UIConfig.Value.IsGeneralConfigExpanded}">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
                 <StackPanel
                     Orientation="Vertical"
@@ -48,6 +48,10 @@
                     <CheckBox
                         Content="ウィンドウを常に最前面に表示(_W)"
                         IsChecked="{Binding Value.IsTopmost}" />
+                    <CheckBox
+                        Content="タブ文字の入力を許可する(_I)"
+                        IsChecked="{Binding Value.IsTabAccepted}"
+                        Margin="0,4,0,0" />
                 </StackPanel>
             </Border>
         </Expander>

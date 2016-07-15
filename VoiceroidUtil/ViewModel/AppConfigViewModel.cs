@@ -68,6 +68,10 @@ namespace VoiceroidUtil.ViewModel
                 .Subscribe(e => this.ExecuteDropSaveDirectoryCommand(e))
                 .AddTo(this.CompositeDisposable);
 
+            // ロード実施済みフラグ
+            this.IsConfigLoaded =
+                new ReactiveProperty<bool>(false).AddTo(this.CompositeDisposable);
+
             // ロードコマンド
             this.LoadCommand =
                 this.CanModify.ToReactiveCommand().AddTo(this.CompositeDisposable);
@@ -76,7 +80,8 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             // セーブコマンド
-            this.SaveCommand = (new ReactiveCommand()).AddTo(this.CompositeDisposable);
+            this.SaveCommand =
+                this.IsConfigLoaded.ToReactiveCommand().AddTo(this.CompositeDisposable);
             this.SaveCommand
                 .Subscribe(async _ => await this.ExecuteSaveCommand())
                 .AddTo(this.CompositeDisposable);
@@ -192,6 +197,11 @@ namespace VoiceroidUtil.ViewModel
             new ConfigKeeper<AppConfig>(nameof(VoiceroidUtil));
 
         /// <summary>
+        /// アプリ設定のロードが1回以上行われたか否かを取得する。
+        /// </summary>
+        private ReactiveProperty<bool> IsConfigLoaded { get; }
+
+        /// <summary>
         /// SelectSaveDirectoryCommand の実処理を行う。
         /// </summary>
         private async Task ExecuteSelectSaveDirectoryCommand()
@@ -280,9 +290,19 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private async Task ExecuteLoadCommand()
         {
+            // 成否に関わらずロード実施済みとする
+            // プロパティ変更通知によりセーブコマンドが発行される場合があるため、
+            // ロード処理よりも前に立てておく
+            this.IsConfigLoaded.Value = true;
+
             if (await Task.Run(() => this.ConfigKeeper.Load()))
             {
                 this.RaisePropertyChanged(nameof(this.Value));
+            }
+            else
+            {
+                // ロードに失敗した場合は現在値をセーブしておく
+                await Task.Run(() => this.ConfigKeeper.Save());
             }
         }
 
@@ -291,6 +311,12 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private async Task ExecuteSaveCommand()
         {
+            // 1回以上 LoadCommand が実施されていなければ処理しない
+            if (!this.IsConfigLoaded.Value)
+            {
+                return;
+            }
+
             await Task.Run(() => this.ConfigKeeper.Save());
         }
     }

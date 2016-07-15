@@ -46,6 +46,11 @@ namespace RucheHome.Voiceroid
         IntPtr MainWindowHandle { get; }
 
         /// <summary>
+        /// プロセスが起動中であるか否かを取得する。
+        /// </summary>
+        bool IsStartup { get; }
+
+        /// <summary>
         /// プロセスが実行中であるか否かを取得する。
         /// </summary>
         bool IsRunning { get; }

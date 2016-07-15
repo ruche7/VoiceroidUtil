@@ -44,10 +44,9 @@
     </i:Interaction.Behaviors>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
-            <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
             <l:DataContextDisposeAction />
         </i:EventTrigger>
-        <i:EventTrigger EventName="ContentRendered">
+        <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding UIConfigLoadCommand}" />
             <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
         </i:EventTrigger>

@@ -14,20 +14,20 @@ namespace VoiceroidUtil
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="processFactory">VOICEROIDプロセスファクトリ。</param>
+        /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
         /// <param name="configGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
-            ProcessFactory processFactory,
+            Func<IProcess> processGetter,
             Func<AppConfig> configGetter,
             Func<string> talkTextGetter,
             Func<IAppStatus, Task> resultNotifier)
             : base()
         {
-            if (processFactory == null)
+            if (processGetter == null)
             {
-                throw new ArgumentNullException(nameof(processFactory));
+                throw new ArgumentNullException(nameof(processGetter));
             }
             if (configGetter == null)
             {
@@ -44,11 +44,40 @@ namespace VoiceroidUtil
 
             this.AsyncFunc = _ => this.ExecuteAsync();
 
-            this.ProcessFactory = processFactory;
+            this.ProcessGetter = processGetter;
             this.ConfigGetter = configGetter;
             this.TalkTextGetter = talkTextGetter;
             this.ResultNotifier = resultNotifier;
         }
+
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
+        /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
+        /// <param name="configGetter">アプリ設定取得デリゲート。</param>
+        /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
+        /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
+        public SaveCommandExecuter(
+            Func<IProcess> processGetter,
+            Func<AppConfig> configGetter,
+            Func<string> talkTextGetter,
+            Action<IAppStatus> resultNotifier)
+            :
+            this(
+                processGetter,
+                configGetter,
+                talkTextGetter,
+                (resultNotifier == null) ?
+                    null :
+                    new Func<IAppStatus, Task>(
+                        async r => await Task.Run(() => resultNotifier(r))))
+        {
+        }
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
+        /// </summary>
+        private static YmmProcess YmmProcess { get; } = new YmmProcess();
 
         /// <summary>
         /// WAVEファイルパスを作成する。
@@ -140,9 +169,9 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// VOICEROIDプロセスファクトリを取得する。
+        /// VOICEROIDプロセス取得デリゲートを取得する。
         /// </summary>
-        private ProcessFactory ProcessFactory { get; }
+        private Func<IProcess> ProcessGetter { get; }
 
         /// <summary>
         /// アプリ設定取得デリゲートを取得する。
@@ -160,11 +189,6 @@ namespace VoiceroidUtil
         private Func<IAppStatus, Task> ResultNotifier { get; }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
-        /// </summary>
-        private YmmProcess YmmProcess { get; } = new YmmProcess();
-
-        /// <summary>
         /// 非同期の実処理を行う。
         /// </summary>
         private async Task ExecuteAsync()
@@ -178,7 +202,7 @@ namespace VoiceroidUtil
                 return;
             }
 
-            var process = this.ProcessFactory.Get(config.VoiceroidId);
+            var process = this.ProcessGetter();
             if (
                 process == null ||
                 !process.IsRunning ||
@@ -246,7 +270,7 @@ namespace VoiceroidUtil
             }
 
             // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, config);
+            var warnText = await DoOperateYmm(filePath, process.Id, config);
 
             await this.NotifyResult(
                 AppStatusType.Success,
@@ -259,9 +283,13 @@ namespace VoiceroidUtil
         /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="config">アプリ設定。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
-        private async Task<string> DoOperateYmm(string filePath, AppConfig config)
+        private async Task<string> DoOperateYmm(
+            string filePath,
+            VoiceroidId voiceroidId,
+            AppConfig config)
         {
             if (!config.IsSavedFileToYmm)
             {
@@ -269,22 +297,22 @@ namespace VoiceroidUtil
             }
 
             // 状態更新
-            await this.YmmProcess.Update();
+            await YmmProcess.Update();
 
             // そもそも起動していないなら何もしない
-            if (!this.YmmProcess.IsRunning)
+            if (!YmmProcess.IsRunning)
             {
                 return null;
             }
 
             // タイムラインウィンドウが開いていない？
-            if (!this.YmmProcess.IsTimelineOpened)
+            if (!YmmProcess.IsTimelineOpened)
             {
                 return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
             }
 
             // ファイルパス設定
-            if (!this.YmmProcess.SetTimelineSpeechEditValue(filePath))
+            if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
             {
                 return @"ゆっくりMovieMakerへのパス設定に失敗しました。";
             }
@@ -295,10 +323,10 @@ namespace VoiceroidUtil
             // そもそもキャラ名が存在しない場合は失敗しても警告にしない
             if (config.IsYmmCharaSelecting)
             {
-                var name = config.YmmCharaRelations[config.VoiceroidId].YmmCharaName;
+                var name = config.YmmCharaRelations[voiceroidId].YmmCharaName;
                 if (
                     !string.IsNullOrEmpty(name) &&
-                    (await this.YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                    (await YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
                 {
                     warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
                 }
@@ -308,7 +336,7 @@ namespace VoiceroidUtil
             // キャラ選択に失敗していても行う
             if (
                 config.IsYmmAddButtonClicking &&
-                !this.YmmProcess.ClickTimelineSpeechAddButton())
+                !(await YmmProcess.ClickTimelineSpeechAddButton()))
             {
                 warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
             }
