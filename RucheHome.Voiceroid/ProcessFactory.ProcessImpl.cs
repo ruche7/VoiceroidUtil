@@ -1099,7 +1099,7 @@ namespace RucheHome.Voiceroid
                         return false;
                     }
 
-                    return
+                    bool ok =
                         await Task.Run(
                             () =>
                             {
@@ -1108,18 +1108,26 @@ namespace RucheHome.Voiceroid
                                 {
                                     return false;
                                 }
-                                if (!this.Process.WaitForExit(500))
+                                if (!this.Process.WaitForExit(1000))
                                 {
                                     return false;
                                 }
                                 return true;
                             });
+                    if (!ok)
+                    {
+                        await this.UpdateDialogShowing();
+                        return false;
+                    }
+
+                    this.SetupDeadState();
                 }
                 finally
                 {
-                    await this.UpdateDialogShowing();
                     this.IsUpdating = false;
                 }
+
+                return true;
             }
 
             #endregion
