@@ -30,6 +30,14 @@ namespace RucheHome.Voiceroid
         string DisplayProduct { get; }
 
         /// <summary>
+        /// 実行ファイルのパスを取得する。
+        /// </summary>
+        /// <remarks>
+        /// プロセスが見つかっていない場合は null を返す。
+        /// </remarks>
+        string ExecutablePath { get; }
+
+        /// <summary>
         /// メインウィンドウハンドルを取得する。
         /// </summary>
         /// <remarks>
@@ -106,5 +114,18 @@ namespace RucheHome.Voiceroid
         /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
         /// </remarks>
         Task<FileSaveResult> Save(string filePath);
+
+        /// <summary>
+        /// 指定した実行ファイルをVOICEROIDプロセスとして実行する。
+        /// </summary>
+        /// <param name="executablePath">実行ファイルパス。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        Task<bool> Run(string executablePath);
+
+        /// <summary>
+        /// VOICEROIDプロセスを終了させる。
+        /// </summary>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        Task<bool> Exit();
     }
 }
