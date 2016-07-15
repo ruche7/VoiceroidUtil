@@ -6,17 +6,17 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを定義するクラス。
+    /// VOICEROIDの実行ファイルパスを保持するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
     [KnownType(typeof(VoiceroidId))]
-    public class YmmCharaRelation : BindableConfigBase
+    public class VoiceroidExecutablePath : BindableConfigBase
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        public YmmCharaRelation(VoiceroidId voiceroidId) : this(voiceroidId, null)
+        public VoiceroidExecutablePath(VoiceroidId voiceroidId) : this(voiceroidId, null)
         {
         }
 
@@ -24,13 +24,11 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        /// <param name="ymmCharaName">
-        /// 『ゆっくりMovieMaker』のキャラ名。 null ならばVOICEROID識別IDから決定する。
-        /// </param>
-        public YmmCharaRelation(VoiceroidId voiceroidId, string ymmCharaName)
+        /// <param name="path">実行ファイルパス。</param>
+        public VoiceroidExecutablePath(VoiceroidId voiceroidId, string path) : base()
         {
             this.VoiceroidId = voiceroidId;
-            this.YmmCharaName = ymmCharaName ?? voiceroidId.GetInfo()?.Name ?? "";
+            this.Path = path;
         }
 
         /// <summary>
@@ -54,32 +52,14 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// VOICEROIDの名前を取得する。
-        /// </summary>
-        public string VoiceroidName
-        {
-            get { return this.VoiceroidId.GetInfo().Name; }
-        }
-
-        /// <summary>
-        /// 『ゆっくりMovieMaker』のキャラ名を取得または設定する。
+        /// 実行ファイルパスを取得または設定する。
         /// </summary>
         [DataMember]
-        public string YmmCharaName
+        public string Path
         {
-            get { return this.ymmCharaName; }
-            set { this.SetProperty(ref this.ymmCharaName, value ?? ""); }
+            get { return this.path; }
+            set { this.SetProperty(ref this.path, value); }
         }
-        private string ymmCharaName = "";
-
-        /// <summary>
-        /// デシリアライズの直前に呼び出される。
-        /// </summary>
-        [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            // null 回避
-            this.YmmCharaName = "";
-        }
+        private string path = null;
     }
 }

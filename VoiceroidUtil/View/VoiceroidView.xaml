@@ -37,43 +37,54 @@
         </Grid.RowDefinitions>
 
         <!-- Row 0 -->
-        <ComboBox
-            ItemsSource="{Binding Processes}"
-            SelectedItem="{Binding SelectedProcess.Value}"
-            IsEnabled="{Binding IsIdle.Value}"
-            Padding="2,1"
-            MaxDropDownHeight="480"
-            Grid.Row="0">
-            <ComboBox.Resources>
-                <Style TargetType="ComboBoxItem">
-                    <Setter Property="Padding" Value="0" />
-                </Style>
-            </ComboBox.Resources>
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel>
-                        <Image
-                            Style="{StaticResource VoiceroidImage}"
-                            Margin="0,0,4,0"
-                            DockPanel.Dock="Left" />
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" />
-                                <TextBlock Text=" (" />
-                                <TextBlock Text="{Binding DisplayProduct}" />
-                                <TextBlock Text=")" />
+        <DockPanel Grid.Row="0">
+            <Button
+                Command="{Binding RunExitCommand}"
+                ToolTip="起動/終了"
+                Margin="1,0,0,0"
+                Padding="4"
+                TabIndex="1"
+                DockPanel.Dock="Right">
+                <Image Style="{StaticResource VoiceroidRunExitIcon}" />
+            </Button>
+            <ComboBox
+                ItemsSource="{Binding Processes}"
+                SelectedItem="{Binding SelectedProcess.Value}"
+                IsEnabled="{Binding IsIdle.Value}"
+                Padding="2,1"
+                MaxDropDownHeight="480"
+                TabIndex="0">
+                <ComboBox.Resources>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Padding" Value="0,0,4,0" />
+                    </Style>
+                </ComboBox.Resources>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <Image
+                                Style="{StaticResource VoiceroidImage}"
+                                Margin="0,0,4,0"
+                                DockPanel.Dock="Left" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" />
+                                    <TextBlock Text=" (" />
+                                    <TextBlock Text="{Binding DisplayProduct}" />
+                                    <TextBlock Text=")" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                    <Image Style="{StaticResource VoiceroidStatusIcon}" />
+                                    <TextBlock
+                                        Style="{StaticResource VoiceroidStatusText}"
+                                        Margin="2,0,0,0" />
+                                </StackPanel>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                <Image Style="{StaticResource VoiceroidStatusIcon}" />
-                                <TextBlock
-                                    Style="{StaticResource VoiceroidStatusText}"
-                                    Margin="2,0,0,0" />
-                            </StackPanel>
-                        </StackPanel>
-                    </DockPanel>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+                        </DockPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </DockPanel>
 
         <!-- Row 1 -->
         <tk:WatermarkTextBox
@@ -82,7 +93,7 @@
             IsReadOnly="{Binding IsIdle.Value, Converter={StaticResource boolInverter}}"
             IsReadOnlyCaretVisible="True"
             AcceptsReturn="True"
-            AcceptsTab="True"
+            AcceptsTab="{Binding AppConfig.Value.IsTabAccepted}"
             Margin="0,2,0,0"
             ScrollViewer.HorizontalScrollBarVisibility="Auto"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -123,7 +134,6 @@
                     <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />
                 </StackPanel>
             </Button>
-            <StackPanel />
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
 using RucheHome.Util;
-using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
 {
@@ -10,7 +10,6 @@ namespace VoiceroidUtil
     /// アプリケーション設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
     [KnownType(typeof(FileNameFormat))]
     [KnownType(typeof(YmmCharaRelationSet))]
     public class AppConfig : BindableConfigBase
@@ -28,37 +27,8 @@ namespace VoiceroidUtil
         /// </summary>
         public AppConfig()
         {
-        }
-
-        /// <summary>
-        /// 選択中VOICEROID識別IDを取得または設定する。
-        /// </summary>
-        public VoiceroidId VoiceroidId
-        {
-            get { return this.voiceroidId; }
-            set
-            {
-                this.SetProperty(
-                    ref this.voiceroidId,
-                    Enum.IsDefined(value.GetType(), value) ?
-                        value : VoiceroidId.YukariEx);
-            }
-        }
-        private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
-
-        /// <summary>
-        /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
-        /// </summary>
-        [DataMember(Name = nameof(VoiceroidId))]
-        private string VoiceroidIdString
-        {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
-                this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.YmmCharaRelations = new YmmCharaRelationSet();
         }
 
         /// <summary>
@@ -71,6 +41,17 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.topmost, value); }
         }
         private bool topmost = false;
+
+        /// <summary>
+        /// タブ文字の入力を受け付けるか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsTabAccepted
+        {
+            get { return this.tabAccepted; }
+            set { this.SetProperty(ref this.tabAccepted, value); }
+        }
+        private bool tabAccepted = true;
 
         /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
@@ -131,7 +112,7 @@ namespace VoiceroidUtil
         private bool textFileForceMaking = true;
 
         /// <summary>
-        /// テキストファイルをUTF-8(BOM付き)で作成するか否かを取得または設定する。
+        /// テキストファイルをUTF-8(BOMなし)で作成するか否かを取得または設定する。
         /// </summary>
         [DataMember]
         public bool IsTextFileUtf8
@@ -184,12 +165,26 @@ namespace VoiceroidUtil
             get { return this.ymmCharaRelations; }
             set
             {
-                this.SetProperty(
-                    ref this.ymmCharaRelations,
-                    value ?? (new YmmCharaRelationSet()));
+                if (value != this.ymmCharaRelations)
+                {
+                    // 古い値からイベントハンドラを削除
+                    if (this.ymmCharaRelations != null)
+                    {
+                        this.ymmCharaRelations.PropertyChanged -=
+                            this.OnYmmCharaRelationsPropertyChanged;
+                    }
+
+                    this.SetProperty(
+                        ref this.ymmCharaRelations,
+                        value ?? (new YmmCharaRelationSet()));
+
+                    // 新しい値にイベントハンドラを追加
+                    this.ymmCharaRelations.PropertyChanged +=
+                        this.OnYmmCharaRelationsPropertyChanged;
+                }
             }
         }
-        private YmmCharaRelationSet ymmCharaRelations = new YmmCharaRelationSet();
+        private YmmCharaRelationSet ymmCharaRelations = null;
 
         /// <summary>
         /// 『ゆっくりMovieMaker』の追加ボタンを自動押下するか否かを取得または設定する。
@@ -201,6 +196,17 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
         }
         private bool ymmAddButtonClicking = true;
+
+        /// <summary>
+        /// YmmCharaRelations プロパティの内容変更時に呼び出される。
+        /// </summary>
+        private void OnYmmCharaRelationsPropertyChanged(
+            object sender,
+            PropertyChangedEventArgs e)
+        {
+            // YmmCharaRelations プロパティ自身の変更通知を行う
+            this.RaisePropertyChanged(nameof(YmmCharaRelations));
+        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

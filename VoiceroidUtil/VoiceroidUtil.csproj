@@ -63,15 +63,15 @@
       <HintPath>..\libs\Windows-API-Code-Pack-1.1\binaries\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.2\lib\net45\ReactiveProperty.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.8\lib\net45\ReactiveProperty.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.DataAnnotations, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.2\lib\net45\ReactiveProperty.DataAnnotations.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.8\lib\net45\ReactiveProperty.DataAnnotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.NET45, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.2\lib\net45\ReactiveProperty.NET45.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.8\lib\net45\ReactiveProperty.NET45.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -176,6 +176,9 @@
     <Compile Include="View\VoiceroidView.xaml.cs">
       <DependentUpon>VoiceroidView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="VoiceroidExecutablePath.cs" />
+    <Compile Include="VoiceroidExecutablePathSet.cs" />
+    <Compile Include="VoiceroidItemSetBase.cs" />
     <Compile Include="YmmCharaRelation.cs" />
     <Compile Include="View\YmmCharaRelationsControl.xaml.cs">
       <DependentUpon>YmmCharaRelationsControl.xaml</DependentUpon>
@@ -297,6 +300,13 @@
   <ItemGroup>
     <Resource Include="resources\voiceroid\ai_ng.png" />
     <Resource Include="resources\voiceroid\ai_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\running.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\exited_executable.png" />
+    <Resource Include="resources\icon\exited_notfound.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

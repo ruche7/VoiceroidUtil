@@ -26,9 +26,12 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         public VoiceroidViewModel()
         {
-            // アプリ設定
-            this.Config =
+            // 設定
+            this.AppConfig =
                 new ReactiveProperty<AppConfig>(new AppConfig())
+                    .AddTo(this.CompositeDisposable);
+            this.UIConfig =
+                new ReactiveProperty<UIConfig>(new UIConfig())
                     .AddTo(this.CompositeDisposable);
 
             // 直近のアプリ状態値
@@ -42,33 +45,15 @@ namespace VoiceroidUtil.ViewModel
                     this.ProcessFactory.Get(VoiceroidId.YukariEx))
                     .AddTo(this.CompositeDisposable);
 
-            // アプリ設定変更時に選択プロセス反映
-            this.Config
-                .SelectMany(
-                    config =>
-                        (config == null) ?
-                            Observable.Empty<VoiceroidId>() :
-                            config.ObserveProperty(c => c.VoiceroidId))
-                .Subscribe(id => this.SelectedProcess.Value = this.ProcessFactory.Get(id))
-                .AddTo(this.CompositeDisposable);
-
-            // 選択プロセス変更時処理
-            this.SelectedProcess
-                .Subscribe(
-                    p =>
-                    {
-                        // アプリ設定へ反映
-                        if (p != null && this.Config.Value != null)
-                        {
-                            this.Config.Value.VoiceroidId = p.Id;
-                        }
-
-                        // アプリ状態リセット
-                        this.ResetLastStatus();
-                    })
-                .AddTo(this.CompositeDisposable);
+            // UI設定周りのセットアップ
+            this.SetupUIConfig();
 
             // 選択プロセス状態
+            this.IsProcessStartup =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsStartup)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
             this.IsProcessRunning =
                 this
                     .ObserveSelectedProcessProperty(p => p.IsRunning)
@@ -89,6 +74,24 @@ namespace VoiceroidUtil.ViewModel
                     .ObserveSelectedProcessProperty(p => p.IsDialogShowing)
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
+            this.IsProcessExecutable =
+                Observable.CombineLatest(
+                    this.SelectedProcess,
+                    this.UIConfig
+                        .Select(
+                            config =>
+                                (config == null) ?
+                                    Observable.Empty<VoiceroidExecutablePathSet>() :
+                                    config.ObserveProperty(
+                                        c => c.VoiceroidExecutablePathes))
+                        .Switch(),
+                    (p, pathes) =>
+                    {
+                        var path = pathes[p.Id]?.Path;
+                        return (!string.IsNullOrEmpty(path) && File.Exists(path));
+                    })
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
 
             // トークテキスト
             this.TalkText =
@@ -99,13 +102,16 @@ namespace VoiceroidUtil.ViewModel
                     .AddTo(this.CompositeDisposable);
 
             // コマンド実行用
+            this.RunExitCommandExecuter =
+                new AsyncCommandExecuter(this.ExecuteRunExitCommand)
+                    .AddTo(this.CompositeDisposable);
             this.PlayStopCommandExecuter =
                 new AsyncCommandExecuter(this.ExecutePlayStopCommand)
                     .AddTo(this.CompositeDisposable);
             this.SaveCommandExecuter =
                 new SaveCommandExecuter(
-                    this.ProcessFactory,
-                    () => this.Config.Value,
+                    () => this.SelectedProcess.Value,
+                    () => this.AppConfig.Value,
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
                     .AddTo(this.CompositeDisposable);
@@ -118,12 +124,29 @@ namespace VoiceroidUtil.ViewModel
             this.IsIdle =
                 new[]
                 {
+                    this.RunExitCommandExecuter.ObserveExecutable(),
                     this.PlayStopCommandExecuter.ObserveExecutable(),
                     this.SaveCommandExecuter.ObserveExecutable(),
                     this.DropTalkTextFileCommandExecuter.ObserveExecutable(),
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty()
+                .AddTo(this.CompositeDisposable);
+
+            // 実行/終了コマンド
+            this.RunExitCommand =
+                new[]
+                {
+                    this.IsIdle,
+                    this.IsProcessStartup.Select(f => !f),
+                    this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f),
+                }
+                .CombineLatestValuesAreAllTrue()
+                .ToReactiveCommand(false)
+                .AddTo(this.CompositeDisposable);
+            this.RunExitCommand
+                .Subscribe(this.RunExitCommandExecuter.Execute)
                 .AddTo(this.CompositeDisposable);
 
             // 再生/停止コマンド
@@ -199,7 +222,12 @@ namespace VoiceroidUtil.ViewModel
         /// <remarks>
         /// 外部からの設定以外で更新されることはない。
         /// </remarks>
-        public ReactiveProperty<AppConfig> Config { get; }
+        public ReactiveProperty<AppConfig> AppConfig { get; }
+
+        /// <summary>
+        /// UI設定値を取得する。
+        /// </summary>
+        public ReactiveProperty<UIConfig> UIConfig { get; }
 
         /// <summary>
         /// 直近のアプリ状態値を取得する。
@@ -218,6 +246,11 @@ namespace VoiceroidUtil.ViewModel
         /// 選択中のVOICEROIDプロセスを取得する。
         /// </summary>
         public ReactiveProperty<IProcess> SelectedProcess { get; }
+
+        /// <summary>
+        /// 選択中のVOICEROIDプロセスが起動中であるか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsProcessStartup { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスが実行中であるか否かを取得する。
@@ -240,6 +273,11 @@ namespace VoiceroidUtil.ViewModel
         public ReadOnlyReactiveProperty<bool> IsProcessDialogShowing { get; }
 
         /// <summary>
+        /// 選択中のVOICEROIDプロセスが実行ファイルパス登録済みであるか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsProcessExecutable { get; }
+
+        /// <summary>
         /// トークテキストを取得する。
         /// </summary>
         public ReactiveProperty<string> TalkText { get; }
@@ -260,6 +298,11 @@ namespace VoiceroidUtil.ViewModel
         /// いずれの非同期コマンドも実行中でなければ true となる。
         /// </remarks>
         public ReadOnlyReactiveProperty<bool> IsIdle { get; }
+
+        /// <summary>
+        /// 実行/終了コマンドを取得する。
+        /// </summary>
+        public ReactiveCommand RunExitCommand { get; }
 
         /// <summary>
         /// 再生/停止コマンドを取得する。
@@ -339,6 +382,11 @@ namespace VoiceroidUtil.ViewModel
         private ReactiveTimer ProcessUpdateTimer { get; }
 
         /// <summary>
+        /// 実行/終了コマンドの非同期実行用オブジェクトを取得する。
+        /// </summary>
+        private AsyncCommandExecuter RunExitCommandExecuter { get; }
+
+        /// <summary>
         /// 再生/停止コマンドの非同期実行用オブジェクトを取得する。
         /// </summary>
         private AsyncCommandExecuter PlayStopCommandExecuter { get; }
@@ -381,6 +429,80 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// UI設定周りのセットアップを行う。
+        /// </summary>
+        private void SetupUIConfig()
+        {
+            // UI設定変更時に選択プロセス反映
+            this.UIConfig
+                .Select(
+                    config =>
+                        (config == null) ?
+                            Observable.Empty<VoiceroidId>() :
+                            config.ObserveProperty(c => c.VoiceroidId))
+                .Switch()
+                .Subscribe(id => this.SelectedProcess.Value = this.ProcessFactory.Get(id))
+                .AddTo(this.CompositeDisposable);
+
+            // 選択プロセス変更時処理
+            this.SelectedProcess
+                .Subscribe(
+                    p =>
+                    {
+                        // UI設定へ反映
+                        if (p != null && this.UIConfig.Value != null)
+                        {
+                            this.UIConfig.Value.VoiceroidId = p.Id;
+                        }
+
+                        // アプリ状態リセット
+                        this.ResetLastStatus();
+                    })
+                .AddTo(this.CompositeDisposable);
+
+            // 実行ファイルパス反映用デリゲート
+            Action<VoiceroidId, string> pathSetter =
+                (id, path) =>
+                {
+                    // パスが有効な場合のみ反映する
+                    if (
+                        this.UIConfig.Value != null &&
+                        !string.IsNullOrEmpty(path) &&
+                        File.Exists(path))
+                    {
+                        this.UIConfig.Value.VoiceroidExecutablePathes[id].Path = path;
+                    }
+                };
+
+            // UI設定変更時に実行ファイルパスを反映する
+            this.UIConfig
+                .Subscribe(
+                    c =>
+                    {
+                        foreach (var process in this.Processes)
+                        {
+                            pathSetter(process.Id, process.ExecutablePath);
+                        }
+                    })
+                .AddTo(this.CompositeDisposable);
+
+            // VOICEROIDプロセスの実行ファイルパスが判明したらUI設定に反映する
+            foreach (var process in this.Processes)
+            {
+                var id = process.Id;
+
+                // 現在値を設定
+                pathSetter(id, process.ExecutablePath);
+
+                // 変更時に反映する
+                process
+                    .ObserveProperty(p => p.ExecutablePath)
+                    .Subscribe(path => pathSetter(id, path))
+                    .AddTo(this.CompositeDisposable);
+            }
+        }
+
+        /// <summary>
         /// メインウィンドウをアクティブにする。
         /// </summary>
         private Task ActivateMainWindow()
@@ -405,6 +527,93 @@ namespace VoiceroidUtil.ViewModel
                         process,
                         action,
                         MessageKeys.VoiceroidActionMessageKey));
+        }
+
+        /// <summary>
+        /// RunExitCommand コマンドの実処理を行う。
+        /// </summary>
+        private async Task ExecuteRunExitCommand()
+        {
+            var process = this.SelectedProcess.Value;
+            if (process == null)
+            {
+                this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                return;
+            }
+
+            if (process.IsRunning)
+            {
+                // プロセス終了
+                if (!(await process.Exit()))
+                {
+                    this.SetLastStatus(
+                        process.IsDialogShowing ?
+                            AppStatusType.Warning : AppStatusType.Fail,
+                        @"VOICEROIDを終了できませんでした。",
+                        subStatusText:
+                            process.IsDialogShowing ?
+                                @"ダイアログが表示されたため中止しました。" : @"");
+                    return;
+                }
+            }
+            else
+            {
+                // パス情報取得
+                var info = this.UIConfig.Value?.VoiceroidExecutablePathes[process.Id];
+                if (info == null)
+                {
+                    this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                    return;
+                }
+
+                // 未登録か？
+                if (string.IsNullOrEmpty(info.Path))
+                {
+                    this.SetLastStatus(
+                        AppStatusType.Warning,
+                        @"VOICEROID情報が未登録のため起動できません。",
+                        subStatusText: @"一度手動で起動することで登録されます。");
+                    return;
+                }
+
+                // ファイルが見つからない？
+                if (!File.Exists(info.Path))
+                {
+                    this.SetLastStatus(
+                        AppStatusType.Warning,
+                        @"VOICEROIDの実行ファイルが見つかりません。",
+                        subStatusText: @"一度手動で起動し直してください。");
+                    return;
+                }
+
+                // プロセス起動
+                try
+                {
+                    if (!(await process.Run(info.Path)))
+                    {
+                        this.SetLastStatus(
+                            AppStatusType.Fail,
+                            @"VOICEROIDを起動できませんでした。");
+                        return;
+                    }
+
+                    // スタートアップを終えたら1回だけメインウィンドウをアクティブにする
+                    this.IsProcessStartup
+                        .FirstAsync(f => !f)
+                        .Subscribe(_ => this.ActivateMainWindow());
+                }
+                catch (Exception ex)
+                {
+                    this.SetLastStatus(
+                        AppStatusType.Fail,
+                        @"VOICEROIDを起動できませんでした。",
+                        subStatusText: @"内部情報: " + ex.GetType().Name);
+                    return;
+                }
+            }
+
+            // 成功時はアプリ状態リセット
+            this.ResetLastStatus();
         }
 
         /// <summary>
@@ -470,7 +679,7 @@ namespace VoiceroidUtil.ViewModel
 
                 // 保存成功時のトークテキストクリア処理
                 if (
-                    this.Config.Value?.IsTextClearing == true &&
+                    this.AppConfig.Value?.IsTextClearing == true &&
                     result.StatusType == AppStatusType.Success)
                 {
                     this.TalkText.Value = "";
