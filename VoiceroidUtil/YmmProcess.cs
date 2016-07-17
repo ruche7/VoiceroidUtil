@@ -405,13 +405,16 @@ namespace VoiceroidUtil
         private async Task<bool> IsTimelineWindow(Win32Window target)
         {
             var mainWin = this.MainWindow;
-            var textTask = target.GetTextAsync(UIControlTimeout);
+            if (
+                mainWin == null ||
+                target == null ||
+                target.GetOwner()?.Handle != mainWin.Handle)
+            {
+                return false;
+            }
 
-            return (
-                mainWin != null &&
-                target != null &&
-                target.GetOwner()?.Handle == mainWin.Handle &&
-                (await textTask)?.StartsWith(TimelineWindowTitlePrefix) == true);
+            var textTask = target.GetTextAsync(UIControlTimeout);
+            return ((await textTask)?.StartsWith(TimelineWindowTitlePrefix) == true);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using Livet.Behaviors.Messaging;
 using Livet.Messaging;
+using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
 namespace VoiceroidUtil.Messaging
@@ -44,12 +45,26 @@ namespace VoiceroidUtil.Messaging
             if (mainWin.IsTopmost)
             {
                 // アクティブにして非最前面ウィンドウ内の先頭へ
-                processWindow.Activate();
+                try
+                {
+                    processWindow.Activate();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
             }
             else
             {
                 // VoiceroidUtilのすぐ後ろにZオーダーを設定
-                processWindow.MoveZOrderAfter(mainWin);
+                try
+                {
+                    processWindow.MoveZOrderAfter(mainWin);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
             }
         }
 
