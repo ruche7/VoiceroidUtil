@@ -179,18 +179,19 @@ namespace VoiceroidUtil
             // CP932で表せない文字はVOICEROIDで扱えないため変換
             var dest = ToCodePage932String(text);
 
-            // 空白文字を半角スペース1文字に短縮
-            // ファイル名に使えない文字を置換
+            // 空白文字をアンダーバー1文字に短縮
+            // ファイル名に使えない文字を 'x' に置換
             var invalidChars = Path.GetInvalidFileNameChars();
             dest =
                 string.Join(
                     "",
-                    from c in RegexBlank.Replace(dest, " ")
-                    select (Array.IndexOf(invalidChars, c) < 0) ? c : '_');
+                    from c in RegexBlank.Replace(dest, "_")
+                    select (Array.IndexOf(invalidChars, c) < 0) ? c : 'x');
 
             if (dest.Length <= maxLength)
             {
-                return dest;
+                // 無いはずだが、空文字列になってしまったらアンダーバー1文字とする
+                return (dest.Length > 0) ? dest : "_";
             }
 
             // "+残り文字数" 付与を試みる

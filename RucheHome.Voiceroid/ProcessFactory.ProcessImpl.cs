@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using RucheHome.Util;
@@ -619,20 +618,48 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                try
+                for (var sw = Stopwatch.StartNew(); ;)
                 {
-                    if (!(await fileNameEdit.SetTextAsync(filePath, UIControlTimeout)))
+                    // ファイルパス設定
+                    var timeout =
+                        Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
+                    try
                     {
-                        ThreadTrace.WriteLine(
-                            @"ファイルパス設定処理がタイムアウトしました。 " +
-                            nameof(filePath) + @".Length=" + filePath.Length);
+                        if (!(await fileNameEdit.SetTextAsync(filePath, timeout)))
+                        {
+                            ThreadTrace.WriteLine(
+                                @"ファイルパス設定処理がタイムアウトしました。 " +
+                                nameof(filePath) + @".Length=" + filePath.Length);
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
                         return false;
                     }
-                }
-                catch (Exception ex)
-                {
-                    ThreadTrace.WriteException(ex);
-                    return false;
+
+                    // パス設定できていない場合があるので、設定されていることを確認する
+                    timeout =
+                        Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
+                    try
+                    {
+                        if ((await fileNameEdit.GetTextAsync(timeout)) == filePath)
+                        {
+                            break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                        return false;
+                    }
+
+                    if (sw.ElapsedMilliseconds >= UIControlTimeout)
+                    {
+                        ThreadTrace.WriteLine(@"ファイルパスを設定できませんでした。");
+                        return false;
+                    }
                 }
 
                 // 既存のファイルを削除
