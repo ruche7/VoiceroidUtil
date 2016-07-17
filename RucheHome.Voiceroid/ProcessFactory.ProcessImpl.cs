@@ -618,7 +618,7 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                for (var sw = Stopwatch.StartNew(); ;)
+                for (var sw = Stopwatch.StartNew(); ; await Task.Delay(10))
                 {
                     // ファイルパス設定
                     var timeout =
