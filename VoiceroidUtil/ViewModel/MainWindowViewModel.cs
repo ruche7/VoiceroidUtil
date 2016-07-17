@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
@@ -97,6 +98,15 @@ namespace VoiceroidUtil.ViewModel
             this.UIConfigSaveCommand
                 .Subscribe(async _ => await this.ExecuteUIConfigSaveCommand())
                 .AddTo(this.CompositeDisposable);
+
+            // トレースリスナ設定
+            var listener = Trace.Listeners[@"ErrorLogFile"] as ErrorLogFileTraceListener;
+            if (listener != null)
+            {
+                // 音声ファイル保存先をエラーログファイル保存先として使う
+                listener.DirectoryPathGetter =
+                    () => this.AppConfig.Value.SaveDirectoryPath;
+            }
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -297,7 +298,15 @@ namespace VoiceroidUtil
             }
 
             // 状態更新
-            await YmmProcess.Update();
+            try
+            {
+                await YmmProcess.Update();
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return @"ゆっくりMovieMakerの起動状態確認に失敗しました。";
+            }
 
             // そもそも起動していないなら何もしない
             if (!YmmProcess.IsRunning)

@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
 namespace RucheHome.Voiceroid
@@ -17,7 +18,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// IProcess インタフェース実装クラス。
         /// </summary>
-        private class ProcessImpl : IProcess
+        private class ProcessImpl : BindableBase, IProcess
         {
             /// <summary>
             /// コンストラクタ。
@@ -70,15 +71,6 @@ namespace RucheHome.Voiceroid
                     // 状態更新
                     await this.UpdateState(app);
                 }
-                catch (Win32Exception ex)
-                {
-                    // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
-                    // 複数回発生する場合がある
-                    // 起動しきっていない時にアクセスしようとしているせい？
-                    Debug.WriteLine(ex);
-                    this.SetupDeadState();
-                    return;
-                }
                 finally
                 {
                     this.IsUpdating = false;
@@ -88,7 +80,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// UI操作のタイムアウトミリ秒数。
             /// </summary>
-            private const int UIControlTimeout = 1000;
+            private const int UIControlTimeout = 1500;
 
             /// <summary>
             /// 保存ダイアログタイトル文字列。
@@ -187,9 +179,19 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 5つ上の親がファイルダイアログ自身である Edit を探す
-                return
-                    (await dialog.FindDescendantsAsync(@"Edit"))
-                        .FirstOrDefault(c => c.GetAncestor(5)?.Handle == dialog.Handle);
+                try
+                {
+                    return
+                        (await dialog.FindDescendantsAsync(@"Edit"))
+                            .FirstOrDefault(
+                                c => c.GetAncestor(5)?.Handle == dialog.Handle);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
+
+                return null;
             }
 
             /// <summary>
@@ -317,7 +319,7 @@ namespace RucheHome.Voiceroid
                     // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
                     // 複数回発生する場合がある
                     // 起動しきっていない時にアクセスしようとしているせい？
-                    Debug.WriteLine(ex);
+                    ThreadDebug.WriteException(ex);
                 }
 
                 return false;
@@ -393,22 +395,51 @@ namespace RucheHome.Voiceroid
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             private async Task<bool> UpdateControls()
             {
-                var controls = await this.MainWindow.FindDescendantsAsync();
+                List<Win32Window> controls = null;
+                Win32Window talkEdit = null;
+                Win32Window[] buttons = null;
+
+                // 子コントロール群取得
+                try
+                {
+                    controls = await this.MainWindow.FindDescendantsAsync();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
 
                 // トークテキスト入力欄取得
-                var talkEdit =
-                    controls.FirstOrDefault(c => c.ClassName.Contains("RichEdit"));
+                try
+                {
+                    talkEdit =
+                        controls.FirstOrDefault(c => c.ClassName.Contains("RichEdit"));
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
                 if (talkEdit == null)
                 {
                     return false;
                 }
 
                 // ボタン群ハンドル取得
-                var buttons =
-                    controls
-                        .Where(c => c.ClassName.Contains("BUTTON"))
-                        .Take(3)
-                        .ToArray();
+                try
+                {
+                    buttons =
+                        controls
+                            .Where(c => c.ClassName.Contains("BUTTON"))
+                            .Take(3)
+                            .ToArray();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
                 if (buttons.Length < 3)
                 {
                     return false;
@@ -516,12 +547,19 @@ namespace RucheHome.Voiceroid
                     this.TalkEdit?.SendMessageAsync(
                         EM_SETSEL,
                         timeoutMilliseconds: UIControlTimeout);
-                if (task == null)
+                if (task != null)
                 {
-                    return false;
+                    try
+                    {
+                        return (await task).HasValue;
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                    }
                 }
 
-                return (await task).HasValue;
+                return false;
             }
 
             /// <summary>
@@ -536,6 +574,7 @@ namespace RucheHome.Voiceroid
                 // いずれかのダイアログが出るまで待つ
                 if (!(await RepeatUntil(this.UpdateDialogShowing, f => f, 150)))
                 {
+                    ThreadTrace.WriteLine(@"ダイアログ検索処理がタイムアウトしました。");
                     return null;
                 }
 
@@ -543,6 +582,7 @@ namespace RucheHome.Voiceroid
                 var dialog = await this.FindSaveDialog();
                 if (dialog == null)
                 {
+                    ThreadTrace.WriteLine(@"音声保存ダイアログが見つかりません。");
                     return null;
                 }
 
@@ -554,6 +594,7 @@ namespace RucheHome.Voiceroid
                         50);
                 if (fileNameEdit == null)
                 {
+                    ThreadTrace.WriteLine(@"ファイル名入力欄が見つかりません。");
                     return null;
                 }
 
@@ -578,8 +619,19 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                if (!(await fileNameEdit.SetTextAsync(filePath, UIControlTimeout)))
+                try
                 {
+                    if (!(await fileNameEdit.SetTextAsync(filePath, UIControlTimeout)))
+                    {
+                        ThreadTrace.WriteLine(
+                            @"ファイルパス設定処理がタイムアウトしました。 " +
+                            nameof(filePath) + @".Length=" + filePath.Length);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
                     return false;
                 }
 
@@ -595,23 +647,40 @@ namespace RucheHome.Voiceroid
                 }
 
                 // ENTERキー押下
-                fileNameEdit.PostMessage(
-                    WM_KEYDOWN,
-                    new IntPtr(VK_RETURN),
-                    new IntPtr(0x00000001));
-                fileNameEdit.PostMessage(
-                    WM_KEYUP,
-                    new IntPtr(VK_RETURN),
-                    new IntPtr(unchecked((int)0xC0000001)));
+                try
+                {
+                    fileNameEdit.PostMessage(
+                        WM_KEYDOWN,
+                        new IntPtr(VK_RETURN),
+                        new IntPtr(0x00000001));
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
+                try
+                {
+                    fileNameEdit.PostMessage(
+                        WM_KEYUP,
+                        new IntPtr(VK_RETURN),
+                        new IntPtr(unchecked((int)0xC0000001)));
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
 
                 // 保存ダイアログが閉じるまで待つ
                 var dialog =
                     await RepeatUntil(
                         this.FindSaveDialog,
                         (Win32Window d) => d == null,
-                        100);
+                        150);
                 if (dialog != null)
                 {
+                    ThreadTrace.WriteLine(@"音声保存ダイアログが閉じていません。");
                     return false;
                 }
 
@@ -635,7 +704,7 @@ namespace RucheHome.Voiceroid
 
                 // ファイル保存 or 保存進捗ダイアログ表示 を待つ
                 bool saved = false;
-                bool found =
+                bool progressFound =
                     await RepeatUntil(
                         async () =>
                             (saved = File.Exists(filePath)) ||
@@ -645,51 +714,28 @@ namespace RucheHome.Voiceroid
                 if (!saved)
                 {
                     // 保存進捗ダイアログが閉じるまで待つ
-                    if (found)
+                    if (progressFound)
                     {
                         await RepeatUntil(
                             this.FindSaveProgressDialog,
                             (Win32Window d) => d == null);
                     }
 
-                    saved = await RepeatUntil(() => File.Exists(filePath), f => f, 10);
-                }
-
-                if (saved)
-                {
-                    // 同時にテキストファイルが保存される場合があるため少し待つ
-                    // 保存されていなくても失敗にはしない
-                    var txtPath = Path.ChangeExtension(filePath, @".txt");
-                    await RepeatUntil(() => File.Exists(txtPath), f => f, 10);
-                }
-
-                return saved;
-            }
-
-            /// <summary>
-            /// プロパティ値を設定する。
-            /// </summary>
-            /// <typeparam name="T">プロパティ値の型。</typeparam>
-            /// <param name="field">設定先フィールド。</param>
-            /// <param name="value">設定値。</param>
-            /// <param name="propertyName">
-            /// プロパティ名。 CallerMemberNameAttribute により自動設定される。
-            /// </param>
-            private void SetProperty<T>(
-                ref T field,
-                T value,
-                [CallerMemberName] string propertyName = "")
-            {
-                if (!EqualityComparer<T>.Default.Equals(field, value))
-                {
-                    field = value;
-                    if (propertyName != null && this.PropertyChanged != null)
+                    if (!(await RepeatUntil(() => File.Exists(filePath), f => f, 10)))
                     {
-                        this.PropertyChanged(
-                            this,
-                            new PropertyChangedEventArgs(propertyName));
+                        ThreadTrace.WriteLine(
+                            @"音声ファイルの保存を確認できません。 " +
+                            nameof(progressFound) + '=' + progressFound);
+                        return false;
                     }
                 }
+
+                // 同時にテキストファイルが保存される場合があるため少し待つ
+                // 保存されていなくても失敗にはしない
+                var txtPath = Path.ChangeExtension(filePath, @".txt");
+                await RepeatUntil(() => File.Exists(txtPath), f => f, 10);
+
+                return true;
             }
 
             #region IProcess インタフェース実装
@@ -824,7 +870,16 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                return await edit.GetTextAsync(UIControlTimeout);
+                try
+                {
+                    return await edit.GetTextAsync(UIControlTimeout);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
+
+                return null;
             }
 
             /// <summary>
@@ -846,7 +901,23 @@ namespace RucheHome.Voiceroid
                 // 500文字あたり1ミリ秒をタイムアウト値に追加
                 var timeout = UIControlTimeout + (text.Length / 500);
 
-                return await edit.SetTextAsync(text, timeout);
+                try
+                {
+                    if (!(await edit.SetTextAsync(text, timeout)))
+                    {
+                        ThreadTrace.WriteLine(
+                            @"トークテキスト設定処理がタイムアウトしました。 " +
+                            nameof(text) + @".Length=" + text.Length);
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
+
+                return true;
             }
 
             /// <summary>
@@ -874,8 +945,13 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                if (this.PlayButton?.PostMessage(BM_CLICK) != true)
+                try
                 {
+                    this.PlayButton.PostMessage(BM_CLICK);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
                     return false;
                 }
                 this.IsPlaying = true; // 一応立てる
@@ -909,8 +985,13 @@ namespace RucheHome.Voiceroid
                     return true;
                 }
 
-                if (this.StopButton?.PostMessage(BM_CLICK) != true)
+                try
                 {
+                    this.StopButton.PostMessage(BM_CLICK);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
                     return false;
                 }
 
@@ -979,8 +1060,13 @@ namespace RucheHome.Voiceroid
                     }
 
                     // 保存ボタン押下
-                    if (this.SaveButton?.PostMessage(BM_CLICK) != true)
+                    try
                     {
+                        this.SaveButton.PostMessage(BM_CLICK);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
                         return new FileSaveResult(
                             false,
                             error: @"音声保存ボタンを押下できませんでした。");
@@ -1129,12 +1215,6 @@ namespace RucheHome.Voiceroid
 
                 return true;
             }
-
-            #endregion
-
-            #region INotifyPropertyChanged の実装
-
-            public event PropertyChangedEventHandler PropertyChanged;
 
             #endregion
 
