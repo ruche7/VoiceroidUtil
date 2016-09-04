@@ -24,11 +24,14 @@ namespace VoiceroidUtil.ViewModel
 
             // 子 ViewModel 作成
             this.Voiceroid = (new VoiceroidViewModel()).AddTo(this.CompositeDisposable);
+            this.TalkTextReplaceConfig =
+                (new TalkTextReplaceConfigViewModel()).AddTo(this.CompositeDisposable);
             this.AppConfig = (new AppConfigViewModel()).AddTo(this.CompositeDisposable);
             this.LastStatus = (new AppStatusViewModel()).AddTo(this.CompositeDisposable);
 
             // Messenger を MainWindowViewModel のもので上書き
             this.Voiceroid.Messenger = this.Messenger;
+            this.TalkTextReplaceConfig.Messenger = this.Messenger;
             this.AppConfig.Messenger = this.Messenger;
             this.LastStatus.Messenger = this.Messenger;
 
@@ -37,10 +40,12 @@ namespace VoiceroidUtil.ViewModel
 
             // 同期コンテキスト設定
             this.UIConfig.SynchronizationContext = syncContext;
+            this.TalkTextReplaceConfig.Value.SynchronizationContext = syncContext;
             this.AppConfig.Value.SynchronizationContext = syncContext;
 
             // UI設定を MainWindowViewModel のもので上書き
             this.Voiceroid.UIConfig.Value = this.UIConfig;
+            this.TalkTextReplaceConfig.UIConfig.Value = this.UIConfig;
             this.AppConfig.UIConfig.Value = this.UIConfig;
             this
                 .ObserveProperty(self => self.UIConfig)
@@ -52,12 +57,29 @@ namespace VoiceroidUtil.ViewModel
 
                         // 各 ViewModel に設定
                         this.Voiceroid.UIConfig.Value = c;
+                        this.TalkTextReplaceConfig.UIConfig.Value = c;
                         this.AppConfig.UIConfig.Value = c;
+                    })
+                .AddTo(this.CompositeDisposable);
+
+            // トークテキスト置換設定を TalkTextReplaceConfigViewModel のもので上書き
+            this.Voiceroid.TalkTextReplaceConfig.Value = this.TalkTextReplaceConfig.Value;
+            this.TalkTextReplaceConfig
+                .ObserveProperty(c => c.Value)
+                .Subscribe(
+                    c =>
+                    {
+                        // 同期コンテキスト設定
+                        c.SynchronizationContext = syncContext;
+
+                        // 各 ViewModel に設定
+                        this.Voiceroid.TalkTextReplaceConfig.Value = c;
                     })
                 .AddTo(this.CompositeDisposable);
 
             // アプリ設定を AppConfigViewModel のもので上書き
             this.Voiceroid.AppConfig.Value = this.AppConfig.Value;
+            this.TalkTextReplaceConfig.AppConfig.Value = this.AppConfig.Value;
             this.AppConfig
                 .ObserveProperty(c => c.Value)
                 .Subscribe(
@@ -66,17 +88,26 @@ namespace VoiceroidUtil.ViewModel
                         // 同期コンテキスト設定
                         c.SynchronizationContext = syncContext;
 
-                        // VoiceroidViewModel に設定
+                        // 各 ViewModel に設定
                         this.Voiceroid.AppConfig.Value = c;
+                        this.TalkTextReplaceConfig.AppConfig.Value = c;
                     })
                 .AddTo(this.CompositeDisposable);
 
             // その他 ViewModel 間の関連付け
             this.Voiceroid.IsIdle
-                .Subscribe(idle => this.AppConfig.CanModify.Value = idle)
+                .Subscribe(
+                    idle =>
+                    {
+                        this.TalkTextReplaceConfig.CanModify.Value = idle;
+                        this.AppConfig.CanModify.Value = idle;
+                    })
                 .AddTo(this.CompositeDisposable);
             Observable
-                .Merge(this.Voiceroid.LastStatus, this.AppConfig.LastStatus)
+                .Merge(
+                    this.Voiceroid.LastStatus,
+                    this.TalkTextReplaceConfig.LastStatus,
+                    this.AppConfig.LastStatus)
                 .Where(s => s != null)
                 .Subscribe(s => this.LastStatus.Value = s)
                 .AddTo(this.CompositeDisposable);
@@ -113,6 +144,11 @@ namespace VoiceroidUtil.ViewModel
         /// VOICEROID操作 ViewModel を取得する。
         /// </summary>
         public VoiceroidViewModel Voiceroid { get; }
+
+        /// <summary>
+        /// トークテキスト置換設定 ViewModel を取得する。
+        /// </summary>
+        public TalkTextReplaceConfigViewModel TalkTextReplaceConfig { get; }
 
         /// <summary>
         /// アプリ設定 ViewModel を取得する。

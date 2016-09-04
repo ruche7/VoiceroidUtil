@@ -84,6 +84,17 @@ namespace VoiceroidUtil
         private VoiceroidExecutablePathSet voiceroidExecutablePathes = null;
 
         /// <summary>
+        /// トークテキスト置換設定ビューの選択中タブインデックスを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public int TalkTextReplaceConfigTabIndex
+        {
+            get { return this.talkTextReplaceConfigTabIndex; }
+            set { this.SetProperty(ref this.talkTextReplaceConfigTabIndex, value); }
+        }
+        private int talkTextReplaceConfigTabIndex = 0;
+
+        /// <summary>
         /// アプリ設定ビューの「一般」カテゴリを
         /// 開いた状態にするか否かを取得または設定する。
         /// </summary>

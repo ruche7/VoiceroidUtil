@@ -16,12 +16,16 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
-        /// <param name="configGetter">アプリ設定取得デリゲート。</param>
+        /// <param name="talkTextReplaceConfigGetter">
+        /// トークテキスト置換設定取得デリゲート。
+        /// </param>
+        /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
-            Func<AppConfig> configGetter,
+            Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
             Func<IAppStatus, Task> resultNotifier)
             : base()
@@ -30,9 +34,13 @@ namespace VoiceroidUtil
             {
                 throw new ArgumentNullException(nameof(processGetter));
             }
-            if (configGetter == null)
+            if (talkTextReplaceConfigGetter == null)
             {
-                throw new ArgumentNullException(nameof(configGetter));
+                throw new ArgumentNullException(nameof(talkTextReplaceConfigGetter));
+            }
+            if (appConfigGetter == null)
+            {
+                throw new ArgumentNullException(nameof(appConfigGetter));
             }
             if (talkTextGetter == null)
             {
@@ -46,7 +54,8 @@ namespace VoiceroidUtil
             this.AsyncFunc = _ => this.ExecuteAsync();
 
             this.ProcessGetter = processGetter;
-            this.ConfigGetter = configGetter;
+            this.TalkTextReplaceConfigGetter = talkTextReplaceConfigGetter;
+            this.AppConfigGetter = appConfigGetter;
             this.TalkTextGetter = talkTextGetter;
             this.ResultNotifier = resultNotifier;
         }
@@ -55,18 +64,23 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
-        /// <param name="configGetter">アプリ設定取得デリゲート。</param>
+        /// <param name="talkTextReplaceConfigGetter">
+        /// トークテキスト置換設定取得デリゲート。
+        /// </param>
+        /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
-            Func<AppConfig> configGetter,
+            Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
             Action<IAppStatus> resultNotifier)
             :
             this(
                 processGetter,
-                configGetter,
+                talkTextReplaceConfigGetter,
+                appConfigGetter,
                 talkTextGetter,
                 (resultNotifier == null) ?
                     null :
@@ -175,9 +189,14 @@ namespace VoiceroidUtil
         private Func<IProcess> ProcessGetter { get; }
 
         /// <summary>
+        /// トークテキスト置換設定取得デリゲートを取得する。
+        /// </summary>
+        private Func<TalkTextReplaceConfig> TalkTextReplaceConfigGetter { get; }
+
+        /// <summary>
         /// アプリ設定取得デリゲートを取得する。
         /// </summary>
-        private Func<AppConfig> ConfigGetter { get; }
+        private Func<AppConfig> AppConfigGetter { get; }
 
         /// <summary>
         /// トークテキスト取得デリゲートを取得する。
@@ -194,8 +213,8 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecuteAsync()
         {
-            var config = this.ConfigGetter();
-            if (config == null)
+            var appConfig = this.AppConfigGetter();
+            if (appConfig == null)
             {
                 await this.NotifyResult(
                     AppStatusType.Fail,
@@ -216,10 +235,15 @@ namespace VoiceroidUtil
                 return;
             }
 
+            // テキスト作成
             var text = this.TalkTextGetter();
+            var talkTextReplaceConfig = this.TalkTextReplaceConfigGetter();
+            var voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+            var fileText =
+                talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // WAVEファイルパス決定
-            var filePath = MakeWaveFilePath(config, process, text);
+            var filePath = MakeWaveFilePath(appConfig, process, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
@@ -237,7 +261,7 @@ namespace VoiceroidUtil
             }
 
             // トークテキスト設定
-            if (!(await process.SetTalkText(text)))
+            if (!(await process.SetTalkText(voiceText)))
             {
                 await this.NotifyResult(AppStatusType.Fail, @"文章の設定に失敗しました。");
                 return;
@@ -256,10 +280,10 @@ namespace VoiceroidUtil
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 
             // テキストファイル保存
-            if (config.IsTextFileForceMaking)
+            if (appConfig.IsTextFileForceMaking)
             {
                 var txtPath = Path.ChangeExtension(filePath, @".txt");
-                if (!(await WriteTextFile(txtPath, text, config.IsTextFileUtf8)))
+                if (!(await WriteTextFile(txtPath, fileText, appConfig.IsTextFileUtf8)))
                 {
                     await this.NotifyResult(
                         AppStatusType.Success,
@@ -271,7 +295,7 @@ namespace VoiceroidUtil
             }
 
             // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, process.Id, config);
+            var warnText = await DoOperateYmm(filePath, process.Id, appConfig);
 
             await this.NotifyResult(
                 AppStatusType.Success,

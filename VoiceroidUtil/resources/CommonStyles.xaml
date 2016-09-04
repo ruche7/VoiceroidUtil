@@ -37,4 +37,54 @@
         <Setter Property="ExpandDirection" Value="Down" />
         <Setter Property="IsExpanded" Value="True" />
     </Style>
+    <Style TargetType="{x:Type ListBoxItem}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                    <Border Name="border" Padding="2" SnapsToDevicePixels="true">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition
+                                    Property="Selector.IsSelectionActive"
+                                    Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter
+                                Property="Foreground"
+                                Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                            <Setter
+                                TargetName="border"
+                                Property="Background"
+                                Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                        </MultiTrigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition
+                                    Property="Selector.IsSelectionActive"
+                                    Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter
+                                TargetName="border"
+                                Property="BorderBrush"
+                                Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                            <Setter
+                                TargetName="border"
+                                Property="BorderThickness"
+                                Value="1" />
+                            <Setter
+                                TargetName="border"
+                                Property="Padding"
+                                Value="1" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

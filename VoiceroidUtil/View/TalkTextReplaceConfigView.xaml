@@ -1,0 +1,86 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    x:Class="VoiceroidUtil.View.TalkTextReplaceConfigView"
+    mc:Ignorable="d"
+    d:DesignWidth="300"
+    d:DesignHeight="200"
+    d:DataContext="{d:DesignInstance
+        Type={x:Type vm:TalkTextReplaceConfigViewModel},
+        IsDesignTimeCreatable=True}"
+    UseLayoutRounding="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/Converters.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <TabControl SelectedIndex="{Binding UIConfig.Value.TalkTextReplaceConfigTabIndex}">
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/file_sound.png" />
+                    <AccessText Text="音声(_V)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <DockPanel IsEnabled="{Binding CanModify}" Margin="2">
+                <Label Margin="0,0,0,2" DockPanel.Dock="Top">
+                    <TextBlock>
+                        VOICEROIDにしゃべらせる文章の置換設定です。<LineBreak />
+                        チェックの付いている項目のみ利用されます。
+                    </TextBlock>
+                </Label>
+                <v:TalkTextReplaceItemsView DataContext="{Binding VoiceReplaceItems}" />
+            </DockPanel>
+        </TabItem>
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/file_text.png" />
+                    <AccessText Text="テキストファイル(_T)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <DockPanel IsEnabled="{Binding CanModify}" Margin="2">
+                <Label Margin="0,0,0,2" DockPanel.Dock="Top">
+                    <TextBlock>
+                        テキストファイルに保存する文章の置換設定です。<LineBreak />
+                        チェックの付いている項目のみ利用されます。
+                    </TextBlock>
+                </Label>
+                <StackPanel
+                    Visibility="{Binding
+                        Path=IsTextFileForceMakingCommandVisible.Value,
+                        Converter={StaticResource boolVisibilityConverter}}"
+                    Margin="0,6,0,0"
+                    DockPanel.Dock="Top">
+                    <Label
+                        Content="テキストファイル作成設定を有効にする必要があります。"
+                        Foreground="Red"
+                        Margin="0,0,0,2" />
+                    <Button
+                        Content="有効にする(_F)"
+                        Command="{Binding TextFileForceMakingCommand}" />
+                </StackPanel>
+                <DockPanel
+                    Visibility="{Binding
+                        Path=AppConfig.Value.IsTextFileForceMaking,
+                        Converter={StaticResource boolVisibilityConverter}}">
+                    <v:TalkTextReplaceItemsView
+                        DataContext="{Binding TextFileReplaceItems}" />
+                </DockPanel>
+            </DockPanel>
+        </TabItem>
+    </TabControl>
+</UserControl>
