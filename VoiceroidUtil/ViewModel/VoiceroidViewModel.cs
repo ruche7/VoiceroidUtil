@@ -27,6 +27,9 @@ namespace VoiceroidUtil.ViewModel
         public VoiceroidViewModel()
         {
             // 設定
+            this.TalkTextReplaceConfig =
+                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig())
+                    .AddTo(this.CompositeDisposable);
             this.AppConfig =
                 new ReactiveProperty<AppConfig>(new AppConfig())
                     .AddTo(this.CompositeDisposable);
@@ -111,6 +114,7 @@ namespace VoiceroidUtil.ViewModel
             this.SaveCommandExecuter =
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
+                    () => this.TalkTextReplaceConfig.Value,
                     () => this.AppConfig.Value,
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
@@ -215,6 +219,14 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
             this.ProcessUpdateTimer.Start();
         }
+
+        /// <summary>
+        /// トークテキスト置換設定を取得する。
+        /// </summary>
+        /// <remarks>
+        /// 外部からの設定以外で更新されることはない。
+        /// </remarks>
+        public ReactiveProperty<TalkTextReplaceConfig> TalkTextReplaceConfig { get; }
 
         /// <summary>
         /// アプリ設定を取得する。
@@ -639,12 +651,20 @@ namespace VoiceroidUtil.ViewModel
             }
             else
             {
-                if (!(await process.SetTalkText(this.TalkText.Value)))
+                // テキスト作成
+                var text = this.TalkText.Value;
+                text =
+                    this.TalkTextReplaceConfig.Value?.VoiceReplaceItems.Replace(text) ??
+                    text;
+
+                // テキスト設定
+                if (!(await process.SetTalkText(text)))
                 {
                     this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
                     return;
                 }
 
+                // 再生
                 try
                 {
                     if (!(await process.Play()))

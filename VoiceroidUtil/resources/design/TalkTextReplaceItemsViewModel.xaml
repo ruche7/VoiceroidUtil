@@ -1,0 +1,11 @@
+﻿<!-- デザイン用ダミーデータ -->
+<vm:TalkTextReplaceItemsViewModel
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    SelectedIndex="2">
+    <vm:TalkTextReplaceItemsViewModel.Items>
+        <local:TalkTextReplaceItem IsEnabled="True" OldValue="aaa" NewValue="bbbbbb" />
+        <local:TalkTextReplaceItem IsEnabled="False" OldValue="あいう" NewValue="d" />
+        <local:TalkTextReplaceItem IsEnabled="True" OldValue="eeeeeee" NewValue="ff" />
+    </vm:TalkTextReplaceItemsViewModel.Items>
+</vm:TalkTextReplaceItemsViewModel>

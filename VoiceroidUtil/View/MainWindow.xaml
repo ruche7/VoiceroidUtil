@@ -19,7 +19,7 @@
     Width="400"
     Height="420"
     MinWidth="320"
-    MinHeight="232"
+    MinHeight="240"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
     <Window.DataContext>
@@ -48,10 +48,16 @@
         </i:EventTrigger>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding UIConfigLoadCommand}" />
+            <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.LoadCommand}" />
             <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
         </i:EventTrigger>
         <i:EventTrigger SourceObject="{Binding UIConfig}" EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding UIConfigSaveCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger
+            SourceObject="{Binding TalkTextReplaceConfig.Value}"
+            EventName="PropertyChanged">
+            <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.SaveCommand}" />
         </i:EventTrigger>
         <i:EventTrigger SourceObject="{Binding AppConfig.Value}" EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
@@ -104,8 +110,19 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/text_replace.png" />
+                        <AccessText Text="置換(_2)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+                <v:TalkTextReplaceConfigView
+                    DataContext="{Binding TalkTextReplaceConfig}"
+                    Margin="2" />
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
-                        <AccessText Text="設定(_2)" Margin="2,0,0,0" />
+                        <AccessText Text="設定(_3)" Margin="2,0,0,0" />
                     </StackPanel>
                 </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

@@ -1,0 +1,154 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    x:Class="VoiceroidUtil.View.TalkTextReplaceItemsView"
+    mc:Ignorable="d"
+    d:DesignWidth="300"
+    d:DataContext="{d:DesignData
+        Source=/VoiceroidUtil;component/resources/design/TalkTextReplaceItemsViewModel.xaml}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.InputBindings>
+            <KeyBinding Gesture="Alt+Enter" Command="{Binding AddCommand}"/>
+            <KeyBinding Gesture="Alt+Delete" Command="{Binding RemoveCommand}" />
+            <KeyBinding Gesture="Alt+Up" Command="{Binding UpCommand}" />
+            <KeyBinding Gesture="Alt+Down" Command="{Binding DownCommand}" />
+        </Grid.InputBindings>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Row 0 -->
+        <ListBox
+            ItemsSource="{Binding Items}"
+            SelectedIndex="{Binding SelectedIndex}"
+            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            Grid.Row="0">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <UniformGrid Rows="1" Columns="2">
+                        <DockPanel>
+                            <CheckBox
+                                Name="enabled"
+                                IsChecked="{Binding IsEnabled}"
+                                MinWidth="16"
+                                Margin="0,0,4,0"
+                                DockPanel.Dock="Left">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="GotFocus">
+                                        <ei:ChangePropertyAction
+                                            TargetObject="{Binding
+                                                RelativeSource={RelativeSource
+                                                    Mode=FindAncestor,
+                                                    AncestorType={x:Type ListBoxItem}}}"
+                                            PropertyName="IsSelected"
+                                            Value="True" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </CheckBox>
+                            <tk:WatermarkTextBox
+                                Text="{Binding
+                                    Path=OldValue,
+                                    Mode=TwoWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                                MaxLength="1024">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="GotFocus">
+                                        <ei:ChangePropertyAction
+                                            TargetObject="{Binding
+                                                RelativeSource={RelativeSource
+                                                    Mode=FindAncestor,
+                                                    AncestorType={x:Type ListBoxItem}}}"
+                                            PropertyName="IsSelected"
+                                            Value="True" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </tk:WatermarkTextBox>
+                        </DockPanel>
+                        <DockPanel>
+                            <Image
+                                Source="/VoiceroidUtil;component/resources/icon/arrow_right.png"
+                                Width="{Binding Width, ElementName=enabled}"
+                                Height="16"
+                                Margin="2,0"
+                                DockPanel.Dock="Left" />
+                            <tk:WatermarkTextBox
+                                Text="{Binding
+                                    Path=NewValue,
+                                    Mode=TwoWay,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                                MaxLength="1024">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="GotFocus">
+                                        <ei:ChangePropertyAction
+                                            TargetObject="{Binding
+                                                RelativeSource={RelativeSource
+                                                    Mode=FindAncestor,
+                                                    AncestorType={x:Type ListBoxItem}}}"
+                                            PropertyName="IsSelected"
+                                            Value="True" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </tk:WatermarkTextBox>
+                        </DockPanel>
+                    </UniformGrid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Row 1 -->
+        <DockPanel Margin="0,2,0,0" Grid.Row="1">
+            <UniformGrid Rows="1" Columns="2" DockPanel.Dock="Left">
+                <Button Command="{Binding AddCommand}" ToolTip="Alt+Enter" Margin="0,0,2,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/add.png" />
+                        <AccessText Text="追加(_A)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <Button
+                    Command="{Binding RemoveCommand}"
+                    ToolTip="Alt+Delete"
+                    Margin="0,0,2,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/remove.png" />
+                        <AccessText Text="削除(_R)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+            <UniformGrid Rows="1" Columns="2" DockPanel.Dock="Right">
+                <Button
+                    Command="{Binding UpCommand}"
+                    ToolTip="Alt+↑"
+                    Margin="2,0,0,0"
+                    Padding="12,3,12,5">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/arrow_up.png" />
+                </Button>
+                <Button
+                    Command="{Binding DownCommand}"
+                    ToolTip="Alt+↓"
+                    Margin="2,0,0,0"
+                    Padding="12,5,12,3">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/arrow_down.png" />
+                </Button>
+            </UniformGrid>
+            <StackPanel />
+        </DockPanel>
+    </Grid>
+</UserControl>

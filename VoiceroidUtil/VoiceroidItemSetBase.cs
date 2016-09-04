@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Data;
@@ -139,7 +137,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 内部リストクラス。
         /// </summary>
-        private class InnerList : ObservableCollection<TItem>
+        private class InnerList : BindableCollection<TItem>
         {
             /// <summary>
             /// 指定したVOICEROID識別IDを持つ要素が存在するか否かを取得する。
@@ -232,9 +230,14 @@ namespace VoiceroidUtil
 
                 if (value != this.table)
                 {
-                    this.RemoveEventHandlersToTable();
+                    if (this.table != null)
+                    {
+                        this.table.CollectionChanged -= this.OnTableCollectionChanged;
+                        this.table.ItemPropertyChanged -= this.OnTableItemPropertyChanged;
+                    }
                     this.table = value;
-                    this.AddEventHandlersToTable();
+                    this.table.CollectionChanged += this.OnTableCollectionChanged;
+                    this.table.ItemPropertyChanged += this.OnTableItemPropertyChanged;
 
                     // インデクサ変更通知
                     this.RaiseIndexerPropertyChanged();
@@ -252,86 +255,12 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 現在の内部リストにイベントハンドラを追加する。
-        /// </summary>
-        private void AddEventHandlersToTable()
-        {
-            if (this.Table != null)
-            {
-                this.Table.CollectionChanged += this.OnTableCollectionChanged;
-                foreach (var item in this.Table)
-                {
-                    item.PropertyChanged += this.OnTableItemPropertyChanged;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 現在の内部リストからイベントハンドラを削除する。
-        /// </summary>
-        private void RemoveEventHandlersToTable()
-        {
-            if (this.Table != null)
-            {
-                this.Table.CollectionChanged -= this.OnTableCollectionChanged;
-                foreach (var item in this.Table)
-                {
-                    item.PropertyChanged -= this.OnTableItemPropertyChanged;
-                }
-            }
-        }
-
-        /// <summary>
         /// 内部リストのコレクション内容変更時に呼び出される。
         /// </summary>
         private void OnTableCollectionChanged(
             object sender,
             NotifyCollectionChangedEventArgs e)
         {
-            bool existsOld = false, existsNew = false;
-
-            // 処理対象決定
-            switch (e.Action)
-            {
-            case NotifyCollectionChangedAction.Add:
-                existsNew = true;
-                break;
-
-            case NotifyCollectionChangedAction.Remove:
-                existsOld = true;
-                break;
-
-            case NotifyCollectionChangedAction.Replace:
-                existsOld = true;
-                existsNew = true;
-                break;
-
-            case NotifyCollectionChangedAction.Move:
-                // アイテムの追加削除はないので処理不要
-                return;
-
-            case NotifyCollectionChangedAction.Reset:
-                // ここに来ないような実装にする
-                Debug.Assert(false);
-                return;
-            }
-
-            // イベントハンドラの削除と追加
-            if (existsOld && e.OldItems != null)
-            {
-                foreach (TItem item in e.OldItems)
-                {
-                    item.PropertyChanged -= this.OnTableItemPropertyChanged;
-                }
-            }
-            if (existsNew && e.NewItems != null)
-            {
-                foreach (TItem item in e.NewItems)
-                {
-                    item.PropertyChanged += this.OnTableItemPropertyChanged;
-                }
-            }
-
             // インデクサ変更通知
             this.RaiseIndexerPropertyChanged();
         }
