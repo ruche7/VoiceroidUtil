@@ -13,6 +13,11 @@ namespace VoiceroidUtil
         None,
 
         /// <summary>
+        /// 情報通知状態。
+        /// </summary>
+        Information,
+
+        /// <summary>
         /// 警告のある状態。
         /// </summary>
         Warning,

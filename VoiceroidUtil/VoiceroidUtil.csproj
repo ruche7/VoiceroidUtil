@@ -156,6 +156,7 @@
     <Compile Include="TalkTextReplaceConfig.cs" />
     <Compile Include="TalkTextReplaceItem.cs" />
     <Compile Include="TalkTextReplaceItemCollection.cs" />
+    <Compile Include="TalkTextReplacePreset.cs" />
     <Compile Include="UIConfig.cs" />
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
@@ -342,6 +343,10 @@
     <Resource Include="resources\icon\file_sound.png" />
     <Resource Include="resources\icon\file_text.png" />
     <Resource Include="resources\icon\text_replace.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\status_big_info.png" />
+    <Resource Include="resources\icon\status_info.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

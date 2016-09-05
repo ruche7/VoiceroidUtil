@@ -36,7 +36,7 @@ namespace VoiceroidUtil
         {
             if (src != null)
             {
-                var items = this.Where(i => i.IsAvailable);
+                var items = this.Where(i => i.IsAvailable());
                 if (items.Any())
                 {
                     return

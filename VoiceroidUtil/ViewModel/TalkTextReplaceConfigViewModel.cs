@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -77,11 +78,20 @@ namespace VoiceroidUtil.ViewModel
                 .Subscribe(async _ => await this.ExecuteLoadCommand())
                 .AddTo(this.CompositeDisposable);
 
+            // セーブ要求 Subject
+            // 100ms の間、次のセーブ要求が来なければ実際のセーブ処理を行う
+            this.SaveRequestSubject =
+                (new Subject<object>()).AddTo(this.CompositeDisposable);
+            this.SaveRequestSubject
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(_ => this.ConfigKeeper.Save())
+                .AddTo(this.CompositeDisposable);
+
             // セーブコマンド
             this.SaveCommand =
                 this.IsConfigLoaded.ToReactiveCommand().AddTo(this.CompositeDisposable);
             this.SaveCommand
-                .Subscribe(async _ => await this.ExecuteSaveCommand())
+                .Subscribe(_ => this.ExecuteSaveCommand())
                 .AddTo(this.CompositeDisposable);
         }
 
@@ -172,10 +182,39 @@ namespace VoiceroidUtil.ViewModel
         private ReactiveProperty<bool> IsConfigLoaded { get; }
 
         /// <summary>
+        /// トークテキスト置換設定セーブ処理要求 Subject を取得する。
+        /// </summary>
+        private Subject<object> SaveRequestSubject { get; }
+
+        /// <summary>
         /// 内包 ViewModel のセットアップを行う。
         /// </summary>
         private void SetupViewModels()
         {
+            // 長音プリセット設定
+            var longSoundPreset = new TalkTextReplacePreset(@"「～」を「ー」に置換");
+            longSoundPreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"～", NewValue = @"ー" });
+            this.VoiceReplaceItems.Presets.Add(longSoundPreset);
+
+            // 記号ポーズプリセット設定
+            var symbolPausePreset = new TalkTextReplacePreset(@"記号ポーズ文字削除セット");
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"＃", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"#", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"＠", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"@", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"■", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"●", NewValue = @"" });
+            symbolPausePreset.Items.Add(
+                new TalkTextReplaceItem { OldValue = @"▲", NewValue = @"" });
+            this.TextFileReplaceItems.Presets.Add(symbolPausePreset);
+
             // トークテキスト置換アイテムコレクション反映デリゲート
             Action<TalkTextReplaceConfig> itemsSetter =
                 c =>
@@ -235,14 +274,14 @@ namespace VoiceroidUtil.ViewModel
             else
             {
                 // ロードに失敗した場合は現在値をセーブしておく
-                await Task.Run(() => this.ConfigKeeper.Save());
+                this.ExecuteSaveCommand();
             }
         }
 
         /// <summary>
         /// SaveCommand の実処理を行う。
         /// </summary>
-        private async Task ExecuteSaveCommand()
+        private void ExecuteSaveCommand()
         {
             // 1回以上 LoadCommand が実施されていなければ処理しない
             if (!this.IsConfigLoaded.Value)
@@ -250,7 +289,8 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
-            await Task.Run(() => this.ConfigKeeper.Save());
+            // セーブ要求
+            this.SaveRequestSubject.OnNext(null);
         }
     }
 }

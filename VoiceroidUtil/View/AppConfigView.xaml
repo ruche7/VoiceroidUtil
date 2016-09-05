@@ -46,10 +46,14 @@
                     Orientation="Vertical"
                     IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
                     <CheckBox
-                        Content="ウィンドウを常に最前面に表示(_W)"
-                        IsChecked="{Binding Value.IsTopmost}" />
+                        Content="起動時にアプリの更新をチェック(_A)"
+                        IsChecked="{Binding Value.IsUpdateCheckingOnStartup}" />
                     <CheckBox
-                        Content="タブ文字の入力を許可する(_I)"
+                        Content="ウィンドウを常に最前面に表示(_W)"
+                        IsChecked="{Binding Value.IsTopmost}"
+                        Margin="0,4,0,0" />
+                    <CheckBox
+                        Content="タブ文字の入力を許可(_I)"
                         IsChecked="{Binding Value.IsTabAccepted}"
                         Margin="0,4,0,0" />
                 </StackPanel>
@@ -169,7 +173,7 @@
                             IsEnabled="{Binding IsChecked, ElementName=Setting_YmmChara}"
                             Margin="24,2,0,0" />
                         <CheckBox
-                            Content="追加ボタンを自動で押す(_B)"
+                            Content="追加ボタンを自動クリック(_B)"
                             IsChecked="{Binding Value.IsYmmAddButtonClicking}"
                             Margin="0,4,0,0" />
                     </StackPanel>

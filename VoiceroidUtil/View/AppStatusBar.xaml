@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppStatusBar"
@@ -27,13 +28,17 @@
             <StatusBarItem.Style>
                 <Style TargetType="StatusBarItem">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Fail">
-                            <Setter Property="Background" Value="Pink" />
-                            <Setter Property="Tag" Value="Violet" />
+                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Information">
+                            <Setter Property="Background" Value="#f1eded" />
+                            <Setter Property="Tag" Value="SkyBlue" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Value.StatusType}" Value="Warning">
                             <Setter Property="Background" Value="LemonChiffon" />
                             <Setter Property="Tag" Value="Yellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Fail">
+                            <Setter Property="Background" Value="Pink" />
+                            <Setter Property="Tag" Value="Violet" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Value.StatusType}" Value="Success">
                             <Setter Property="Background" Value="#cdffcd" />
@@ -84,15 +89,20 @@
                     <Image.Style>
                         <Style TargetType="Image" BasedOn="{StaticResource {x:Type Image}}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding}" Value="Fail">
+                                <DataTrigger Binding="{Binding}" Value="Information">
                                     <Setter
                                         Property="Source"
-                                        Value="/VoiceroidUtil;component/resources/icon/status_big_ng.png" />
+                                        Value="/VoiceroidUtil;component/resources/icon/status_big_info.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding}" Value="Warning">
                                     <Setter
                                         Property="Source"
                                         Value="/VoiceroidUtil;component/resources/icon/status_big_warn.png" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding}" Value="Fail">
+                                    <Setter
+                                        Property="Source"
+                                        Value="/VoiceroidUtil;component/resources/icon/status_big_ng.png" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding}" Value="Success">
                                     <Setter
@@ -126,15 +136,20 @@
                                                 Property="Visibility"
                                                 Value="Collapsed" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding}" Value="Fail">
+                                        <DataTrigger Binding="{Binding}" Value="Information">
                                             <Setter
                                                 Property="Source"
-                                                Value="/VoiceroidUtil;component/resources/icon/status_ng.png" />
+                                                Value="/VoiceroidUtil;component/resources/icon/status_info.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding}" Value="Warning">
                                             <Setter
                                                 Property="Source"
                                                 Value="/VoiceroidUtil;component/resources/icon/status_warn.png" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding}" Value="Fail">
+                                            <Setter
+                                                Property="Source"
+                                                Value="/VoiceroidUtil;component/resources/icon/status_ng.png" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding}" Value="Success">
                                             <Setter
@@ -146,12 +161,24 @@
                             </Image.Style>
                         </Image>
 
-                        <!-- SubStatusText -->
+                        <!-- SubStatusText, SubStatusUri -->
                         <Label Margin="0,1" Grid.Row="1" Grid.Column="1">
                             <Label.Style>
                                 <Style
                                     TargetType="Label"
                                     BasedOn="{StaticResource {x:Type Label}}">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <TextBlock>
+                                                <Hyperlink
+                                                    Command="{x:Static ru:ProcessStartCommand.Instance}"
+                                                    CommandParameter="{Binding Value.SubStatusUri}"
+                                                    ToolTip="{Binding Value.SubStatusUri}">
+                                                    <Run Text="{Binding Value.SubStatusText, Mode=OneWay}" />
+                                                </Hyperlink>
+                                            </TextBlock>
+                                        </Setter.Value>
+                                    </Setter>
                                     <Style.Triggers>
                                         <DataTrigger
                                             Binding="{Binding Value.SubStatusText}"
@@ -160,12 +187,21 @@
                                                 Property="Visibility"
                                                 Value="Collapsed" />
                                         </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding Value.SubStatusUri}"
+                                            Value="">
+                                            <Setter Property="Content">
+                                                <Setter.Value>
+                                                    <TextBlock
+                                                        Text="{Binding
+                                                            Path=Value.SubStatusText,
+                                                            Mode=OneWay}" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Label.Style>
-
-                            <TextBlock
-                                Text="{Binding Value.SubStatusText, Mode=OneWay}" />
                         </Label>
                     </StackPanel>
                 </StackPanel>
