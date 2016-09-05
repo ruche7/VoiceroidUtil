@@ -32,6 +32,17 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 起動時にアプリの更新をチェックするか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool? IsUpdateCheckingOnStartup
+        {
+            get { return this.updateCheckingOnStartup; }
+            set { this.SetProperty(ref this.updateCheckingOnStartup, value); }
+        }
+        private bool? updateCheckingOnStartup = null;
+
+        /// <summary>
         /// ウィンドウを常に最前面に表示するか否かを取得または設定する。
         /// </summary>
         [DataMember]
@@ -215,6 +226,19 @@ namespace VoiceroidUtil
         private void OnDeserializing(StreamingContext context)
         {
             this.ResetDataMembers();
+        }
+
+        /// <summary>
+        /// デシリアライズ完了時に呼び出される。
+        /// </summary>
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            // 更新チェック設定が未設定なら true にしておく
+            if (!this.IsUpdateCheckingOnStartup.HasValue)
+            {
+                this.IsUpdateCheckingOnStartup = true;
+            }
         }
     }
 }

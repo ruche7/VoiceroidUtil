@@ -11,7 +11,7 @@
     xmlns:msg="clr-namespace:VoiceroidUtil.Messaging"
     x:Class="VoiceroidUtil.View.MainWindow"
     mc:Ignorable="d"
-    Title="VoiceroidUtil"
+    Title="{Binding Title}"
     Icon="/VoiceroidUtil;component/resources/icon/main.ico"
     ResizeMode="CanResizeWithGrip"
     Topmost="{Binding AppConfig.Value.IsTopmost, Mode=OneWay}"

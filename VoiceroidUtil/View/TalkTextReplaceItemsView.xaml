@@ -24,10 +24,11 @@
 
     <Grid>
         <Grid.InputBindings>
-            <KeyBinding Gesture="Alt+Enter" Command="{Binding AddCommand}"/>
-            <KeyBinding Gesture="Alt+Delete" Command="{Binding RemoveCommand}" />
-            <KeyBinding Gesture="Alt+Up" Command="{Binding UpCommand}" />
-            <KeyBinding Gesture="Alt+Down" Command="{Binding DownCommand}" />
+            <KeyBinding Gesture="Ctrl+Enter" Command="{Binding AddCommand}"/>
+            <KeyBinding Gesture="Ctrl+Delete" Command="{Binding RemoveCommand}" />
+            <KeyBinding Gesture="Ctrl+Shift+Delete" Command="{Binding ClearCommand}" />
+            <KeyBinding Gesture="Ctrl+Up" Command="{Binding UpCommand}" />
+            <KeyBinding Gesture="Ctrl+Down" Command="{Binding DownCommand}" />
         </Grid.InputBindings>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -41,6 +42,15 @@
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             Grid.Row="0">
+            <ListBox.ItemContainerStyle>
+                <!--
+                    スタイルを明示的に設定しないとアイテム数変化時に例外が出る。
+                    http://weblogs.asp.net/akjoshi/resolving-un-harmful-binding-errors-in-wpf
+                -->
+                <Style
+                    TargetType="ListBoxItem"
+                    BasedOn="{StaticResource {x:Type ListBoxItem}}" />
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <UniformGrid Rows="1" Columns="2">
@@ -116,7 +126,38 @@
         <!-- Row 1 -->
         <DockPanel Margin="0,2,0,0" Grid.Row="1">
             <UniformGrid Rows="1" Columns="2" DockPanel.Dock="Left">
-                <Button Command="{Binding AddCommand}" ToolTip="Alt+Enter" Margin="0,0,2,0">
+                <Button
+                    Command="{Binding AddCommand}"
+                    Margin="0,0,2,0">
+                    <Button.ToolTip>
+                        <TextBlock>
+                            Ctrl+Enter<LineBreak />
+                            右クリック: プリセット追加メニュー
+                        </TextBlock>
+                    </Button.ToolTip>
+                    <Button.ContextMenu>
+                        <ContextMenu ItemsSource="{Binding Presets}">
+                            <ContextMenu.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding Description}" />
+                                    <Setter
+                                        Property="Command"
+                                        Value="{Binding
+                                            Path=DataContext.AddPresetCommand,
+                                            RelativeSource={RelativeSource
+                                                Mode=FindAncestor,
+                                                AncestorType={x:Type ContextMenu}}}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                    <Setter Property="Icon">
+                                        <Setter.Value>
+                                            <Image Source="/VoiceroidUtil;component/resources/icon/add.png" />
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ContextMenu.ItemContainerStyle>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/add.png" />
                         <AccessText Text="追加(_A)" Margin="2,0,0,0" />
@@ -124,8 +165,23 @@
                 </Button>
                 <Button
                     Command="{Binding RemoveCommand}"
-                    ToolTip="Alt+Delete"
                     Margin="0,0,2,0">
+                    <Button.ToolTip>
+                        <TextBlock>
+                            Ctrl+Delete<LineBreak />
+                            右クリック: クリアメニュー
+                        </TextBlock>
+                    </Button.ToolTip>
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="クリア(_C)" Command="{Binding ClearCommand}">
+                                <MenuItem.Icon>
+                                    <Image Source="/VoiceroidUtil;component/resources/icon/remove.png" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/remove.png" />
                         <AccessText Text="削除(_R)" Margin="2,0,0,0" />
@@ -135,14 +191,14 @@
             <UniformGrid Rows="1" Columns="2" DockPanel.Dock="Right">
                 <Button
                     Command="{Binding UpCommand}"
-                    ToolTip="Alt+↑"
+                    ToolTip="Ctrl+↑"
                     Margin="2,0,0,0"
                     Padding="12,3,12,5">
                     <Image Source="/VoiceroidUtil;component/resources/icon/arrow_up.png" />
                 </Button>
                 <Button
                     Command="{Binding DownCommand}"
-                    ToolTip="Alt+↓"
+                    ToolTip="Ctrl+↓"
                     Margin="2,0,0,0"
                     Padding="12,5,12,3">
                     <Image Source="/VoiceroidUtil;component/resources/icon/arrow_down.png" />

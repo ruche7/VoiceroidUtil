@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Reactive.Bindings;
 
@@ -47,7 +48,9 @@ namespace VoiceroidUtil
         /// </remarks>
         public async void Execute(T parameter)
         {
-            if (this.IsExecutable.Value)
+            if (
+                this.IsExecutable.Value &&
+                Interlocked.Exchange(ref this.executeLock, 1) == 0)
             {
                 try
                 {
@@ -56,10 +59,12 @@ namespace VoiceroidUtil
                 }
                 finally
                 {
+                    Interlocked.Exchange(ref this.executeLock, 0);
                     this.IsExecutable.Value = true;
                 }
             }
         }
+        private int executeLock = 0;
 
         /// <summary>
         /// リソースを破棄する。

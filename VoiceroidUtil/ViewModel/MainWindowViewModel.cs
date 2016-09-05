@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Reactive.Bindings;
@@ -123,11 +125,20 @@ namespace VoiceroidUtil.ViewModel
                 .Subscribe(async _ => await this.ExecuteUIConfigLoadCommand())
                 .AddTo(this.CompositeDisposable);
 
+            // UI設定セーブ要求 Subject
+            // 100ms の間、次のセーブ要求が来なければ実際のセーブ処理を行う
+            this.UIConfigSaveRequestSubject =
+                (new Subject<object>()).AddTo(this.CompositeDisposable);
+            this.UIConfigSaveRequestSubject
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(_ => this.UIConfigKeeper.Save())
+                .AddTo(this.CompositeDisposable);
+
             // UI設定セーブコマンド
             this.UIConfigSaveCommand =
                 this.IsUIConfigLoaded.ToReactiveCommand().AddTo(this.CompositeDisposable);
             this.UIConfigSaveCommand
-                .Subscribe(async _ => await this.ExecuteUIConfigSaveCommand())
+                .Subscribe(_ => this.ExecuteUIConfigSaveCommand())
                 .AddTo(this.CompositeDisposable);
 
             // トレースリスナ設定
@@ -138,6 +149,14 @@ namespace VoiceroidUtil.ViewModel
                 listener.DirectoryPathGetter =
                     () => this.AppConfig.Value.SaveDirectoryPath;
             }
+        }
+
+        /// <summary>
+        /// タイトルを取得する。
+        /// </summary>
+        public string Title
+        {
+            get { return nameof(VoiceroidUtil); }
         }
 
         /// <summary>
@@ -199,6 +218,11 @@ namespace VoiceroidUtil.ViewModel
         private ReactiveProperty<bool> IsUIConfigLoaded { get; }
 
         /// <summary>
+        /// UI設定セーブ処理要求 Subject を取得する。
+        /// </summary>
+        private Subject<object> UIConfigSaveRequestSubject { get; }
+
+        /// <summary>
         /// UIConfigLoadCommand の実処理を行う。
         /// </summary>
         private async Task ExecuteUIConfigLoadCommand()
@@ -215,14 +239,14 @@ namespace VoiceroidUtil.ViewModel
             else
             {
                 // ロードに失敗した場合は現在値をセーブしておく
-                await Task.Run(() => this.UIConfigKeeper.Save());
+                this.ExecuteUIConfigSaveCommand();
             }
         }
 
         /// <summary>
         /// UIConfigSaveCommand の実処理を行う。
         /// </summary>
-        private async Task ExecuteUIConfigSaveCommand()
+        private void ExecuteUIConfigSaveCommand()
         {
             // 1回以上 UIConfigLoadCommand が実施されていなければ処理しない
             if (!this.IsUIConfigLoaded.Value)
@@ -230,7 +254,8 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
-            await Task.Run(() => this.UIConfigKeeper.Save());
+            // セーブ要求
+            this.UIConfigSaveRequestSubject.OnNext(null);
         }
     }
 }
