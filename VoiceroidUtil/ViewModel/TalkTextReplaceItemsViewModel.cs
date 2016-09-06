@@ -195,7 +195,7 @@ namespace VoiceroidUtil.ViewModel
         private BooleanNotifier ItemListChangedNotifier { get; } = new BooleanNotifier();
 
         /// <summary>
-        /// AddPresetCommand コマンド処理を行う。
+        /// AddPresetCommand の実処理を行う。
         /// </summary>
         /// <param name="preset">プリセット。</param>
         private void ExecuteAddPresetCommand(TalkTextReplacePreset preset)
@@ -229,7 +229,7 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// RemoveCommand コマンド処理を行う。
+        /// RemoveCommand の実処理を行う。
         /// </summary>
         private void ExecuteRemoveCommand()
         {

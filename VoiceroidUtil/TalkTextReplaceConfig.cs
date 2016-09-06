@@ -20,8 +20,10 @@ namespace VoiceroidUtil
         public TalkTextReplaceConfig()
         {
             // イベントハンドラ追加のためにプロパティ経由で設定
-            this.VoiceReplaceItems = new TalkTextReplaceItemCollection();
-            this.TextFileReplaceItems = new TalkTextReplaceItemCollection();
+            this.VoiceReplaceItems =
+                new TalkTextReplaceItemCollection { new TalkTextReplaceItem() };
+            this.TextFileReplaceItems =
+                new TalkTextReplaceItemCollection { new TalkTextReplaceItem() };
         }
 
         /// <summary>
@@ -147,6 +149,10 @@ namespace VoiceroidUtil
         private void OnDeserializing(StreamingContext context)
         {
             this.ResetDataMembers();
+
+            // コレクションは空にしておく
+            this.VoiceReplaceItems.Clear();
+            this.TextFileReplaceItems.Clear();
         }
 
         /// <summary>

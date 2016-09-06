@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Net;
-using RucheHome.Util;
 using VoiceroidUtil.Messaging;
 
 namespace VoiceroidUtil.ViewModel
@@ -15,23 +13,17 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// アプリ設定とそれに対する処理を提供する ViewModel クラス。
     /// </summary>
-    public class AppConfigViewModel : Livet.ViewModel
+    public class AppConfigViewModel : ConfigViewModelBase<AppConfig>
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AppConfigViewModel()
+        public AppConfigViewModel() : base(new AppConfig())
         {
-            this.ConfigKeeper.Value = new AppConfig();
-
             // UI設定値
             this.UIConfig =
                 new ReactiveProperty<UIConfig>(new UIConfig())
                     .AddTo(this.CompositeDisposable);
-
-            // 修正可否
-            this.CanModify =
-                (new ReactiveProperty<bool>(true)).AddTo(this.CompositeDisposable);
 
             // 直近のアプリ状態値
             this.LastStatus =
@@ -70,66 +62,45 @@ namespace VoiceroidUtil.ViewModel
                 .Subscribe(e => this.ExecuteDropSaveDirectoryCommand(e))
                 .AddTo(this.CompositeDisposable);
 
-            // ロード実施済みフラグ
-            this.IsConfigLoaded =
-                new ReactiveProperty<bool>(false).AddTo(this.CompositeDisposable);
-
-            // ロードコマンド
-            this.LoadCommand =
-                this.CanModify.ToReactiveCommand().AddTo(this.CompositeDisposable);
-            this.LoadCommand
-                .Subscribe(async _ => await this.ExecuteLoadCommand())
+            // アプリ更新情報チェックコマンド
+            this.UpdateCheckCommand =
+                this
+                    .ObserveProperty(self => self.Value)
+                    .Select(
+                        config =>
+                            (config == null) ?
+                                Observable.Return(false) :
+                                config.ObserveProperty(c => c.IsUpdateCheckingOnStartup))
+                    .Switch()
+                    .ToReactiveCommand(false)
+                    .AddTo(this.CompositeDisposable);
+            this.UpdateCheckCommand
+                .Subscribe(async _ => await this.UpdateChecker.Run())
                 .AddTo(this.CompositeDisposable);
 
-            // セーブ要求 Subject
-            // 100ms の間、次のセーブ要求が来なければ実際のセーブ処理を行う
-            this.SaveRequestSubject =
-                (new Subject<object>()).AddTo(this.CompositeDisposable);
-            this.SaveRequestSubject
-                .Throttle(TimeSpan.FromMilliseconds(100))
-                .Subscribe(_ => this.ConfigKeeper.Save())
-                .AddTo(this.CompositeDisposable);
-
-            // セーブコマンド
-            this.SaveCommand =
-                this.IsConfigLoaded.ToReactiveCommand().AddTo(this.CompositeDisposable);
-            this.SaveCommand
-                .Subscribe(_ => this.ExecuteSaveCommand())
-                .AddTo(this.CompositeDisposable);
-
-            // アプリ更新情報チェッカ関連のセットアップ
-            this.SetupUpdateChecker();
-        }
-
-        /// <summary>
-        /// アプリ設定値を取得または設定する。
-        /// </summary>
-        public AppConfig Value
-        {
-            get { return this.ConfigKeeper.Value; }
-            set
-            {
-                var old = this.Value;
-                this.ConfigKeeper.Value = value ?? (new AppConfig());
-                if (this.Value != old)
-                {
-                    this.RaisePropertyChanged();
-                }
-            }
+            // アプリ更新があるなら通知
+            this.UpdateChecker
+                .ObserveProperty(c => c.CanUpdate)
+                .Where(f => f)
+                .Subscribe(
+                    _ =>
+                        this.LastStatus.Value =
+                            new AppStatus
+                            {
+                                StatusType = AppStatusType.Information,
+                                StatusText =
+                                    @"version " +
+                                    this.UpdateChecker.NewestVersion +
+                                    @" が公開されています。",
+                                SubStatusText = @"ダウンロードページを開く",
+                                SubStatusCommand = this.UpdateChecker.PageUri.AbsoluteUri,
+                            });
         }
 
         /// <summary>
         /// UI設定値を取得する。
         /// </summary>
         public ReactiveProperty<UIConfig> UIConfig { get; }
-
-        /// <summary>
-        /// 設定値を修正可能な状態であるか否かを取得する。
-        /// </summary>
-        /// <remarks>
-        /// 既定では常に true を返す。外部からの設定以外で更新されることはない。
-        /// </remarks>
-        public ReactiveProperty<bool> CanModify { get; }
 
         /// <summary>
         /// 直近のアプリ状態値を取得する。
@@ -157,14 +128,9 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveCommand<DragEventArgs> DropSaveDirectoryCommand { get; }
 
         /// <summary>
-        /// アプリ設定ロードコマンドを取得する。
+        /// アプリ更新情報チェックコマンドを取得する。
         /// </summary>
-        public ReactiveCommand LoadCommand { get; }
-
-        /// <summary>
-        /// アプリ設定セーブコマンドを取得する。
-        /// </summary>
-        public ReactiveCommand SaveCommand { get; }
+        public ReactiveCommand UpdateCheckCommand { get; }
 
         /// <summary>
         /// IDataObject オブジェクトから有効なディレクトリパスを検索する。
@@ -205,68 +171,9 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// アプリ設定の保持と読み書きを行うオブジェクトを取得する。
-        /// </summary>
-        private ConfigKeeper<AppConfig> ConfigKeeper { get; } =
-            new ConfigKeeper<AppConfig>(nameof(VoiceroidUtil));
-
-        /// <summary>
-        /// アプリ設定のロードが1回以上行われたか否かを取得する。
-        /// </summary>
-        private ReactiveProperty<bool> IsConfigLoaded { get; }
-
-        /// <summary>
-        /// アプリ設定セーブ処理要求 Subject を取得する。
-        /// </summary>
-        private Subject<object> SaveRequestSubject { get; }
-
-        /// <summary>
         /// アプリ更新情報チェッカを取得する。
         /// </summary>
         private AppUpdateChecker UpdateChecker { get; } = new AppUpdateChecker();
-
-        /// <summary>
-        /// アプリ更新情報チェッカ関連のセットアップを行う。
-        /// </summary>
-        private void SetupUpdateChecker()
-        {
-            // 更新があるなら通知
-            this.UpdateChecker
-                .ObserveProperty(c => c.CanUpdate)
-                .Where(f => f)
-                .Subscribe(
-                    _ =>
-                        this.LastStatus.Value =
-                            new AppStatus
-                            {
-                                StatusType = AppStatusType.Information,
-                                StatusText =
-                                    @"version " +
-                                    this.UpdateChecker.NewestVersion +
-                                    @" が公開されています。",
-                                SubStatusText = @"ダウンロードページを開く",
-                                SubStatusUri = this.UpdateChecker.PageUri.AbsoluteUri,
-                            });
-
-            // 起動時更新チェックフラグが立ったらチェック開始
-            this
-                .ObserveProperty(self => self.Value)
-                .Select(
-                    config =>
-                        (config == null) ?
-                            Observable.Empty<bool?>() :
-                            config.ObserveProperty(c => c.IsUpdateCheckingOnStartup))
-                .Switch()
-                .Where(f => f == true)
-                .Subscribe(
-                    async _ =>
-                    {
-                        if (this.UpdateChecker.NewestVersion == null)
-                        {
-                            await this.UpdateChecker.Run();
-                        }
-                    });
-        }
 
         /// <summary>
         /// SelectSaveDirectoryCommand の実処理を行う。
@@ -350,42 +257,6 @@ namespace VoiceroidUtil.ViewModel
 
                 this.LastStatus.Value = status;
             }
-        }
-
-        /// <summary>
-        /// LoadCommand の実処理を行う。
-        /// </summary>
-        private async Task ExecuteLoadCommand()
-        {
-            // 成否に関わらずロード実施済みとする
-            // プロパティ変更通知によりセーブコマンドが発行される場合があるため、
-            // ロード処理よりも前に立てておく
-            this.IsConfigLoaded.Value = true;
-
-            if (await Task.Run(() => this.ConfigKeeper.Load()))
-            {
-                this.RaisePropertyChanged(nameof(this.Value));
-            }
-            else
-            {
-                // ロードに失敗した場合は現在値をセーブしておく
-                this.ExecuteSaveCommand();
-            }
-        }
-
-        /// <summary>
-        /// SaveCommand の実処理を行う。
-        /// </summary>
-        private void ExecuteSaveCommand()
-        {
-            // 1回以上 LoadCommand が実施されていなければ処理しない
-            if (!this.IsConfigLoaded.Value)
-            {
-                return;
-            }
-
-            // セーブ要求
-            this.SaveRequestSubject.OnNext(null);
         }
     }
 }

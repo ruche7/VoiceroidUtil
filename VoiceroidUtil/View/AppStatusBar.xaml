@@ -161,7 +161,7 @@
                             </Image.Style>
                         </Image>
 
-                        <!-- SubStatusText, SubStatusUri -->
+                        <!-- SubStatusText, SubStatusCommand -->
                         <Label Margin="0,1" Grid.Row="1" Grid.Column="1">
                             <Label.Style>
                                 <Style
@@ -172,9 +172,13 @@
                                             <TextBlock>
                                                 <Hyperlink
                                                     Command="{x:Static ru:ProcessStartCommand.Instance}"
-                                                    CommandParameter="{Binding Value.SubStatusUri}"
-                                                    ToolTip="{Binding Value.SubStatusUri}">
-                                                    <Run Text="{Binding Value.SubStatusText, Mode=OneWay}" />
+                                                    CommandParameter="{Binding
+                                                        Path=Value.SubStatusCommand}"
+                                                    ToolTip="{Binding
+                                                        Path=Value.SubStatusCommand}">
+                                                    <Run Text="{Binding
+                                                        Path=Value.SubStatusText,
+                                                        Mode=OneWay}" />
                                                 </Hyperlink>
                                             </TextBlock>
                                         </Setter.Value>
@@ -188,7 +192,7 @@
                                                 Value="Collapsed" />
                                         </DataTrigger>
                                         <DataTrigger
-                                            Binding="{Binding Value.SubStatusUri}"
+                                            Binding="{Binding Value.SubStatusCommand}"
                                             Value="">
                                             <Setter Property="Content">
                                                 <Setter.Value>
