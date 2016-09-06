@@ -301,7 +301,8 @@ namespace VoiceroidUtil
                 AppStatusType.Success,
                 statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
-                warnText);
+                warnText ?? @"保存先フォルダーを開く",
+                (warnText == null) ? appConfig.SaveDirectoryPath : null);
         }
 
         /// <summary>
@@ -384,11 +385,13 @@ namespace VoiceroidUtil
         /// <param name="statusText">状態テキスト。</param>
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
         private Task NotifyResult(
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = "")
+            string subStatusText = "",
+            string subStatusCommand = "")
         {
             return
                 this.ResultNotifier(
@@ -398,6 +401,7 @@ namespace VoiceroidUtil
                         StatusText = statusText ?? "",
                         SubStatusType = subStatusType,
                         SubStatusText = subStatusText ?? "",
+                        SubStatusCommand = subStatusCommand ?? "",
                     });
         }
     }

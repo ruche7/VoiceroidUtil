@@ -160,9 +160,11 @@
     <Compile Include="UIConfig.cs" />
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
+    <Compile Include="ViewModel\ConfigViewModelBase.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceConfigViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceItemsViewModel.cs" />
+    <Compile Include="ViewModel\UIConfigViewModel.cs" />
     <Compile Include="ViewModel\VoiceroidViewModel.cs" />
     <Compile Include="View\AppStatusBar.xaml.cs">
       <DependentUpon>AppStatusBar.xaml</DependentUpon>

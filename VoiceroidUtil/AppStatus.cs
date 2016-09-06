@@ -36,8 +36,8 @@ namespace VoiceroidUtil
         public string SubStatusText { get; set; } = "";
 
         /// <summary>
-        /// オプショナルなサブ状態URIを取得または設定する。
+        /// オプショナルなサブ状態コマンドを取得または設定する。
         /// </summary>
-        public string SubStatusUri { get; set; } = "";
+        public string SubStatusCommand { get; set; } = "";
     }
 }

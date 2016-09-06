@@ -29,8 +29,8 @@ namespace VoiceroidUtil
         string SubStatusText { get; }
 
         /// <summary>
-        /// オプショナルなサブ状態URIを取得する。
+        /// オプショナルなサブ状態コマンドを取得する。
         /// </summary>
-        string SubStatusUri { get; }
+        string SubStatusCommand { get; }
     }
 }

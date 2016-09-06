@@ -1,11 +1,12 @@
 ﻿<UserControl
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.TalkTextReplaceItemsView"
@@ -121,6 +122,9 @@
                     </UniformGrid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+            <i:Interaction.Behaviors>
+                <ru:ListBoxAutoScrollBehavior />
+            </i:Interaction.Behaviors>
         </ListBox>
 
         <!-- Row 1 -->
