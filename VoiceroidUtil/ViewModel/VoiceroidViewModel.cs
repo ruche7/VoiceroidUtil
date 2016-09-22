@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,10 +8,10 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Hnx8.ReadJEnc;
 using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Text;
 using RucheHome.Voiceroid;
 using VoiceroidUtil.Messaging;
 
@@ -355,32 +356,6 @@ namespace VoiceroidUtil.ViewModel
             }
 
             return pathes.All(p => File.Exists(p)) ? pathes : null;
-        }
-
-        /// <summary>
-        /// テキストファイルを非同期で読み取り、 StringBuilder に追加する。
-        /// </summary>
-        /// <param name="reader">リーダー。</param>
-        /// <param name="fileInfo">ファイル情報。</param>
-        /// <param name="dest">追加先の StringBuilder 。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        private static Task<bool> AppendTextFromFile(
-            FileReader reader,
-            FileInfo fileInfo,
-            StringBuilder dest)
-        {
-            return
-                Task.Run(
-                    () =>
-                    {
-                        reader.Read(fileInfo);
-                        if (reader.Text == null)
-                        {
-                            return false;
-                        }
-                        dest.Append(reader.Text);
-                        return true;
-                    });
         }
 
         /// <summary>
@@ -755,8 +730,7 @@ namespace VoiceroidUtil.ViewModel
                         var infos = Array.ConvertAll(pathes, p => new FileInfo(p));
                         var maxInfo =
                             infos.Aggregate((i1, i2) => (i1.Length > i2.Length) ? i1 : i2);
-                        var totalSize = infos.Sum(i => i.Length);
-                        return new { infos, maxInfo, totalSize };
+                        return new { infos, maxInfo };
                     });
 
             // ファイルサイズチェック
@@ -770,6 +744,31 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
+            // 全ファイル読み取り
+            List<string> fileTexts = null;
+            try
+            {
+                fileTexts = await Task.Run(() => TextFileReader.ReadAll(f.infos));
+            }
+            catch
+            {
+                this.SetLastStatus(
+                    AppStatusType.Fail,
+                    @"ファイルの読み取りに失敗しました。");
+                return;
+            }
+
+            // 読み取り失敗したファイルがある？
+            var failIndex = fileTexts.IndexOf(null);
+            if (failIndex >= 0)
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    f.infos[failIndex].Name + @" の読み取りに失敗しました。",
+                    subStatusText: @"テキストファイルではない可能性があります。");
+                return;
+            }
+
             // 最大文字数
             int lenLimit = this.TalkTextLengthLimit.Value;
             if (lenLimit == 0)
@@ -777,42 +776,37 @@ namespace VoiceroidUtil.ViewModel
                 lenLimit = int.MaxValue;
             }
 
-            // 全ファイル読み取り
+            // 文字列連結
             var text = new StringBuilder();
-            using (var reader = new FileReader((int)f.maxInfo.Length))
+            foreach (var t in fileTexts)
             {
-                foreach (var info in f.infos)
+                // 空文字列でなく、末尾が改行以外ならば改行追加
+                if (text.Length > 0)
                 {
-                    // 空文字列でなく、末尾が改行以外ならば改行追加
-                    if (text.Length > 0)
+                    var end = text[text.Length - 1];
+                    if (end != '\r' && end != '\n')
                     {
-                        var end = text[text.Length - 1];
-                        if (end != '\r' && end != '\n')
-                        {
-                            text.AppendLine();
-                        }
-                    }
-                    if (text.Length >= lenLimit)
-                    {
-                        break;
-                    }
-
-                    // 読み取り
-                    if (!(await AppendTextFromFile(reader, info, text)))
-                    {
-                        this.SetLastStatus(
-                            AppStatusType.Warning,
-                            info.Name + @" の読み取りに失敗しました。",
-                            subStatusText: @"テキストファイルではない可能性があります。");
-                        return;
+                        text.AppendLine();
                     }
                 }
+
+                if (text.Length >= lenLimit)
+                {
+                    break;
+                }
+                text.Append(t);
             }
 
             // 許容文字数以上は切り捨てる
             string warnText = null;
             if (text.Length > lenLimit)
             {
+                // 上位サロゲートだけ残ってしまわないようにする
+                if (char.IsHighSurrogate(text[lenLimit - 1]))
+                {
+                    --lenLimit;
+                }
+
                 text.Remove(lenLimit, text.Length - lenLimit);
                 warnText = lenLimit + @" 文字以上は切り捨てました。";
             }

@@ -46,9 +46,6 @@
     <ApplicationIcon>resources\icon\main.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Hnx8.ReadJEnc">
-      <HintPath>..\libs\ReadJEnc\Hnx8.ReadJEnc.dll</HintPath>
-    </Reference>
     <Reference Include="Livet, Version=1.3.0.0, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
       <HintPath>..\packages\LivetCask.1.3.1.0\lib\net45\Livet.dll</HintPath>
       <Private>True</Private>
@@ -291,6 +288,10 @@
     <Resource Include="resources\icon\main.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RucheHome.Text\RucheHome.Text.csproj">
+      <Project>{cee2280c-8026-46de-872e-f629259890eb}</Project>
+      <Name>RucheHome.Text</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RucheHome.Voiceroid\RucheHome.Voiceroid.csproj">
       <Project>{e7c4802c-d723-44b6-a272-9e570c84e754}</Project>
       <Name>RucheHome.Voiceroid</Name>
