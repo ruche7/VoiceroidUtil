@@ -250,7 +250,9 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="Properties\App.manifest" />
+    <None Include="Properties\App.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
@@ -288,6 +290,10 @@
     <Resource Include="resources\icon\main.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RucheHome.AviUtl\RucheHome.AviUtl.csproj">
+      <Project>{ef44d39c-4106-4e7b-ae0d-9a3b41de6eac}</Project>
+      <Name>RucheHome.AviUtl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RucheHome.Text\RucheHome.Text.csproj">
       <Project>{cee2280c-8026-46de-872e-f629259890eb}</Project>
       <Name>RucheHome.Text</Name>

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CEE2280C-8026-46DE-872E-F629259890EB}</ProjectGuid>
+    <ProjectGuid>{EF44D39C-4106-4E7B-AE0D-9A3B41DE6EAC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RucheHome.Text</RootNamespace>
-    <AssemblyName>RucheHome.Text</AssemblyName>
+    <RootNamespace>RucheHome.AviUtl</RootNamespace>
+    <AssemblyName>RucheHome.AviUtl</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,25 +32,49 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Hnx8.ReadJEnc">
-      <HintPath>..\libs\ReadJEnc\Hnx8.ReadJEnc.dll</HintPath>
-    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IniFileItem.cs" />
-    <Compile Include="IniFileItemCollection.cs" />
-    <Compile Include="IniFileParser.cs" />
-    <Compile Include="IniFileSection.cs" />
-    <Compile Include="IniFileSectionCollection.cs" />
-    <Compile Include="TextFileReader.cs" />
+    <Compile Include="ExEdit\AudioFileComponent.cs" />
+    <Compile Include="ExEdit\BlendMode.cs" />
+    <Compile Include="ExEdit\ComponentBase.cs" />
+    <Compile Include="ExEdit\ComponentItemAttribute.cs" />
+    <Compile Include="ExEdit\ComponentItemConverter.cs" />
+    <Compile Include="ExEdit\FontDecoration.cs" />
+    <Compile Include="ExEdit\IComponent.cs" />
+    <Compile Include="ExEdit\IMovableValueConstants.cs" />
+    <Compile Include="ExEdit\LayerItem.cs" />
+    <Compile Include="ExEdit\MovableValue.cs" />
+    <Compile Include="ExEdit\MoveType.cs" />
+    <Compile Include="ExEdit\PlayComponent.cs" />
+    <Compile Include="ExEdit\RenderComponent.cs" />
+    <Compile Include="ExEdit\TextAlignment.cs" />
+    <Compile Include="ExEdit\TextComponent.cs" />
+    <Compile Include="ExEdit\UnknownComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RucheHome.Text\RucheHome.Text.csproj">
+      <Project>{cee2280c-8026-46de-872e-f629259890eb}</Project>
+      <Name>RucheHome.Text</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RucheHomeLib\RucheHomeLib.csproj">
+      <Project>{df1b25fe-0fdf-4c86-a779-aff5217a7c6b}</Project>
+      <Name>RucheHomeLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
