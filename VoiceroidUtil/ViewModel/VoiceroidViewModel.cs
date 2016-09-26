@@ -11,7 +11,9 @@ using System.Windows;
 using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.AviUtl.ExEdit;
 using RucheHome.Text;
+using RucheHome.Util.Extensions.String;
 using RucheHome.Voiceroid;
 using VoiceroidUtil.Messaging;
 
@@ -102,7 +104,7 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<string>("")
                     .AddTo(this.CompositeDisposable);
             this.TalkTextLengthLimit =
-                new ReactiveProperty<int>(100000)
+                new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
 
             // コマンド実行用
@@ -549,7 +551,9 @@ namespace VoiceroidUtil.ViewModel
                 var info = this.UIConfig.Value?.VoiceroidExecutablePathes[process.Id];
                 if (info == null)
                 {
-                    this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                    this.SetLastStatus(
+                        AppStatusType.Fail,
+                        @"処理を開始できませんでした。");
                     return;
                 }
 
@@ -801,14 +805,8 @@ namespace VoiceroidUtil.ViewModel
             string warnText = null;
             if (text.Length > lenLimit)
             {
-                // 上位サロゲートだけ残ってしまわないようにする
-                if (char.IsHighSurrogate(text[lenLimit - 1]))
-                {
-                    --lenLimit;
-                }
-
-                text.Remove(lenLimit, text.Length - lenLimit);
-                warnText = lenLimit + @" 文字以上は切り捨てました。";
+                text.RemoveSurrogateSafe(lenLimit);
+                warnText = text.Length + @" 文字以上は切り捨てました。";
             }
 
             // テキスト設定
