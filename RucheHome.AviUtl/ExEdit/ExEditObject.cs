@@ -77,11 +77,7 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             // プロパティ値設定
-            if (ExoFileItemsConverter.ToProperties(section.Items, ref target) < 0)
-            {
-                throw new InvalidCastException(
-                    @"Connot convert from the [" + SectionNameOfFile + @"] section.");
-            }
+            ExoFileItemsConverter.ToProperties(section.Items, ref target);
         }
 
         /// <summary>

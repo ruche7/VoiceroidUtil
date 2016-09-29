@@ -36,16 +36,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         /// <param name="name">セクション名。</param>
         /// <returns>セクションデータ。</returns>
-        public IniFileSection ToExoFileSection(string name)
-        {
-            var items = ExoFileItemsConverter.ToItems(this);
-            if (items == null)
-            {
-                throw new InvalidCastException(@"Cannot convert to the section.");
-            }
-
-            return new IniFileSection(name, items);
-        }
+        public IniFileSection ToExoFileSection(string name) =>
+            new IniFileSection(name, ExoFileItemsConverter.ToItems(this));
 
         /// <summary>
         /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
@@ -90,7 +82,11 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             // プロパティ群設定
-            if (ExoFileItemsConverter.ToProperties(section.Items, ref result) < 0)
+            try
+            {
+                ExoFileItemsConverter.ToProperties(section.Items, ref result);
+            }
+            catch
             {
                 return null;
             }
