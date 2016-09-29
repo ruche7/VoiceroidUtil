@@ -49,7 +49,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォントサイズを取得または設定する。
         /// </summary>
-        [ComponentItem(@"サイズ", Order = 1)]
+        [ExoFileItem(@"サイズ", Order = 1)]
         [DataMember]
         public MovableValue<FontSizeConst> FontSize
         {
@@ -66,7 +66,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 表示速度を取得または設定する。
         /// </summary>
-        [ComponentItem(@"表示速度", Order = 2)]
+        [ExoFileItem(@"表示速度", Order = 2)]
         [DataMember]
         public MovableValue<TextSpeedConst> TextSpeed
         {
@@ -84,7 +84,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 自動スクロールするか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"自動スクロール", Order = 5)]
+        [ExoFileItem(@"自動スクロール", Order = 5)]
         [DataMember]
         public bool IsAutoScrolling
         {
@@ -96,7 +96,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 文字毎に個別オブジェクトとするか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"文字毎に個別オブジェクト", Order = 3)]
+        [ExoFileItem(@"文字毎に個別オブジェクト", Order = 3)]
         [DataMember]
         public bool IsIndividualizing
         {
@@ -108,7 +108,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 各文字を移動座標上に表示するか否かを取得する。
         /// </summary>
-        [ComponentItem(@"移動座標上に表示する", Order = 4)]
+        [ExoFileItem(@"移動座標上に表示する", Order = 4)]
         [DataMember]
         public bool IsAligningOnMotion
         {
@@ -120,7 +120,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 高さを自動調整するか否かを取得する。
         /// </summary>
-        [ComponentItem(@"autoadjust", Order = 9)]
+        [ExoFileItem(@"autoadjust", Order = 9)]
         [DataMember]
         public bool IsAutoAdjusting
         {
@@ -132,7 +132,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント色を取得または設定する。
         /// </summary>
-        [ComponentItem(@"color", Order = 16)]
+        [ExoFileItem(@"color", Order = 16)]
         [DataMember]
         public Color FontColor
         {
@@ -149,7 +149,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント装飾色を取得または設定する。
         /// </summary>
-        [ComponentItem(@"color2", Order = 17)]
+        [ExoFileItem(@"color2", Order = 17)]
         [DataMember]
         public Color FontDecorationColor
         {
@@ -166,7 +166,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォントファミリ名を取得または設定する。
         /// </summary>
-        [ComponentItem(@"font", Order = 18)]
+        [ExoFileItem(@"font", Order = 18)]
         [DataMember]
         public string FontFamilyName
         {
@@ -181,7 +181,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント装飾種別を取得または設定する。
         /// </summary>
-        [ComponentItem(@"type", Order = 8)]
+        [ExoFileItem(@"type", Order = 8)]
         public FontDecoration FontDecoration
         {
             get { return this.fontDecoration; }
@@ -212,7 +212,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// テキスト配置種別を取得または設定する。
         /// </summary>
-        [ComponentItem(@"align", Order = 12)]
+        [ExoFileItem(@"align", Order = 12)]
         public TextAlignment TextAlignment
         {
             get { return this.textAlignment; }
@@ -244,7 +244,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 太字にするか否かを取得する。
         /// </summary>
-        [ComponentItem(@"B", Order = 6)]
+        [ExoFileItem(@"B", Order = 6)]
         [DataMember]
         public bool IsBold
         {
@@ -256,7 +256,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// イタリック体にするか否かを取得する。
         /// </summary>
-        [ComponentItem(@"I", Order = 7)]
+        [ExoFileItem(@"I", Order = 7)]
         [DataMember]
         public bool IsItalic
         {
@@ -268,7 +268,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 字間幅を取得または設定する。
         /// </summary>
-        [ComponentItem(@"spacing_x", typeof(SpaceConverter), Order = 13)]
+        [ExoFileItem(@"spacing_x", typeof(SpaceConverter), Order = 13)]
         [DataMember]
         public int LetterSpace
         {
@@ -285,7 +285,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 行間幅を取得または設定する。
         /// </summary>
-        [ComponentItem(@"spacing_y", typeof(SpaceConverter), Order = 14)]
+        [ExoFileItem(@"spacing_y", typeof(SpaceConverter), Order = 14)]
         [DataMember]
         public int LineSpace
         {
@@ -302,7 +302,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 高精細モードを有効にするか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"precision", Order = 15)]
+        [ExoFileItem(@"precision", Order = 15)]
         [DataMember]
         public bool IsHighDefinition
         {
@@ -314,7 +314,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 文字を滑らかにするか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"soft", Order = 10)]
+        [ExoFileItem(@"soft", Order = 10)]
         [DataMember]
         public bool IsSoft
         {
@@ -326,7 +326,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 等間隔モードを有効にするか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"monospace", Order = 11)]
+        [ExoFileItem(@"monospace", Order = 11)]
         [DataMember]
         public bool IsMonospacing
         {
@@ -338,7 +338,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// テキストを取得または設定する。
         /// </summary>
-        [ComponentItem(@"text", typeof(TextConverter), Order = 19)]
+        [ExoFileItem(@"text", typeof(TextConverter), Order = 19)]
         [DataMember]
         public string Text
         {
@@ -407,31 +407,31 @@ namespace RucheHome.AviUtl.ExEdit
         #region 特殊プロパティ用コンポーネントアイテムコンバータ
 
         /// <summary>
-        /// 字間幅および行間幅用のコンポーネントアイテムコンバータクラス。
+        /// 字間幅および行間幅用のコンバータクラス。
         /// </summary>
         /// <remarks>
         /// AviUtl拡張編集が byte (0 ～ 255) で扱っているようなのでそれに合わせる。
         /// </remarks>
-        public class SpaceConverter : ComponentItemConverter
+        public class SpaceConverter : IExoFileValueConverter
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public SpaceConverter() : base()
+            public SpaceConverter()
             {
             }
 
             /// <summary>
-            /// プロパティ値を拡張編集オブジェクトファイルの文字列値に変換する。
+            /// .NETオブジェクト値を拡張編集オブジェクトファイルの文字列値に変換する。
             /// </summary>
-            /// <param name="value">プロパティ値。</param>
-            /// <param name="propertyType">プロパティの型情報。</param>
+            /// <param name="value">.NETオブジェクト値。</param>
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
             /// <returns>文字列値。変換できなかった場合は null 。</returns>
-            public override string ToExoFileValue(object value, Type propertyType)
+            public string ToExoFileValue(object value, Type objectType)
             {
-                if (propertyType == null)
+                if (objectType == null)
                 {
-                    throw new ArgumentNullException(nameof(propertyType));
+                    throw new ArgumentNullException(nameof(objectType));
                 }
 
                 if (value == null)
@@ -448,16 +448,18 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             /// <summary>
-            /// 拡張編集オブジェクトファイルの文字列値をプロパティ値に変換する。
+            /// 拡張編集オブジェクトファイルの文字列値を.NETオブジェクト値に変換する。
             /// </summary>
             /// <param name="value">文字列値。</param>
-            /// <param name="propertyType">プロパティの型情報。</param>
-            /// <returns>プロパティ値を持つタプル。変換できなかった場合は null 。</returns>
-            public override Tuple<object> FromExoFileValue(string value, Type propertyType)
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
+            /// <returns>
+            /// .NETオブジェクト値を持つタプル。変換できなかったならば null 。
+            /// </returns>
+            public Tuple<object> FromExoFileValue(string value, Type objectType)
             {
-                if (propertyType == null)
+                if (objectType == null)
                 {
-                    throw new ArgumentNullException(nameof(propertyType));
+                    throw new ArgumentNullException(nameof(objectType));
                 }
 
                 byte exoValue;
@@ -468,7 +470,7 @@ namespace RucheHome.AviUtl.ExEdit
 
                 try
                 {
-                    return Tuple.Create(Convert.ChangeType((sbyte)exoValue, propertyType));
+                    return Tuple.Create(Convert.ChangeType((sbyte)exoValue, objectType));
                 }
                 catch { }
                 return null;
@@ -476,28 +478,28 @@ namespace RucheHome.AviUtl.ExEdit
         }
 
         /// <summary>
-        /// テキスト用のコンポーネントアイテムコンバータクラス。
+        /// テキスト用のコンバータクラス。
         /// </summary>
-        public class TextConverter : ComponentItemConverter
+        public class TextConverter : IExoFileValueConverter
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public TextConverter() : base()
+            public TextConverter()
             {
             }
 
             /// <summary>
-            /// プロパティ値を拡張編集オブジェクトファイルの文字列値に変換する。
+            /// .NETオブジェクト値を拡張編集オブジェクトファイルの文字列値に変換する。
             /// </summary>
-            /// <param name="value">プロパティ値。</param>
-            /// <param name="propertyType">プロパティの型情報。</param>
+            /// <param name="value">.NETオブジェクト値。</param>
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
             /// <returns>文字列値。変換できなかった場合は null 。</returns>
-            public override string ToExoFileValue(object value, Type propertyType)
+            public string ToExoFileValue(object value, Type objectType)
             {
-                if (propertyType == null)
+                if (objectType == null)
                 {
-                    throw new ArgumentNullException(nameof(propertyType));
+                    throw new ArgumentNullException(nameof(objectType));
                 }
 
                 var propValue = value as string;
@@ -515,19 +517,21 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             /// <summary>
-            /// 拡張編集オブジェクトファイルの文字列値をプロパティ値に変換する。
+            /// 拡張編集オブジェクトファイルの文字列値を.NETオブジェクト値に変換する。
             /// </summary>
             /// <param name="value">文字列値。</param>
-            /// <param name="propertyType">プロパティの型情報。</param>
-            /// <returns>プロパティ値を持つタプル。変換できなかった場合は null 。</returns>
-            public override Tuple<object> FromExoFileValue(string value, Type propertyType)
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
+            /// <returns>
+            /// .NETオブジェクト値を持つタプル。変換できなかったならば null 。
+            /// </returns>
+            public Tuple<object> FromExoFileValue(string value, Type objectType)
             {
-                if (propertyType == null)
+                if (objectType == null)
                 {
-                    throw new ArgumentNullException(nameof(propertyType));
+                    throw new ArgumentNullException(nameof(objectType));
                 }
 
-                if (propertyType != typeof(string) || string.IsNullOrWhiteSpace(value))
+                if (objectType != typeof(string) || string.IsNullOrWhiteSpace(value))
                 {
                     return null;
                 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using RucheHome.Text;
 
 namespace RucheHome.AviUtl.ExEdit
 {
@@ -10,6 +9,55 @@ namespace RucheHome.AviUtl.ExEdit
     /// </summary>
     public class LayerItem
     {
+        #region アイテム名定数群
+
+        /// <summary>
+        /// 開始フレームを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfBeginFrame = @"start";
+
+        /// <summary>
+        /// 終端フレームを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfEndFrame = @"end";
+
+        /// <summary>
+        /// レイヤーIDを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfLayerId = @"layer";
+
+        /// <summary>
+        /// グループIDを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfGroupId = @"group";
+
+        /// <summary>
+        /// オーバレイフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsOverlay = @"overlay";
+
+        /// <summary>
+        /// オーディオフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsAudio = @"audio";
+
+        /// <summary>
+        /// クリッピングフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsClipping = @"clipping";
+
+        /// <summary>
+        /// カメラターゲットフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsCameraTarget = @"camera";
+
+        /// <summary>
+        /// 先行アイテムインデックスを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfChainIndex = @"chain";
+
+        #endregion
+
         /// <summary>
         /// コンストラクタ。
         /// </summary>
@@ -20,6 +68,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 開始フレーム位置を取得または設定する。
         /// </summary>
+        [ExoFileItem(ExoFileItemNameOfBeginFrame, Order = 0)]
         public int BeginFrame { get; set; } = 0;
 
         /// <summary>
@@ -28,11 +77,13 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// このフレーム自体も範囲に含む。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfEndFrame, Order = 1)]
         public int EndFrame { get; set; } = 0;
 
         /// <summary>
         /// レイヤーIDを取得または設定する。
         /// </summary>
+        [ExoFileItem(ExoFileItemNameOfLayerId, Order = 2)]
         public int LayerId { get; set; } = 0;
 
         /// <summary>
@@ -41,6 +92,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// 0 以下ならばグループ化しない。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfGroupId, Order = 3)]
         public int GroupId { get; set; } = 0;
 
         /// <summary>
@@ -49,11 +101,13 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// どの設定値と紐付いているのか現状不明。観測範囲では必ず true 。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfIsOverlay, Order = 4)]
         public bool IsOverlay { get; set; } = true;
 
         /// <summary>
         /// オーディオフラグを取得または設定する。
         /// </summary>
+        [ExoFileItem(ExoFileItemNameOfIsAudio, Order = 5)]
         public bool IsAudio { get; set; } = false;
 
         /// <summary>
@@ -62,6 +116,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// オーディオフラグが有効な場合は無視される。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfIsClipping, Order = 6)]
         public bool IsClipping { get; set; } = false;
 
         /// <summary>
@@ -70,6 +125,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// オーディオフラグが有効な場合は無視される。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfIsCameraTarget, Order = 7)]
         public bool IsCameraTarget { get; set; } = false;
 
         /// <summary>
@@ -78,12 +134,13 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// 負数ならば先行アイテムなし。
         /// </remarks>
+        [ExoFileItem(ExoFileItemNameOfChainIndex, Order = 8)]
         public int ChainIndex { get; set; } = -1;
 
         /// <summary>
-        /// コンポーネントリストを取得する。
+        /// コンポーネントコレクションを取得する。
         /// </summary>
-        public List<IComponent> Components { get; } = new List<IComponent>();
+        public ComponentCollection Components { get; } = new ComponentCollection();
 
         /// <summary>
         /// 指定した型のコンポーネントを取得する。
@@ -105,61 +162,6 @@ namespace RucheHome.AviUtl.ExEdit
             where T : IComponent
         {
             return this.Components.Where(c => c is T).Cast<T>();
-        }
-
-        /// <summary>
-        /// このアイテムを拡張編集オブジェクトファイルのセクション形式に変換する。
-        /// </summary>
-        /// <param name="index">アイテムインデックス。</param>
-        /// <returns>セクションコレクションデータ。</returns>
-        public IniFileSectionCollection ToExoFileSections(int index)
-        {
-            if (index < 0)
-            {
-                throw new ArgumentOutOfRangeException(
-                    "The section index is less than 0.",
-                    nameof(index));
-            }
-
-            var sections = new IniFileSectionCollection();
-
-            // ルートセクション追加＆アイテム設定
-            var section = sections.Add(index.ToString());
-            section.Items.Add(@"start", this.BeginFrame.ToString());
-            section.Items.Add(@"end", this.EndFrame.ToString());
-            section.Items.Add(@"layer", this.LayerId.ToString());
-            if (this.GroupId > 0)
-            {
-                section.Items.Add(@"group", this.GroupId.ToString());
-            }
-            section.Items.Add(@"overlay", this.IsOverlay ? @"1" : @"0");
-            if (this.IsAudio)
-            {
-                section.Items.Add(@"audio", @"1");
-            }
-            else
-            {
-                if (this.IsClipping)
-                {
-                    section.Items.Add(@"clipping", @"1");
-                }
-                if (this.IsCameraTarget)
-                {
-                    section.Items.Add(@"camera", @"1");
-                }
-            }
-            if (this.ChainIndex >= 0)
-            {
-                section.Items.Add(@"chain", this.ChainIndex.ToString());
-            }
-
-            // コンポーネント群のセクションを追加
-            foreach (var v in this.Components.Select((c, i) => new { c, i }))
-            {
-                sections.Add(v.c.ToExoFileSection(index + @"." + v.i));
-            }
-
-            return sections;
         }
     }
 }
