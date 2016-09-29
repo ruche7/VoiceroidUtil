@@ -20,7 +20,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         /// <typeparam name="T">変換元オブジェクト型。</typeparam>
         /// <param name="source">変換元オブジェクト。</param>
-        /// <returns>アイテムコレクション。変換に失敗したならば null 。</returns>
+        /// <returns>アイテムコレクション。</returns>
         public static IniFileItemCollection ToItems<T>(T source)
         {
             if (source == null)
@@ -60,7 +60,12 @@ namespace RucheHome.AviUtl.ExEdit
                 var exoValue = conv.ToExoFileValue(value, p.info.PropertyType);
                 if (exoValue == null)
                 {
-                    return null;
+                    throw new InvalidCastException(
+                        @"Cannot convert from the property (" +
+                        p.info.Name +
+                        @") of " +
+                        source.GetType().Name +
+                        @".");
                 }
 
                 // セクションに追加
@@ -77,7 +82,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <typeparam name="T">設定先オブジェクト型。</typeparam>
         /// <param name="items">アイテムコレクション。</param>
         /// <param name="target">設定先オブジェクト。</param>
-        /// <returns>設定したアイテム数。変換に失敗したならば -1 。</returns>
+        /// <returns>設定したアイテム数。</returns>
         public static int ToProperties<T>(IniFileItemCollection items, ref T target)
         {
             if (items == null)
@@ -125,7 +130,12 @@ namespace RucheHome.AviUtl.ExEdit
                 var value = conv.FromExoFileValue(exoValue, p.info.PropertyType);
                 if (value == null)
                 {
-                    return -1;
+                    throw new InvalidCastException(
+                        @"Cannot convert to the property (" +
+                        p.info.Name +
+                        @") of " +
+                        target.GetType().Name +
+                        @".");
                 }
 
                 // プロパティ値設定
