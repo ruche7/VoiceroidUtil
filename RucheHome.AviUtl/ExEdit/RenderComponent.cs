@@ -35,7 +35,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// X座標を取得または設定する。
         /// </summary>
-        [ComponentItem(@"X", Order = 1)]
+        [ExoFileItem(@"X", Order = 1)]
         [DataMember]
         public MovableValue<CoordConst> X
         {
@@ -47,7 +47,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// Y座標を取得または設定する。
         /// </summary>
-        [ComponentItem(@"Y", Order = 2)]
+        [ExoFileItem(@"Y", Order = 2)]
         [DataMember]
         public MovableValue<CoordConst> Y
         {
@@ -59,7 +59,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// Z座標を取得または設定する。
         /// </summary>
-        [ComponentItem(@"Z", Order = 3)]
+        [ExoFileItem(@"Z", Order = 3)]
         [DataMember]
         public MovableValue<CoordConst> Z
         {
@@ -71,7 +71,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 拡大率を取得または設定する。
         /// </summary>
-        [ComponentItem(@"拡大率", Order = 4)]
+        [ExoFileItem(@"拡大率", Order = 4)]
         [DataMember]
         public MovableValue<ScaleConst> Scale
         {
@@ -86,7 +86,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 透明度を取得または設定する。
         /// </summary>
-        [ComponentItem(@"透明度", Order = 5)]
+        [ExoFileItem(@"透明度", Order = 5)]
         [DataMember]
         public MovableValue<TransparencyConst> Transparency
         {
@@ -104,7 +104,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 回転角度を取得または設定する。
         /// </summary>
-        [ComponentItem(@"回転", Order = 6)]
+        [ExoFileItem(@"回転", Order = 6)]
         [DataMember]
         public MovableValue<RotationConst> Rotation
         {
@@ -121,7 +121,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 合成モードを取得または設定する。
         /// </summary>
-        [ComponentItem(@"blend", Order = 7)]
+        [ExoFileItem(@"blend", Order = 7)]
         public BlendMode BlendMode
         {
             get { return this.blendMode; }

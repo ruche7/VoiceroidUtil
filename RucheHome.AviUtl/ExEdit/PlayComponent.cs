@@ -35,7 +35,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 音量を取得または設定する。
         /// </summary>
-        [ComponentItem(@"音量", Order = 1)]
+        [ExoFileItem(@"音量", Order = 1)]
         [DataMember]
         public MovableValue<VolumeConst> Volume
         {
@@ -52,7 +52,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 左右バランスを取得または設定する。
         /// </summary>
-        [ComponentItem(@"左右", Order = 2)]
+        [ExoFileItem(@"左右", Order = 2)]
         [DataMember]
         public MovableValue<BalanceConst> Balance
         {

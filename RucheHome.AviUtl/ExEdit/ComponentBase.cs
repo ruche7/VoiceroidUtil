@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -30,7 +28,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンポーネント名を取得する。
         /// </summary>
-        [ComponentItem(ExoFileItemNameOfComponentName, Order = 0)]
+        [ExoFileItem(ExoFileItemNameOfComponentName, Order = 0)]
         public abstract string ComponentName { get; }
 
         /// <summary>
@@ -40,47 +38,13 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>セクションデータ。</returns>
         public IniFileSection ToExoFileSection(string name)
         {
-            var section = new IniFileSection(name);
-
-            // 対象プロパティ情報列挙を取得
-            var props =
-                this.GetType()
-                    .GetProperties(
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic)
-                    .Select(
-                        info =>
-                            new
-                            {
-                                info,
-                                attr =
-                                    info.GetCustomAttribute<ComponentItemAttribute>(true),
-                            })
-                    .Where(v => v.info.CanRead && v.attr != null)
-                    .OrderBy(v => v.attr.Order);
-
-            foreach (var p in props)
+            var items = ExoFileItemsConverter.ToItems(this);
+            if (items == null)
             {
-                // プロパティ値取得
-                var value = p.info.GetMethod.Invoke(this, null);
-
-                // コンバータ取得
-                var conv = GetItemConverter(p.attr.ConverterType);
-
-                // プロパティ値をアイテム文字列値に変換
-                var exoValue = conv.ToExoFileValue(value, p.info.PropertyType);
-                if (exoValue == null)
-                {
-                    throw new InvalidCastException(
-                        @"Connot convert property value. (" + p.info.Name + @")");
-                }
-
-                // セクションに追加
-                section.Items.Add(p.attr.Name, exoValue);
+                throw new InvalidCastException(@"Cannot convert to the section.");
             }
 
-            return section;
+            return new IniFileSection(name, items);
         }
 
         /// <summary>
@@ -125,46 +89,10 @@ namespace RucheHome.AviUtl.ExEdit
                 return null;
             }
 
-            // 対象プロパティ情報列挙を取得
-            var props =
-                typeof(T).GetType()
-                    .GetProperties(
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic)
-                    .Select(
-                        info =>
-                            new
-                            {
-                                info,
-                                attr =
-                                    info.GetCustomAttribute<ComponentItemAttribute>(true),
-                            })
-                    .Where(v => v.info.CanWrite && v.attr != null);
-
-            foreach (var p in props)
+            // プロパティ群設定
+            if (ExoFileItemsConverter.ToProperties(section.Items, ref result) < 0)
             {
-                // アイテム文字列値取得
-                var exoValue = items.FirstOrDefault(i => i.Name == p.attr.Name)?.Value;
-                if (exoValue == null)
-                {
-                    // 存在しないアイテムは無視
-                    continue;
-                }
-
-                // コンバータ取得
-                var conv = GetItemConverter(p.attr.ConverterType);
-
-                // アイテム文字列値をプロパティ値に変換
-                var value = conv.FromExoFileValue(exoValue, p.info.PropertyType);
-                if (value == null)
-                {
-                    // 非対応のアイテム文字列値が含まれているのでパース失敗とする
-                    return null;
-                }
-
-                // プロパティ値設定
-                p.info.SetMethod.Invoke(result, new[] { value.Item1 });
+                return null;
             }
 
             return result;
@@ -203,7 +131,7 @@ namespace RucheHome.AviUtl.ExEdit
                         p =>
                             p.CanRead &&
                             p.CanWrite &&
-                            p.IsDefined(typeof(ComponentItemAttribute), true));
+                            p.IsDefined(typeof(ExoFileItemAttribute), true));
 
             foreach (var prop in props)
             {
@@ -211,36 +139,6 @@ namespace RucheHome.AviUtl.ExEdit
                     target,
                     new[] { prop.GetMethod.Invoke(this, null) });
             }
-        }
-
-        /// <summary>
-        /// コンポーネントアイテムコンバータディクショナリを取得する。
-        /// </summary>
-        private static Dictionary<Type, ComponentItemConverter> ItemConverters { get; } =
-            new Dictionary<Type, ComponentItemConverter>();
-
-        /// <summary>
-        /// コンポーネントアイテムコンバータを取得する。
-        /// </summary>
-        /// <param name="converterType">コンポーネントアイテムコンバータの型情報。</param>
-        /// <returns>コンポーネントアイテムコンバータ。</returns>
-        private static ComponentItemConverter GetItemConverter(Type converterType)
-        {
-            Debug.Assert(converterType != null);
-
-            ComponentItemConverter result;
-            if (!ItemConverters.TryGetValue(converterType, out result))
-            {
-                // ディクショナリ未登録なら作成
-                result = Activator.CreateInstance(converterType) as ComponentItemConverter;
-                if (result == null)
-                {
-                    throw new InvalidOperationException(@"Invalid converter type.");
-                }
-                ItemConverters.Add(converterType, result);
-            }
-
-            return result;
         }
     }
 }

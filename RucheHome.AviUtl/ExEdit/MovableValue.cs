@@ -18,9 +18,9 @@ namespace RucheHome.AviUtl.ExEdit
         #region 静的定義群
 
         /// <summary>
-        /// 定数情報。
+        /// この型の定数情報。
         /// </summary>
-        private static readonly IMovableValueConstants constants = new TConstants();
+        public static readonly IMovableValueConstants ThisConstants = new TConstants();
 
         /// <summary>
         /// 拡張編集オブジェクトファイルにおける文字列表現値のパースを行う。
@@ -194,15 +194,15 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>補正された値。</returns>
         private static decimal CorrectValue(decimal value) =>
             decimal.Round(
-                Math.Min(Math.Max(constants.MinValue, value), constants.MaxValue),
-                constants.Digits);
+                Math.Min(Math.Max(ThisConstants.MinValue, value), ThisConstants.MaxValue),
+                ThisConstants.Digits);
 
         #endregion
 
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MovableValue() : this(constants.DefaultValue)
+        public MovableValue() : this(ThisConstants.DefaultValue)
         {
         }
 
@@ -243,7 +243,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 定数情報を取得する。
         /// </summary>
-        public IMovableValueConstants Constants => constants;
+        public IMovableValueConstants Constants => ThisConstants;
 
         /// <summary>
         /// 開始値を取得または設定する。

@@ -39,7 +39,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// このプロパティでは最大値を 100.0 固定としている。
         /// AviUtl拡張編集では再生対象の長さに応じて最大値が変化する。
         /// </remarks>
-        [ComponentItem(@"再生位置", Order = 1)]
+        [ExoFileItem(@"再生位置", Order = 1)]
         [DataMember]
         public MovableValue<PlayPositionConst> PlayPosition
         {
@@ -57,7 +57,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 再生速度を取得または設定する。
         /// </summary>
-        [ComponentItem(@"再生速度", Order = 2)]
+        [ExoFileItem(@"再生速度", Order = 2)]
         [DataMember]
         public MovableValue<PlaySpeedConst> PlaySpeed
         {
@@ -75,7 +75,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// ループ再生するか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"ループ再生", Order = 3)]
+        [ExoFileItem(@"ループ再生", Order = 3)]
         [DataMember]
         public bool IsLooping
         {
@@ -87,7 +87,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 動画ファイルと連携するか否かを取得または設定する。
         /// </summary>
-        [ComponentItem(@"動画ファイルと連携", Order = 4)]
+        [ExoFileItem(@"動画ファイルと連携", Order = 4)]
         [DataMember]
         public bool IsVideoFileLinking
         {
@@ -99,7 +99,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 参照ファイルパスを取得または設定する。
         /// </summary>
-        [ComponentItem(@"file", Order = 5)]
+        [ExoFileItem(@"file", Order = 5)]
         [DataMember]
         public string FilePath
         {

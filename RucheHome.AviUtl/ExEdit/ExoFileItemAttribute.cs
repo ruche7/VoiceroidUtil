@@ -3,17 +3,21 @@
 namespace RucheHome.AviUtl.ExEdit
 {
     /// <summary>
-    /// プロパティがコンポーネントのアイテムであることを示す属性クラス。
+    /// プロパティと拡張編集オブジェクトファイルのアイテムとの相互変換情報を提供する
+    /// 属性クラス。
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public sealed class ComponentItemAttribute : Attribute
+    public sealed class ExoFileItemAttribute : Attribute
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         /// <param name="name">アイテム名。</param>
-        public ComponentItemAttribute(string name)
-            : this(name, typeof(ComponentItemConverter))
+        /// <remarks>
+        /// コンバータ型には typeof(DefaultExoFileValueConverter) が利用される。
+        /// </remarks>
+        public ExoFileItemAttribute(string name)
+            : this(name, typeof(DefaultExoFileValueConverter))
         {
         }
 
@@ -21,8 +25,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// コンストラクタ。
         /// </summary>
         /// <param name="name">アイテム名。</param>
-        /// <param name="converterType">コンバータ型。</param>
-        public ComponentItemAttribute(string name, Type converterType)
+        /// <param name="converterType">
+        /// コンバータ型。
+        /// IExoFileValueConverter インタフェースを実装しており、
+        /// かつ引数なしのパブリックなコンストラクタを持つ必要がある。
+        /// </param>
+        public ExoFileItemAttribute(string name, Type converterType)
         {
             if (name == null)
             {
@@ -32,7 +40,7 @@ namespace RucheHome.AviUtl.ExEdit
             {
                 throw new ArgumentNullException(nameof(converterType));
             }
-            if (!typeof(ComponentItemConverter).IsAssignableFrom(converterType))
+            if (!typeof(IExoFileValueConverter).IsAssignableFrom(converterType))
             {
                 throw new ArgumentException(
                     @"Invalid converter type.",
