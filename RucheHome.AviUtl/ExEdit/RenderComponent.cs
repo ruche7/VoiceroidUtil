@@ -10,15 +10,67 @@ namespace RucheHome.AviUtl.ExEdit
     [DataContract(Namespace = "")]
     public class RenderComponent : ComponentBase
     {
+        #region アイテム名定数群
+
         /// <summary>
-        /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
+        /// X座標を保持する拡張編集オブジェクトファイルアイテムの名前。
         /// </summary>
-        /// <param name="section">セクションデータ。</param>
-        /// <returns>コンポーネント。作成できないならば null 。</returns>
-        public static RenderComponent FromExoFileSection(IniFileSection section)
-        {
-            return FromExoFileSectionCore(section, () => new RenderComponent());
-        }
+        public const string ExoFileItemNameOfX = @"X";
+
+        /// <summary>
+        /// Y座標を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfY = @"Y";
+
+        /// <summary>
+        /// Z座標を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfZ = @"Z";
+
+        /// <summary>
+        /// 拡大率を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfScale = @"拡大率";
+
+        /// <summary>
+        /// 透明度を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfTransparency = @"透明度";
+
+        /// <summary>
+        /// 回転角度を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfRotation = @"回転";
+
+        /// <summary>
+        /// 合成モードを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfBlendMode = @"blend";
+
+        #endregion
+
+        /// <summary>
+        /// コンポーネント名。
+        /// </summary>
+        public static readonly string ThisComponentName = @"標準描画";
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに
+        /// コンポーネント名が含まれているか否かを取得する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>含まれているならば true 。そうでなければ false 。</returns>
+        public static bool HasComponentName(IniFileItemCollection items) =>
+            HasComponentNameCore(items, ThisComponentName);
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションから
+        /// コンポーネントを作成する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>コンポーネント。</returns>
+        public static RenderComponent FromExoFileItems(IniFileItemCollection items) =>
+            FromExoFileItemsCore(items, () => new RenderComponent());
 
         /// <summary>
         /// コンストラクタ。
@@ -30,12 +82,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンポーネント名を取得する。
         /// </summary>
-        public override string ComponentName => @"標準描画";
+        public override string ComponentName => ThisComponentName;
 
         /// <summary>
         /// X座標を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"X", Order = 1)]
+        [ExoFileItem(ExoFileItemNameOfX, Order = 1)]
         [DataMember]
         public MovableValue<CoordConst> X
         {
@@ -47,7 +99,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// Y座標を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"Y", Order = 2)]
+        [ExoFileItem(ExoFileItemNameOfY, Order = 2)]
         [DataMember]
         public MovableValue<CoordConst> Y
         {
@@ -59,7 +111,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// Z座標を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"Z", Order = 3)]
+        [ExoFileItem(ExoFileItemNameOfZ, Order = 3)]
         [DataMember]
         public MovableValue<CoordConst> Z
         {
@@ -71,7 +123,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 拡大率を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"拡大率", Order = 4)]
+        [ExoFileItem(ExoFileItemNameOfScale, Order = 4)]
         [DataMember]
         public MovableValue<ScaleConst> Scale
         {
@@ -86,7 +138,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 透明度を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"透明度", Order = 5)]
+        [ExoFileItem(ExoFileItemNameOfTransparency, Order = 5)]
         [DataMember]
         public MovableValue<TransparencyConst> Transparency
         {
@@ -104,7 +156,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 回転角度を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"回転", Order = 6)]
+        [ExoFileItem(ExoFileItemNameOfRotation, Order = 6)]
         [DataMember]
         public MovableValue<RotationConst> Rotation
         {
@@ -121,7 +173,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 合成モードを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"blend", Order = 7)]
+        [ExoFileItem(ExoFileItemNameOfBlendMode, Order = 7)]
         public BlendMode BlendMode
         {
             get { return this.blendMode; }

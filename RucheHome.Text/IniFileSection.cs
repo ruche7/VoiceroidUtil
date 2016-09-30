@@ -63,6 +63,12 @@ namespace RucheHome.Text
         public IniFileItemCollection Items { get; private set; }
 
         /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>このオブジェクトのクローン。</returns>
+        public IniFileSection Clone() => new IniFileSection(this.Name, this.Items.Clone());
+
+        /// <summary>
         /// セクション名の正当性をチェックする。
         /// </summary>
         /// <param name="name">セクション名。</param>

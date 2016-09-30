@@ -96,7 +96,7 @@ namespace RucheHome.AviUtl.ExEdit
 
             // 対象プロパティ情報列挙を取得
             var props =
-                target.GetType().GetType()
+                target.GetType()
                     .GetProperties(
                         BindingFlags.Instance |
                         BindingFlags.Public |

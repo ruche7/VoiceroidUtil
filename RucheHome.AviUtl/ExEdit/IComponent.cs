@@ -14,10 +14,10 @@ namespace RucheHome.AviUtl.ExEdit
         string ComponentName { get; }
 
         /// <summary>
-        /// このコンポーネントを拡張編集オブジェクトファイルのセクション形式に変換する。
+        /// このコンポーネントを
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに変換する。
         /// </summary>
-        /// <param name="name">セクション名。</param>
-        /// <returns>セクションデータ。</returns>
-        IniFileSection ToExoFileSection(string name);
+        /// <returns>アイテムコレクション。</returns>
+        IniFileItemCollection ToExoFileItems();
     }
 }

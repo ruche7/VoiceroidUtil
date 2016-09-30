@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -123,6 +124,21 @@ namespace RucheHome.Text
 
             this.RemoveAt(index);
             return true;
+        }
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>このオブジェクトのクローン。</returns>
+        public IniFileItemCollection Clone() =>
+            new IniFileItemCollection(this.Select(i => i.Clone()).ToList());
+
+        /// <summary>
+        /// クローン用のコンストラクタ。
+        /// </summary>
+        /// <param name="list">ラップ対象のリスト。</param>
+        protected IniFileItemCollection(IList<IniFileItem> list) : base(list)
+        {
         }
 
         #region Collection<IniFileItem> のオーバライド
