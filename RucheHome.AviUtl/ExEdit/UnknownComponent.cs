@@ -33,11 +33,10 @@ namespace RucheHome.AviUtl.ExEdit
         private IniFileItemCollection items = new IniFileItemCollection();
 
         /// <summary>
-        /// このコンポーネントを拡張編集オブジェクトファイルのセクション形式に変換する。
+        /// このコンポーネントを
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに変換する。
         /// </summary>
-        /// <param name="name">セクション名。</param>
-        /// <returns>セクションデータ。</returns>
-        public IniFileSection ToExoFileSection(string name) =>
-            new IniFileSection(name, this.Items);
+        /// <returns>アイテムコレクション。</returns>
+        public IniFileItemCollection ToExoFileItems() => this.Items.Clone();
     }
 }

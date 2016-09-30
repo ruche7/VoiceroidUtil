@@ -10,15 +10,42 @@ namespace RucheHome.AviUtl.ExEdit
     [DataContract(Namespace = "")]
     public class PlayComponent : ComponentBase
     {
+        #region アイテム名定数群
+
         /// <summary>
-        /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
+        /// 音量を保持する拡張編集オブジェクトファイルアイテムの名前。
         /// </summary>
-        /// <param name="section">セクションデータ。</param>
-        /// <returns>コンポーネント。作成できないならば null 。</returns>
-        public static PlayComponent FromExoFileSection(IniFileSection section)
-        {
-            return FromExoFileSectionCore(section, () => new PlayComponent());
-        }
+        public const string ExoFileItemNameOfVolume = @"音量";
+
+        /// <summary>
+        /// 左右バランスを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfBalance = @"左右";
+
+        #endregion
+
+        /// <summary>
+        /// コンポーネント名。
+        /// </summary>
+        public static readonly string ThisComponentName = @"標準再生";
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに
+        /// コンポーネント名が含まれているか否かを取得する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>含まれているならば true 。そうでなければ false 。</returns>
+        public static bool HasComponentName(IniFileItemCollection items) =>
+            HasComponentNameCore(items, ThisComponentName);
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションから
+        /// コンポーネントを作成する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>コンポーネント。</returns>
+        public static PlayComponent FromExoFileItems(IniFileItemCollection items) =>
+            FromExoFileItemsCore(items, () => new PlayComponent());
 
         /// <summary>
         /// コンストラクタ。
@@ -30,12 +57,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンポーネント名を取得する。
         /// </summary>
-        public override string ComponentName => @"標準再生";
+        public override string ComponentName => ThisComponentName;
 
         /// <summary>
         /// 音量を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"音量", Order = 1)]
+        [ExoFileItem(ExoFileItemNameOfVolume, Order = 1)]
         [DataMember]
         public MovableValue<VolumeConst> Volume
         {
@@ -52,7 +79,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 左右バランスを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"左右", Order = 2)]
+        [ExoFileItem(ExoFileItemNameOfBalance, Order = 2)]
         [DataMember]
         public MovableValue<BalanceConst> Balance
         {

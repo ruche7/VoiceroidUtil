@@ -12,6 +12,45 @@ namespace RucheHome.AviUtl.ExEdit
     {
         #region 静的定義群
 
+        #region アイテム名定数群
+
+        /// <summary>
+        /// 表示領域の幅を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfWidth = @"width";
+
+        /// <summary>
+        /// 表示領域の高さを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfHeight = @"height";
+
+        /// <summary>
+        /// フレームレートのベース値を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFpsBase = @"rate";
+
+        /// <summary>
+        /// フレームレートのスケール値を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFpsScale = @"scale";
+
+        /// <summary>
+        /// 全体フレーム長を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfLength = @"length";
+
+        /// <summary>
+        /// 音声のサンプリングレートを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfAudioSampleRate = @"audio_rate";
+
+        /// <summary>
+        /// 音声のチャンネル数を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfAudioChannelCount = @"audio_ch";
+
+        #endregion
+
         /// <summary>
         /// ファイルセクション名。
         /// </summary>
@@ -127,7 +166,7 @@ namespace RucheHome.AviUtl.ExEdit
                     .TakeWhile(s => s != null);
             foreach (var cs in componentSections)
             {
-                result.Components.Add(ComponentMaker.FromExoFileSection(cs));
+                result.Components.Add(ComponentMaker.FromExoFileItems(cs.Items));
             }
 
             return result;
@@ -182,7 +221,7 @@ namespace RucheHome.AviUtl.ExEdit
             baseName += '.';
             foreach (var v in layerItem.Components.Select((c, i) => new { c, i }))
             {
-                target.Add(v.c.ToExoFileSection(baseName + v.i));
+                target.Add(baseName + v.i, v.c.ToExoFileItems());
             }
         }
 
@@ -198,19 +237,19 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 表示領域の幅を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"width", Order = 0)]
+        [ExoFileItem(ExoFileItemNameOfWidth, Order = 0)]
         public int Width { get; set; } = 0;
 
         /// <summary>
         /// 表示領域の高さを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"height", Order = 1)]
+        [ExoFileItem(ExoFileItemNameOfHeight, Order = 1)]
         public int Height { get; set; } = 0;
 
         /// <summary>
         /// フレームレートのベース値を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"rate", Order = 2)]
+        [ExoFileItem(ExoFileItemNameOfFpsBase, Order = 2)]
         public int FpsBase { get; set; } = 30;
 
         /// <summary>
@@ -219,25 +258,25 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// FpsBase の値をこの値で割った結果の実数値が実際のフレームレートとなる。
         /// </remarks>
-        [ExoFileItem(@"scale", Order = 3)]
+        [ExoFileItem(ExoFileItemNameOfFpsScale, Order = 3)]
         public int FpsScale { get; set; } = 1;
 
         /// <summary>
         /// 全体フレーム長を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"length", Order = 4)]
+        [ExoFileItem(ExoFileItemNameOfLength, Order = 4)]
         public int Length { get; set; } = 0;
 
         /// <summary>
         /// 音声のサンプリングレートを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"audio_rate", Order = 5)]
+        [ExoFileItem(ExoFileItemNameOfAudioSampleRate, Order = 5)]
         public int AudioSampleRate { get; set; } = 48000;
 
         /// <summary>
         /// 音声のチャンネル数を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"audio_ch", Order = 6)]
+        [ExoFileItem(ExoFileItemNameOfAudioChannelCount, Order = 6)]
         public int AudioChannelCount { get; set; } = 2;
 
         /// <summary>

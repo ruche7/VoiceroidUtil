@@ -72,6 +72,12 @@ namespace RucheHome.Text
         private string value = null;
 
         /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>このオブジェクトのクローン。</returns>
+        public IniFileItem Clone() => new IniFileItem(this.Name, this.Value);
+
+        /// <summary>
         /// 名前の正当性をチェックする。
         /// </summary>
         /// <param name="name">名前。</param>

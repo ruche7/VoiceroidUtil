@@ -14,6 +14,111 @@ namespace RucheHome.AviUtl.ExEdit
     [DataContract(Namespace = "")]
     public class TextComponent : ComponentBase
     {
+        #region アイテム名定数群
+
+        /// <summary>
+        /// フォントサイズを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFontSize = @"サイズ";
+
+        /// <summary>
+        /// 表示速度を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfTextSpeed = @"表示速度";
+
+        /// <summary>
+        /// 自動スクロールフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsAutoScrolling = @"自動スクロール";
+
+        /// <summary>
+        /// 個別オブジェクト化フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsIndividualizing =
+            @"文字毎に個別オブジェクト";
+
+        /// <summary>
+        /// 移動座標上表示フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsAligningOnMotion = @"移動座標上に表示する";
+
+        /// <summary>
+        /// 高さ自動調整フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsAutoAdjusting = @"autoadjust";
+
+        /// <summary>
+        /// フォント色を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFontColor = @"color";
+
+        /// <summary>
+        /// フォント装飾色を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFontDecorationColor = @"color2";
+
+        /// <summary>
+        /// フォントファミリ名を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFontFamilyName = @"font";
+
+        /// <summary>
+        /// フォント装飾種別を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFontDecoration = @"type";
+
+        /// <summary>
+        /// テキスト配置種別を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfTextAlignment = @"align";
+
+        /// <summary>
+        /// 太字フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsBold = @"B";
+
+        /// <summary>
+        /// イタリック体フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsItalic = @"I";
+
+        /// <summary>
+        /// 字間幅を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfLetterSpace = @"spacing_x";
+
+        /// <summary>
+        /// 行間幅を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfLineSpace = @"spacing_y";
+
+        /// <summary>
+        /// 高精細モード有効フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsHighDefinition = @"precision";
+
+        /// <summary>
+        /// 滑らかフラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsSoft = @"soft";
+
+        /// <summary>
+        /// 等間隔モード有効フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsMonospacing = @"monospace";
+
+        /// <summary>
+        /// テキストを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfText = @"text";
+
+        #endregion
+
+        /// <summary>
+        /// コンポーネント名。
+        /// </summary>
+        public static readonly string ThisComponentName = @"テキスト";
+
         /// <summary>
         /// 規定のフォントファミリ名。
         /// </summary>
@@ -25,14 +130,22 @@ namespace RucheHome.AviUtl.ExEdit
         public static readonly int TextLengthLimit = 1024 - 1;
 
         /// <summary>
-        /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに
+        /// コンポーネント名が含まれているか否かを取得する。
         /// </summary>
-        /// <param name="section">セクションデータ。</param>
-        /// <returns>コンポーネント。作成できないならば null 。</returns>
-        public static TextComponent FromExoFileSection(IniFileSection section)
-        {
-            return FromExoFileSectionCore(section, () => new TextComponent());
-        }
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>含まれているならば true 。そうでなければ false 。</returns>
+        public static bool HasComponentName(IniFileItemCollection items) =>
+            HasComponentNameCore(items, ThisComponentName);
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションから
+        /// コンポーネントを作成する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>コンポーネント。</returns>
+        public static TextComponent FromExoFileItems(IniFileItemCollection items) =>
+            FromExoFileItemsCore(items, () => new TextComponent());
 
         /// <summary>
         /// コンストラクタ。
@@ -44,12 +157,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンポーネント名を取得する。
         /// </summary>
-        public override string ComponentName => @"テキスト";
+        public override string ComponentName => ThisComponentName;
 
         /// <summary>
         /// フォントサイズを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"サイズ", Order = 1)]
+        [ExoFileItem(ExoFileItemNameOfFontSize, Order = 1)]
         [DataMember]
         public MovableValue<FontSizeConst> FontSize
         {
@@ -66,7 +179,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 表示速度を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"表示速度", Order = 2)]
+        [ExoFileItem(ExoFileItemNameOfTextSpeed, Order = 2)]
         [DataMember]
         public MovableValue<TextSpeedConst> TextSpeed
         {
@@ -84,7 +197,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 自動スクロールするか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"自動スクロール", Order = 5)]
+        [ExoFileItem(ExoFileItemNameOfIsAutoScrolling, Order = 5)]
         [DataMember]
         public bool IsAutoScrolling
         {
@@ -96,7 +209,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 文字毎に個別オブジェクトとするか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"文字毎に個別オブジェクト", Order = 3)]
+        [ExoFileItem(ExoFileItemNameOfIsIndividualizing, Order = 3)]
         [DataMember]
         public bool IsIndividualizing
         {
@@ -108,7 +221,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 各文字を移動座標上に表示するか否かを取得する。
         /// </summary>
-        [ExoFileItem(@"移動座標上に表示する", Order = 4)]
+        [ExoFileItem(ExoFileItemNameOfIsAligningOnMotion, Order = 4)]
         [DataMember]
         public bool IsAligningOnMotion
         {
@@ -120,7 +233,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 高さを自動調整するか否かを取得する。
         /// </summary>
-        [ExoFileItem(@"autoadjust", Order = 9)]
+        [ExoFileItem(ExoFileItemNameOfIsAutoAdjusting, Order = 9)]
         [DataMember]
         public bool IsAutoAdjusting
         {
@@ -132,7 +245,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント色を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"color", Order = 16)]
+        [ExoFileItem(ExoFileItemNameOfFontColor, Order = 16)]
         [DataMember]
         public Color FontColor
         {
@@ -149,7 +262,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント装飾色を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"color2", Order = 17)]
+        [ExoFileItem(ExoFileItemNameOfFontDecorationColor, Order = 17)]
         [DataMember]
         public Color FontDecorationColor
         {
@@ -166,7 +279,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォントファミリ名を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"font", Order = 18)]
+        [ExoFileItem(ExoFileItemNameOfFontFamilyName, Order = 18)]
         [DataMember]
         public string FontFamilyName
         {
@@ -181,7 +294,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント装飾種別を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"type", Order = 8)]
+        [ExoFileItem(ExoFileItemNameOfFontDecoration, Order = 8)]
         public FontDecoration FontDecoration
         {
             get { return this.fontDecoration; }
@@ -212,7 +325,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// テキスト配置種別を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"align", Order = 12)]
+        [ExoFileItem(ExoFileItemNameOfTextAlignment, Order = 12)]
         public TextAlignment TextAlignment
         {
             get { return this.textAlignment; }
@@ -244,7 +357,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 太字にするか否かを取得する。
         /// </summary>
-        [ExoFileItem(@"B", Order = 6)]
+        [ExoFileItem(ExoFileItemNameOfIsBold, Order = 6)]
         [DataMember]
         public bool IsBold
         {
@@ -256,7 +369,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// イタリック体にするか否かを取得する。
         /// </summary>
-        [ExoFileItem(@"I", Order = 7)]
+        [ExoFileItem(ExoFileItemNameOfIsItalic, Order = 7)]
         [DataMember]
         public bool IsItalic
         {
@@ -268,7 +381,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 字間幅を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"spacing_x", typeof(SpaceConverter), Order = 13)]
+        [ExoFileItem(ExoFileItemNameOfLetterSpace, typeof(SpaceConverter), Order = 13)]
         [DataMember]
         public int LetterSpace
         {
@@ -285,7 +398,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 行間幅を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"spacing_y", typeof(SpaceConverter), Order = 14)]
+        [ExoFileItem(ExoFileItemNameOfLineSpace, typeof(SpaceConverter), Order = 14)]
         [DataMember]
         public int LineSpace
         {
@@ -302,7 +415,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 高精細モードを有効にするか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"precision", Order = 15)]
+        [ExoFileItem(ExoFileItemNameOfIsHighDefinition, Order = 15)]
         [DataMember]
         public bool IsHighDefinition
         {
@@ -314,7 +427,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 文字を滑らかにするか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"soft", Order = 10)]
+        [ExoFileItem(ExoFileItemNameOfIsSoft, Order = 10)]
         [DataMember]
         public bool IsSoft
         {
@@ -326,7 +439,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 等間隔モードを有効にするか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"monospace", Order = 11)]
+        [ExoFileItem(ExoFileItemNameOfIsMonospacing, Order = 11)]
         [DataMember]
         public bool IsMonospacing
         {
@@ -338,7 +451,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// テキストを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"text", typeof(TextConverter), Order = 19)]
+        [ExoFileItem(ExoFileItemNameOfText, typeof(TextConverter), Order = 19)]
         [DataMember]
         public string Text
         {
@@ -383,9 +496,9 @@ namespace RucheHome.AviUtl.ExEdit
         {
             public int Digits => 0;
             public decimal DefaultValue => 34;
-            public decimal MinValue => 1;
+            public decimal MinValue => 0;
             public decimal MaxValue => 1000;
-            public decimal MinSliderValue => 1;
+            public decimal MinSliderValue => 0;
             public decimal MaxSliderValue => 256;
         }
 
@@ -571,7 +684,8 @@ namespace RucheHome.AviUtl.ExEdit
 
                 // '\0' の手前までを文字列化
                 var result =
-                    new string(charInts.TakeWhile(c => c != 0).Cast<char>().ToArray());
+                    new string(
+                        charInts.TakeWhile(c => c != 0).Select(c => (char)c).ToArray());
                 return Tuple.Create<object>(result);
             }
         }

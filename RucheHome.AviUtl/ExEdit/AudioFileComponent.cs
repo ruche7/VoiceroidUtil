@@ -10,15 +10,57 @@ namespace RucheHome.AviUtl.ExEdit
     [DataContract(Namespace = "")]
     public class AudioFileComponent : ComponentBase
     {
+        #region アイテム名定数群
+
         /// <summary>
-        /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
+        /// 再生開始位置を保持する拡張編集オブジェクトファイルアイテムの名前。
         /// </summary>
-        /// <param name="section">セクションデータ。</param>
-        /// <returns>コンポーネント。作成できないならば null 。</returns>
-        public static AudioFileComponent FromExoFileSection(IniFileSection section)
-        {
-            return FromExoFileSectionCore(section, () => new AudioFileComponent());
-        }
+        public const string ExoFileItemNameOfPlayPosition = @"再生位置";
+
+        /// <summary>
+        /// 再生速度を保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfPlaySpeed = @"再生速度";
+
+        /// <summary>
+        /// ループ再生フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsLooping = @"ループ再生";
+
+        /// <summary>
+        /// 動画ファイル連携フラグを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfIsVideoFileLinking = @"動画ファイルと連携";
+
+        /// <summary>
+        /// 参照ファイルパスを保持する拡張編集オブジェクトファイルアイテムの名前。
+        /// </summary>
+        public const string ExoFileItemNameOfFilePath = @"file";
+
+        #endregion
+
+        /// <summary>
+        /// コンポーネント名。
+        /// </summary>
+        public static readonly string ThisComponentName = @"音声ファイル";
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに
+        /// コンポーネント名が含まれているか否かを取得する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>含まれているならば true 。そうでなければ false 。</returns>
+        public static bool HasComponentName(IniFileItemCollection items) =>
+            HasComponentNameCore(items, ThisComponentName);
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションから
+        /// コンポーネントを作成する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <returns>コンポーネント。</returns>
+        public static AudioFileComponent FromExoFileItems(IniFileItemCollection items) =>
+            FromExoFileItemsCore(items, () => new AudioFileComponent());
 
         /// <summary>
         /// コンストラクタ。
@@ -30,7 +72,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンポーネント名を取得する。
         /// </summary>
-        public override string ComponentName => @"音声ファイル";
+        public override string ComponentName => ThisComponentName;
 
         /// <summary>
         /// 再生開始位置を取得または設定する。
@@ -39,7 +81,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// このプロパティでは最大値を 100.0 固定としている。
         /// AviUtl拡張編集では再生対象の長さに応じて最大値が変化する。
         /// </remarks>
-        [ExoFileItem(@"再生位置", Order = 1)]
+        [ExoFileItem(ExoFileItemNameOfPlayPosition, Order = 1)]
         [DataMember]
         public MovableValue<PlayPositionConst> PlayPosition
         {
@@ -57,7 +99,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 再生速度を取得または設定する。
         /// </summary>
-        [ExoFileItem(@"再生速度", Order = 2)]
+        [ExoFileItem(ExoFileItemNameOfPlaySpeed, Order = 2)]
         [DataMember]
         public MovableValue<PlaySpeedConst> PlaySpeed
         {
@@ -75,7 +117,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// ループ再生するか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"ループ再生", Order = 3)]
+        [ExoFileItem(ExoFileItemNameOfIsLooping, Order = 3)]
         [DataMember]
         public bool IsLooping
         {
@@ -87,7 +129,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 動画ファイルと連携するか否かを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"動画ファイルと連携", Order = 4)]
+        [ExoFileItem(ExoFileItemNameOfIsVideoFileLinking, Order = 4)]
         [DataMember]
         public bool IsVideoFileLinking
         {
@@ -99,7 +141,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 参照ファイルパスを取得または設定する。
         /// </summary>
-        [ExoFileItem(@"file", Order = 5)]
+        [ExoFileItem(ExoFileItemNameOfFilePath, Order = 5)]
         [DataMember]
         public string FilePath
         {

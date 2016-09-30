@@ -32,25 +32,49 @@ namespace RucheHome.AviUtl.ExEdit
         public abstract string ComponentName { get; }
 
         /// <summary>
-        /// このコンポーネントを拡張編集オブジェクトファイルのセクション形式に変換する。
+        /// このコンポーネントを
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに変換する。
         /// </summary>
-        /// <param name="name">セクション名。</param>
-        /// <returns>セクションデータ。</returns>
-        public IniFileSection ToExoFileSection(string name) =>
-            new IniFileSection(name, ExoFileItemsConverter.ToItems(this));
+        /// <returns>アイテムコレクション。</returns>
+        public IniFileItemCollection ToExoFileItems() =>
+            ExoFileItemsConverter.ToItems(this);
 
         /// <summary>
-        /// 拡張編集オブジェクトファイルのセクションデータからコンポーネントを作成する。
+        /// 拡張編集オブジェクトファイルのアイテムコレクションに
+        /// コンポーネント名が含まれているか否かを取得する。
+        /// </summary>
+        /// <param name="items">アイテムコレクション。</param>
+        /// <param name="componentName">コンポーネント名。</param>
+        /// <returns>含まれているならば true 。そうでなければ false 。</returns>
+        /// <remarks>
+        /// 継承先での HasComponentName 静的メソッドの実装に用いることができる。
+        /// </remarks>
+        protected static bool HasComponentNameCore(
+            IniFileItemCollection items,
+            string componentName)
+        {
+            return
+                items != null &&
+                componentName != null &&
+                componentName ==
+                    items
+                        .FirstOrDefault(i => i.Name == ExoFileItemNameOfComponentName)?
+                        .Value;
+        }
+
+        /// <summary>
+        /// 拡張編集オブジェクトファイルのアイテムコレクションから
+        /// コンポーネントを作成する。
         /// </summary>
         /// <typeparam name="T">コンポーネント型。</typeparam>
-        /// <param name="section">セクションデータ。</param>
+        /// <param name="items">アイテムコレクション。</param>
         /// <param name="creater">コンポーネント生成デリゲート。</param>
-        /// <returns>コンポーネント。作成できないならば null 。</returns>
+        /// <returns>コンポーネント。</returns>
         /// <remarks>
-        /// 継承先での FromExoFileSection 静的メソッドの実装に用いることができる。
+        /// 継承先での FromExoFileItems 静的メソッドの実装に用いることができる。
         /// </remarks>
-        protected static T FromExoFileSectionCore<T>(
-            IniFileSection section,
+        protected static T FromExoFileItemsCore<T>(
+            IniFileItemCollection items,
             Func<T> creater)
             where T : ComponentBase
         {
@@ -68,28 +92,21 @@ namespace RucheHome.AviUtl.ExEdit
                     nameof(creater));
             }
 
-            if (section == null)
+            if (items == null)
             {
-                return null;
+                throw new ArgumentNullException(nameof(items));
             }
-            var items = section.Items;
 
             // コンポーネント名をチェック
-            var nameIndex = items.IndexOf(ExoFileItemNameOfComponentName);
-            if (nameIndex < 0 || items[nameIndex].Value != result.ComponentName)
+            if (!HasComponentNameCore(items, result.ComponentName))
             {
-                return null;
+                throw new ArgumentException(
+                    @"The component name is not found.",
+                    nameof(items));
             }
 
             // プロパティ群設定
-            try
-            {
-                ExoFileItemsConverter.ToProperties(section.Items, ref result);
-            }
-            catch
-            {
-                return null;
-            }
+            ExoFileItemsConverter.ToProperties(items, ref result);
 
             return result;
         }
