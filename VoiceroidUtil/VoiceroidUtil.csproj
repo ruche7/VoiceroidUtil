@@ -180,6 +180,9 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainWindowConfigBehavior.cs" />
+    <Compile Include="View\MovableValueControl.xaml.cs">
+      <DependentUpon>MovableValueControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\TalkTextReplaceConfigView.xaml.cs">
       <DependentUpon>TalkTextReplaceConfigView.xaml</DependentUpon>
     </Compile>
@@ -227,6 +230,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\AppConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MovableValueControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
