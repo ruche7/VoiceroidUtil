@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -91,18 +90,18 @@ namespace RucheHome.AviUtl.ExEdit
     }
 
     /// <summary>
-    /// MoveType 列挙の拡張メソッドを提供する静的クラス。
+    /// MoveMode 列挙の拡張メソッドを提供する静的クラス。
     /// </summary>
-    public static class MoveTypeExtension
+    public static class MoveModeExtension
     {
         /// <summary>
         /// 移動モードID値を取得する。
         /// </summary>
-        /// <param name="moveType">移動モード。</param>
+        /// <param name="moveMode">移動モード。</param>
         /// <returns>移動モードID値。移動モードが不正な場合は -1 。</returns>
-        public static int GetId(this MoveMode moveType)
+        public static int GetId(this MoveMode moveMode)
         {
-            switch (moveType)
+            switch (moveMode)
             {
             case MoveMode.None: return 0;
             case MoveMode.Linear: return 1;
@@ -126,31 +125,31 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 移動モードの追加ID文字列を取得する。
         /// </summary>
-        /// <param name="moveType">移動モード。</param>
+        /// <param name="moveMode">移動モード。</param>
         /// <returns>
         /// 追加ID文字列。追加不要ならば空文字列。移動モードが不正な場合は null 。
         /// </returns>
-        public static string GetExtraId(this MoveMode moveType)
+        public static string GetExtraId(this MoveMode moveMode)
         {
-            switch (moveType)
+            switch (moveMode)
             {
             case MoveMode.Interpolation:
             case MoveMode.Rotation:
-                return ('@' + moveType.GetName());
+                return ('@' + moveMode.GetName());
             }
 
-            return Enum.IsDefined(moveType.GetType(), moveType) ? "" : null;
+            return Enum.IsDefined(moveMode.GetType(), moveMode) ? "" : null;
         }
 
         /// <summary>
         /// 移動モード名を取得する。
         /// </summary>
-        /// <param name="moveType">移動モード。</param>
+        /// <param name="moveMode">移動モード。</param>
         /// <returns>移動モード名。移動モードが不正な場合は null 。</returns>
-        public static string GetName(this MoveMode moveType)
+        public static string GetName(this MoveMode moveMode)
         {
             // 列挙値のメタデータ取得
-            var info = moveType.GetType().GetField(moveType.ToString());
+            var info = moveMode.GetType().GetField(moveMode.ToString());
             if (info == null)
             {
                 return null;
@@ -159,17 +158,17 @@ namespace RucheHome.AviUtl.ExEdit
             // DisplayAttribute 属性が無いなら列挙値名をそのまま返す
             return
                 info.GetCustomAttribute<DisplayAttribute>(false)?.GetName() ??
-                moveType.ToString();
+                moveMode.ToString();
         }
 
         /// <summary>
         /// 移動モードに対して加減速指定が可能であるか否かを取得する。
         /// </summary>
-        /// <param name="moveType">移動モード。</param>
+        /// <param name="moveMode">移動モード。</param>
         /// <returns>加減速指定が可能ならば true 。そうでなければ false 。</returns>
-        public static bool CanAccelerate(this MoveMode moveType)
+        public static bool CanAccelerate(this MoveMode moveMode)
         {
-            switch (moveType)
+            switch (moveMode)
             {
             case MoveMode.Linear:
             case MoveMode.Acceleration:
@@ -184,13 +183,31 @@ namespace RucheHome.AviUtl.ExEdit
         }
 
         /// <summary>
-        /// 移動モードが追加パラメータを持つか否かを取得する。
+        /// 加速を行うか否かの既定値を取得する。
         /// </summary>
-        /// <param name="moveType">移動モード。</param>
-        /// <returns>追加パラメータを持つならば true 。そうでなければ false 。</returns>
-        public static bool HasParameter(this MoveMode moveType)
+        /// <param name="moveMode">移動モード。</param>
+        /// <returns>既定で加速を行うならば true 。そうでなければ false 。</returns>
+        public static bool IsDefaultAccelerating(this MoveMode moveMode) =>
+            moveMode == MoveMode.Acceleration;
+
+        /// <summary>
+        /// 減速を行うか否かの既定値を取得する。
+        /// </summary>
+        /// <param name="moveMode">移動モード。</param>
+        /// <returns>既定で減速を行うならば true 。そうでなければ false 。</returns>
+        public static bool IsDefaultDecelerating(this MoveMode moveMode) =>
+            moveMode == MoveMode.Acceleration;
+
+        /// <summary>
+        /// 移動モードが移動フレーム間隔設定を持つか否かを取得する。
+        /// </summary>
+        /// <param name="moveMode">移動モード。</param>
+        /// <returns>
+        /// 移動フレーム間隔設定を持つならば true 。そうでなければ false 。
+        /// </returns>
+        public static bool HasInterval(this MoveMode moveMode)
         {
-            switch (moveType)
+            switch (moveMode)
             {
             case MoveMode.Random:
             case MoveMode.Repeat:
@@ -200,5 +217,13 @@ namespace RucheHome.AviUtl.ExEdit
 
             return false;
         }
+
+        /// <summary>
+        /// 移動フレーム間隔の既定値を取得する。
+        /// </summary>
+        /// <param name="moveMode">移動モード。</param>
+        /// <returns>移動フレーム間隔の既定値。</returns>
+        public static int GetDefaultInterval(this MoveMode moveMode) =>
+            (moveMode == MoveMode.Rotation) ? 100 : 0;
     }
 }

@@ -158,6 +158,7 @@
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
     <Compile Include="ViewModel\ConfigViewModelBase.cs" />
+    <Compile Include="ViewModel\MovableValueViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceConfigViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceItemsViewModel.cs" />

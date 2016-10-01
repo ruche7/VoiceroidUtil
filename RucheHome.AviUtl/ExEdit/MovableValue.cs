@@ -12,7 +12,7 @@ namespace RucheHome.AviUtl.ExEdit
     /// <typeparam name="TConstants">定数情報型。</typeparam>
     [DataContract(Namespace = "")]
     [KnownType(typeof(MoveMode))]
-    public class MovableValue<TConstants> : BindableBase
+    public class MovableValue<TConstants> : BindableBase, IMovableValue
         where TConstants : IMovableValueConstants, new()
     {
         #region 静的定義群
@@ -85,7 +85,7 @@ namespace RucheHome.AviUtl.ExEdit
                 MoveMode moveMode = MoveMode.None;
                 bool accel = false;
                 bool decel = false;
-                if (!TryParseMoveType(vals[2], out moveMode, out accel, out decel))
+                if (!TryParseMoveMode(vals[2], out moveMode, out accel, out decel))
                 {
                     return false;
                 }
@@ -125,7 +125,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <param name="accelerating">加速を行うか否かの設定先。</param>
         /// <param name="decelerating">減速を行うか否かの設定先。</param>
         /// <returns>パースに成功したならば true 。そうでなければ false 。</returns>
-        private static bool TryParseMoveType(
+        private static bool TryParseMoveMode(
             string value,
             out MoveMode moveMode,
             out bool accelerating,
@@ -222,14 +222,14 @@ namespace RucheHome.AviUtl.ExEdit
         /// <param name="moveMode">移動モード。</param>
         /// <param name="accelerating">加速を行うならば true 。</param>
         /// <param name="decelerating">減速を行うならば true 。</param>
-        /// <param name="parameter">追加パラメータ値。</param>
+        /// <param name="interval">移動フレーム間隔。</param>
         public MovableValue(
             decimal begin,
             decimal end,
             MoveMode moveMode,
             bool accelerating = false,
             bool decelerating = false,
-            int parameter = 0)
+            int interval = 0)
             : base()
         {
             this.Begin = begin;
@@ -237,7 +237,7 @@ namespace RucheHome.AviUtl.ExEdit
             this.MoveMode = moveMode;
             this.IsAccelerating = accelerating;
             this.IsDecelerating = decelerating;
-            this.Parameter = parameter;
+            this.Interval = interval;
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// 終端値を取得または設定する。
         /// </summary>
         /// <remarks>
-        /// 移動モードが MoveType.None の場合は無視される。
+        /// 移動モードが MoveMode.None の場合は無視される。
         /// </remarks>
         [DataMember]
         public decimal End
@@ -286,10 +286,10 @@ namespace RucheHome.AviUtl.ExEdit
         private MoveMode moveMode = MoveMode.None;
 
         /// <summary>
-        /// MoveType プロパティのシリアライズ用ラッパプロパティ。
+        /// MoveMode プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(MoveMode))]
-        private string MoveTypeString
+        private string MoveModeString
         {
             get { return this.MoveMode.ToString(); }
             set
@@ -328,18 +328,18 @@ namespace RucheHome.AviUtl.ExEdit
         private bool decelerating = false;
 
         /// <summary>
-        /// 追加パラメータ値を取得または設定する。
+        /// 移動フレーム間隔を取得または設定する。
         /// </summary>
         /// <remarks>
-        /// 移動モードが追加パラメータを持たないならば無視される。
+        /// 移動モードが移動フレーム間隔設定を持たないならば無視される。
         /// </remarks>
         [DataMember]
-        public int Parameter
+        public int Interval
         {
-            get { return this.parameter; }
-            set { this.SetProperty(ref this.parameter, value); }
+            get { return this.interval; }
+            set { this.SetProperty(ref this.interval, value); }
         }
-        private int parameter = 0;
+        private int interval = 0;
 
         #region Object のオーバライド
 
@@ -372,9 +372,9 @@ namespace RucheHome.AviUtl.ExEdit
 
                 result = $"{begin},{end},{id}{this.MoveMode.GetExtraId()}";
 
-                if (this.MoveMode.HasParameter() && this.Parameter != 0)
+                if (this.MoveMode.HasInterval() && this.Interval != 0)
                 {
-                    result += $",{this.Parameter}";
+                    result += $",{this.Interval}";
                 }
             }
 
