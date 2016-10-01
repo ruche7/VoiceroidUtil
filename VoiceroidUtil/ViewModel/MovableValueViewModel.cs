@@ -82,6 +82,21 @@ namespace VoiceroidUtil.ViewModel
         public IMovableValueConstants Constants => this.Value.Constants;
 
         /// <summary>
+        /// 値のフォーマット文字列を取得する。
+        /// </summary>
+        public string ValueFormatString => @"F" + this.Constants.Digits;
+
+        /// <summary>
+        /// 値のインクリメント量を取得する。
+        /// </summary>
+        public decimal ValueIncrement => 1 / (decimal)Math.Pow(10, this.Constants.Digits);
+
+        /// <summary>
+        /// 値の大インクリメント量を取得する。
+        /// </summary>
+        public decimal ValueLargeIncrement => this.ValueIncrement * 10;
+
+        /// <summary>
         /// 移動モードコレクションを取得する。
         /// </summary>
         public ReadOnlyCollection<MoveMode> MoveModes => TheMoveModes;
@@ -179,5 +194,31 @@ namespace VoiceroidUtil.ViewModel
                 .Select(selector)
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
+
+        #region デザイン用定義
+
+        /// <summary>
+        /// デザイン用の定数情報クラス。
+        /// </summary>
+        private class ConstantsForDesign : IMovableValueConstants
+        {
+            public int Digits => 1;
+            public decimal DefaultValue => 0;
+            public decimal MinValue => -1000;
+            public decimal MaxValue => 1000;
+            public decimal MinSliderValue => -256;
+            public decimal MaxSliderValue => 256;
+        }
+
+        /// <summary>
+        /// デザイン用のコンストラクタ。
+        /// </summary>
+        [Obsolete(@"Can use only design time.", true)]
+        public MovableValueViewModel()
+            : this(@"Name", new MovableValue<ConstantsForDesign>())
+        {
+        }
+
+        #endregion
     }
 }
