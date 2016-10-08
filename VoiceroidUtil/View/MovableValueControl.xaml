@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.MovableValueControl"
     mc:Ignorable="d"
@@ -64,10 +65,13 @@
                 <TextBlock Text="{Binding Name.Value}" TextAlignment="Center" Width="64" />
             </tk:DropDownButton.Content>
             <tk:DropDownButton.DropDownContent>
-                <StackPanel Orientation="Vertical">
-                    
-                </StackPanel>
+                <v:MovableValueMoveModeControl Margin="4" />
             </tk:DropDownButton.DropDownContent>
+            <tk:DropDownButton.ToolTip>
+                <TextBlock>
+                    移動モード : <Run Text="{Binding MoveModeName.Value, Mode=OneWay}" />
+                </TextBlock>
+            </tk:DropDownButton.ToolTip>
         </tk:DropDownButton>
 
         <!-- Column 3 -->

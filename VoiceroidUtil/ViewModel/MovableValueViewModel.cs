@@ -97,11 +97,6 @@ namespace VoiceroidUtil.ViewModel
         public decimal ValueLargeIncrement => this.ValueIncrement * 10;
 
         /// <summary>
-        /// 移動モードコレクションを取得する。
-        /// </summary>
-        public ReadOnlyCollection<MoveMode> MoveModes => TheMoveModes;
-
-        /// <summary>
         /// 名前を取得する。
         /// </summary>
         public ReactiveProperty<string> Name { get; }
@@ -155,13 +150,6 @@ namespace VoiceroidUtil.ViewModel
         /// 移動フレーム間隔を取得する。
         /// </summary>
         public ReactiveProperty<int> Interval { get; }
-
-        /// <summary>
-        /// 移動モードコレクション。
-        /// </summary>
-        private static ReadOnlyCollection<MoveMode> TheMoveModes =
-            new ReadOnlyCollection<MoveMode>(
-                Enum.GetValues(typeof(MoveMode)) as MoveMode[]);
 
         /// <summary>
         /// ラップ対象値を取得する。

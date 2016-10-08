@@ -141,6 +141,8 @@
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
+    <Compile Include="ExoCharaStyle.cs" />
+    <Compile Include="ExoConfig.cs" />
     <Compile Include="Messaging\AppSaveDirectorySelectionMessage.cs" />
     <Compile Include="Messaging\AppSaveDirectorySelectionMessageAction.cs" />
     <Compile Include="Messaging\DirectoryOpenMessage.cs" />
@@ -182,6 +184,9 @@
     <Compile Include="View\MainWindowConfigBehavior.cs" />
     <Compile Include="View\MovableValueControl.xaml.cs">
       <DependentUpon>MovableValueControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MovableValueMoveModeControl.xaml.cs">
+      <DependentUpon>MovableValueMoveModeControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\TalkTextReplaceConfigView.xaml.cs">
       <DependentUpon>TalkTextReplaceConfigView.xaml</DependentUpon>
@@ -234,6 +239,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MovableValueControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MovableValueMoveModeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
