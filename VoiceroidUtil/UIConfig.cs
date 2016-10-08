@@ -10,7 +10,6 @@ namespace VoiceroidUtil
     /// UI設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
     public class UIConfig : BindableConfigBase
     {
         /// <summary>

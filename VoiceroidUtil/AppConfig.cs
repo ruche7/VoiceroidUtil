@@ -10,8 +10,6 @@ namespace VoiceroidUtil
     /// アプリケーション設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(FileNameFormat))]
-    [KnownType(typeof(YmmCharaRelationSet))]
     public class AppConfig : BindableConfigBase
     {
         /// <summary>

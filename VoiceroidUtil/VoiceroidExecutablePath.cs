@@ -9,7 +9,6 @@ namespace VoiceroidUtil
     /// VOICEROIDの実行ファイルパスを保持するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
     public class VoiceroidExecutablePath : BindableConfigBase
     {
         /// <summary>

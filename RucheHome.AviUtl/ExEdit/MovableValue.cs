@@ -11,7 +11,6 @@ namespace RucheHome.AviUtl.ExEdit
     /// </summary>
     /// <typeparam name="TConstants">定数情報型。</typeparam>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(MoveMode))]
     public class MovableValue<TConstants> : BindableBase, IMovableValue
         where TConstants : IMovableValueConstants, new()
     {

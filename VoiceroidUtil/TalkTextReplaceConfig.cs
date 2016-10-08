@@ -11,7 +11,6 @@ namespace VoiceroidUtil
     /// トークテキスト置換設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(TalkTextReplaceItem))]
     public class TalkTextReplaceConfig : BindableConfigBase
     {
         /// <summary>
