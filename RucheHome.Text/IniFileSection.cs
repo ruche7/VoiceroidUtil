@@ -8,7 +8,6 @@ namespace RucheHome.Text
     /// INIファイルのセクションを表すクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(IniFileItem))]
     public class IniFileSection
     {
         /// <summary>
