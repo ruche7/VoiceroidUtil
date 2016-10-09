@@ -159,6 +159,7 @@ namespace VoiceroidUtil
             {
                 var chunk = reader.ReadUInt32();
                 var size = reader.ReadUInt32();
+                var offset = size;
 
                 if (chunk == FmtChunkId)
                 {
@@ -173,19 +174,17 @@ namespace VoiceroidUtil
                     this.BytesPerSecond = reader.ReadUInt32();
                     this.BlockAlign = reader.ReadUInt16();
                     this.BitsPerSample = reader.ReadUInt16();
+                    offset -= 16;
 
                     fmtFound = true;
-                    reader.BaseStream.Seek(size - 16, SeekOrigin.Current);
                 }
-                else
+                else if (chunk == DataChunkId)
                 {
-                    if (chunk == DataChunkId)
-                    {
-                        this.DataSize = size;
-                        dataFound = true;
-                    }
-                    reader.BaseStream.Seek(size, SeekOrigin.Current);
+                    this.DataSize = size;
+                    dataFound = true;
                 }
+
+                reader.BaseStream.Seek(offset, SeekOrigin.Current);
             }
 
             if (!fmtFound)

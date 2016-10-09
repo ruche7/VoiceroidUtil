@@ -33,30 +33,44 @@ namespace VoiceroidUtil.ViewModel
             // 内包 ViewModel のセットアップ
             this.SetupViewModels();
 
-            // テキストファイル作成設定有効化コマンド
-            this.IsTextFileForceMakingCommandVisible =
+            // ファイル作成設定有効化コマンド表示状態
+            this.IsFileMakingCommandVisible =
                 this.AppConfig
                     .Select(
                         config =>
                             (config == null) ?
                                 Observable.Return(false) :
-                                config
-                                    .ObserveProperty(c => c.IsTextFileForceMaking)
-                                    .Select(f => !f))
+                                new[]
+                                {
+                                    config
+                                        .ObserveProperty(c => c.IsTextFileForceMaking)
+                                        .Select(f => !f),
+                                    config
+                                        .ObserveProperty(c => c.IsExoFileMaking)
+                                        .Select(f => !f),
+                                }
+                                .CombineLatestValuesAreAllTrue())
                     .Switch()
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
-            this.TextFileForceMakingCommand =
+            this.IsFileMakingCommandInvisible =
+                this.IsFileMakingCommandVisible
+                    .Select(f => !f)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // ファイル作成設定有効化コマンド
+            this.FileMakingCommand =
                 new IObservable<bool>[]
                 {
                     this.CanModify,
-                    this.IsTextFileForceMakingCommandVisible,
+                    this.IsFileMakingCommandVisible,
                 }
                 .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand()
+                .ToReactiveCommand<string>()
                 .AddTo(this.CompositeDisposable);
-            this.TextFileForceMakingCommand
-                .Subscribe(_ => this.ExecuteTextFileForceMakingCommand())
+            this.FileMakingCommand
+                .Subscribe(target => this.ExecuteFileMakingCommand(target))
                 .AddTo(this.CompositeDisposable);
         }
 
@@ -64,7 +78,7 @@ namespace VoiceroidUtil.ViewModel
         /// アプリ設定を取得する。
         /// </summary>
         /// <remarks>
-        /// テキストファイル保存設定の操作にのみ用いる。
+        /// ファイル保存設定の操作にのみ用いる。
         /// </remarks>
         public ReactiveProperty<AppConfig> AppConfig { get; }
 
@@ -85,20 +99,25 @@ namespace VoiceroidUtil.ViewModel
             new TalkTextReplaceItemsViewModel();
 
         /// <summary>
-        /// テキストファイルのトークテキスト置換アイテムコレクション ViewModel を取得する。
+        /// 字幕用ファイルのトークテキスト置換アイテムコレクション ViewModel を取得する。
         /// </summary>
         public TalkTextReplaceItemsViewModel TextFileReplaceItems { get; } =
             new TalkTextReplaceItemsViewModel();
 
         /// <summary>
-        /// テキストファイル作成設定有効化コマンドを表示可能か否かを取得する。
+        /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsTextFileForceMakingCommandVisible { get; }
+        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
 
         /// <summary>
-        /// テキストファイル作成設定有効化コマンドを取得する。
+        /// ファイル作成設定有効化コマンドを非表示にすべきか否かを取得する。
         /// </summary>
-        public ReactiveCommand TextFileForceMakingCommand { get; }
+        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandInvisible { get; }
+
+        /// <summary>
+        /// ファイル作成設定有効化コマンドを取得する。
+        /// </summary>
+        public ReactiveCommand<string> FileMakingCommand { get; }
 
         /// <summary>
         /// 内包 ViewModel のセットアップを行う。
@@ -148,9 +167,15 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// TextFileForceMakingCommand の実処理を行う。
+        /// FileMakingCommand の実処理を行う。
         /// </summary>
-        private void ExecuteTextFileForceMakingCommand()
+        /// <param name="target">
+        /// コマンドパラメータ。
+        /// "text" ならテキストファイル作成設定を有効化する。
+        /// "exo" ならAviUtl拡張編集ファイル作成設定を有効化する。
+        /// それ以外なら両方を有効化する。
+        /// </param>
+        private void ExecuteFileMakingCommand(string target)
         {
             if (
                 !this.CanModify.Value ||
@@ -160,14 +185,26 @@ namespace VoiceroidUtil.ViewModel
             }
 
             // 設定有効化
+            var statusText = @"ファイル作成設定を有効にしました。";
             this.AppConfig.Value.IsTextFileForceMaking = true;
+            this.AppConfig.Value.IsExoFileMaking = true;
+            if (target == "exo")
+            {
+                this.AppConfig.Value.IsTextFileForceMaking = false;
+                statusText = @"AviUtl拡張編集" + statusText;
+            }
+            if (target == "text")
+            {
+                this.AppConfig.Value.IsExoFileMaking = false;
+                statusText = @"テキスト" + statusText;
+            }
 
             // ステータス更新
             this.LastStatus.Value =
                 new AppStatus
                 {
                     StatusType = AppStatusType.Success,
-                    StatusText = @"テキストファイル作成設定を有効にしました。",
+                    StatusText = statusText,
                 };
         }
     }
