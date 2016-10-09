@@ -136,7 +136,10 @@
                             IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
                             Margin="20,4,0,0" />
                         <CheckBox
-                            x:Name="Setting_IsTextClearing"
+                            Content="AviUtl拡張編集ファイル(.exo)を作成(_E)"
+                            IsChecked="{Binding Value.IsExoFileMaking}"
+                            Margin="0,4,0,0" />
+                        <CheckBox
                             Content="保存成功時に入力文をクリア(_C)"
                             IsChecked="{Binding Value.IsTextClearing}"
                             Margin="0,4,0,0" />

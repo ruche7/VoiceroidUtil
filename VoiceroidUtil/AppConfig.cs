@@ -132,6 +132,17 @@ namespace VoiceroidUtil
         private bool textFileUtf8 = true;
 
         /// <summary>
+        /// AviUtl拡張編集ファイルを作成するか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsExoFileMaking
+        {
+            get { return this.exoFileMaking; }
+            set { this.SetProperty(ref this.exoFileMaking, value); }
+        }
+        private bool exoFileMaking = false;
+
+        /// <summary>
         /// 音声保存成功時にテキストをクリアするか否かを取得または設定する。
         /// </summary>
         [DataMember]
