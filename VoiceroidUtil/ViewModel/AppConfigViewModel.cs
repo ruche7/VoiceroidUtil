@@ -180,6 +180,32 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private async Task ExecuteSelectSaveDirectoryCommand()
         {
+#if true
+            // メッセージ送信
+            var msg =
+                await this.Messenger.GetResponseAsync(
+                    new OpenFileDialogMessage
+                    {
+                        IsFolderPicker = true,
+                        Title = @"音声保存先の選択",
+                        InitialDirectory = this.Value.SaveDirectoryPath,
+                    });
+
+            // 選択された？
+            if (msg.Response != null)
+            {
+                // パスが正常かチェック
+                var status = FilePathUtil.CheckPathStatus(msg.Response);
+                if (status.StatusType == AppStatusType.None)
+                {
+                    // 正常ならアプリ設定を上書き
+                    this.Value.SaveDirectoryPath = msg.Response;
+                }
+
+                // ステータス更新
+                this.LastStatus.Value = status;
+            }
+#else
             // メッセージ送信
             var msg =
                 await this.Messenger.GetResponseAsync(
@@ -190,6 +216,7 @@ namespace VoiceroidUtil.ViewModel
             {
                 this.LastStatus.Value = msg.Response;
             }
+#endif
         }
 
         /// <summary>

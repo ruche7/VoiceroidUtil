@@ -13,7 +13,7 @@ namespace VoiceroidUtil.ViewModel
     /// 設定値を保持する ViewModel のベースクラス。
     /// </summary>
     /// <typeparam name="T">設定値の型。</typeparam>
-    public class ConfigViewModelBase<T> : Livet.ViewModel
+    public abstract class ConfigViewModelBase<T> : ViewModelBase
         where T : new()
     {
         /// <summary>
@@ -70,12 +70,7 @@ namespace VoiceroidUtil.ViewModel
             {
                 if (this.CanModify.Value)
                 {
-                    var old = this.Value;
-                    this.value = (value == null) ? (new T()) : value;
-                    if (!EqualityComparer<T>.Default.Equals(this.Value, old))
-                    {
-                        this.RaisePropertyChanged();
-                    }
+                    this.SetProperty(ref this.value, (value == null) ? (new T()) : value);
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// TalkTextReplaceItemCollection インスタンスの操作を提供する ViewModel クラス。
     /// </summary>
-    public class TalkTextReplaceItemsViewModel : Livet.ViewModel
+    public class TalkTextReplaceItemsViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。

@@ -69,8 +69,8 @@
         </i:EventTrigger> 
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.AppSaveDirectorySelectionMessageKey}">
-            <msg:AppSaveDirectorySelectionMessageAction />
+            MessageKey="{x:Static msg:MessageKeys.OpenFileDialogMessageKey}">
+            <msg:OpenFileDialogMessageAction />
         </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
