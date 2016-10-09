@@ -92,7 +92,12 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> X
         {
             get { return this.x; }
-            set { this.SetProperty(ref this.x, value ?? new MovableValue<CoordConst>()); }
+            set
+            {
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.x,
+                    value ?? new MovableValue<CoordConst>());
+            }
         }
         private MovableValue<CoordConst> x = new MovableValue<CoordConst>();
 
@@ -104,7 +109,12 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> Y
         {
             get { return this.y; }
-            set { this.SetProperty(ref this.y, value ?? new MovableValue<CoordConst>()); }
+            set
+            {
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.y,
+                    value ?? new MovableValue<CoordConst>());
+            }
         }
         private MovableValue<CoordConst> y = new MovableValue<CoordConst>();
 
@@ -116,7 +126,12 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> Z
         {
             get { return this.z; }
-            set { this.SetProperty(ref this.z, value ?? new MovableValue<CoordConst>()); }
+            set
+            {
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.z,
+                    value ?? new MovableValue<CoordConst>());
+            }
         }
         private MovableValue<CoordConst> z = new MovableValue<CoordConst>();
 
@@ -130,7 +145,9 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.scale; }
             set
             {
-                this.SetProperty(ref this.scale, value ?? new MovableValue<ScaleConst>());
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.scale,
+                    value ?? new MovableValue<ScaleConst>());
             }
         }
         private MovableValue<ScaleConst> scale = new MovableValue<ScaleConst>();
@@ -145,7 +162,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.transparency; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.transparency,
                     value ?? new MovableValue<TransparencyConst>());
             }
@@ -163,7 +180,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.rotation; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.rotation,
                     value ?? new MovableValue<RotationConst>());
             }

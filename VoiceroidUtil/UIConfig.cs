@@ -61,23 +61,9 @@ namespace VoiceroidUtil
             get { return this.voiceroidExecutablePathes; }
             set
             {
-                if (value != this.voiceroidExecutablePathes)
-                {
-                    // 古い値からイベントハンドラを削除
-                    if (this.voiceroidExecutablePathes != null)
-                    {
-                        this.voiceroidExecutablePathes.PropertyChanged -=
-                            this.OnVoiceroidExecutablePathesPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.voiceroidExecutablePathes,
-                        value ?? (new VoiceroidExecutablePathSet()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.voiceroidExecutablePathes.PropertyChanged +=
-                        this.OnVoiceroidExecutablePathesPropertyChanged;
-                }
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.voiceroidExecutablePathes,
+                    value ?? (new VoiceroidExecutablePathSet()));
             }
         }
         private VoiceroidExecutablePathSet voiceroidExecutablePathes = null;
@@ -128,17 +114,6 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.ymmConfigExpanded, value); }
         }
         private bool ymmConfigExpanded = true;
-
-        /// <summary>
-        /// VoiceroidExecutablePathes プロパティの内容変更時に呼び出される。
-        /// </summary>
-        private void OnVoiceroidExecutablePathesPropertyChanged(
-            object sender,
-            PropertyChangedEventArgs e)
-        {
-            // VoiceroidExecutablePathes プロパティ自身の変更通知を行う
-            this.RaisePropertyChanged(nameof(VoiceroidExecutablePathes));
-        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

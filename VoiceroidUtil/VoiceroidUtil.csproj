@@ -142,6 +142,8 @@
     <Compile Include="AppStatus.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
     <Compile Include="ExoCharaStyle.cs" />
+    <Compile Include="ExoCharaStyleSet.cs" />
+    <Compile Include="ExoCommonConfig.cs" />
     <Compile Include="ExoConfig.cs" />
     <Compile Include="Messaging\AppSaveDirectorySelectionMessage.cs" />
     <Compile Include="Messaging\AppSaveDirectorySelectionMessageAction.cs" />

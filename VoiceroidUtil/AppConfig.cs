@@ -174,23 +174,9 @@ namespace VoiceroidUtil
             get { return this.ymmCharaRelations; }
             set
             {
-                if (value != this.ymmCharaRelations)
-                {
-                    // 古い値からイベントハンドラを削除
-                    if (this.ymmCharaRelations != null)
-                    {
-                        this.ymmCharaRelations.PropertyChanged -=
-                            this.OnYmmCharaRelationsPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.ymmCharaRelations,
-                        value ?? (new YmmCharaRelationSet()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.ymmCharaRelations.PropertyChanged +=
-                        this.OnYmmCharaRelationsPropertyChanged;
-                }
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.ymmCharaRelations,
+                    value ?? (new YmmCharaRelationSet()));
             }
         }
         private YmmCharaRelationSet ymmCharaRelations = null;
@@ -205,17 +191,6 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
         }
         private bool ymmAddButtonClicking = true;
-
-        /// <summary>
-        /// YmmCharaRelations プロパティの内容変更時に呼び出される。
-        /// </summary>
-        private void OnYmmCharaRelationsPropertyChanged(
-            object sender,
-            PropertyChangedEventArgs e)
-        {
-            // YmmCharaRelations プロパティ自身の変更通知を行う
-            this.RaisePropertyChanged(nameof(YmmCharaRelations));
-        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
