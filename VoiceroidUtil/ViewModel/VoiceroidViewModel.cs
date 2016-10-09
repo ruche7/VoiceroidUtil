@@ -22,7 +22,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// VOICEROIDの選択とその操作を提供する ViewModel クラス。
     /// </summary>
-    public class VoiceroidViewModel : Livet.ViewModel
+    public class VoiceroidViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。

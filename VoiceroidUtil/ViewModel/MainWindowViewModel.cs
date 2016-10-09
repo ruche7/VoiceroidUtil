@@ -10,7 +10,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// メインウィンドウの ViewModel クラス。
     /// </summary>
-    public class MainWindowViewModel : Livet.ViewModel
+    public class MainWindowViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。

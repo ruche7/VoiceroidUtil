@@ -11,7 +11,8 @@ namespace RucheHome.AviUtl.ExEdit
     /// </summary>
     /// <typeparam name="TConstants">定数情報型。</typeparam>
     [DataContract(Namespace = "")]
-    public class MovableValue<TConstants> : BindableBase, IMovableValue
+    public class MovableValue<TConstants>
+        : BindableBase, IMovableValue, IEquatable<MovableValue<TConstants>>
         where TConstants : IMovableValueConstants, new()
     {
         #region 静的定義群
@@ -343,6 +344,23 @@ namespace RucheHome.AviUtl.ExEdit
         #region Object のオーバライド
 
         /// <summary>
+        /// このオブジェクトと他のオブジェクトが等価であるか否かを調べる。
+        /// </summary>
+        /// <param name="obj">調べるオブジェクト。</param>
+        /// <returns>等価ならば true 。そうでなければ false 。</returns>
+        public override bool Equals(object obj) =>
+            this.Equals(obj as MovableValue<TConstants>);
+
+        /// <summary>
+        /// このオブジェクトのハッシュコード値を取得する。
+        /// </summary>
+        /// <returns>ハッシュコード値。</returns>
+        public override int GetHashCode() =>
+            this.Begin.GetHashCode() ^
+            this.End.GetHashCode() ^
+            this.MoveMode.GetHashCode();
+
+        /// <summary>
         /// 拡張編集オブジェクトファイルにおける文字列表現値を取得する。
         /// </summary>
         /// <returns>拡張編集オブジェクトファイルにおける文字列表現値。</returns>
@@ -379,6 +397,24 @@ namespace RucheHome.AviUtl.ExEdit
 
             return result;
         }
+
+        #endregion
+
+        #region IEquatable<MovableValue<TConstants>> の実装
+
+        /// <summary>
+        /// このオブジェクトと他のオブジェクトが等価であるか否かを調べる。
+        /// </summary>
+        /// <param name="other">調べるオブジェクト。</param>
+        /// <returns>等価ならば true 。そうでなければ false 。</returns>
+        public bool Equals(MovableValue<TConstants> other) =>
+            other != null &&
+            this.Begin == other.Begin &&
+            this.End == other.End &&
+            this.MoveMode == other.MoveMode &&
+            this.IsAccelerating == other.IsAccelerating &&
+            this.IsDecelerating == other.IsDecelerating &&
+            this.Interval == other.Interval;
 
         #endregion
     }

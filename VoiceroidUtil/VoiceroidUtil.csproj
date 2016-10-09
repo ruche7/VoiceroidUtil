@@ -145,11 +145,12 @@
     <Compile Include="ExoCharaStyleSet.cs" />
     <Compile Include="ExoCommonConfig.cs" />
     <Compile Include="ExoConfig.cs" />
-    <Compile Include="Messaging\AppSaveDirectorySelectionMessage.cs" />
-    <Compile Include="Messaging\AppSaveDirectorySelectionMessageAction.cs" />
+    <Compile Include="ExoTextStyleTemplate.cs" />
     <Compile Include="Messaging\DirectoryOpenMessage.cs" />
     <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
     <Compile Include="Messaging\MessageKeys.cs" />
+    <Compile Include="Messaging\OpenFileDialogMessage.cs" />
+    <Compile Include="Messaging\OpenFileDialogMessageAction.cs" />
     <Compile Include="Messaging\VoiceroidAction.cs" />
     <Compile Include="Messaging\VoiceroidActionMessage.cs" />
     <Compile Include="Messaging\VoiceroidActionMessageAction.cs" />
@@ -162,11 +163,14 @@
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
     <Compile Include="ViewModel\ConfigViewModelBase.cs" />
+    <Compile Include="ViewModel\ExoCharaStyleViewModel.cs" />
+    <Compile Include="ViewModel\ExoConfigViewModel.cs" />
     <Compile Include="ViewModel\MovableValueViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceConfigViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceItemsViewModel.cs" />
     <Compile Include="ViewModel\UIConfigViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\VoiceroidViewModel.cs" />
     <Compile Include="View\AppStatusBar.xaml.cs">
       <DependentUpon>AppStatusBar.xaml</DependentUpon>

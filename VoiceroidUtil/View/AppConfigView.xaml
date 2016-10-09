@@ -136,7 +136,7 @@
                             IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
                             Margin="20,4,0,0" />
                         <CheckBox
-                            Content="AviUtl拡張編集ファイル(.exo)を作成(_E)"
+                            Content="AviUtl拡張編集ファイル(.exo)を作成(_V)"
                             IsChecked="{Binding Value.IsExoFileMaking}"
                             Margin="0,4,0,0" />
                         <CheckBox

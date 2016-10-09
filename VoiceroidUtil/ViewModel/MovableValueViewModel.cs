@@ -13,7 +13,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// IMovableValue オブジェクトをラップする ViewModel クラス。
     /// </summary>
-    public class MovableValueViewModel : Livet.ViewModel
+    public class MovableValueViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -46,7 +46,9 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             // ラップ対象値
-            this.Value = value;
+            this.Base =
+                new ReactiveProperty<IMovableValue>(value)
+                    .AddTo(this.CompositeDisposable);
 
             // ラップ対象値の各プロパティラッパ群
             this.Begin = this.MakeWrappingProperty(v => v.Begin);
@@ -79,7 +81,7 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// 定数情報を取得する。
         /// </summary>
-        public IMovableValueConstants Constants => this.Value.Constants;
+        public IMovableValueConstants Constants => this.Base.Value.Constants;
 
         /// <summary>
         /// 値のフォーマット文字列を取得する。
@@ -152,9 +154,23 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveProperty<int> Interval { get; }
 
         /// <summary>
+        /// ラップ対象値を差し替える。
+        /// </summary>
+        /// <param name="value">差し替える値。</param>
+        public void Reset(IMovableValue value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            this.Base.Value = value;
+        }
+
+        /// <summary>
         /// ラップ対象値を取得する。
         /// </summary>
-        private IMovableValue Value { get; }
+        private ReactiveProperty<IMovableValue> Base { get; }
 
         /// <summary>
         /// ラップ対象値のプロパティをラップする ReactiveProperty{T} 値を作成する。
@@ -165,8 +181,10 @@ namespace VoiceroidUtil.ViewModel
         private ReactiveProperty<T> MakeWrappingProperty<T>(
             Expression<Func<IMovableValue, T>> selector)
             =>
-            this.Value
-                .ToReactivePropertyAsSynchronized(selector)
+            this.Base
+                .Select(v => v.ObserveProperty(selector))
+                .Switch()
+                .ToReactiveProperty()
                 .AddTo(this.CompositeDisposable);
 
         /// <summary>
