@@ -88,7 +88,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.playPosition; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.playPosition,
                     value ?? new MovableValue<PlayPositionConst>());
             }
@@ -106,7 +106,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.playSpeed; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.playSpeed,
                     value ?? new MovableValue<PlaySpeedConst>());
             }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows.Data;
 using RucheHome.Util;
@@ -34,26 +32,12 @@ namespace VoiceroidUtil
             get { return this.voiceReplaceItems; }
             set
             {
-                if (value != this.voiceReplaceItems)
+                var v = value ?? new TalkTextReplaceItemCollection();
+                if (v != this.voiceReplaceItems)
                 {
-                    // 古い値からイベントハンドラを削除
-                    if (this.voiceReplaceItems != null)
-                    {
-                        this.voiceReplaceItems.CollectionChanged -=
-                            this.OnVoiceCollectionChanged;
-                        this.voiceReplaceItems.ItemPropertyChanged -=
-                            this.OnVoiceItemPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.voiceReplaceItems,
-                        value ?? (new TalkTextReplaceItemCollection()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.voiceReplaceItems.CollectionChanged +=
-                        this.OnVoiceCollectionChanged;
-                    this.voiceReplaceItems.ItemPropertyChanged +=
-                        this.OnVoiceItemPropertyChanged;
+                    this.RemoveBindableCollectionEventChain(this.voiceReplaceItems);
+                    this.AddBindableCollectionEventChain(v);
+                    this.SetProperty(ref this.voiceReplaceItems, v);
 
                     // 複数スレッドからのアクセスを許可
                     BindingOperations.EnableCollectionSynchronization(
@@ -73,26 +57,12 @@ namespace VoiceroidUtil
             get { return this.textFileReplaceItems; }
             set
             {
-                if (value != this.textFileReplaceItems)
+                var v = value ?? new TalkTextReplaceItemCollection();
+                if (v != this.textFileReplaceItems)
                 {
-                    // 古い値からイベントハンドラを削除
-                    if (this.textFileReplaceItems != null)
-                    {
-                        this.textFileReplaceItems.CollectionChanged -=
-                            this.OnTextFileCollectionChanged;
-                        this.textFileReplaceItems.ItemPropertyChanged -=
-                            this.OnTextFileItemPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.textFileReplaceItems,
-                        value ?? (new TalkTextReplaceItemCollection()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.textFileReplaceItems.CollectionChanged +=
-                        this.OnTextFileCollectionChanged;
-                    this.textFileReplaceItems.ItemPropertyChanged +=
-                        this.OnTextFileItemPropertyChanged;
+                    this.RemoveBindableCollectionEventChain(this.textFileReplaceItems);
+                    this.AddBindableCollectionEventChain(v);
+                    this.SetProperty(ref this.textFileReplaceItems, v);
 
                     // 複数スレッドからのアクセスを許可
                     BindingOperations.EnableCollectionSynchronization(
@@ -102,44 +72,6 @@ namespace VoiceroidUtil
             }
         }
         private TalkTextReplaceItemCollection textFileReplaceItems = null;
-
-        /// <summary>
-        /// VoiceReplaceItems プロパティのコレクション変更時に呼び出される。
-        /// </summary>
-        private void OnVoiceCollectionChanged(
-            object sender,
-            NotifyCollectionChangedEventArgs e)
-        {
-            this.RaisePropertyChanged(nameof(VoiceReplaceItems));
-        }
-
-        /// <summary>
-        /// VoiceReplaceItems プロパティのコレクション要素変更時に呼び出される。
-        /// </summary>
-        private void OnVoiceItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            this.RaisePropertyChanged(nameof(VoiceReplaceItems));
-        }
-
-        /// <summary>
-        /// TextFileReplaceItems プロパティのコレクション変更時に呼び出される。
-        /// </summary>
-        private void OnTextFileCollectionChanged(
-            object sender,
-            NotifyCollectionChangedEventArgs e)
-        {
-            this.RaisePropertyChanged(nameof(TextFileReplaceItems));
-        }
-
-        /// <summary>
-        /// TextFileReplaceItems プロパティのコレクション要素変更時に呼び出される。
-        /// </summary>
-        private void OnTextFileItemPropertyChanged(
-            object sender,
-            PropertyChangedEventArgs e)
-        {
-            this.RaisePropertyChanged(nameof(TextFileReplaceItems));
-        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

@@ -169,7 +169,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.fontSize; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.fontSize,
                     value ?? new MovableValue<FontSizeConst>());
             }
@@ -186,7 +186,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.textSpeed; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.textSpeed,
                     value ?? new MovableValue<TextSpeedConst>());
             }

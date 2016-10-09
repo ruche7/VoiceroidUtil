@@ -69,7 +69,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.volume; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.volume,
                     value ?? new MovableValue<VolumeConst>());
             }
@@ -86,7 +86,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.balance; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.balance,
                     value ?? new MovableValue<BalanceConst>());
             }
