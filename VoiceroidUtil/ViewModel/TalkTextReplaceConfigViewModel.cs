@@ -61,17 +61,14 @@ namespace VoiceroidUtil.ViewModel
 
             // ファイル作成設定有効化コマンド
             this.FileMakingCommand =
-                new IObservable<bool>[]
-                {
-                    this.CanModify,
-                    this.IsFileMakingCommandVisible,
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand<string>()
-                .AddTo(this.CompositeDisposable);
-            this.FileMakingCommand
-                .Subscribe(target => this.ExecuteFileMakingCommand(target))
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<string>(
+                    this.ExecuteFileMakingCommand,
+                    new IObservable<bool>[]
+                    {
+                        this.CanModify,
+                        this.IsFileMakingCommandVisible,
+                    }
+                    .CombineLatestValuesAreAllTrue());
         }
 
         /// <summary>

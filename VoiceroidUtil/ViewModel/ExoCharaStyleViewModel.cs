@@ -12,10 +12,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
+using VoiceroidUtil.Messaging;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -49,6 +51,39 @@ namespace VoiceroidUtil.ViewModel
             // 内包 ViewModel のセットアップ
             this.SetupViewModels();
 
+            // 選択中テキストスタイル雛形インデックス
+            this.SelectedTemplateIndex =
+                (new ReactiveProperty<int>(-1)).AddTo(this.CompositeDisposable);
+
+            // 直近のテキストスタイル雛形ファイルパス
+            this.LastTemplateFilePath =
+                (new ReactiveProperty<string>()).AddTo(this.CompositeDisposable);
+
+            // テキストスタイル雛形用ファイルロード関連の非同期実行コマンドヘルパー作成
+            // どちらか一方の実行中は両方実行不可とする
+            var selectTemplateFileCommandExecuter =
+                new AsyncCommandExecuter(this.ExecuteSelectTemplateFileCommand)
+                    .AddTo(this.CompositeDisposable);
+            var dropTemplateFileCommandExecuter =
+                new AsyncCommandExecuter<DragEventArgs>(
+                    this.ExecuteDropTemplateFileCommand)
+                    .AddTo(this.CompositeDisposable);
+
+            // テキストスタイル雛形用ファイル選択コマンド
+            this.SelectTemplateFileCommand =
+                this.MakeAsyncCommand(
+                    selectTemplateFileCommandExecuter,
+                    dropTemplateFileCommandExecuter.ObserveExecutable());
+
+            // テキストスタイル雛形用ファイルドラッグオーバーコマンド
+            this.DragOverTemplateFileCommand =
+                this.MakeCommand<DragEventArgs>(this.ExecuteDragOverTemplateFileCommand);
+
+            // テキストスタイル雛形用ファイルドロップコマンド
+            this.DropTemplateFileCommand =
+                this.MakeAsyncCommand(
+                    dropTemplateFileCommandExecuter,
+                    selectTemplateFileCommandExecuter.ObserveExecutable());
         }
 
         /// <summary>
@@ -138,18 +173,34 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// テキストスタイル雛形コレクションを取得する。
         /// </summary>
-        public ReadOnlyCollection<ExoTextStyleTemplate> TextStyleTemplates
+        public ReadOnlyCollection<ExoTextStyleTemplate> Templates
         {
-            get { return this.textStyleTemplates; }
+            get { return this.templates; }
             private set
             {
                 this.SetProperty(
-                    ref this.textStyleTemplates,
+                    ref this.templates,
                     value ?? (new List<ExoTextStyleTemplate>()).AsReadOnly());
+
+                if (this.Templates.Count > 0 && this.SelectedTemplateIndex.Value < 0)
+                {
+                    // 強制的に選択状態にする
+                    this.SelectedTemplateIndex.Value = 0;
+                }
             }
         }
-        public ReadOnlyCollection<ExoTextStyleTemplate> textStyleTemplates =
+        public ReadOnlyCollection<ExoTextStyleTemplate> templates =
             (new List<ExoTextStyleTemplate>()).AsReadOnly();
+
+        /// <summary>
+        /// 選択中のテキストスタイル雛形インデックスを取得する。
+        /// </summary>
+        public ReactiveProperty<int> SelectedTemplateIndex { get; }
+
+        /// <summary>
+        /// 直近で読み取り成功したテキストスタイル雛形ファイルパスを取得する。
+        /// </summary>
+        public ReactiveProperty<string> LastTemplateFilePath { get; }
 
         /// <summary>
         /// テキストスタイル雛形用ファイル選択コマンドを取得する。
@@ -207,13 +258,8 @@ namespace VoiceroidUtil.ViewModel
             foreach (var item in layerItems)
             {
                 var render = item.GetComponent<RenderComponent>();
-                if (render == null)
-                {
-                    continue;
-                }
-
                 var text = item.GetComponent<TextComponent>();
-                if (text == null)
+                if (render == null || text == null)
                 {
                     continue;
                 }
@@ -315,7 +361,8 @@ namespace VoiceroidUtil.ViewModel
             var name =
                 info.GetCustomAttribute<ExoFileItemAttribute>(true)?.Name ?? info.Name;
 
-            var result = new MovableValueViewModel(name, value);
+            var result =
+                (new MovableValueViewModel(name, value)).AddTo(this.CompositeDisposable);
 
             // プロパティ値変更時に ViewModel 内部値を差し替える
             componentObservable
@@ -384,6 +431,9 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
+            // 読み取り成功時点で直近ファイルパス上書き
+            this.LastTemplateFilePath.Value = Path.GetFullPath(filePath);
+
             // 雛形作成
             var temps =
                 await Task.Run(
@@ -397,7 +447,41 @@ namespace VoiceroidUtil.ViewModel
             }
 
             // プロパティ上書き
-            this.TextStyleTemplates = temps.AsReadOnly();
+            this.SelectedTemplateIndex.Value = -1;
+            this.Templates = temps.AsReadOnly();
+        }
+
+        /// <summary>
+        /// SelectTemplateFileCommand の実処理を行う。
+        /// </summary>
+        private async Task ExecuteSelectTemplateFileCommand()
+        {
+            // メッセージ送信
+            var msg =
+                await this.Messenger.GetResponseAsync(
+                    new OpenFileDialogMessage
+                    {
+                        Title = @"テキスト雛形ファイルの選択",
+                        InitialDirectory =
+                            (this.LastTemplateFilePath.Value == null) ?
+                                null :
+                                Path.GetDirectoryName(this.LastTemplateFilePath.Value),
+                        Filters =
+                            new List<CommonFileDialogFilter>
+                            {
+                                new CommonFileDialogFilter(
+                                    @"AviUtl拡張編集オブジェクトファイル",
+                                    @"exo"),
+                                new CommonFileDialogFilter(@"すべてのファイル", @"*"),
+                            },
+                    });
+
+            // 選択された？
+            if (msg.Response != null)
+            {
+                // 雛形更新
+                await this.UpdateTextStyleTemplates(msg.Response);
+            }
         }
 
         /// <summary>
