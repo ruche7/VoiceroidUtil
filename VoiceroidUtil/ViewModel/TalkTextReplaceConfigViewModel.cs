@@ -188,9 +188,9 @@ namespace VoiceroidUtil.ViewModel
             if (target == "exo")
             {
                 this.AppConfig.Value.IsTextFileForceMaking = false;
-                statusText = @"AviUtl拡張編集" + statusText;
+                statusText = @".exo " + statusText;
             }
-            if (target == "text")
+            else if (target == "text")
             {
                 this.AppConfig.Value.IsExoFileMaking = false;
                 statusText = @"テキスト" + statusText;
