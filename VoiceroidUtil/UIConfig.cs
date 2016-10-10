@@ -116,6 +116,38 @@ namespace VoiceroidUtil
         private bool ymmConfigExpanded = true;
 
         /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で選択中の
+        /// VOICEROID識別IDを取得または設定する。
+        /// </summary>
+        public VoiceroidId ExoCharaVoiceroidId
+        {
+            get { return this.exoCharaVoiceroidId; }
+            set
+            {
+                this.SetProperty(
+                    ref this.exoCharaVoiceroidId,
+                    Enum.IsDefined(value.GetType(), value) ?
+                        value : VoiceroidId.YukariEx);
+            }
+        }
+        private VoiceroidId exoCharaVoiceroidId = VoiceroidId.YukariEx;
+
+        /// <summary>
+        /// ExoCharaVoiceroidId プロパティのシリアライズ用ラッパプロパティ。
+        /// </summary>
+        [DataMember(Name = nameof(ExoCharaVoiceroidId))]
+        private string ExoCharaVoiceroidIdString
+        {
+            get { return this.ExoCharaVoiceroidId.ToString(); }
+            set
+            {
+                VoiceroidId id;
+                this.ExoCharaVoiceroidId =
+                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
+            }
+        }
+
+        /// <summary>
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
