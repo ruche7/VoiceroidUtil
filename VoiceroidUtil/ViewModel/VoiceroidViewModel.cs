@@ -107,14 +107,14 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
 
-            // コマンド実行用
-            this.RunExitCommandExecuter =
+            // 非同期実行コマンドヘルパー
+            var runExitCommandExecuter =
                 new AsyncCommandExecuter(this.ExecuteRunExitCommand)
                     .AddTo(this.CompositeDisposable);
-            this.PlayStopCommandExecuter =
+            var playStopCommandExecuter =
                 new AsyncCommandExecuter(this.ExecutePlayStopCommand)
                     .AddTo(this.CompositeDisposable);
-            this.SaveCommandExecuter =
+            var saveCommandExecuter =
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
                     () => this.TalkTextReplaceConfig.Value,
@@ -122,7 +122,7 @@ namespace VoiceroidUtil.ViewModel
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
                     .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommandExecuter =
+            var dropTalkTextFileCommandExecuter =
                 new AsyncCommandExecuter<DragEventArgs>(
                     this.ExecuteDropTalkTextFileCommand)
                     .AddTo(this.CompositeDisposable);
@@ -131,10 +131,10 @@ namespace VoiceroidUtil.ViewModel
             this.IsIdle =
                 new[]
                 {
-                    this.RunExitCommandExecuter.ObserveExecutable(),
-                    this.PlayStopCommandExecuter.ObserveExecutable(),
-                    this.SaveCommandExecuter.ObserveExecutable(),
-                    this.DropTalkTextFileCommandExecuter.ObserveExecutable(),
+                    runExitCommandExecuter.ObserveExecutable(),
+                    playStopCommandExecuter.ObserveExecutable(),
+                    saveCommandExecuter.ObserveExecutable(),
+                    dropTalkTextFileCommandExecuter.ObserveExecutable(),
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty()
@@ -142,85 +142,68 @@ namespace VoiceroidUtil.ViewModel
 
             // 実行/終了コマンド
             this.RunExitCommand =
-                new[]
-                {
-                    this.IsIdle,
-                    this.IsProcessStartup.Select(f => !f),
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.RunExitCommand
-                .Subscribe(this.RunExitCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(
+                    runExitCommandExecuter,
+                    new[]
+                    {
+                        this.IsIdle,
+                        this.IsProcessStartup.Select(f => !f),
+                        this.IsProcessSaving.Select(f => !f),
+                        this.IsProcessDialogShowing.Select(f => !f),
+                    }
+                    .CombineLatestValuesAreAllTrue());
 
             // 再生/停止コマンド
             this.PlayStopCommand =
-                new[]
-                {
-                    this.IsIdle,
-                    this.IsProcessRunning,
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
+                this.MakeAsyncCommand(
+                    playStopCommandExecuter,
                     new[]
                     {
-                        this.IsProcessPlaying,
-                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                        this.IsIdle,
+                        this.IsProcessRunning,
+                        this.IsProcessSaving.Select(f => !f),
+                        this.IsProcessDialogShowing.Select(f => !f),
+                        new[]
+                        {
+                            this.IsProcessPlaying,
+                            this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                        }
+                        .CombineLatest(flags => flags.Any(f => f)),
                     }
-                    .CombineLatest(flags => flags.Any(f => f)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.PlayStopCommand
-                .Subscribe(this.PlayStopCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    .CombineLatestValuesAreAllTrue());
 
             // 保存コマンド
             this.SaveCommand =
-                new[]
-                {
-                    this.IsIdle,
-                    this.IsProcessRunning,
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
-                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.SaveCommand
-                .Subscribe(this.SaveCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(
+                    saveCommandExecuter,
+                    new[]
+                    {
+                        this.IsIdle,
+                        this.IsProcessRunning,
+                        this.IsProcessSaving.Select(f => !f),
+                        this.IsProcessDialogShowing.Select(f => !f),
+                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                    }
+                    .CombineLatestValuesAreAllTrue());
 
             // トークテキスト用ファイルドラッグオーバーコマンド
             this.DragOverTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DragOverTalkTextFileCommand
-                .Subscribe(this.ExecuteDragOverTalkTextFileCommand)
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<DragEventArgs>(
+                    this.ExecuteDragOverTalkTextFileCommand,
+                    this.IsIdle);
 
             // トークテキスト用ファイルドロップコマンド
             this.DropTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommand
-                .Subscribe(this.DropTalkTextFileCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(dropTalkTextFileCommandExecuter, this.IsIdle);
 
             // プロセス更新タイマ設定＆開始
-            this.ProcessUpdateTimer =
+            var processUpdateTimer =
                 new ReactiveTimer(TimeSpan.FromMilliseconds(100))
                     .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer
+            processUpdateTimer
                 .Subscribe(_ => this.ProcessFactory.Update())
                 .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer.Start();
+            processUpdateTimer.Start();
         }
 
         /// <summary>
@@ -364,34 +347,6 @@ namespace VoiceroidUtil.ViewModel
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
-
-        /// <summary>
-        /// VOICEROIDプロセス更新タイマを取得する。
-        /// </summary>
-        private ReactiveTimer ProcessUpdateTimer { get; }
-
-        /// <summary>
-        /// 実行/終了コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter RunExitCommandExecuter { get; }
-
-        /// <summary>
-        /// 再生/停止コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter PlayStopCommandExecuter { get; }
-
-        /// <summary>
-        /// 保存コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private SaveCommandExecuter SaveCommandExecuter { get; }
-
-        /// <summary>
-        /// トークテキスト用ファイルドロップコマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter<DragEventArgs> DropTalkTextFileCommandExecuter
-        {
-            get;
-        }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスのプロパティ変更を監視する
