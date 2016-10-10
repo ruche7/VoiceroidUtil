@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -50,10 +47,6 @@ namespace VoiceroidUtil.ViewModel
 
             // 内包 ViewModel のセットアップ
             this.SetupViewModels();
-
-            // 選択中テキストスタイル雛形インデックス
-            this.SelectedTemplateIndex =
-                (new ReactiveProperty<int>(-1)).AddTo(this.CompositeDisposable);
 
             // 直近のテキストスタイル雛形ファイルパス
             this.LastTemplateFilePath =
@@ -182,10 +175,10 @@ namespace VoiceroidUtil.ViewModel
                     ref this.templates,
                     value ?? (new List<ExoTextStyleTemplate>()).AsReadOnly());
 
-                if (this.Templates.Count > 0 && this.SelectedTemplateIndex.Value < 0)
+                if (this.Templates.Count > 0 && this.SelectedTemplateIndex < 0)
                 {
                     // 強制的に選択状態にする
-                    this.SelectedTemplateIndex.Value = 0;
+                    this.SelectedTemplateIndex = 0;
                 }
             }
         }
@@ -195,7 +188,12 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// 選択中のテキストスタイル雛形インデックスを取得する。
         /// </summary>
-        public ReactiveProperty<int> SelectedTemplateIndex { get; }
+        public int SelectedTemplateIndex
+        {
+            get { return this.selectedTemplateIndex; }
+            set { this.SetProperty(ref this.selectedTemplateIndex, value); }
+        }
+        private int selectedTemplateIndex = -1;
 
         /// <summary>
         /// 直近で読み取り成功したテキストスタイル雛形ファイルパスを取得する。
@@ -447,8 +445,16 @@ namespace VoiceroidUtil.ViewModel
             }
 
             // プロパティ上書き
-            this.SelectedTemplateIndex.Value = -1;
+            this.SelectedTemplateIndex = (this.SelectedTemplateIndex < 0) ? -1 : 0;
             this.Templates = temps.AsReadOnly();
+
+            this.SetLastStatus(
+                AppStatusType.Success,
+                @"ファイルの読み取りに成功しました。",
+                subStatusText:
+                    @"テキスト設定を " +
+                    this.Templates.Count +
+                    @" 件ロードしました。");
         }
 
         /// <summary>
@@ -461,7 +467,7 @@ namespace VoiceroidUtil.ViewModel
                 await this.Messenger.GetResponseAsync(
                     new OpenFileDialogMessage
                     {
-                        Title = @"テキスト雛形ファイルの選択",
+                        Title = @"テキスト設定用ファイルの選択",
                         InitialDirectory =
                             (this.LastTemplateFilePath.Value == null) ?
                                 null :
