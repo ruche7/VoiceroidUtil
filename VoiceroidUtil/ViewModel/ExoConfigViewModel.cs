@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
+using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -29,10 +30,12 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<UIConfig>(new UIConfig())
                     .AddTo(this.CompositeDisposable);
 
+            // ViewModel のセットアップ
+            this.SetupViewModel();
+
             // 直近のアプリ状態値
-            this.LastStatus =
-                new ReactiveProperty<IAppStatus>(new AppStatus())
-                    .AddTo(this.CompositeDisposable);
+            // ViewModel から受け取る
+            this.LastStatus = this.CharaStyle.LastStatus;
         }
 
         /// <summary>
@@ -49,8 +52,42 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveProperty<UIConfig> UIConfig { get; }
 
         /// <summary>
+        /// キャラ別スタイル設定 ViewModel を取得する。
+        /// </summary>
+        public ExoCharaStyleViewModel CharaStyle { get; private set; }
+
+        /// <summary>
         /// 直近のアプリ状態値を取得する。
         /// </summary>
-        public ReactiveProperty<IAppStatus> LastStatus { get; }
+        public IReadOnlyReactiveProperty<IAppStatus> LastStatus { get; }
+
+        /// <summary>
+        /// 内包 ViewModel のセットアップを行う。
+        /// </summary>
+        private void SetupViewModel()
+        {
+            this.CharaStyle =
+                new ExoCharaStyleViewModel(
+                    this.Value.CharaStyles[this.UIConfig.Value.ExoCharaVoiceroidId]);
+
+            // UI設定変更時に選択キャラ反映
+            this.UIConfig
+                .Select(
+                    config =>
+                        (config == null) ?
+                            Observable.Empty<VoiceroidId>() :
+                            config.ObserveProperty(c => c.ExoCharaVoiceroidId))
+                .Switch()
+                .Subscribe(id => this.CharaStyle.Value = this.Value.CharaStyles[id])
+                .AddTo(this.CompositeDisposable);
+
+            // 選択キャラ変更時にUI設定へ反映
+            this.CharaStyle
+                .ObserveProperty(vm => vm.Value)
+                .Where(_ => this.UIConfig.Value != null)
+                .Select(cs => cs.VoiceroidId)
+                .Subscribe(id => this.UIConfig.Value.ExoCharaVoiceroidId = id)
+                .AddTo(this.CompositeDisposable);
+        }
     }
 }
