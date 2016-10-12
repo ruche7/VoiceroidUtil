@@ -4,14 +4,14 @@ using System.Windows.Controls;
 namespace VoiceroidUtil.View
 {
     /// <summary>
-    /// MovableValue を設定するユーザコントロールクラス。
+    /// ExoCharaStyle 設定ビューを保持するユーザコントロールクラス。
     /// </summary>
-    public partial class MovableValueControl : UserControl
+    public partial class ExoCharaStyleView : UserControl
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MovableValueControl()
+        public ExoCharaStyleView()
         {
             InitializeComponent();
         }

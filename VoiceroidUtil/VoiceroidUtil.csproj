@@ -184,6 +184,9 @@
     <Compile Include="View\AppConfigView.xaml.cs">
       <DependentUpon>AppConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ExoCharaStyleView.xaml.cs">
+      <DependentUpon>ExoCharaStyleView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -222,6 +225,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="resources\CommonStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ExoCharaStyleView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

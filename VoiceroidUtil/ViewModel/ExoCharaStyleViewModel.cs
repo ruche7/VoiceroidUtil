@@ -14,6 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
+using RucheHome.Voiceroid;
 using RucheHome.Windows.Media;
 using VoiceroidUtil.Messaging;
 
@@ -312,6 +313,12 @@ namespace VoiceroidUtil.ViewModel
                     this.MakeMovableValueViewModel(render, renderObs, r => r.Transparency);
                 this.Rotation =
                     this.MakeMovableValueViewModel(render, renderObs, r => r.Rotation);
+
+                // X, Y, Z の移動モード関連値は共通なので直近の設定値で上書き
+                this.SynchronizeXYZProperty(c => c.MoveMode);
+                this.SynchronizeXYZProperty(c => c.IsAccelerating);
+                this.SynchronizeXYZProperty(c => c.IsDecelerating);
+                this.SynchronizeXYZProperty(c => c.Interval);
             }
 
             var text = this.Value.Text;
@@ -376,6 +383,36 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             return result;
+        }
+
+        /// <summary>
+        /// X, Y, Z のプロパティ値を同期させるための設定を行う。
+        /// </summary>
+        /// <typeparam name="T">プロパティ型。</typeparam>
+        /// <param name="propertyGetter">プロパティ取得デリゲート。</param>
+        private void SynchronizeXYZProperty<T>(
+            Func<MovableValueViewModel, IReactiveProperty<T>> propertyGetter)
+        {
+            Debug.Assert(propertyGetter != null);
+
+            var props = (new[] { this.X, this.Y, this.Z }).Select(c => propertyGetter(c));
+
+            // いずれかの値が設定されるたびに各プロパティへ上書きする
+            props
+                .Merge()
+                .Subscribe(
+                    v =>
+                    {
+                        foreach (var p in props)
+                        {
+                            // 念のため同値チェックしておく
+                            if (!EqualityComparer<T>.Default.Equals(p.Value, v))
+                            {
+                                p.Value = v;
+                            }
+                        }
+                    })
+                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
@@ -559,5 +596,17 @@ namespace VoiceroidUtil.ViewModel
                     SubStatusCommand = subStatusCommand ?? "",
                 };
         }
+
+        #region デザイン用定義
+
+        /// <summary>
+        /// デザイン用のコンストラクタ。
+        /// </summary>
+        [Obsolete(@"Can use only design time.", true)]
+        public ExoCharaStyleViewModel() : this(new ExoCharaStyle(VoiceroidId.YukariEx))
+        {
+        }
+
+        #endregion
     }
 }

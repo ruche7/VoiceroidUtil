@@ -63,7 +63,7 @@
                     <DataTemplate>
                         <DockPanel>
                             <Image
-                                Style="{StaticResource VoiceroidImage}"
+                                Style="{StaticResource VoiceroidProcessImage}"
                                 Margin="0,0,4,0"
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
@@ -74,9 +74,10 @@
                                     <TextBlock Text=")" />
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                    <Image Style="{StaticResource VoiceroidStatusIcon}" />
+                                    <Image
+                                        Style="{StaticResource VoiceroidProcessStatusIcon}" />
                                     <TextBlock
-                                        Style="{StaticResource VoiceroidStatusText}"
+                                        Style="{StaticResource VoiceroidProcessStatusText}"
                                         Margin="2,0,0,0" />
                                 </StackPanel>
                             </StackPanel>
