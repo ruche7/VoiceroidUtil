@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using RucheHome.AviUtl.ExEdit;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil.ViewModel
@@ -87,6 +82,19 @@ namespace VoiceroidUtil.ViewModel
                 .Where(_ => this.UIConfig.Value != null)
                 .Select(cs => cs.VoiceroidId)
                 .Subscribe(id => this.UIConfig.Value.ExoCharaVoiceroidId = id)
+                .AddTo(this.CompositeDisposable);
+
+            // Messenger 同期
+            this.CharaStyle.Messenger = this.Messenger;
+            this
+                .ObserveProperty(self => self.Messenger)
+                .Subscribe(m => this.CharaStyle.Messenger = m)
+                .AddTo(this.CompositeDisposable);
+
+            // CanModify 同期
+            this.CharaStyle.CanModify.Value = this.CanModify.Value;
+            this.CanModify
+                .Subscribe(f => this.CharaStyle.CanModify.Value = f)
                 .AddTo(this.CompositeDisposable);
         }
     }

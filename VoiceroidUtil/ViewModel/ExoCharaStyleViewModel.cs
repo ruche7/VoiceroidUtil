@@ -14,6 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
+using RucheHome.Windows.Media;
 using VoiceroidUtil.Messaging;
 
 namespace VoiceroidUtil.ViewModel
@@ -162,6 +163,11 @@ namespace VoiceroidUtil.ViewModel
         /// 左右バランスの ViewModel を取得する。
         /// </summary>
         public MovableValueViewModel PlayBalance { get; private set; }
+
+        /// <summary>
+        /// フォントファミリ名列挙を取得する。
+        /// </summary>
+        public IEnumerable<string> FontFamilyNames => FontFamilyNameEnumerable.Current;
 
         /// <summary>
         /// テキストスタイル雛形コレクションを取得する。
