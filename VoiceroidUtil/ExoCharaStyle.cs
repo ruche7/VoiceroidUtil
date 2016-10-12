@@ -42,6 +42,14 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// VOICEROIDの名前を取得する。
+        /// </summary>
+        public string VoiceroidName
+        {
+            get { return this.VoiceroidId.GetInfo().Name; }
+        }
+
+        /// <summary>
         /// 標準描画コンポーネントを取得または設定する。
         /// </summary>
         [DataMember]

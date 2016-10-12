@@ -446,7 +446,7 @@ namespace RucheHome.AviUtl.ExEdit
             get { return this.monospacing; }
             set { this.SetProperty(ref this.monospacing, value); }
         }
-        private bool monospacing = true;
+        private bool monospacing = false;
 
         /// <summary>
         /// テキストを取得または設定する。

@@ -29,11 +29,11 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="1*" MinWidth="64" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="64" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="1*" MinWidth="64" />
-            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="64" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
         <!-- Column 0 -->
@@ -58,11 +58,11 @@
         <!-- Column 2 -->
         <tk:DropDownButton
             HorizontalAlignment="Stretch"
-            Padding="0,4"
+            Padding="2,3"
             Margin="2,0"
             Grid.Column="2">
             <tk:DropDownButton.Content>
-                <TextBlock Text="{Binding Name.Value}" TextAlignment="Center" Width="64" />
+                <TextBlock Text="{Binding Name.Value}" TextAlignment="Center" Width="56" />
             </tk:DropDownButton.Content>
             <tk:DropDownButton.DropDownContent>
                 <v:MovableValueMoveModeControl Margin="4" />

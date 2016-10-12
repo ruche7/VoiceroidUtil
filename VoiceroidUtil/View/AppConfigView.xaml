@@ -41,7 +41,7 @@
 
     <StackPanel Orientation="Vertical">
         <Expander Header="一般" IsExpanded="{Binding UIConfig.Value.IsGeneralConfigExpanded}">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel
                     Orientation="Vertical"
                     IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
@@ -63,7 +63,7 @@
             Header="音声保存"
             IsExpanded="{Binding UIConfig.Value.IsSaveConfigExpanded}"
             Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -151,7 +151,7 @@
             Header="ゆっくりMovieMaker連携"
             IsExpanded="{Binding UIConfig.Value.IsYmmConfigExpanded}"
             Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel
                     Orientation="Vertical"
                     IsEnabled="{Binding CanModify.Value, Mode=OneWay}">

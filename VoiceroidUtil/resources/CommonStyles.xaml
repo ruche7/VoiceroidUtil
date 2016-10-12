@@ -14,7 +14,6 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
     <Style TargetType="tk:DropDownButton">
-        <Setter Property="Padding" Value="8,4" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
