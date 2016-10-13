@@ -665,7 +665,7 @@ namespace VoiceroidUtil.ViewModel
                 };
         }
 
-        #region デザイン用定義
+#region デザイン用定義
 
         /// <summary>
         /// デザイン用のコンストラクタ。
@@ -675,6 +675,6 @@ namespace VoiceroidUtil.ViewModel
         {
         }
 
-        #endregion
+#endregion
     }
 }

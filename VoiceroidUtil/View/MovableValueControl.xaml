@@ -47,7 +47,7 @@
 
         <!-- Column 1 -->
         <tk:DecimalUpDown
-            Value="{Binding Begin.Value}"
+            Value="{Binding Begin.Value, UpdateSourceTrigger=PropertyChanged}"
             Minimum="{Binding Constants.MinValue}"
             Maximum="{Binding Constants.MaxValue}"
             Increment="{Binding ValueIncrement}"
@@ -76,7 +76,7 @@
 
         <!-- Column 3 -->
         <tk:DecimalUpDown
-            Value="{Binding End.Value}"
+            Value="{Binding End.Value, UpdateSourceTrigger=PropertyChanged}"
             IsEnabled="{Binding IsMoving.Value}"
             Minimum="{Binding Constants.MinValue}"
             Maximum="{Binding Constants.MaxValue}"

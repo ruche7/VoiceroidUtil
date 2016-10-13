@@ -75,7 +75,7 @@
             <Label Content="フレーム" DockPanel.Dock="Right" />
             <tk:IntegerUpDown
                 x:Name="MovableValue_Interval"
-                Value="{Binding Interval.Value}"
+                Value="{Binding Interval.Value, UpdateSourceTrigger=PropertyChanged}"
                 MinWidth="72"
                 MaxWidth="160"
                 Margin="4,0,2,0" />

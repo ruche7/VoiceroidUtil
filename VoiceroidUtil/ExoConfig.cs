@@ -20,6 +20,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 共通設定を取得または設定する。
         /// </summary>
+        [DataMember]
         public ExoCommonConfig Common
         {
             get { return this.common; }
@@ -35,6 +36,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// キャラクター別スタイルを取得または設定する。
         /// </summary>
+        [DataMember]
         public ExoCharaStyleSet CharaStyles
         {
             get { return this.charaStyles; }
@@ -45,7 +47,7 @@ namespace VoiceroidUtil
                     value ?? new ExoCharaStyleSet());
             }
         }
-        private ExoCharaStyleSet charaStyles = null;
+        private ExoCharaStyleSet charaStyles = new ExoCharaStyleSet();
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

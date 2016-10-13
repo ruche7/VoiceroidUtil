@@ -61,9 +61,20 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private void SetupViewModel()
         {
+            // 暫定値で初期化
             this.CharaStyle =
                 new ExoCharaStyleViewModel(
                     this.Value.CharaStyles[this.UIConfig.Value.ExoCharaVoiceroidId]);
+
+            // 設定変更時に反映
+            this
+                .ObserveConfigProperty(c => c.CharaStyles)
+                .Where(styles => styles != null)
+                .Subscribe(
+                    styles =>
+                        this.CharaStyle.Value =
+                            styles[this.UIConfig.Value.ExoCharaVoiceroidId])
+                .AddTo(this.CompositeDisposable);
 
             // UI設定変更時に選択キャラ反映
             this.UIConfig
