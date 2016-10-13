@@ -395,6 +395,9 @@
     <Resource Include="resources\icon\status_big_info.png" />
     <Resource Include="resources\icon\status_info.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\exo.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

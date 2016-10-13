@@ -30,9 +30,9 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="64" />
+            <ColumnDefinition Width="70" />
             <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="64" />
+            <ColumnDefinition Width="70" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 

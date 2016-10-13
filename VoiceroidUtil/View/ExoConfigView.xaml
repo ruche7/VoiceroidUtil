@@ -30,10 +30,16 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <TabControl>
-        <TabItem Header="共通(_C)" DataContext="{Binding Value.Common}">
+    <TabControl SelectedIndex="{Binding UIConfig.Value.ExoConfigTabIndex}">
+        <TabItem DataContext="{Binding Value.Common}">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
+                    <AccessText Text="共通(_C)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid Margin="4">
+                <Grid Margin="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -120,7 +126,7 @@
 
                     <!-- Row 7 -->
                     <Label
-                        Content="※音声再生後のテキスト表示追加時間です。"
+                        Content="※テキスト表示の延長フレーム数です。"
                         FontSize="11"
                         Grid.Row="7" Grid.Column="2" />
 
@@ -132,7 +138,13 @@
                 </Grid>
             </ScrollViewer>
         </TabItem>
-        <TabItem Header="キャラクター別(_V)">
+        <TabItem>
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/main16.png" />
+                    <AccessText Text="キャラクター別(_V)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
             <DockPanel Margin="2">
                 <ComboBox
                     ItemsSource="{Binding Value.CharaStyles}"

@@ -30,7 +30,10 @@ namespace VoiceroidUtil.ViewModel
         /// コンストラクタ。
         /// </summary>
         /// <param name="value">設定の初期値。</param>
-        public ExoCharaStyleViewModel(ExoCharaStyle value)
+        /// <param name="uiConfig">UI設定値。</param>
+        public ExoCharaStyleViewModel(
+            ExoCharaStyle value,
+            IReactiveProperty<UIConfig> uiConfig)
         {
             if (value == null)
             {
@@ -42,6 +45,9 @@ namespace VoiceroidUtil.ViewModel
                 (new ReactiveProperty<bool>(true)).AddTo(this.CompositeDisposable);
 
             this.Value = value;
+
+            // UI設定
+            this.UIConfig = uiConfig;
 
             // 直近のアプリ状態値
             this.LastStatus =
@@ -73,15 +79,15 @@ namespace VoiceroidUtil.ViewModel
                     this.ExecuteDropTemplateFileCommand)
                     .AddTo(this.CompositeDisposable);
 
+            // テキストスタイル雛形用ファイルドラッグオーバーコマンド
+            this.DragOverTemplateFileCommand =
+                this.MakeCommand<DragEventArgs>(this.ExecuteDragOverTemplateFileCommand);
+
             // テキストスタイル雛形用ファイル選択コマンド
             this.SelectTemplateFileCommand =
                 this.MakeAsyncCommand(
                     selectTemplateFileCommandExecuter,
                     dropTemplateFileCommandExecuter.ObserveExecutable());
-
-            // テキストスタイル雛形用ファイルドラッグオーバーコマンド
-            this.DragOverTemplateFileCommand =
-                this.MakeCommand<DragEventArgs>(this.ExecuteDragOverTemplateFileCommand);
 
             // テキストスタイル雛形用ファイルドロップコマンド
             this.DropTemplateFileCommand =
@@ -127,6 +133,11 @@ namespace VoiceroidUtil.ViewModel
         /// 既定では常に true を返す。外部からの設定以外で更新されることはない。
         /// </remarks>
         public ReactiveProperty<bool> CanModify { get; }
+
+        /// <summary>
+        /// UI設定値を取得する。
+        /// </summary>
+        public IReactiveProperty<UIConfig> UIConfig { get; }
 
         /// <summary>
         /// 直近のアプリ状態値を取得する。
@@ -569,7 +580,7 @@ namespace VoiceroidUtil.ViewModel
                             new List<CommonFileDialogFilter>
                             {
                                 new CommonFileDialogFilter(
-                                    @"AviUtl拡張編集オブジェクトファイル",
+                                    @"AviUtl拡張編集ファイル",
                                     @"exo"),
                                 new CommonFileDialogFilter(@"すべてのファイル", @"*"),
                             },
@@ -665,16 +676,21 @@ namespace VoiceroidUtil.ViewModel
                 };
         }
 
-#region デザイン用定義
+        #region デザイン用定義
 
         /// <summary>
         /// デザイン用のコンストラクタ。
         /// </summary>
         [Obsolete(@"Can use only design time.", true)]
-        public ExoCharaStyleViewModel() : this(new ExoCharaStyle(VoiceroidId.YukariEx))
+        public ExoCharaStyleViewModel()
+            :
+            this(
+                new ExoCharaStyle(VoiceroidId.YukariEx),
+                new ReactiveProperty<UIConfig>(new UIConfig()))
         {
+            this.UIConfig.AddTo(this.CompositeDisposable);
         }
 
-#endregion
+        #endregion
     }
 }

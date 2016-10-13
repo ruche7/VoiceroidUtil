@@ -116,8 +116,20 @@ namespace VoiceroidUtil
         private bool ymmConfigExpanded = true;
 
         /// <summary>
-        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で選択中の
-        /// VOICEROID識別IDを取得または設定する。
+        /// AviUtl拡張編集ファイル用設定ビューの選択中タブインデックスを
+        /// 取得または設定する。
+        /// </summary>
+        [DataMember]
+        public int ExoConfigTabIndex
+        {
+            get { return this.exoConfigTabIndex; }
+            set { this.SetProperty(ref this.exoConfigTabIndex, value); }
+        }
+        private int exoConfigTabIndex = 0;
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 選択中のVOICEROID識別IDを取得または設定する。
         /// </summary>
         public VoiceroidId ExoCharaVoiceroidId
         {
@@ -146,6 +158,43 @@ namespace VoiceroidUtil
                     Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
             }
         }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「テキスト」カテゴリを開いた状態にするか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsExoCharaTextExpanded
+        {
+            get { return this.exoCharaTextExpanded; }
+            set { this.SetProperty(ref this.exoCharaTextExpanded, value); }
+        }
+        private bool exoCharaTextExpanded = true;
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「音声」カテゴリを開いた状態にするか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsExoCharaAudioExpanded
+        {
+            get { return this.exoCharaAudioExpanded; }
+            set { this.SetProperty(ref this.exoCharaAudioExpanded, value); }
+        }
+        private bool exoCharaAudioExpanded = true;
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「.exo ファイルから設定をインポート」エリアを開いた状態にするか否かを
+        /// 取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsExoCharaTextImportExpanded
+        {
+            get { return this.exoCharaTextImportExpanded; }
+            set { this.SetProperty(ref this.exoCharaTextImportExpanded, value); }
+        }
+        private bool exoCharaTextImportExpanded = true;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

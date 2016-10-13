@@ -64,7 +64,8 @@ namespace VoiceroidUtil.ViewModel
             // 暫定値で初期化
             this.CharaStyle =
                 new ExoCharaStyleViewModel(
-                    this.Value.CharaStyles[this.UIConfig.Value.ExoCharaVoiceroidId]);
+                    this.Value.CharaStyles[this.UIConfig.Value.ExoCharaVoiceroidId],
+                    this.UIConfig);
 
             // 設定変更時に反映
             this
@@ -93,13 +94,6 @@ namespace VoiceroidUtil.ViewModel
                 .Where(_ => this.UIConfig.Value != null)
                 .Select(cs => cs.VoiceroidId)
                 .Subscribe(id => this.UIConfig.Value.ExoCharaVoiceroidId = id)
-                .AddTo(this.CompositeDisposable);
-
-            // Messenger 同期
-            this.CharaStyle.Messenger = this.Messenger;
-            this
-                .ObserveProperty(self => self.Messenger)
-                .Subscribe(m => this.CharaStyle.Messenger = m)
                 .AddTo(this.CompositeDisposable);
 
             // CanModify 同期

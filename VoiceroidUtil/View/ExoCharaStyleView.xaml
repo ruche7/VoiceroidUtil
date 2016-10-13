@@ -58,14 +58,19 @@
     </UserControl.Resources>
 
     <StackPanel Orientation="Vertical">
-        <Expander Header="テキスト">
+        <Expander
+            Header="テキスト"
+            IsExpanded="{Binding UIConfig.Value.IsExoCharaTextExpanded}">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6,2,6,6">
                 <StackPanel Orientation="Vertical">
-                    <Expander Header=".exo ファイルから設定をインポート">
+                    <Expander
+                        Header=".exo ファイルから設定をインポート"
+                        IsExpanded="{Binding UIConfig.Value.IsExoCharaTextImportExpanded}">
                         <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4">
                             <DockPanel>
                                 <Button
                                     Command="{Binding SelectTemplateFileCommand}"
+                                    AllowDrop="True"
                                     HorizontalAlignment="Stretch"
                                     Padding="3,0"
                                     DockPanel.Dock="Left">
@@ -131,7 +136,7 @@
                             x:Name="Text_BlendMode"
                             ItemsSource="{Binding Source={StaticResource blendModes}}"
                             SelectedItem="{Binding Value.Render.BlendMode}"
-                            MinWidth="96"
+                            MinWidth="104"
                             Margin="4,0,0,0">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -254,7 +259,7 @@
                                 ItemsSource="{Binding
                                     Source={StaticResource textAlignments}}"
                                 SelectedItem="{Binding Value.Text.TextAlignment}"
-                                MinWidth="96"
+                                MinWidth="104"
                                 Margin="4,0,0,0">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -325,7 +330,10 @@
                 </StackPanel>
             </Border>
         </Expander>
-        <Expander Header="音声" Margin="0,2,0,0">
+        <Expander
+            Header="音声"
+            IsExpanded="{Binding UIConfig.Value.IsExoCharaAudioExpanded}"
+            Margin="0,2,0,0">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <v:MovableValueControl DataContext="{Binding PlayVolume}" />
