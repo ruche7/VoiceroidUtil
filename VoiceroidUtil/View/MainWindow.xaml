@@ -49,6 +49,7 @@
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding UIConfig.LoadCommand}" />
             <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.LoadCommand}" />
+            <i:InvokeCommandAction Command="{Binding ExoConfig.LoadCommand}" />
             <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
         </i:EventTrigger>
         <i:EventTrigger
@@ -63,6 +64,9 @@
             SourceObject="{Binding TalkTextReplaceConfig.Value}"
             EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.SaveCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger SourceObject="{Binding ExoConfig.Value}" EventName="PropertyChanged">
+            <i:InvokeCommandAction Command="{Binding ExoConfig.SaveCommand}" />
         </i:EventTrigger>
         <i:EventTrigger SourceObject="{Binding AppConfig.Value}" EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
