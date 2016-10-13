@@ -32,6 +32,7 @@ namespace VoiceroidUtil.ViewModel
             this.TalkTextReplaceConfig.Messenger = this.Messenger;
             this.AppConfig.Messenger = this.Messenger;
             this.ExoConfig.Messenger = this.Messenger;
+            this.ExoConfig.CharaStyle.Messenger = this.Messenger;
             this.LastStatus.Messenger = this.Messenger;
 
             // 同期コンテキスト取得

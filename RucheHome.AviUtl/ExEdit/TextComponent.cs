@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization;
 using System.Windows.Media;
 using RucheHome.Text;
@@ -626,7 +627,7 @@ namespace RucheHome.AviUtl.ExEdit
                         null,
                         propValue
                             .PadRight(TextLengthLimit + 1, '\0')
-                            .Select(c => ((int)c).ToString(@"x4")));
+                            .Select(c => Convert(c).ToString(@"x4")));
             }
 
             /// <summary>
@@ -676,8 +677,8 @@ namespace RucheHome.AviUtl.ExEdit
                                 return ok ? c : -1;
                             });
 
-                // 負数が含まれるなら変換失敗
-                if (charInts.Any(c => c < 0))
+                // 範囲外の値が含まれるなら変換失敗
+                if (charInts.Any(c => c < ushort.MinValue || c > ushort.MaxValue))
                 {
                     return null;
                 }
@@ -685,9 +686,28 @@ namespace RucheHome.AviUtl.ExEdit
                 // '\0' の手前までを文字列化
                 var result =
                     new string(
-                        charInts.TakeWhile(c => c != 0).Select(c => (char)c).ToArray());
+                        charInts
+                            .TakeWhile(c => c != 0)
+                            .Select(c => Convert((ushort)c))
+                            .ToArray());
                 return Tuple.Create<object>(result);
             }
+
+            /// <summary>
+            /// char 値をネットワークバイトオーダーの ushort 値に変換する。
+            /// </summary>
+            /// <param name="value">char 値。</param>
+            /// <returns>ネットワークバイトオーダーの ushort 値。</returns>
+            private static ushort Convert(char value) =>
+                (ushort)IPAddress.HostToNetworkOrder((short)value);
+
+            /// <summary>
+            /// ネットワークバイトオーダーの ushort 値を char 値に変換する。
+            /// </summary>
+            /// <param name="value">ネットワークバイトオーダーの ushort 値。</param>
+            /// <returns>char 値。</returns>
+            private static char Convert(ushort value) =>
+                (char)IPAddress.NetworkToHostOrder((short)value);
         }
 
         #endregion
