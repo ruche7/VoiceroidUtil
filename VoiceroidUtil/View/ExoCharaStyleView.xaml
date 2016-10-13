@@ -3,7 +3,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:aviutl="http://schemas.ruche-home.net/xaml/aviutl"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:local="clr-namespace:VoiceroidUtil"
@@ -57,9 +59,55 @@
 
     <StackPanel Orientation="Vertical">
         <Expander Header="テキスト">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6,2,6,6">
                 <StackPanel Orientation="Vertical">
-                    <v:MovableValueControl DataContext="{Binding X}" />
+                    <Expander Header=".exo ファイルから設定をインポート">
+                        <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4">
+                            <DockPanel>
+                                <Button
+                                    Command="{Binding SelectTemplateFileCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    Padding="3,0"
+                                    DockPanel.Dock="Left">
+                                    <TextBlock FontSize="11" TextAlignment="Center">
+                                        クリックしてファイル選択<LineBreak />
+                                        <Run Text="または" FontSize="10" /><LineBreak />
+                                        ファイルをここへドロップ
+                                    </TextBlock>
+
+                                    <i:Interaction.Behaviors>
+                                        <ru:DragDropCommandBehavior
+                                            PreviewDragOverCommand="{Binding
+                                                DragOverTemplateFileCommand}"
+                                            DropCommand="{Binding
+                                                DropTemplateFileCommand}" />
+                                    </i:Interaction.Behaviors>
+                                </Button>
+                                <StackPanel
+                                    Orientation="Vertical"
+                                    IsEnabled="{Binding HasTemplate.Value}"
+                                    Margin="4,0,0,0">
+                                    <ComboBox
+                                        ItemsSource="{Binding Templates}"
+                                        SelectedIndex="{Binding SelectedTemplateIndex}"
+                                        DisplayMemberPath="Description" />
+                                    <Button
+                                        Command="{Binding ApplyTemplateCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        Padding="3"
+                                        Margin="0,2,0,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="/VoiceroidUtil;component/resources/icon/arrow_down.png" />
+                                            <AccessText
+                                                Text="オブジェクトを適用(_A)"
+                                                Margin="2,0,0,0" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </Expander>
+                    <v:MovableValueControl DataContext="{Binding X}" Margin="0,4,0,0" />
                     <v:MovableValueControl DataContext="{Binding Y}" Margin="0,4,0,0" />
                     <v:MovableValueControl DataContext="{Binding Z}" Margin="0,4,0,0" />
                     <v:MovableValueControl DataContext="{Binding Scale}" Margin="0,4,0,0" />
@@ -199,7 +247,7 @@
                     <WrapPanel Orientation="Horizontal">
                         <StackPanel Orientation="Horizontal" Margin="0,4,8,0">
                             <Label
-                                Content="配置(_A):"
+                                Content="配置(_G):"
                                 Target="{Binding ElementName=Text_TextAlignment}" />
                             <ComboBox
                                 x:Name="Text_TextAlignment"
@@ -270,13 +318,23 @@
                                 Margin="0,4,0,0" />
                         </WrapPanel>
                     </WrapPanel>
+                    <CheckBox
+                        Content="上のオブジェクトでクリッピング(_P)"
+                        IsChecked="{Binding Value.IsTextClipping}"
+                        Margin="0,4,0,0" />
                 </StackPanel>
             </Border>
         </Expander>
         <Expander Header="音声" Margin="0,2,0,0">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel Orientation="Vertical">
-
+                    <v:MovableValueControl DataContext="{Binding PlayVolume}" />
+                    <v:MovableValueControl
+                        DataContext="{Binding PlayBalance}"
+                        Margin="0,4,0,0" />
+                    <v:MovableValueControl
+                        DataContext="{Binding PlaySpeed}"
+                        Margin="0,4,0,0" />
                 </StackPanel>
             </Border>
         </Expander>

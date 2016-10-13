@@ -111,27 +111,18 @@ namespace VoiceroidUtil
         /// 再生速度を取得または設定する。
         /// </summary>
         [DataMember]
-        public decimal PlaySpeed
+        public MovableValue<AudioFileComponent.PlaySpeedConst> PlaySpeed
         {
             get { return this.playSpeed; }
             set
             {
-                this.SetProperty(
+                this.SetPropertyWithPropertyChangedChain(
                     ref this.playSpeed,
-                    decimal.Round(
-                        Math.Min(
-                            Math.Max(PlaySpeedConst.MinValue, value),
-                            PlaySpeedConst.MaxValue),
-                        PlaySpeedConst.Digits));
+                    value ?? new MovableValue<AudioFileComponent.PlaySpeedConst>());
             }
         }
-        private decimal playSpeed = 100;
-
-        /// <summary>
-        /// 再生速度の定数情報。
-        /// </summary>
-        private static readonly AudioFileComponent.PlaySpeedConst PlaySpeedConst =
-            new AudioFileComponent.PlaySpeedConst();
+        private MovableValue<AudioFileComponent.PlaySpeedConst> playSpeed =
+            new MovableValue<AudioFileComponent.PlaySpeedConst>();
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
