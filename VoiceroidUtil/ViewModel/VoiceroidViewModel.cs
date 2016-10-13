@@ -144,47 +144,35 @@ namespace VoiceroidUtil.ViewModel
             this.RunExitCommand =
                 this.MakeAsyncCommand(
                     runExitCommandExecuter,
-                    new[]
-                    {
-                        this.IsIdle,
-                        this.IsProcessStartup.Select(f => !f),
-                        this.IsProcessSaving.Select(f => !f),
-                        this.IsProcessDialogShowing.Select(f => !f),
-                    }
-                    .CombineLatestValuesAreAllTrue());
+                    this.IsIdle,
+                    this.IsProcessStartup.Select(f => !f),
+                    this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f));
 
             // 再生/停止コマンド
             this.PlayStopCommand =
                 this.MakeAsyncCommand(
                     playStopCommandExecuter,
+                    this.IsIdle,
+                    this.IsProcessRunning,
+                    this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f),
                     new[]
                     {
-                        this.IsIdle,
-                        this.IsProcessRunning,
-                        this.IsProcessSaving.Select(f => !f),
-                        this.IsProcessDialogShowing.Select(f => !f),
-                        new[]
-                        {
-                            this.IsProcessPlaying,
-                            this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                        }
-                        .CombineLatest(flags => flags.Any(f => f)),
+                        this.IsProcessPlaying,
+                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                     }
-                    .CombineLatestValuesAreAllTrue());
+                    .CombineLatest(flags => flags.Any(f => f)));
 
             // 保存コマンド
             this.SaveCommand =
                 this.MakeAsyncCommand(
                     saveCommandExecuter,
-                    new[]
-                    {
-                        this.IsIdle,
-                        this.IsProcessRunning,
-                        this.IsProcessSaving.Select(f => !f),
-                        this.IsProcessDialogShowing.Select(f => !f),
-                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                    }
-                    .CombineLatestValuesAreAllTrue());
+                    this.IsIdle,
+                    this.IsProcessRunning,
+                    this.IsProcessSaving.Select(f => !f),
+                    this.IsProcessDialogShowing.Select(f => !f),
+                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)));
 
             // トークテキスト用ファイルドラッグオーバーコマンド
             this.DragOverTalkTextFileCommand =

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -54,6 +55,14 @@ namespace VoiceroidUtil.ViewModel
             this.LastTemplateFilePath =
                 (new ReactiveProperty<string>()).AddTo(this.CompositeDisposable);
 
+            // テキストスタイル雛形保持フラグ
+            this.HasTemplate =
+                this
+                    .ObserveProperty(self => self.Templates)
+                    .Select(temps => temps.Count > 0)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // テキストスタイル雛形用ファイルロード関連の非同期実行コマンドヘルパー作成
             // どちらか一方の実行中は両方実行不可とする
             var selectTemplateFileCommandExecuter =
@@ -79,6 +88,15 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeAsyncCommand(
                     dropTemplateFileCommandExecuter,
                     selectTemplateFileCommandExecuter.ObserveExecutable());
+
+            // テキストスタイル雛形適用コマンド
+            this.ApplyTemplateCommand =
+                this.MakeCommand(
+                    this.ExecuteApplyTemplateCommand,
+                    this.HasTemplate,
+                    this
+                        .ObserveProperty(self => self.SelectedTemplateIndex)
+                        .Select(i => i >= 0 && i < this.Templates.Count));
         }
 
         /// <summary>
@@ -166,6 +184,11 @@ namespace VoiceroidUtil.ViewModel
         public MovableValueViewModel PlayBalance { get; private set; }
 
         /// <summary>
+        /// 再生速度の ViewModel を取得する。
+        /// </summary>
+        public MovableValueViewModel PlaySpeed { get; private set; }
+
+        /// <summary>
         /// フォントファミリ名列挙を取得する。
         /// </summary>
         public IEnumerable<string> FontFamilyNames => FontFamilyNameEnumerable.Current;
@@ -208,6 +231,11 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveProperty<string> LastTemplateFilePath { get; }
 
         /// <summary>
+        /// テキストスタイル雛形が1つ以上あるか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> HasTemplate { get; }
+
+        /// <summary>
         /// テキストスタイル雛形用ファイル選択コマンドを取得する。
         /// </summary>
         public ReactiveCommand SelectTemplateFileCommand { get; }
@@ -221,6 +249,11 @@ namespace VoiceroidUtil.ViewModel
         /// テキストスタイル雛形用ファイルドロップコマンドを取得する。
         /// </summary>
         public ReactiveCommand<DragEventArgs> DropTemplateFileCommand { get; }
+
+        /// <summary>
+        /// テキストスタイル雛形適用コマンドを取得する。
+        /// </summary>
+        public ReactiveCommand ApplyTemplateCommand { get; }
 
         /// <summary>
         /// IDataObject オブジェクトからファイルパスを取得する。
@@ -273,10 +306,15 @@ namespace VoiceroidUtil.ViewModel
                     new ExoTextStyleTemplate
                     {
                         Render = render,
-                        Text = text,
                         IsTextClipping = item.IsClipping,
                     };
+                text.CopyTo(temp.Text);
 
+                // スタイル設定しない項目(テキスト除く)は固定値にする
+                temp.Text.IsAutoScrolling = false;
+                temp.Text.IsAutoAdjusting = false;
+
+                // 重複するなら無視
                 if (result.Any(t => t.EqualsWithoutText(temp)))
                 {
                     continue;
@@ -340,43 +378,55 @@ namespace VoiceroidUtil.ViewModel
                 this.PlayBalance =
                     this.MakeMovableValueViewModel(play, playObs, p => p.Balance);
             }
+
+            this.PlaySpeed =
+                this.MakeMovableValueViewModel(
+                    this.Value,
+                    valueObs,
+                    v => v.PlaySpeed,
+                    @"再生速度");
         }
 
         /// <summary>
-        /// ComponentBase 派生クラス型オブジェクトから MovableValueViewModel を作成する。
+        /// オブジェクトのプロパティから MovableValueViewModel を作成する。
         /// </summary>
-        /// <typeparam name="T">ComponentBase 派生クラス型。</typeparam>
-        /// <param name="component">ComponentBase 派生クラス型オブジェクト。</param>
-        /// <param name="componentObservable">
-        /// ComponentBase 派生クラス型オブジェクトのプッシュ通知。
-        /// </param>
+        /// <typeparam name="T">
+        /// オブジェクト型。
+        /// INotifyPropertyChanged インタフェースを実装している必要がある。
+        /// </typeparam>
+        /// <param name="holder">オブジェクト。</param>
+        /// <param name="holderObservable">オブジェクトのプッシュ通知。</param>
         /// <param name="selector">
-        /// ComponentBase 派生クラス型オブジェクトの IMovableValue プロパティセレクタ。
+        /// オブジェクトの IMovableValue プロパティセレクタ。
         /// </param>
+        /// <param name="name">名前。 null ならば自動決定される。</param>
         /// <returns>MovableValueViewModel 。</returns>
         private MovableValueViewModel MakeMovableValueViewModel<T>(
-            T component,
-            IObservable<T> componentObservable,
-            Expression<Func<T, IMovableValue>> selector)
-            where T : ComponentBase
+            T holder,
+            IObservable<T> holderObservable,
+            Expression<Func<T, IMovableValue>> selector,
+            string name = null)
+            where T : INotifyPropertyChanged
         {
-            Debug.Assert(component != null);
-            Debug.Assert(componentObservable != null);
+            Debug.Assert(holder != null);
+            Debug.Assert(holderObservable != null);
             Debug.Assert(selector != null);
 
             // 初期値取得
-            var value = selector.Compile()(component);
+            var value = selector.Compile()(holder);
 
             // 名前取得
             var info = ((MemberExpression)selector.Body).Member;
-            var name =
-                info.GetCustomAttribute<ExoFileItemAttribute>(true)?.Name ?? info.Name;
+            name =
+                name ??
+                info.GetCustomAttribute<ExoFileItemAttribute>(true)?.Name ??
+                info.Name;
 
             var result =
                 (new MovableValueViewModel(name, value)).AddTo(this.CompositeDisposable);
 
             // プロパティ値変更時に ViewModel 内部値を差し替える
-            componentObservable
+            holderObservable
                 .Select(comp => comp.ObserveProperty(selector))
                 .Switch()
                 .Subscribe(v => result.Reset(v))
@@ -561,6 +611,24 @@ namespace VoiceroidUtil.ViewModel
             e.Handled = true;
 
             await this.UpdateTextStyleTemplates(path);
+        }
+
+        /// <summary>
+        /// ApplyTemplateCommand コマンドの実処理を行う。
+        /// </summary>
+        private void ExecuteApplyTemplateCommand()
+        {
+            var index = this.SelectedTemplateIndex;
+            if (index < 0 || index >= this.Templates.Count)
+            {
+                return;
+            }
+
+            this.Templates[index].CopyTo(this.Value, withoutText: true);
+
+            this.SetLastStatus(
+                AppStatusType.Success,
+                @"テキストオブジェクトの設定を適用しました。");
         }
 
         /// <summary>

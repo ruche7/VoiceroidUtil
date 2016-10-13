@@ -63,12 +63,8 @@ namespace VoiceroidUtil.ViewModel
             this.FileMakingCommand =
                 this.MakeCommand<string>(
                     this.ExecuteFileMakingCommand,
-                    new IObservable<bool>[]
-                    {
-                        this.CanModify,
-                        this.IsFileMakingCommandVisible,
-                    }
-                    .CombineLatestValuesAreAllTrue());
+                    this.CanModify,
+                    this.IsFileMakingCommandVisible);
         }
 
         /// <summary>
