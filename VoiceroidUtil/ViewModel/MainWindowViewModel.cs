@@ -80,6 +80,21 @@ namespace VoiceroidUtil.ViewModel
                     })
                 .AddTo(this.CompositeDisposable);
 
+            // AviUtl拡張編集ファイル用設定を ExoConfigViewModel のもので上書き
+            this.Voiceroid.ExoConfig.Value = this.ExoConfig.Value;
+            this.ExoConfig
+                .ObserveProperty(c => c.Value)
+                .Subscribe(
+                    c =>
+                    {
+                        // 同期コンテキスト設定
+                        c.SynchronizationContext = syncContext;
+
+                        // 各 ViewModel に設定
+                        this.Voiceroid.ExoConfig.Value = c;
+                    })
+                .AddTo(this.CompositeDisposable);
+
             // アプリ設定を AppConfigViewModel のもので上書き
             this.Voiceroid.AppConfig.Value = this.AppConfig.Value;
             this.TalkTextReplaceConfig.AppConfig.Value = this.AppConfig.Value;

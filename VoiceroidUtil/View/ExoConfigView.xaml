@@ -30,150 +30,177 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <TabControl SelectedIndex="{Binding UIConfig.Value.ExoConfigTabIndex}">
-        <TabItem>
-            <TabItem.Header>
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
-                    <AccessText Text="共通(_C)" Margin="2,0,0,0" />
-                </StackPanel>
-            </TabItem.Header>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <DockPanel IsEnabled="{Binding CanModify.Value}">
-                    <Grid DataContext="{Binding Value.Common}" Margin="6">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="4" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="4" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="4" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="4" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+    <DockPanel>
+        <StackPanel
+            Visibility="{Binding
+                Path=IsFileMakingCommandVisible.Value,
+                Converter={StaticResource boolVisibilityConverter}}"
+                DockPanel.Dock="Top">
+            <Label
+                Content=".exo ファイル作成設定を有効にする必要があります。"
+                Foreground="Red"
+                Margin="0,0,0,4" />
+            <Button Content="有効にする(_E)" Command="{Binding FileMakingCommand}" />
+        </StackPanel>
+        <TabControl
+            SelectedIndex="{Binding UIConfig.Value.ExoConfigTabIndex}"
+            Visibility="{Binding
+                Path=IsFileMakingCommandInvisible.Value,
+                Converter={StaticResource boolVisibilityConverter}}">
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
+                        <AccessText Text="共通(_C)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <DockPanel IsEnabled="{Binding CanModify.Value}">
+                        <Grid DataContext="{Binding Value.Common}" Margin="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="4" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
 
-                        <!-- Row 0 -->
-                        <Label Content="画像サイズ:" Grid.Row="0" Grid.Column="0" />
-                        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2">
+                            <!-- Row 0 -->
+                            <Label Content="画像サイズ:" Grid.Row="0" Grid.Column="0" />
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="0" Grid.Column="2">
+                                <Label
+                                    Content="(_W)"
+                                    Target="{Binding ElementName=Common_Width}" />
+                                <tk:IntegerUpDown
+                                    x:Name="Common_Width"
+                                    Value="{Binding
+                                        Path=Width,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                                    Minimum="{x:Static local:ExoCommonConfig.MinWidth}"
+                                    Maximum="{x:Static local:ExoCommonConfig.MaxWidth}"
+                                    MinWidth="64"
+                                    Margin="2,0,0,0" />
+                                <Label Content="×" Margin="4,0" />
+                                <Label
+                                    Content="(_H)"
+                                    Target="{Binding ElementName=Common_Height}" />
+                                <tk:IntegerUpDown
+                                    x:Name="Common_Height"
+                                    Value="{Binding
+                                        Path=Height,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                                    Minimum="{x:Static local:ExoCommonConfig.MinHeight}"
+                                    Maximum="{x:Static local:ExoCommonConfig.MaxHeight}"
+                                    MinWidth="64"
+                                    Margin="2,0,0,0" />
+                            </StackPanel>
+
+                            <!-- Row 1 -->
                             <Label
-                                Content="(_W)"
-                                Target="{Binding ElementName=Common_Width}" />
-                            <tk:IntegerUpDown
-                                x:Name="Common_Width"
-                                Value="{Binding Width, UpdateSourceTrigger=PropertyChanged}"
-                                Minimum="{x:Static local:ExoCommonConfig.MinWidth}"
-                                Maximum="{x:Static local:ExoCommonConfig.MaxWidth}"
-                                MinWidth="64"
-                                Margin="2,0,0,0" />
-                            <Label Content="×" Margin="4,0" />
+                                Content="※プロジェクトへのインポート時は無視されます。"
+                                FontSize="11"
+                                Grid.Row="1" Grid.Column="2" />
+
+                            <!-- Row 3 -->
                             <Label
-                                Content="(_H)"
-                                Target="{Binding ElementName=Common_Height}" />
-                            <tk:IntegerUpDown
-                                x:Name="Common_Height"
-                                Value="{Binding Height, UpdateSourceTrigger=PropertyChanged}"
-                                Minimum="{x:Static local:ExoCommonConfig.MinHeight}"
-                                Maximum="{x:Static local:ExoCommonConfig.MaxHeight}"
+                                Content="フレームレート(_F):"
+                                Target="{Binding ElementName=Common_Fps}"
+                                Grid.Row="3" Grid.Column="0" />
+                            <tk:DecimalUpDown
+                                x:Name="Common_Fps"
+                                Value="{Binding Fps, UpdateSourceTrigger=PropertyChanged}"
+                                Minimum="{x:Static local:ExoCommonConfig.MinFps}"
+                                Maximum="{x:Static local:ExoCommonConfig.MaxFps}"
                                 MinWidth="64"
-                                Margin="2,0,0,0" />
-                        </StackPanel>
+                                HorizontalAlignment="Left"
+                                Grid.Row="3" Grid.Column="2" />
 
-                        <!-- Row 1 -->
-                        <Label
-                            Content="※プロジェクトへのインポート時は無視されます。"
-                            FontSize="11"
-                            Grid.Row="1" Grid.Column="2" />
+                            <!-- Row 4 -->
+                            <Label
+                                Content="※プロジェクトの設定と揃えてください。"
+                                FontSize="11"
+                                Grid.Row="4" Grid.Column="2" />
 
-                        <!-- Row 3 -->
-                        <Label
-                            Content="フレームレート(_F):"
-                            Target="{Binding ElementName=Common_Fps}"
-                            Grid.Row="3" Grid.Column="0" />
-                        <tk:DecimalUpDown
-                            x:Name="Common_Fps"
-                            Value="{Binding Fps, UpdateSourceTrigger=PropertyChanged}"
-                            Minimum="{x:Static local:ExoCommonConfig.MinFps}"
-                            Maximum="{x:Static local:ExoCommonConfig.MaxFps}"
-                            MinWidth="64"
-                            HorizontalAlignment="Left"
-                            Grid.Row="3" Grid.Column="2" />
+                            <!-- Row 6 -->
+                            <Label
+                                Content="追加フレーム(_E):"
+                                Target="{Binding ElementName=Common_ExtraFrames}"
+                                Grid.Row="6" Grid.Column="0" />
+                            <tk:IntegerUpDown
+                                x:Name="Common_ExtraFrames"
+                                Value="{Binding
+                                    Path=ExtraFrames,
+                                    UpdateSourceTrigger=PropertyChanged}"
+                                Minimum="{x:Static local:ExoCommonConfig.MinExtraFrames}"
+                                Maximum="{x:Static local:ExoCommonConfig.MaxExtraFrames}"
+                                MinWidth="64"
+                                HorizontalAlignment="Left"
+                                Grid.Row="6" Grid.Column="2" />
 
-                        <!-- Row 4 -->
-                        <Label
-                            Content="※プロジェクトの設定と揃えてください。"
-                            FontSize="11"
-                            Grid.Row="4" Grid.Column="2" />
+                            <!-- Row 7 -->
+                            <Label
+                                Content="※テキスト表示の延長フレーム数です。"
+                                FontSize="11"
+                                Grid.Row="7" Grid.Column="2" />
 
-                        <!-- Row 6 -->
-                        <Label
-                            Content="追加フレーム(_E):"
-                            Target="{Binding ElementName=Common_ExtraFrames}"
-                            Grid.Row="6" Grid.Column="0" />
-                        <tk:IntegerUpDown
-                            x:Name="Common_ExtraFrames"
-                            Value="{Binding ExtraFrames, UpdateSourceTrigger=PropertyChanged}"
-                            Minimum="{x:Static local:ExoCommonConfig.MinExtraFrames}"
-                            Maximum="{x:Static local:ExoCommonConfig.MaxExtraFrames}"
-                            MinWidth="64"
-                            HorizontalAlignment="Left"
-                            Grid.Row="6" Grid.Column="2" />
-
-                        <!-- Row 7 -->
-                        <Label
-                            Content="※テキスト表示の延長フレーム数です。"
-                            FontSize="11"
-                            Grid.Row="7" Grid.Column="2" />
-
-                        <!-- Row 9 -->
-                        <CheckBox
-                            Content="テキストと音声をグループ化(_G)"
-                            IsChecked="{Binding IsGrouping}"
-                            Grid.Row="9" Grid.ColumnSpan="3" />
-                    </Grid>
+                            <!-- Row 9 -->
+                            <CheckBox
+                                Content="テキストと音声をグループ化(_G)"
+                                IsChecked="{Binding IsGrouping}"
+                                Grid.Row="9" Grid.ColumnSpan="3" />
+                        </Grid>
+                    </DockPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/main16.png" />
+                        <AccessText Text="キャラクター別(_V)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+                <DockPanel Margin="2">
+                    <ComboBox
+                        ItemsSource="{Binding Value.CharaStyles}"
+                        SelectedItem="{Binding CharaStyle.Value}"
+                        DockPanel.Dock="Top">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <Image
+                                        Style="{StaticResource VoiceroidIdImage}"
+                                        Stretch="Uniform"
+                                        Width="24"
+                                        Height="24"
+                                        DockPanel.Dock="Left" />
+                                    <Label
+                                        Content="{Binding VoiceroidName}"
+                                        Margin="4,0,0,0" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="0,4,0,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <v:ExoCharaStyleView
+                                DataContext="{Binding CharaStyle}"
+                                Margin="2" />
+                        </ScrollViewer>
+                    </Border>
                 </DockPanel>
-            </ScrollViewer>
-        </TabItem>
-        <TabItem>
-            <TabItem.Header>
-                <StackPanel Orientation="Horizontal">
-                    <Image Source="/VoiceroidUtil;component/resources/icon/main16.png" />
-                    <AccessText Text="キャラクター別(_V)" Margin="2,0,0,0" />
-                </StackPanel>
-            </TabItem.Header>
-            <DockPanel Margin="2">
-                <ComboBox
-                    ItemsSource="{Binding Value.CharaStyles}"
-                    SelectedItem="{Binding CharaStyle.Value}"
-                    DockPanel.Dock="Top">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel>
-                                <Image
-                                    Style="{StaticResource VoiceroidIdImage}"
-                                    Stretch="Uniform"
-                                    Width="24"
-                                    Height="24"
-                                    DockPanel.Dock="Left" />
-                                <Label Content="{Binding VoiceroidName}" Margin="4,0,0,0" />
-                            </DockPanel>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="0,4,0,0">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <v:ExoCharaStyleView
-                            DataContext="{Binding CharaStyle}"
-                            Margin="2" />
-                    </ScrollViewer>
-                </Border>
-            </DockPanel>
-        </TabItem>
-    </TabControl>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
 </UserControl>

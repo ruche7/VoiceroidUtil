@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 
@@ -19,12 +20,16 @@ namespace VoiceroidUtil
         /// <param name="talkTextReplaceConfigGetter">
         /// トークテキスト置換設定取得デリゲート。
         /// </param>
+        /// <param name="exoConfigGetter">
+        /// AviUtl拡張編集ファイル用設定取得デリゲート。
+        /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
             Func<IAppStatus, Task> resultNotifier)
@@ -37,6 +42,10 @@ namespace VoiceroidUtil
             if (talkTextReplaceConfigGetter == null)
             {
                 throw new ArgumentNullException(nameof(talkTextReplaceConfigGetter));
+            }
+            if (exoConfigGetter == null)
+            {
+                throw new ArgumentNullException(nameof(exoConfigGetter));
             }
             if (appConfigGetter == null)
             {
@@ -55,6 +64,7 @@ namespace VoiceroidUtil
 
             this.ProcessGetter = processGetter;
             this.TalkTextReplaceConfigGetter = talkTextReplaceConfigGetter;
+            this.ExoConfigGetter = exoConfigGetter;
             this.AppConfigGetter = appConfigGetter;
             this.TalkTextGetter = talkTextGetter;
             this.ResultNotifier = resultNotifier;
@@ -67,12 +77,16 @@ namespace VoiceroidUtil
         /// <param name="talkTextReplaceConfigGetter">
         /// トークテキスト置換設定取得デリゲート。
         /// </param>
+        /// <param name="exoConfigGetter">
+        /// AviUtl拡張編集ファイル用設定取得デリゲート。
+        /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
             Action<IAppStatus> resultNotifier)
@@ -80,6 +94,7 @@ namespace VoiceroidUtil
             this(
                 processGetter,
                 talkTextReplaceConfigGetter,
+                exoConfigGetter,
                 appConfigGetter,
                 talkTextGetter,
                 (resultNotifier == null) ?
@@ -101,7 +116,7 @@ namespace VoiceroidUtil
         /// <param name="process">VOICEROIDプロセス。</param>
         /// <param name="talkText">トークテキスト。</param>
         /// <returns>WAVEファイルパス。作成できないならば null 。</returns>
-        private static string MakeWaveFilePath(
+        private static async Task<string> MakeWaveFilePath(
             AppConfig config,
             IProcess process,
             string talkText)
@@ -121,15 +136,21 @@ namespace VoiceroidUtil
 
             // 同名ファイルがあるならば名前の末尾に "[数字]" を付ける
             var path = basePath;
-            for (
-                int i = 1;
-                File.Exists(path + @".wav") || File.Exists(path + @".txt");
-                ++i)
-            {
-                path = basePath + @"[" + i + @"]";
-            }
+            await Task.Run(
+                () =>
+                {
+                    for (
+                        int i = 1;
+                        File.Exists(path + @".wav") ||
+                        File.Exists(path + @".txt") ||
+                        File.Exists(path + @".exo");
+                        ++i)
+                    {
+                        path = basePath + @"[" + i + @"]";
+                    }
+                });
 
-            return path;
+            return (path + @".wav");
         }
 
         /// <summary>
@@ -194,6 +215,11 @@ namespace VoiceroidUtil
         private Func<TalkTextReplaceConfig> TalkTextReplaceConfigGetter { get; }
 
         /// <summary>
+        /// AviUtl拡張編集ファイル用設定取得デリゲートを取得する。
+        /// </summary>
+        private Func<ExoConfig> ExoConfigGetter { get; }
+
+        /// <summary>
         /// アプリ設定取得デリゲートを取得する。
         /// </summary>
         private Func<AppConfig> AppConfigGetter { get; }
@@ -213,8 +239,10 @@ namespace VoiceroidUtil
         /// </summary>
         private async Task ExecuteAsync()
         {
+            var talkTextReplaceConfig = this.TalkTextReplaceConfigGetter();
+            var exoConfig = this.ExoConfigGetter();
             var appConfig = this.AppConfigGetter();
-            if (appConfig == null)
+            if (talkTextReplaceConfig == null || exoConfig == null || appConfig == null)
             {
                 await this.NotifyResult(
                     AppStatusType.Fail,
@@ -237,13 +265,13 @@ namespace VoiceroidUtil
 
             // テキスト作成
             var text = this.TalkTextGetter();
-            var talkTextReplaceConfig = this.TalkTextReplaceConfigGetter();
-            var voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+            var voiceText =
+                talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
             var fileText =
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // WAVEファイルパス決定
-            var filePath = MakeWaveFilePath(appConfig, process, text);
+            var filePath = await MakeWaveFilePath(appConfig, process, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
@@ -294,6 +322,28 @@ namespace VoiceroidUtil
                 }
             }
 
+            // .exo ファイル保存
+            if (appConfig.IsExoFileMaking)
+            {
+                var exoPath = Path.ChangeExtension(filePath, @".exo");
+                var ok =
+                    await this.DoWriteExoFile(
+                        exoPath,
+                        exoConfig,
+                        process.Id,
+                        filePath,
+                        fileText);
+                if (!ok)
+                {
+                    await this.NotifyResult(
+                        AppStatusType.Success,
+                        statusText,
+                        AppStatusType.Fail,
+                        @".exo ファイルを保存できませんでした。");
+                    return;
+                }
+            }
+
             // ゆっくりMovieMaker処理
             var warnText = await DoOperateYmm(filePath, process.Id, appConfig);
 
@@ -303,6 +353,118 @@ namespace VoiceroidUtil
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText ?? @"保存先フォルダーを開く",
                 (warnText == null) ? appConfig.SaveDirectoryPath : null);
+        }
+
+        /// <summary>
+        /// 設定を基にAviUtl拡張編集ファイル書き出しを行う。
+        /// </summary>
+        /// <param name="exoFilePath">AviUtl拡張編集ファイルパス。</param>
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
+        /// <param name="waveFilePath">WAVEファイルパス。</param>
+        /// <param name="text">テキスト。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        private async Task<bool> DoWriteExoFile(
+            string exoFilePath,
+            ExoConfig exoConfig,
+            VoiceroidId voiceroidId,
+            string waveFilePath,
+            string text)
+        {
+            var common = exoConfig.Common;
+            var charaStyle = exoConfig.CharaStyles[voiceroidId];
+
+            // フレーム数算出
+            int frameCount = 0;
+            try
+            {
+                var waveTime =
+                    await Task.Run(() => (new WaveFileInfo(waveFilePath)).TotalTime);
+                var f =
+                    (waveTime.Ticks * common.Fps) /
+                    (charaStyle.PlaySpeed.Begin * (TimeSpan.TicksPerSecond / 100));
+                frameCount = (int)decimal.Ceiling(f);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return false;
+            }
+
+            var exo = new ExEditObject();
+
+            exo.Width = common.Width;
+            exo.Height = common.Height;
+            exo.Length = frameCount + common.ExtraFrames;
+
+            var scale = (decimal.GetBits(common.Fps)[3] & 0xFF0000) >> 16;
+            exo.FpsScale = (int)Math.Pow(10, scale);
+            exo.FpsBase = decimal.Floor(common.Fps * exo.FpsScale);
+
+            // テキストレイヤー追加
+            {
+                var item = new LayerItem();
+
+                item.BeginFrame = 1;
+                item.EndFrame = exo.Length;
+                item.LayerId = 1;
+                item.GroupId = common.IsGrouping ? 1 : 0;
+                item.IsClipping = charaStyle.IsTextClipping;
+                {
+                    var c = new TextComponent();
+                    charaStyle.Text.CopyTo(c);
+
+                    c.IsAutoScrolling = false;
+                    c.IsAutoAdjusting = false;
+                    c.Text = text;
+
+                    item.Components.Add(c);
+                }
+                {
+                    var c = new RenderComponent();
+                    charaStyle.Render.CopyTo(c);
+                    item.Components.Add(c);
+                }
+
+                exo.LayerItems.Add(item);
+            }
+
+            // 音声レイヤー追加
+            {
+                var item = new LayerItem();
+
+                item.BeginFrame = 1;
+                item.EndFrame = frameCount;
+                item.LayerId = 2;
+                item.GroupId = common.IsGrouping ? 1 : 0;
+                item.IsAudio = true;
+                {
+                    var c = new AudioFileComponent();
+                    c.PlaySpeed = charaStyle.PlaySpeed;
+                    c.FilePath = waveFilePath;
+                    item.Components.Add(c);
+                }
+                {
+                    var c = new PlayComponent();
+                    charaStyle.Play.CopyTo(c);
+                    item.Components.Add(c);
+                }
+
+                exo.LayerItems.Add(item);
+            }
+
+            // ファイル書き出し
+            try
+            {
+                await ExoFileReaderWriter.WriteAsync(exoFilePath, exo);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

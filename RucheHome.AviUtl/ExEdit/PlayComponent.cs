@@ -52,6 +52,9 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public PlayComponent() : base()
         {
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.Volume = new MovableValue<VolumeConst>();
+            this.Balance = new MovableValue<BalanceConst>();
         }
 
         /// <summary>
@@ -74,7 +77,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<VolumeConst>());
             }
         }
-        private MovableValue<VolumeConst> volume = new MovableValue<VolumeConst>();
+        private MovableValue<VolumeConst> volume = null;
 
         /// <summary>
         /// 左右バランスを取得または設定する。
@@ -91,7 +94,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<BalanceConst>());
             }
         }
-        private MovableValue<BalanceConst> balance = new MovableValue<BalanceConst>();
+        private MovableValue<BalanceConst> balance = null;
 
         /// <summary>
         /// このコンポーネントの内容を別のコンポーネントへコピーする。

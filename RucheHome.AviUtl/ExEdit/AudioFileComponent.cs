@@ -67,6 +67,9 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public AudioFileComponent() : base()
         {
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.PlayPosition = new MovableValue<PlayPositionConst>();
+            this.PlaySpeed = new MovableValue<PlaySpeedConst>();
         }
 
         /// <summary>
@@ -93,8 +96,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<PlayPositionConst>());
             }
         }
-        private MovableValue<PlayPositionConst> playPosition =
-            new MovableValue<PlayPositionConst>();
+        private MovableValue<PlayPositionConst> playPosition = null;
 
         /// <summary>
         /// 再生速度を取得または設定する。
@@ -111,8 +113,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<PlaySpeedConst>());
             }
         }
-        private MovableValue<PlaySpeedConst> playSpeed =
-            new MovableValue<PlaySpeedConst>();
+        private MovableValue<PlaySpeedConst> playSpeed = null;
 
         /// <summary>
         /// ループ再生するか否かを取得または設定する。

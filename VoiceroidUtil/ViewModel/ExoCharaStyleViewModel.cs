@@ -99,6 +99,9 @@ namespace VoiceroidUtil.ViewModel
             this.ApplyTemplateCommand =
                 this.MakeCommand(
                     this.ExecuteApplyTemplateCommand,
+                    this.CanModify,
+                    selectTemplateFileCommandExecuter.ObserveExecutable(),
+                    dropTemplateFileCommandExecuter.ObserveExecutable(),
                     this.HasTemplate,
                     this
                         .ObserveProperty(self => self.SelectedTemplateIndex)
@@ -304,7 +307,7 @@ namespace VoiceroidUtil.ViewModel
                 return result;
             }
 
-            foreach (var item in layerItems)
+            foreach (var item in layerItems.OrderByDescending(i => i.LayerId))
             {
                 var render = item.GetComponent<RenderComponent>();
                 var text = item.GetComponent<TextComponent>();

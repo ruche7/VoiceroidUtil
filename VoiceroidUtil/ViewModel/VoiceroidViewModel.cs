@@ -33,6 +33,9 @@ namespace VoiceroidUtil.ViewModel
             this.TalkTextReplaceConfig =
                 new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig())
                     .AddTo(this.CompositeDisposable);
+            this.ExoConfig =
+                new ReactiveProperty<ExoConfig>(new ExoConfig())
+                    .AddTo(this.CompositeDisposable);
             this.AppConfig =
                 new ReactiveProperty<AppConfig>(new AppConfig())
                     .AddTo(this.CompositeDisposable);
@@ -118,6 +121,7 @@ namespace VoiceroidUtil.ViewModel
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
                     () => this.TalkTextReplaceConfig.Value,
+                    () => this.ExoConfig.Value,
                     () => this.AppConfig.Value,
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
@@ -201,6 +205,14 @@ namespace VoiceroidUtil.ViewModel
         /// 外部からの設定以外で更新されることはない。
         /// </remarks>
         public ReactiveProperty<TalkTextReplaceConfig> TalkTextReplaceConfig { get; }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定を取得する。
+        /// </summary>
+        /// <remarks>
+        /// 外部からの設定以外で更新されることはない。
+        /// </remarks>
+        public ReactiveProperty<ExoConfig> ExoConfig { get; }
 
         /// <summary>
         /// アプリ設定を取得する。
