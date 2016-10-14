@@ -153,6 +153,9 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public TextComponent() : base()
         {
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.FontSize = new MovableValue<FontSizeConst>();
+            this.TextSpeed = new MovableValue<TextSpeedConst>();
         }
 
         /// <summary>
@@ -175,7 +178,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<FontSizeConst>());
             }
         }
-        private MovableValue<FontSizeConst> fontSize = new MovableValue<FontSizeConst>();
+        private MovableValue<FontSizeConst> fontSize = null;
 
         /// <summary>
         /// 表示速度を取得または設定する。
@@ -192,8 +195,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<TextSpeedConst>());
             }
         }
-        private MovableValue<TextSpeedConst> textSpeed =
-            new MovableValue<TextSpeedConst>();
+        private MovableValue<TextSpeedConst> textSpeed = null;
 
         /// <summary>
         /// 自動スクロールするか否かを取得または設定する。
@@ -295,7 +297,10 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォント装飾種別を取得または設定する。
         /// </summary>
-        [ExoFileItem(ExoFileItemNameOfFontDecoration, Order = 8)]
+        [ExoFileItem(
+            ExoFileItemNameOfFontDecoration,
+            typeof(FontDecorationConverter),
+            Order = 8)]
         public FontDecoration FontDecoration
         {
             get { return this.fontDecoration; }
@@ -519,6 +524,65 @@ namespace RucheHome.AviUtl.ExEdit
         #endregion
 
         #region 特殊プロパティ用コンポーネントアイテムコンバータ
+
+        /// <summary>
+        /// フォント装飾種別用のコンバータクラス。
+        /// </summary>
+        /// <remarks>
+        /// 『ゆっくりMovieMaker』で「ソフトシャドー(濃)」を選択すると
+        /// 範囲外の値が書き出されるため、その対処を行う。
+        /// </remarks>
+        public class FontDecorationConverter : IExoFileValueConverter
+        {
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            public FontDecorationConverter()
+            {
+            }
+
+            /// <summary>
+            /// .NETオブジェクト値を拡張編集オブジェクトファイルの文字列値に変換する。
+            /// </summary>
+            /// <param name="value">.NETオブジェクト値。</param>
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
+            /// <returns>文字列値。変換できなかった場合は null 。</returns>
+            public string ToExoFileValue(object value, Type objectType)
+            {
+                try
+                {
+                    return
+                        Convert
+                            .ChangeType(value, Enum.GetUnderlyingType(objectType))
+                            .ToString();
+                }
+                catch { }
+                return null;
+            }
+
+            /// <summary>
+            /// 拡張編集オブジェクトファイルの文字列値を.NETオブジェクト値に変換する。
+            /// </summary>
+            /// <param name="value">文字列値。</param>
+            /// <param name="objectType">.NETオブジェクトの型情報。</param>
+            /// <returns>
+            /// .NETオブジェクト値を持つタプル。変換できなかったならば null 。
+            /// </returns>
+            public Tuple<object> FromExoFileValue(string value, Type objectType)
+            {
+                try
+                {
+                    var v =
+                        Convert.ChangeType(value, Enum.GetUnderlyingType(objectType));
+                    return
+                        Tuple.Create(
+                            Enum.IsDefined(objectType, v) ?
+                                Enum.ToObject(objectType, v) : FontDecoration.None);
+                }
+                catch { }
+                return null;
+            }
+        }
 
         /// <summary>
         /// 字間幅および行間幅用のコンバータクラス。

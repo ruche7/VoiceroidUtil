@@ -77,6 +77,13 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public RenderComponent() : base()
         {
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.X = new MovableValue<CoordConst>();
+            this.Y = new MovableValue<CoordConst>();
+            this.Z = new MovableValue<CoordConst>();
+            this.Scale = new MovableValue<ScaleConst>();
+            this.Transparency = new MovableValue<TransparencyConst>();
+            this.Rotation = new MovableValue<RotationConst>();
         }
 
         /// <summary>
@@ -99,7 +106,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<CoordConst>());
             }
         }
-        private MovableValue<CoordConst> x = new MovableValue<CoordConst>();
+        private MovableValue<CoordConst> x = null;
 
         /// <summary>
         /// Y座標を取得または設定する。
@@ -116,7 +123,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<CoordConst>());
             }
         }
-        private MovableValue<CoordConst> y = new MovableValue<CoordConst>();
+        private MovableValue<CoordConst> y = null;
 
         /// <summary>
         /// Z座標を取得または設定する。
@@ -133,7 +140,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<CoordConst>());
             }
         }
-        private MovableValue<CoordConst> z = new MovableValue<CoordConst>();
+        private MovableValue<CoordConst> z = null;
 
         /// <summary>
         /// 拡大率を取得または設定する。
@@ -150,7 +157,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<ScaleConst>());
             }
         }
-        private MovableValue<ScaleConst> scale = new MovableValue<ScaleConst>();
+        private MovableValue<ScaleConst> scale = null;
 
         /// <summary>
         /// 透明度を取得または設定する。
@@ -167,8 +174,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<TransparencyConst>());
             }
         }
-        private MovableValue<TransparencyConst> transparency =
-            new MovableValue<TransparencyConst>();
+        private MovableValue<TransparencyConst> transparency = null;
 
         /// <summary>
         /// 回転角度を取得または設定する。
@@ -185,7 +191,7 @@ namespace RucheHome.AviUtl.ExEdit
                     value ?? new MovableValue<RotationConst>());
             }
         }
-        private MovableValue<RotationConst> rotation = new MovableValue<RotationConst>();
+        private MovableValue<RotationConst> rotation = null;
 
         /// <summary>
         /// 合成モードを取得または設定する。

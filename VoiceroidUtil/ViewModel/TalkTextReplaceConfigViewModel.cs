@@ -172,24 +172,28 @@ namespace VoiceroidUtil.ViewModel
         {
             if (
                 !this.CanModify.Value ||
-                this.AppConfig.Value?.IsTextFileForceMaking != false)
+                (this.AppConfig.Value?.IsTextFileForceMaking != false &&
+                 this.AppConfig.Value?.IsExoFileMaking != false))
             {
                 return;
             }
 
             // 設定有効化
             var statusText = @"ファイル作成設定を有効にしました。";
-            this.AppConfig.Value.IsTextFileForceMaking = true;
-            this.AppConfig.Value.IsExoFileMaking = true;
-            if (target == "exo")
+            if (target == "text")
             {
-                this.AppConfig.Value.IsTextFileForceMaking = false;
+                this.AppConfig.Value.IsTextFileForceMaking = true;
+                statusText = @"テキスト" + statusText;
+            }
+            else if (target == "exo")
+            {
+                this.AppConfig.Value.IsExoFileMaking = true;
                 statusText = @".exo " + statusText;
             }
-            else if (target == "text")
+            else
             {
-                this.AppConfig.Value.IsExoFileMaking = false;
-                statusText = @"テキスト" + statusText;
+                this.AppConfig.Value.IsTextFileForceMaking = true;
+                this.AppConfig.Value.IsExoFileMaking = true;
             }
 
             // ステータス更新

@@ -19,6 +19,12 @@ namespace VoiceroidUtil
         public ExoCharaStyle(VoiceroidId voiceroidId)
         {
             this.VoiceroidId = voiceroidId;
+
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.Render = new RenderComponent();
+            this.Text = new TextComponent();
+            this.Play = new PlayComponent();
+            this.PlaySpeed = new MovableValue<AudioFileComponent.PlaySpeedConst>();
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace VoiceroidUtil
                     value ?? new RenderComponent());
             }
         }
-        private RenderComponent render = new RenderComponent();
+        private RenderComponent render = null;
 
         /// <summary>
         /// テキストコンポーネントを取得または設定する。
@@ -79,11 +85,12 @@ namespace VoiceroidUtil
                     value ?? new TextComponent());
             }
         }
-        private TextComponent text = new TextComponent();
+        private TextComponent text = null;
 
         /// <summary>
         /// テキストを1つ上のオブジェクトでクリッピングするか否かを取得または設定する。
         /// </summary>
+        [DataMember]
         public bool IsTextClipping
         {
             get { return this.textClipping; }
@@ -105,7 +112,7 @@ namespace VoiceroidUtil
                     value ?? new PlayComponent());
             }
         }
-        private PlayComponent play = new PlayComponent();
+        private PlayComponent play = null;
 
         /// <summary>
         /// 再生速度を取得または設定する。
@@ -121,8 +128,7 @@ namespace VoiceroidUtil
                     value ?? new MovableValue<AudioFileComponent.PlaySpeedConst>());
             }
         }
-        private MovableValue<AudioFileComponent.PlaySpeedConst> playSpeed =
-            new MovableValue<AudioFileComponent.PlaySpeedConst>();
+        private MovableValue<AudioFileComponent.PlaySpeedConst> playSpeed = null;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
@@ -130,7 +136,7 @@ namespace VoiceroidUtil
         [OnDeserializing]
         private void OnDeserializing(StreamingContext context)
         {
-            this.ResetDataMembers();
+            this.ResetDataMembers(VoiceroidId.YukariEx);
         }
     }
 }

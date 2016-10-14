@@ -15,6 +15,9 @@ namespace VoiceroidUtil
         /// </summary>
         public ExoConfig()
         {
+            // イベントハンドラ追加のためにプロパティ経由で設定
+            this.Common = new ExoCommonConfig();
+            this.CharaStyles = new ExoCharaStyleSet();
         }
 
         /// <summary>
@@ -31,7 +34,7 @@ namespace VoiceroidUtil
                     value ?? new ExoCommonConfig());
             }
         }
-        private ExoCommonConfig common = new ExoCommonConfig();
+        private ExoCommonConfig common = null;
 
         /// <summary>
         /// キャラクター別スタイルを取得または設定する。
@@ -47,7 +50,7 @@ namespace VoiceroidUtil
                     value ?? new ExoCharaStyleSet());
             }
         }
-        private ExoCharaStyleSet charaStyles = new ExoCharaStyleSet();
+        private ExoCharaStyleSet charaStyles = null;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

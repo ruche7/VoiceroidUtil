@@ -69,6 +69,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 表示領域の幅を取得または設定する。
         /// </summary>
+        [DataMember]
         public int Width
         {
             get { return this.width; }
@@ -84,6 +85,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 表示領域の高さを取得または設定する。
         /// </summary>
+        [DataMember]
         public int Height
         {
             get { return this.height; }
@@ -99,6 +101,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// フレームレートを取得または設定する。
         /// </summary>
+        [DataMember]
         public decimal Fps
         {
             get { return this.fps; }
@@ -116,6 +119,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// 追加フレーム数を取得または設定する。
         /// </summary>
+        [DataMember]
         public int ExtraFrames
         {
             get { return this.extraFrames; }
@@ -131,6 +135,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// テキストと音声をグループ化するか否かを取得または設定する。
         /// </summary>
+        [DataMember]
         public bool IsGrouping
         {
             get { return this.grouping; }

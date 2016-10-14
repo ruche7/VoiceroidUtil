@@ -25,12 +25,37 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<UIConfig>(new UIConfig())
                     .AddTo(this.CompositeDisposable);
 
-            // ViewModel のセットアップ
+            // 直近のアプリ状態値
+            this.LastStatus =
+                new ReactiveProperty<IAppStatus>(new AppStatus())
+                    .AddTo(this.CompositeDisposable);
+
+            // 内包 ViewModel のセットアップ
             this.SetupViewModel();
 
-            // 直近のアプリ状態値
-            // ViewModel から受け取る
-            this.LastStatus = this.CharaStyle.LastStatus;
+            // ファイル作成設定有効化コマンド表示状態
+            this.IsFileMakingCommandInvisible =
+                this.AppConfig
+                    .Select(
+                        config =>
+                            (config == null) ?
+                                Observable.Return(true) :
+                                config.ObserveProperty(c => c.IsExoFileMaking))
+                    .Switch()
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+            this.IsFileMakingCommandVisible =
+                this.IsFileMakingCommandInvisible
+                    .Select(f => !f)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // ファイル作成設定有効化コマンド
+            this.FileMakingCommand =
+                this.MakeCommand(
+                    this.ExecuteFileMakingCommand,
+                    this.CanModify,
+                    this.IsFileMakingCommandVisible);
         }
 
         /// <summary>
@@ -47,14 +72,29 @@ namespace VoiceroidUtil.ViewModel
         public ReactiveProperty<UIConfig> UIConfig { get; }
 
         /// <summary>
+        /// 直近のアプリ状態値を取得する。
+        /// </summary>
+        public ReactiveProperty<IAppStatus> LastStatus { get; }
+
+        /// <summary>
         /// キャラ別スタイル設定 ViewModel を取得する。
         /// </summary>
         public ExoCharaStyleViewModel CharaStyle { get; private set; }
 
         /// <summary>
-        /// 直近のアプリ状態値を取得する。
+        /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
         /// </summary>
-        public IReadOnlyReactiveProperty<IAppStatus> LastStatus { get; }
+        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
+
+        /// <summary>
+        /// ファイル作成設定有効化コマンドを非表示にすべきか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandInvisible { get; }
+
+        /// <summary>
+        /// ファイル作成設定有効化コマンドを取得する。
+        /// </summary>
+        public ReactiveCommand FileMakingCommand { get; }
 
         /// <summary>
         /// 内包 ViewModel のセットアップを行う。
@@ -101,6 +141,34 @@ namespace VoiceroidUtil.ViewModel
             this.CanModify
                 .Subscribe(f => this.CharaStyle.CanModify.Value = f)
                 .AddTo(this.CompositeDisposable);
+
+            // LastStatus 反映
+            this.CharaStyle.LastStatus
+                .Where(s => s != null)
+                .Subscribe(s => this.LastStatus.Value = s)
+                .AddTo(this.CompositeDisposable);
+        }
+
+        /// <summary>
+        /// FileMakingCommand の実処理を行う。
+        /// </summary>
+        private void ExecuteFileMakingCommand()
+        {
+            if (
+                !this.CanModify.Value ||
+                this.AppConfig.Value?.IsExoFileMaking != false)
+            {
+                return;
+            }
+
+            this.AppConfig.Value.IsExoFileMaking = true;
+
+            this.LastStatus.Value =
+                new AppStatus
+                {
+                    StatusType = AppStatusType.Success,
+                    StatusText = @".exo ファイル作成設定を有効にしました。",
+                };
         }
     }
 }

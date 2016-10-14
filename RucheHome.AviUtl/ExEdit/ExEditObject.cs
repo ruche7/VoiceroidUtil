@@ -249,8 +249,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フレームレートのベース値を取得または設定する。
         /// </summary>
+        /// <remarks>
+        /// 本来は整数値だが、『ゆっくりMovieMaker』が実数値で書き出すようなので
+        /// decimal で保持しておく。
+        /// </remarks>
         [ExoFileItem(ExoFileItemNameOfFpsBase, Order = 2)]
-        public int FpsBase { get; set; } = 30;
+        public decimal FpsBase { get; set; } = 30;
 
         /// <summary>
         /// フレームレートのスケール値を取得または設定する。
