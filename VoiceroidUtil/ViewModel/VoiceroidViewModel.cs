@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,10 +8,12 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Hnx8.ReadJEnc;
 using Livet.Messaging.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.AviUtl.ExEdit;
+using RucheHome.Text;
+using RucheHome.Util.Extensions.String;
 using RucheHome.Voiceroid;
 using VoiceroidUtil.Messaging;
 
@@ -19,7 +22,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// VOICEROIDの選択とその操作を提供する ViewModel クラス。
     /// </summary>
-    public class VoiceroidViewModel : Livet.ViewModel
+    public class VoiceroidViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -29,6 +32,9 @@ namespace VoiceroidUtil.ViewModel
             // 設定
             this.TalkTextReplaceConfig =
                 new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig())
+                    .AddTo(this.CompositeDisposable);
+            this.ExoConfig =
+                new ReactiveProperty<ExoConfig>(new ExoConfig())
                     .AddTo(this.CompositeDisposable);
             this.AppConfig =
                 new ReactiveProperty<AppConfig>(new AppConfig())
@@ -101,25 +107,26 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<string>("")
                     .AddTo(this.CompositeDisposable);
             this.TalkTextLengthLimit =
-                new ReactiveProperty<int>(100000)
+                new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
 
-            // コマンド実行用
-            this.RunExitCommandExecuter =
+            // 非同期実行コマンドヘルパー
+            var runExitCommandExecuter =
                 new AsyncCommandExecuter(this.ExecuteRunExitCommand)
                     .AddTo(this.CompositeDisposable);
-            this.PlayStopCommandExecuter =
+            var playStopCommandExecuter =
                 new AsyncCommandExecuter(this.ExecutePlayStopCommand)
                     .AddTo(this.CompositeDisposable);
-            this.SaveCommandExecuter =
+            var saveCommandExecuter =
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
                     () => this.TalkTextReplaceConfig.Value,
+                    () => this.ExoConfig.Value,
                     () => this.AppConfig.Value,
                     () => this.TalkText.Value,
                     async r => await this.OnSaveCommandExecuted(r))
                     .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommandExecuter =
+            var dropTalkTextFileCommandExecuter =
                 new AsyncCommandExecuter<DragEventArgs>(
                     this.ExecuteDropTalkTextFileCommand)
                     .AddTo(this.CompositeDisposable);
@@ -128,10 +135,10 @@ namespace VoiceroidUtil.ViewModel
             this.IsIdle =
                 new[]
                 {
-                    this.RunExitCommandExecuter.ObserveExecutable(),
-                    this.PlayStopCommandExecuter.ObserveExecutable(),
-                    this.SaveCommandExecuter.ObserveExecutable(),
-                    this.DropTalkTextFileCommandExecuter.ObserveExecutable(),
+                    runExitCommandExecuter.ObserveExecutable(),
+                    playStopCommandExecuter.ObserveExecutable(),
+                    saveCommandExecuter.ObserveExecutable(),
+                    dropTalkTextFileCommandExecuter.ObserveExecutable(),
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty()
@@ -139,24 +146,17 @@ namespace VoiceroidUtil.ViewModel
 
             // 実行/終了コマンド
             this.RunExitCommand =
-                new[]
-                {
+                this.MakeAsyncCommand(
+                    runExitCommandExecuter,
                     this.IsIdle,
                     this.IsProcessStartup.Select(f => !f),
                     this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.RunExitCommand
-                .Subscribe(this.RunExitCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    this.IsProcessDialogShowing.Select(f => !f));
 
             // 再生/停止コマンド
             this.PlayStopCommand =
-                new[]
-                {
+                this.MakeAsyncCommand(
+                    playStopCommandExecuter,
                     this.IsIdle,
                     this.IsProcessRunning,
                     this.IsProcessSaving.Select(f => !f),
@@ -166,58 +166,36 @@ namespace VoiceroidUtil.ViewModel
                         this.IsProcessPlaying,
                         this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                     }
-                    .CombineLatest(flags => flags.Any(f => f)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.PlayStopCommand
-                .Subscribe(this.PlayStopCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    .CombineLatest(flags => flags.Any(f => f)));
 
             // 保存コマンド
             this.SaveCommand =
-                new[]
-                {
+                this.MakeAsyncCommand(
+                    saveCommandExecuter,
                     this.IsIdle,
                     this.IsProcessRunning,
                     this.IsProcessSaving.Select(f => !f),
                     this.IsProcessDialogShowing.Select(f => !f),
-                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.SaveCommand
-                .Subscribe(this.SaveCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)));
 
             // トークテキスト用ファイルドラッグオーバーコマンド
             this.DragOverTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DragOverTalkTextFileCommand
-                .Subscribe(this.ExecuteDragOverTalkTextFileCommand)
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<DragEventArgs>(
+                    this.ExecuteDragOverTalkTextFileCommand,
+                    this.IsIdle);
 
             // トークテキスト用ファイルドロップコマンド
             this.DropTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommand
-                .Subscribe(this.DropTalkTextFileCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(dropTalkTextFileCommandExecuter, this.IsIdle);
 
             // プロセス更新タイマ設定＆開始
-            this.ProcessUpdateTimer =
+            var processUpdateTimer =
                 new ReactiveTimer(TimeSpan.FromMilliseconds(100))
                     .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer
+            processUpdateTimer
                 .Subscribe(_ => this.ProcessFactory.Update())
                 .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer.Start();
+            processUpdateTimer.Start();
         }
 
         /// <summary>
@@ -227,6 +205,14 @@ namespace VoiceroidUtil.ViewModel
         /// 外部からの設定以外で更新されることはない。
         /// </remarks>
         public ReactiveProperty<TalkTextReplaceConfig> TalkTextReplaceConfig { get; }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定を取得する。
+        /// </summary>
+        /// <remarks>
+        /// 外部からの設定以外で更新されることはない。
+        /// </remarks>
+        public ReactiveProperty<ExoConfig> ExoConfig { get; }
 
         /// <summary>
         /// アプリ設定を取得する。
@@ -358,63 +344,9 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// テキストファイルを非同期で読み取り、 StringBuilder に追加する。
-        /// </summary>
-        /// <param name="reader">リーダー。</param>
-        /// <param name="fileInfo">ファイル情報。</param>
-        /// <param name="dest">追加先の StringBuilder 。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        private static Task<bool> AppendTextFromFile(
-            FileReader reader,
-            FileInfo fileInfo,
-            StringBuilder dest)
-        {
-            return
-                Task.Run(
-                    () =>
-                    {
-                        reader.Read(fileInfo);
-                        if (reader.Text == null)
-                        {
-                            return false;
-                        }
-                        dest.Append(reader.Text);
-                        return true;
-                    });
-        }
-
-        /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
         private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
-
-        /// <summary>
-        /// VOICEROIDプロセス更新タイマを取得する。
-        /// </summary>
-        private ReactiveTimer ProcessUpdateTimer { get; }
-
-        /// <summary>
-        /// 実行/終了コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter RunExitCommandExecuter { get; }
-
-        /// <summary>
-        /// 再生/停止コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter PlayStopCommandExecuter { get; }
-
-        /// <summary>
-        /// 保存コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private SaveCommandExecuter SaveCommandExecuter { get; }
-
-        /// <summary>
-        /// トークテキスト用ファイルドロップコマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter<DragEventArgs> DropTalkTextFileCommandExecuter
-        {
-            get;
-        }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスのプロパティ変更を監視する
@@ -574,7 +506,9 @@ namespace VoiceroidUtil.ViewModel
                 var info = this.UIConfig.Value?.VoiceroidExecutablePathes[process.Id];
                 if (info == null)
                 {
-                    this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                    this.SetLastStatus(
+                        AppStatusType.Fail,
+                        @"処理を開始できませんでした。");
                     return;
                 }
 
@@ -755,8 +689,7 @@ namespace VoiceroidUtil.ViewModel
                         var infos = Array.ConvertAll(pathes, p => new FileInfo(p));
                         var maxInfo =
                             infos.Aggregate((i1, i2) => (i1.Length > i2.Length) ? i1 : i2);
-                        var totalSize = infos.Sum(i => i.Length);
-                        return new { infos, maxInfo, totalSize };
+                        return new { infos, maxInfo };
                     });
 
             // ファイルサイズチェック
@@ -770,6 +703,31 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
+            // 全ファイル読み取り
+            List<string> fileTexts = null;
+            try
+            {
+                fileTexts = await Task.Run(() => TextFileReader.ReadAll(f.infos));
+            }
+            catch
+            {
+                this.SetLastStatus(
+                    AppStatusType.Fail,
+                    @"ファイルの読み取りに失敗しました。");
+                return;
+            }
+
+            // 読み取り失敗したファイルがある？
+            var failIndex = fileTexts.IndexOf(null);
+            if (failIndex >= 0)
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    f.infos[failIndex].Name + @" の読み取りに失敗しました。",
+                    subStatusText: @"テキストファイルではない可能性があります。");
+                return;
+            }
+
             // 最大文字数
             int lenLimit = this.TalkTextLengthLimit.Value;
             if (lenLimit == 0)
@@ -777,44 +735,33 @@ namespace VoiceroidUtil.ViewModel
                 lenLimit = int.MaxValue;
             }
 
-            // 全ファイル読み取り
+            // 文字列連結
             var text = new StringBuilder();
-            using (var reader = new FileReader((int)f.maxInfo.Length))
+            foreach (var t in fileTexts)
             {
-                foreach (var info in f.infos)
+                // 空文字列でなく、末尾が改行以外ならば改行追加
+                if (text.Length > 0)
                 {
-                    // 空文字列でなく、末尾が改行以外ならば改行追加
-                    if (text.Length > 0)
+                    var end = text[text.Length - 1];
+                    if (end != '\r' && end != '\n')
                     {
-                        var end = text[text.Length - 1];
-                        if (end != '\r' && end != '\n')
-                        {
-                            text.AppendLine();
-                        }
-                    }
-                    if (text.Length >= lenLimit)
-                    {
-                        break;
-                    }
-
-                    // 読み取り
-                    if (!(await AppendTextFromFile(reader, info, text)))
-                    {
-                        this.SetLastStatus(
-                            AppStatusType.Warning,
-                            info.Name + @" の読み取りに失敗しました。",
-                            subStatusText: @"テキストファイルではない可能性があります。");
-                        return;
+                        text.AppendLine();
                     }
                 }
+
+                if (text.Length >= lenLimit)
+                {
+                    break;
+                }
+                text.Append(t);
             }
 
             // 許容文字数以上は切り捨てる
             string warnText = null;
             if (text.Length > lenLimit)
             {
-                text.Remove(lenLimit, text.Length - lenLimit);
-                warnText = lenLimit + @" 文字以上は切り捨てました。";
+                text.RemoveSurrogateSafe(lenLimit);
+                warnText = text.Length + @" 文字以上は切り捨てました。";
             }
 
             // テキスト設定
@@ -842,11 +789,13 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="statusText">状態テキスト。</param>
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
         private void SetLastStatus(
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = "")
+            string subStatusText = "",
+            string subStatusCommand = "")
         {
             this.LastStatus.Value =
                 new AppStatus
@@ -855,6 +804,7 @@ namespace VoiceroidUtil.ViewModel
                     StatusText = statusText ?? "",
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand ?? "",
                 };
         }
     }

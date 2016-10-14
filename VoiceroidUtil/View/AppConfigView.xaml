@@ -41,7 +41,7 @@
 
     <StackPanel Orientation="Vertical">
         <Expander Header="一般" IsExpanded="{Binding UIConfig.Value.IsGeneralConfigExpanded}">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel
                     Orientation="Vertical"
                     IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
@@ -63,7 +63,7 @@
             Header="音声保存"
             IsExpanded="{Binding UIConfig.Value.IsSaveConfigExpanded}"
             Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -136,7 +136,10 @@
                             IsEnabled="{Binding IsChecked, ElementName=Setting_ForceText}"
                             Margin="20,4,0,0" />
                         <CheckBox
-                            x:Name="Setting_IsTextClearing"
+                            Content="AviUtl拡張編集ファイル(.exo)を作成(_V)"
+                            IsChecked="{Binding Value.IsExoFileMaking}"
+                            Margin="0,4,0,0" />
+                        <CheckBox
                             Content="保存成功時に入力文をクリア(_C)"
                             IsChecked="{Binding Value.IsTextClearing}"
                             Margin="0,4,0,0" />
@@ -148,7 +151,7 @@
             Header="ゆっくりMovieMaker連携"
             IsExpanded="{Binding UIConfig.Value.IsYmmConfigExpanded}"
             Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="8">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel
                     Orientation="Vertical"
                     IsEnabled="{Binding CanModify.Value, Mode=OneWay}">

@@ -9,15 +9,14 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 namespace VoiceroidUtil.Messaging
 {
     /// <summary>
-    /// AppSaveDirectorySelectionMessage を受け取って処理するアクションクラス。
+    /// OpenFileDialogMessage を受け取って処理するアクションクラス。
     /// </summary>
-    public class AppSaveDirectorySelectionMessageAction
-        : InteractionMessageAction<FrameworkElement>
+    public class OpenFileDialogMessageAction : InteractionMessageAction<FrameworkElement>
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AppSaveDirectorySelectionMessageAction()
+        public OpenFileDialogMessageAction()
         {
         }
 
@@ -48,7 +47,7 @@ namespace VoiceroidUtil.Messaging
 
         protected override void InvokeAction(InteractionMessage message)
         {
-            var m = message as AppSaveDirectorySelectionMessage;
+            var m = message as OpenFileDialogMessage;
             if (m == null)
             {
                 return;
@@ -56,19 +55,17 @@ namespace VoiceroidUtil.Messaging
 
             m.Response = null;
 
-            if (m.Config == null || !CommonOpenFileDialog.IsPlatformSupported)
+            if (!CommonOpenFileDialog.IsPlatformSupported)
             {
                 return;
             }
 
-            // フォルダ選択ダイアログでパスを取得
-            string path;
             using (var dialog = new CommonOpenFileDialog())
             {
-                dialog.IsFolderPicker = true;
-                dialog.Title = @"音声保存先の選択";
-                dialog.InitialDirectory =
-                    MakeInitialDirectoryPath(m.Config.SaveDirectoryPath);
+                dialog.IsFolderPicker = m.IsFolderPicker;
+                dialog.Title = m.Title;
+                dialog.InitialDirectory = MakeInitialDirectoryPath(m.InitialDirectory);
+                m.Filters?.ForEach(f => dialog.Filters.Add(f));
                 dialog.EnsureValidNames = true;
                 dialog.EnsurePathExists = false;
                 dialog.EnsureFileExists = false;
@@ -84,21 +81,13 @@ namespace VoiceroidUtil.Messaging
                     return;
                 }
 
-                path = Path.GetFullPath(dialog.FileName);
-            }
-
-            // パスが正常かチェック
-            m.Response = FilePathUtil.CheckPathStatus(path);
-            if (m.Response.StatusType == AppStatusType.None)
-            {
-                // 正常ならアプリ設定を上書き
-                m.Config.SaveDirectoryPath = path;
+                m.Response = Path.GetFullPath(dialog.FileName);
             }
         }
 
         protected override Freezable CreateInstanceCore()
         {
-            return new AppSaveDirectorySelectionMessageAction();
+            return new OpenFileDialogMessageAction();
         }
 
         #endregion

@@ -5,7 +5,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// アプリ状態を提供する ViewModel クラス。
     /// </summary>
-    public class AppStatusViewModel : Livet.ViewModel
+    public class AppStatusViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -20,15 +20,7 @@ namespace VoiceroidUtil.ViewModel
         public IAppStatus Value
         {
             get { return this.value; }
-            set
-            {
-                var old = this.Value;
-                this.value = value ?? (new AppStatus());
-                if (this.Value != old)
-                {
-                    this.RaisePropertyChanged();
-                }
-            }
+            set { this.SetProperty(ref this.value, value ?? new AppStatus()); }
         }
         private IAppStatus value = new AppStatus();
     }

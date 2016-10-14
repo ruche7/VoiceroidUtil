@@ -18,7 +18,7 @@
     UseLayoutRounding="True"
     Width="400"
     Height="420"
-    MinWidth="320"
+    MinWidth="360"
     MinHeight="240"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -49,6 +49,7 @@
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding UIConfig.LoadCommand}" />
             <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.LoadCommand}" />
+            <i:InvokeCommandAction Command="{Binding ExoConfig.LoadCommand}" />
             <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
         </i:EventTrigger>
         <i:EventTrigger
@@ -64,13 +65,16 @@
             EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.SaveCommand}" />
         </i:EventTrigger>
+        <i:EventTrigger SourceObject="{Binding ExoConfig.Value}" EventName="PropertyChanged">
+            <i:InvokeCommandAction Command="{Binding ExoConfig.SaveCommand}" />
+        </i:EventTrigger>
         <i:EventTrigger SourceObject="{Binding AppConfig.Value}" EventName="PropertyChanged">
             <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
         </i:EventTrigger> 
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.AppSaveDirectorySelectionMessageKey}">
-            <msg:AppSaveDirectorySelectionMessageAction />
+            MessageKey="{x:Static msg:MessageKeys.OpenFileDialogMessageKey}">
+            <msg:OpenFileDialogMessageAction />
         </l:InteractionMessageTrigger>
         <l:InteractionMessageTrigger
             Messenger="{Binding Messenger}"
@@ -126,8 +130,17 @@
             <TabItem>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
+                        <Image Source="/VoiceroidUtil;component/resources/icon/exo.png" />
+                        <AccessText Text=".exo(_3)" Margin="2,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+                <v:ExoConfigView DataContext="{Binding ExoConfig}" Margin="2" />
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
-                        <AccessText Text="設定(_3)" Margin="2,0,0,0" />
+                        <AccessText Text="設定(_4)" Margin="2,0,0,0" />
                     </StackPanel>
                 </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">

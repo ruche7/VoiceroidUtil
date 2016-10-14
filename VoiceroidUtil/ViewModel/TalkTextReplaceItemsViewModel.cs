@@ -12,7 +12,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// TalkTextReplaceItemCollection インスタンスの操作を提供する ViewModel クラス。
     /// </summary>
-    public class TalkTextReplaceItemsViewModel : Livet.ViewModel
+    public class TalkTextReplaceItemsViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -24,74 +24,53 @@ namespace VoiceroidUtil.ViewModel
             this.Items = new TalkTextReplaceItemCollection();
 
             // アイテム追加コマンド
-            this.AddCommand = (new ReactiveCommand()).AddTo(this.CompositeDisposable);
-            this.AddCommand
-                .Subscribe(
-                    _ =>
+            this.AddCommand =
+                this.MakeCommand(
+                    () =>
                     {
                         this.Items.Add(new TalkTextReplaceItem());
                         this.SelectedIndex = this.Items.Count - 1;
-                    })
-                .AddTo(this.CompositeDisposable);
+                    });
 
             // プリセットアイテム追加コマンド
             this.AddPresetCommand =
-                new ReactiveCommand<TalkTextReplacePreset>()
-                    .AddTo(this.CompositeDisposable);
-            this.AddPresetCommand
-                .Subscribe(this.ExecuteAddPresetCommand)
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<TalkTextReplacePreset>(this.ExecuteAddPresetCommand);
 
             // アイテム削除コマンド
             this.RemoveCommand =
-                this.ItemListChangedNotifier
-                    .Select(
-                        _ =>
-                            this.SelectedIndex >= 0 &&
-                            this.SelectedIndex < this.Items.Count)
-                    .ToReactiveCommand(false)
-                    .AddTo(this.CompositeDisposable);
-            this.RemoveCommand
-                .Subscribe(_ => this.ExecuteRemoveCommand())
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand(
+                    this.ExecuteRemoveCommand,
+                    this.ItemListChangedNotifier
+                        .Select(
+                            _ =>
+                                this.SelectedIndex >= 0 &&
+                                this.SelectedIndex < this.Items.Count));
 
             // アイテムクリアコマンド
             this.ClearCommand =
-                this.ItemListChangedNotifier
-                    .Select(_ => this.Items.Count > 0)
-                    .ToReactiveCommand()
-                    .AddTo(this.CompositeDisposable);
-            this.ClearCommand
-                .Subscribe(_ => this.Items.Clear())
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand(
+                    this.Items.Clear,
+                    this.ItemListChangedNotifier.Select(_ => this.Items.Count > 0));
 
             // アイテム上移動コマンド
             this.UpCommand =
-                this.ItemListChangedNotifier
-                    .Select(
-                        _ =>
-                            this.SelectedIndex > 0 &&
-                            this.SelectedIndex < this.Items.Count)
-                    .ToReactiveCommand(false)
-                    .AddTo(this.CompositeDisposable);
-            this.UpCommand
-                .Subscribe(
-                    _ => this.Items.Move(this.SelectedIndex, this.SelectedIndex - 1))
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand(
+                    () => this.Items.Move(this.SelectedIndex, this.SelectedIndex - 1),
+                    this.ItemListChangedNotifier
+                        .Select(
+                            _ =>
+                                this.SelectedIndex > 0 &&
+                                this.SelectedIndex < this.Items.Count));
 
             // アイテム下移動コマンド
             this.DownCommand =
-                this.ItemListChangedNotifier
-                    .Select(
-                        _ =>
-                            this.SelectedIndex >= 0 &&
-                            this.SelectedIndex + 1 < this.Items.Count)
-                    .ToReactiveCommand(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DownCommand
-                .Subscribe(
-                    _ => this.Items.Move(this.SelectedIndex, this.SelectedIndex + 1))
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand(
+                    () => this.Items.Move(this.SelectedIndex, this.SelectedIndex + 1),
+                    this.ItemListChangedNotifier
+                        .Select(
+                            _ =>
+                                this.SelectedIndex >= 0 &&
+                                this.SelectedIndex + 1 < this.Items.Count));
         }
 
         /// <summary>
