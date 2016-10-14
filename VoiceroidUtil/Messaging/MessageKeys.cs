@@ -9,10 +9,10 @@ namespace VoiceroidUtil.Messaging
     public static class MessageKeys
     {
         /// <summary>
-        /// AppSaveDirectorySelectionMessage 用のメッセージキー文字列を取得する。
+        /// OpenFileDialogMessage 用のメッセージキー文字列を取得する。
         /// </summary>
-        public static string AppSaveDirectorySelectionMessageKey { get; } =
-            AppSaveDirectorySelectionMessage.DefaultMessageKey;
+        public static string OpenFileDialogMessageKey { get; } =
+            OpenFileDialogMessage.DefaultMessageKey;
 
         /// <summary>
         /// DirectoryOpenMessage 用のメッセージキー文字列を取得する。

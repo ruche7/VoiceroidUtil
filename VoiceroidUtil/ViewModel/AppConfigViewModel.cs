@@ -32,51 +32,31 @@ namespace VoiceroidUtil.ViewModel
 
             // 保存先ディレクトリ選択コマンド
             this.SelectSaveDirectoryCommand =
-                this.CanModify.ToReactiveCommand().AddTo(this.CompositeDisposable);
-            this.SelectSaveDirectoryCommand
-                .Subscribe(async _ => await this.ExecuteSelectSaveDirectoryCommand())
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(
+                    this.ExecuteSelectSaveDirectoryCommand,
+                    this.CanModify);
 
             // 保存先ディレクトリオープンコマンド
             this.OpenSaveDirectoryCommand =
-                (new ReactiveCommand()).AddTo(this.CompositeDisposable);
-            this.OpenSaveDirectoryCommand
-                .Subscribe(async _ => await this.ExecuteOpenSaveDirectoryCommand())
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(this.ExecuteOpenSaveDirectoryCommand);
 
             // 保存先ディレクトリドラッグオーバーコマンド
             this.DragOverSaveDirectoryCommand =
-                this.CanModify
-                    .ToReactiveCommand<DragEventArgs>()
-                    .AddTo(this.CompositeDisposable);
-            this.DragOverSaveDirectoryCommand
-                .Subscribe(e => this.ExecuteDragOverSaveDirectoryCommand(e))
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<DragEventArgs>(
+                    this.ExecuteDragOverSaveDirectoryCommand,
+                    this.CanModify);
 
             // 保存先ディレクトリドロップコマンド
             this.DropSaveDirectoryCommand =
-                this.CanModify
-                    .ToReactiveCommand<DragEventArgs>()
-                    .AddTo(this.CompositeDisposable);
-            this.DropSaveDirectoryCommand
-                .Subscribe(e => this.ExecuteDropSaveDirectoryCommand(e))
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<DragEventArgs>(
+                    this.ExecuteDropSaveDirectoryCommand,
+                    this.CanModify);
 
             // アプリ更新情報チェックコマンド
             this.UpdateCheckCommand =
-                this
-                    .ObserveProperty(self => self.Value)
-                    .Select(
-                        config =>
-                            (config == null) ?
-                                Observable.Return(false) :
-                                config.ObserveProperty(c => c.IsUpdateCheckingOnStartup))
-                    .Switch()
-                    .ToReactiveCommand(false)
-                    .AddTo(this.CompositeDisposable);
-            this.UpdateCheckCommand
-                .Subscribe(async _ => await this.UpdateChecker.Run())
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(
+                    this.UpdateChecker.Run,
+                    this.ObserveConfigProperty(c => c.IsUpdateCheckingOnStartup));
 
             // アプリ更新があるなら通知
             this.UpdateChecker
@@ -183,12 +163,26 @@ namespace VoiceroidUtil.ViewModel
             // メッセージ送信
             var msg =
                 await this.Messenger.GetResponseAsync(
-                    new AppSaveDirectorySelectionMessage { Config = this.Value });
+                    new OpenFileDialogMessage
+                    {
+                        IsFolderPicker = true,
+                        Title = @"音声保存先の選択",
+                        InitialDirectory = this.Value.SaveDirectoryPath,
+                    });
 
-            // 結果の状態値を設定
+            // 選択された？
             if (msg.Response != null)
             {
-                this.LastStatus.Value = msg.Response;
+                // パスが正常かチェック
+                var status = FilePathUtil.CheckPathStatus(msg.Response);
+                if (status.StatusType == AppStatusType.None)
+                {
+                    // 正常ならアプリ設定を上書き
+                    this.Value.SaveDirectoryPath = msg.Response;
+                }
+
+                // ステータス更新
+                this.LastStatus.Value = status;
             }
         }
 

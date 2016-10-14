@@ -9,7 +9,6 @@ namespace VoiceroidUtil
     /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを定義するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
     public class YmmCharaRelation : BindableConfigBase
     {
         /// <summary>

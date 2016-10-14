@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -13,8 +15,8 @@ namespace VoiceroidUtil.ViewModel
     /// 設定値を保持する ViewModel のベースクラス。
     /// </summary>
     /// <typeparam name="T">設定値の型。</typeparam>
-    public class ConfigViewModelBase<T> : Livet.ViewModel
-        where T : new()
+    public abstract class ConfigViewModelBase<T> : ViewModelBase
+        where T : INotifyPropertyChanged, new()
     {
         /// <summary>
         /// コンストラクタ。
@@ -47,17 +49,12 @@ namespace VoiceroidUtil.ViewModel
 
             // ロードコマンド
             this.LoadCommand =
-                this.CanModify.ToReactiveCommand().AddTo(this.CompositeDisposable);
-            this.LoadCommand
-                .Subscribe(async _ => await this.ExecuteLoadCommand())
-                .AddTo(this.CompositeDisposable);
+                this.MakeAsyncCommand(this.ExecuteLoadCommand, this.CanModify);
 
             // セーブコマンド
             // セーブ要求 Subject に通知するのみ
-            this.SaveCommand = (new ReactiveCommand()).AddTo(this.CompositeDisposable);
-            this.SaveCommand
-                .Subscribe(_ => this.SaveRequestSubject.OnNext(null))
-                .AddTo(this.CompositeDisposable);
+            this.SaveCommand =
+                this.MakeCommand(() => this.SaveRequestSubject.OnNext(null));
         }
 
         /// <summary>
@@ -70,12 +67,9 @@ namespace VoiceroidUtil.ViewModel
             {
                 if (this.CanModify.Value)
                 {
-                    var old = this.Value;
-                    this.value = (value == null) ? (new T()) : value;
-                    if (!EqualityComparer<T>.Default.Equals(this.Value, old))
-                    {
-                        this.RaisePropertyChanged();
-                    }
+                    this.SetProperty(
+                        ref this.value,
+                        (value == null) ? (new T()) : value);
                 }
             }
         }
@@ -103,6 +97,26 @@ namespace VoiceroidUtil.ViewModel
         /// 設定セーブコマンドを取得する。
         /// </summary>
         public ReactiveCommand SaveCommand { get; }
+
+        /// <summary>
+        /// 設定値のプロパティの変更通知オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="U">プロパティ型。</typeparam>
+        /// <param name="selector">プロパティセレクタ。</param>
+        /// <param name="returnOnNull">設定値が null の場合に通知する値。</param>
+        /// <returns>変更通知オブジェクト。</returns>
+        public IObservable<U> ObserveConfigProperty<U>(
+            Expression<Func<T, U>> selector,
+            U returnOnNull = default(U))
+            =>
+            this
+                .ObserveProperty(self => self.Value)
+                .Select(
+                    config =>
+                        (config == null) ?
+                            Observable.Return(returnOnNull) :
+                            config.ObserveProperty(selector))
+                .Switch();
 
         /// <summary>
         /// 設定の保持と読み書きを行うオブジェクトを取得する。

@@ -10,7 +10,7 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// メインウィンドウの ViewModel クラス。
     /// </summary>
-    public class MainWindowViewModel : Livet.ViewModel
+    public class MainWindowViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -22,6 +22,7 @@ namespace VoiceroidUtil.ViewModel
             this.UIConfig = (new UIConfigViewModel()).AddTo(this.CompositeDisposable);
             this.TalkTextReplaceConfig =
                 (new TalkTextReplaceConfigViewModel()).AddTo(this.CompositeDisposable);
+            this.ExoConfig = (new ExoConfigViewModel()).AddTo(this.CompositeDisposable);
             this.AppConfig = (new AppConfigViewModel()).AddTo(this.CompositeDisposable);
             this.LastStatus = (new AppStatusViewModel()).AddTo(this.CompositeDisposable);
 
@@ -29,6 +30,8 @@ namespace VoiceroidUtil.ViewModel
             this.Voiceroid.Messenger = this.Messenger;
             this.UIConfig.Messenger = this.Messenger;
             this.TalkTextReplaceConfig.Messenger = this.Messenger;
+            this.ExoConfig.Messenger = this.Messenger;
+            this.ExoConfig.CharaStyle.Messenger = this.Messenger;
             this.AppConfig.Messenger = this.Messenger;
             this.LastStatus.Messenger = this.Messenger;
 
@@ -38,11 +41,13 @@ namespace VoiceroidUtil.ViewModel
             // 同期コンテキスト設定
             this.UIConfig.Value.SynchronizationContext = syncContext;
             this.TalkTextReplaceConfig.Value.SynchronizationContext = syncContext;
+            this.ExoConfig.Value.SynchronizationContext = syncContext;
             this.AppConfig.Value.SynchronizationContext = syncContext;
 
             // UI設定を UIConfigViewModel のもので上書き
             this.Voiceroid.UIConfig.Value = this.UIConfig.Value;
             this.TalkTextReplaceConfig.UIConfig.Value = this.UIConfig.Value;
+            this.ExoConfig.UIConfig.Value = this.UIConfig.Value;
             this.AppConfig.UIConfig.Value = this.UIConfig.Value;
             this.UIConfig
                 .ObserveProperty(c => c.Value)
@@ -55,6 +60,7 @@ namespace VoiceroidUtil.ViewModel
                         // 各 ViewModel に設定
                         this.Voiceroid.UIConfig.Value = c;
                         this.TalkTextReplaceConfig.UIConfig.Value = c;
+                        this.ExoConfig.UIConfig.Value = c;
                         this.AppConfig.UIConfig.Value = c;
                     })
                 .AddTo(this.CompositeDisposable);
@@ -74,9 +80,25 @@ namespace VoiceroidUtil.ViewModel
                     })
                 .AddTo(this.CompositeDisposable);
 
+            // AviUtl拡張編集ファイル用設定を ExoConfigViewModel のもので上書き
+            this.Voiceroid.ExoConfig.Value = this.ExoConfig.Value;
+            this.ExoConfig
+                .ObserveProperty(c => c.Value)
+                .Subscribe(
+                    c =>
+                    {
+                        // 同期コンテキスト設定
+                        c.SynchronizationContext = syncContext;
+
+                        // 各 ViewModel に設定
+                        this.Voiceroid.ExoConfig.Value = c;
+                    })
+                .AddTo(this.CompositeDisposable);
+
             // アプリ設定を AppConfigViewModel のもので上書き
             this.Voiceroid.AppConfig.Value = this.AppConfig.Value;
             this.TalkTextReplaceConfig.AppConfig.Value = this.AppConfig.Value;
+            this.ExoConfig.AppConfig.Value = this.AppConfig.Value;
             this.AppConfig
                 .ObserveProperty(c => c.Value)
                 .Subscribe(
@@ -88,6 +110,7 @@ namespace VoiceroidUtil.ViewModel
                         // 各 ViewModel に設定
                         this.Voiceroid.AppConfig.Value = c;
                         this.TalkTextReplaceConfig.AppConfig.Value = c;
+                        this.ExoConfig.AppConfig.Value = c;
                     })
                 .AddTo(this.CompositeDisposable);
 
@@ -97,6 +120,7 @@ namespace VoiceroidUtil.ViewModel
                     idle =>
                     {
                         this.TalkTextReplaceConfig.CanModify.Value = idle;
+                        this.ExoConfig.CanModify.Value = idle;
                         this.AppConfig.CanModify.Value = idle;
                     })
                 .AddTo(this.CompositeDisposable);
@@ -104,6 +128,7 @@ namespace VoiceroidUtil.ViewModel
                 .Merge(
                     this.Voiceroid.LastStatus,
                     this.TalkTextReplaceConfig.LastStatus,
+                    this.ExoConfig.LastStatus,
                     this.AppConfig.LastStatus)
                 .Where(s => s != null)
                 .Subscribe(s => this.LastStatus.Value = s)
@@ -141,6 +166,11 @@ namespace VoiceroidUtil.ViewModel
         /// トークテキスト置換設定 ViewModel を取得する。
         /// </summary>
         public TalkTextReplaceConfigViewModel TalkTextReplaceConfig { get; }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定 ViewModel を取得する。
+        /// </summary>
+        public ExoConfigViewModel ExoConfig { get; }
 
         /// <summary>
         /// アプリ設定 ViewModel を取得する。
