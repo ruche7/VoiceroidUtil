@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StatusBar>
+    <StatusBar Background="#DDDDDD">
         <StatusBarItem x:Name="status" Padding="5,3">
             <!-- アプリ状態更新時の発光色設定 -->
             <StatusBarItem.Style>
