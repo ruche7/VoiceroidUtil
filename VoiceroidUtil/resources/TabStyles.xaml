@@ -1,0 +1,153 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:VoiceroidUtil">
+
+    <!-- Brushes -->
+    <LinearGradientBrush
+        x:Key="modernTabItemBackgroundDefault"
+        StartPoint="0,0"
+        EndPoint="0,1">
+        <GradientStop Color="#B0E474" Offset="0" />
+        <GradientStop Color="#B0E474" Offset="0.1" />
+        <GradientStop Color="White" Offset="0.2" />
+        <GradientStop Color="White" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush
+        x:Key="modernTabItemBackgroundYukari"
+        StartPoint="0,0"
+        EndPoint="0,1">
+        <GradientStop Color="#EFCCFF" Offset="0" />
+        <GradientStop Color="#EFCCFF" Offset="0.1" />
+        <GradientStop Color="White" Offset="0.2" />
+        <GradientStop Color="White" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush
+        x:Key="modernTabItemBackgroundMaki"
+        StartPoint="0,0"
+        EndPoint="0,1">
+        <GradientStop Color="#FFEB90" Offset="0" />
+        <GradientStop Color="#FFEB90" Offset="0.1" />
+        <GradientStop Color="White" Offset="0.2" />
+        <GradientStop Color="White" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush
+        x:Key="modernTabItemBackgroundAkane"
+        StartPoint="0,0"
+        EndPoint="0,1">
+        <GradientStop Color="#FFCCDA" Offset="0" />
+        <GradientStop Color="#FFCCDA" Offset="0.1" />
+        <GradientStop Color="White" Offset="0.2" />
+        <GradientStop Color="White" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush
+        x:Key="modernTabItemBackgroundAoi"
+        StartPoint="0,0"
+        EndPoint="0,1">
+        <GradientStop Color="#CAEBFF" Offset="0" />
+        <GradientStop Color="#CAEBFF" Offset="0.1" />
+        <GradientStop Color="White" Offset="0.2" />
+        <GradientStop Color="White" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Controls -->
+    <Style x:Key="modernTabControl" TargetType="TabControl">
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="BorderBrush" Value="#DDDDDD" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+
+                        <TabPanel
+                            x:Name="HeaderPanel"
+                            IsItemsHost="True"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,-1"
+                            Grid.Row="0"
+                            Panel.ZIndex="1"
+                            KeyboardNavigation.TabIndex="1" />
+                        <Border
+                            x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Padding="{TemplateBinding Padding}"
+                            Grid.Row="1"
+                            KeyboardNavigation.TabIndex="2"
+                            KeyboardNavigation.TabNavigation="Local"
+                            KeyboardNavigation.DirectionalNavigation="Contained">
+                            <ContentPresenter
+                                x:Name="PART_SelectedContentHost"
+                                ContentSource="SelectedContent" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="modernTabItem" TargetType="TabItem">
+        <Setter
+            Property="Background"
+            Value="{StaticResource modernTabItemBackgroundDefault}" />
+        <Setter Property="BorderThickness" Value="0,0,1,0" />
+        <Setter Property="BorderBrush" Value="#DDDDDD" />
+        <Setter Property="Padding" Value="12,6,12,4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <StackPanel>
+                        <Border
+                            x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                x:Name="content"
+                                ContentSource="Header"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                RecognizesAccessKey="True" />
+                        </Border>
+                    </StackPanel>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter
+                                TargetName="Border"
+                                Property="Background"
+                                Value="#DDDDDD" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False" />
+                                <Condition Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border" Property="Background">
+                                <Setter.Value>
+                                    <RadialGradientBrush
+                                        GradientOrigin="0.5,1"
+                                        Center="0.5,1"
+                                        RadiusX="1"
+                                        RadiusY="1">
+                                        <GradientStop Color="White" Offset="0" />
+                                        <GradientStop Color="White" Offset="0.5" />
+                                        <GradientStop Color="#DDDDDD" Offset="1" />
+                                    </RadialGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

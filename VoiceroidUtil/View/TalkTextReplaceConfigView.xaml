@@ -22,20 +22,26 @@
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <TabControl SelectedIndex="{Binding UIConfig.Value.TalkTextReplaceConfigTabIndex}">
-        <TabItem>
+    <TabControl
+        SelectedIndex="{Binding UIConfig.Value.TalkTextReplaceConfigTabIndex}"
+        Style="{StaticResource modernTabControl}">
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/file_sound.png" />
                     <AccessText Text="音声(_V)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
-            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="2">
+            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="4">
                 <Label Margin="0,0,0,2" DockPanel.Dock="Top">
                     <TextBlock>
                         VOICEROIDにしゃべらせる文章の置換設定です。<LineBreak />
@@ -45,14 +51,16 @@
                 <v:TalkTextReplaceItemsView DataContext="{Binding VoiceReplaceItems}" />
             </DockPanel>
         </TabItem>
-        <TabItem>
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/file_text.png" />
                     <AccessText Text="字幕(_T)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
-            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="2">
+            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="4">
                 <Label Margin="0,0,0,2" DockPanel.Dock="Top">
                     <TextBlock>
                         字幕用ファイルに保存する文章の置換設定です。<LineBreak />
