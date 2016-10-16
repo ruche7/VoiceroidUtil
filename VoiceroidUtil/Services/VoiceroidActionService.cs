@@ -19,6 +19,7 @@ namespace VoiceroidUtil.Services
         /// <param name="window">メインウィンドウ。</param>
         public VoiceroidActionService(Window window)
         {
+            this.Window = window;
         }
 
         /// <summary>
@@ -99,17 +100,24 @@ namespace VoiceroidUtil.Services
             // VOICEROIDのメインウィンドウ作成
             var processWin = new Win32Window(process.MainWindowHandle);
 
-            // アクション別処理
+            // アクション別メソッド作成
+            Action method = null;
             switch (action)
             {
             case VoiceroidAction.Forward:
-                await Task.Run(() => this.DoForwardAction(processWin));
+                method = () => this.DoForwardAction(processWin);
                 break;
 
             case VoiceroidAction.StopFlash:
-                await Task.Run(() => this.DoStopFlashAction(processWin));
+                method = () => this.DoStopFlashAction(processWin);
                 break;
+
+            default:
+                return;
             }
+
+            // メソッド実施
+            await this.Window.Dispatcher.InvokeAsync(method);
         }
 
         #endregion

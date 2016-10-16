@@ -14,9 +14,7 @@
     x:Class="VoiceroidUtil.View.ExoCharaStyleView"
     mc:Ignorable="d"
     d:DesignWidth="320"
-    d:DataContext="{d:DesignInstance
-        Type={x:Type vm:ExoCharaStyleViewModel},
-        IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance vm:ExoCharaStyleViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -60,12 +58,12 @@
     <StackPanel Orientation="Vertical">
         <Expander
             Header="テキスト"
-            IsExpanded="{Binding UIConfig.Value.IsExoCharaTextExpanded}">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6,2,6,6">
+            IsExpanded="{Binding IsTextUIExpanded.Value}">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4,2,4,6">
                 <StackPanel Orientation="Vertical">
                     <Expander
                         Header=".exo ファイルから設定をインポート"
-                        IsExpanded="{Binding UIConfig.Value.IsExoCharaTextImportExpanded}">
+                        IsExpanded="{Binding IsTextImportUIExpanded.Value}">
                         <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4">
                             <DockPanel IsEnabled="{Binding CanModify.Value}">
                                 <Button
@@ -83,9 +81,9 @@
                                     <i:Interaction.Behaviors>
                                         <ru:DragDropCommandBehavior
                                             PreviewDragOverCommand="{Binding
-                                                DragOverTemplateFileCommand}"
+                                                Path=DragOverTemplateFileCommand}"
                                             DropCommand="{Binding
-                                                DropTemplateFileCommand}" />
+                                                Path=DropTemplateFileCommand}" />
                                     </i:Interaction.Behaviors>
                                 </Button>
                                 <StackPanel
@@ -93,8 +91,8 @@
                                     IsEnabled="{Binding HasTemplate.Value}"
                                     Margin="4,0,0,0">
                                     <ComboBox
-                                        ItemsSource="{Binding Templates}"
-                                        SelectedIndex="{Binding SelectedTemplateIndex}"
+                                        ItemsSource="{Binding Templates.Value}"
+                                        SelectedIndex="{Binding SelectedTemplateIndex.Value}"
                                         DisplayMemberPath="Description" />
                                     <Button
                                         Command="{Binding ApplyTemplateCommand}"
@@ -112,8 +110,11 @@
                             </DockPanel>
                         </Border>
                     </Expander>
-                    <StackPanel Orientation="Vertical" IsEnabled="{Binding CanModify.Value}">
-                        <v:MovableValueControl DataContext="{Binding X}" Margin="0,4,0,0" />
+                    <StackPanel
+                        Orientation="Vertical"
+                        IsEnabled="{Binding CanModify.Value}"
+                        Margin="2,4,2,0">
+                        <v:MovableValueControl DataContext="{Binding X}" />
                         <v:MovableValueControl DataContext="{Binding Y}" Margin="0,4,0,0" />
                         <v:MovableValueControl DataContext="{Binding Z}" Margin="0,4,0,0" />
                         <v:MovableValueControl
@@ -138,7 +139,7 @@
                             <ComboBox
                                 x:Name="Text_BlendMode"
                                 ItemsSource="{Binding Source={StaticResource blendModes}}"
-                                SelectedItem="{Binding Value.Render.BlendMode}"
+                                SelectedItem="{Binding Render.Value.BlendMode}"
                                 MinWidth="104"
                                 Margin="4,0,0,0">
                                 <ComboBox.ItemTemplate>
@@ -153,12 +154,12 @@
                         </StackPanel>
                         <CheckBox
                             Content="文字毎に個別オブジェクト(_O)"
-                            IsChecked="{Binding Value.Text.IsIndividualizing}"
+                            IsChecked="{Binding Text.Value.IsIndividualizing}"
                             Margin="0,4,0,0" />
                         <CheckBox
                             Content="移動座標上に表示する(_L)"
-                            IsChecked="{Binding Value.Text.IsAligningOnMotion}"
-                            IsEnabled="{Binding Value.Text.IsIndividualizing}"
+                            IsChecked="{Binding Text.Value.IsAligningOnMotion}"
+                            IsEnabled="{Binding Text.Value.IsIndividualizing}"
                             Margin="20,4,0,0" />
                         <Grid Margin="0,4,0,0">
                             <Grid.RowDefinitions>
@@ -180,7 +181,7 @@
                             <ComboBox
                                 x:Name="Text_FontFamilyName"
                                 ItemsSource="{Binding FontFamilyNames}"
-                                SelectedItem="{Binding Value.Text.FontFamilyName}"
+                                SelectedItem="{Binding Text.Value.FontFamilyName}"
                                 Margin="4,0,0,0"
                                 Grid.Row="0" Grid.Column="1" />
                             <tk:DropDownButton
@@ -195,7 +196,7 @@
                                             RadiusX="4" RadiusY="4">
                                             <Rectangle.Fill>
                                                 <SolidColorBrush
-                                                    Color="{Binding Value.Text.FontColor}" />
+                                                    Color="{Binding Text.Value.FontColor}" />
                                             </Rectangle.Fill>
                                         </Rectangle>
                                         <AccessText Text="文字色(_C)" Margin="4,0,0,0" />
@@ -203,7 +204,7 @@
                                 </tk:DropDownButton.Content>
                                 <tk:DropDownButton.DropDownContent>
                                     <tk:ColorCanvas
-                                        SelectedColor="{Binding Value.Text.FontColor}"
+                                        SelectedColor="{Binding Text.Value.FontColor}"
                                         UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
                             </tk:DropDownButton>
@@ -217,7 +218,7 @@
                                 x:Name="Text_FontDecoration"
                                 ItemsSource="{Binding
                                     Source={StaticResource fontDecorations}}"
-                                SelectedItem="{Binding Value.Text.FontDecoration}"
+                                SelectedItem="{Binding Text.Value.FontDecoration}"
                                 Margin="4,0,0,0"
                                 Grid.Row="2" Grid.Column="1">
                                 <ComboBox.ItemTemplate>
@@ -242,7 +243,7 @@
                                             <Rectangle.Fill>
                                                 <SolidColorBrush
                                                     Color="{Binding
-                                                        Path=Value.Text.FontDecorationColor}" />
+                                                        Path=Text.Value.FontDecorationColor}" />
                                             </Rectangle.Fill>
                                         </Rectangle>
                                         <AccessText Text="影・縁色(_E)" Margin="4,0,0,0" />
@@ -251,8 +252,8 @@
                                 <tk:DropDownButton.DropDownContent>
                                     <tk:ColorCanvas
                                         SelectedColor="{Binding
-                                            Path=Value.Text.FontDecorationColor}"
-                                        UsingAlphaChannel="False" />
+                                            Path=Text.Value.FontDecorationColor}"
+                                            UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
                             </tk:DropDownButton>
                         </Grid>
@@ -265,7 +266,7 @@
                                     x:Name="Text_TextAlignment"
                                     ItemsSource="{Binding
                                         Source={StaticResource textAlignments}}"
-                                    SelectedItem="{Binding Value.Text.TextAlignment}"
+                                    SelectedItem="{Binding Text.Value.TextAlignment}"
                                     MinWidth="104"
                                     Margin="4,0,0,0">
                                     <ComboBox.ItemTemplate>
@@ -285,7 +286,7 @@
                                 <tk:IntegerUpDown
                                     x:Name="Text_LetterSpace"
                                     Value="{Binding
-                                        Path=Value.Text.LetterSpace,
+                                        Path=Text.Value.LetterSpace,
                                         UpdateSourceTrigger=PropertyChanged}"
                                     Minimum="-100"
                                     Maximum="100"
@@ -298,7 +299,7 @@
                                 <tk:IntegerUpDown
                                     x:Name="Text_LineSpace"
                                     Value="{Binding
-                                        Path=Value.Text.LineSpace,
+                                        Path=Text.Value.LineSpace,
                                         UpdateSourceTrigger=PropertyChanged}"
                                     Minimum="-100"
                                     Maximum="100"
@@ -310,30 +311,30 @@
                             <StackPanel Orientation="Horizontal" Margin="0,4,8,0">
                                 <CheckBox
                                     Content="太字(_B)"
-                                    IsChecked="{Binding Value.Text.IsBold}" />
+                                    IsChecked="{Binding Text.Value.IsBold}" />
                                 <CheckBox
                                     Content="イタリック体(_I)"
-                                    IsChecked="{Binding Value.Text.IsItalic}"
+                                    IsChecked="{Binding Text.Value.IsItalic}"
                                     Margin="8,0,0,0" />
                             </StackPanel>
                             <WrapPanel Orientation="Horizontal">
                                 <CheckBox
                                     Content="高精細モード(_H)"
-                                    IsChecked="{Binding Value.Text.IsHighDefinition}"
+                                    IsChecked="{Binding Text.Value.IsHighDefinition}"
                                     Margin="0,4,8,0" />
                                 <CheckBox
                                     Content="滑らかにする(_S)"
-                                    IsChecked="{Binding Value.Text.IsSoft}"
+                                    IsChecked="{Binding Text.Value.IsSoft}"
                                     Margin="0,4,8,0" />
                                 <CheckBox
                                     Content="等間隔モード(_M)"
-                                    IsChecked="{Binding Value.Text.IsMonospacing}"
+                                    IsChecked="{Binding Text.Value.IsMonospacing}"
                                     Margin="0,4,0,0" />
                             </WrapPanel>
                         </WrapPanel>
                         <CheckBox
                             Content="上のオブジェクトでクリッピング(_P)"
-                            IsChecked="{Binding Value.IsTextClipping}"
+                            IsChecked="{Binding IsTextClipping.Value}"
                             Margin="0,4,0,0" />
                     </StackPanel>
                 </StackPanel>
@@ -341,7 +342,7 @@
         </Expander>
         <Expander
             Header="音声"
-            IsExpanded="{Binding UIConfig.Value.IsExoCharaAudioExpanded}"
+            IsExpanded="{Binding IsAudioUIExpanded.Value}"
             Margin="0,2,0,0">
             <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
                 <StackPanel Orientation="Vertical">

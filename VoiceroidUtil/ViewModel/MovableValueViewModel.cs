@@ -32,7 +32,11 @@ namespace VoiceroidUtil.ViewModel
             this.Name = name;
 
             // ラップ対象値の各プロパティラッパ群
-            this.Constants = this.MakeConfigProperty(v => v.Constants);
+            this.Constants =
+                this
+                    .ObserveConfigProperty(v => v.Constants)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
             this.Begin = this.MakeConfigProperty(v => v.Begin);
             this.End = this.MakeConfigProperty(v => v.End);
             this.MoveMode = this.MakeConfigProperty(v => v.MoveMode);
@@ -175,5 +179,23 @@ namespace VoiceroidUtil.ViewModel
                 .Select(selector)
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public MovableValueViewModel()
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<IMovableValue>(
+                    new MovableValue<PlayComponent.BalanceConst>()),
+                @"項目名")
+        {
+        }
+
+        #endregion
     }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
@@ -49,19 +51,8 @@ namespace VoiceroidUtil.ViewModel
                     .MakeInnerReactivePropery(c => c.ExoConfigTabIndex)
                     .AddTo(this.CompositeDisposable);
 
-            // 共通設定
+            // 設定
             this.Common = this.MakeConfigProperty(c => c.Common);
-
-            // 選択中キャラ別スタイルインデックス
-            this.SelectedCharaStyleIndex =
-                uiConfig
-                    .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
-                    .Select(id => (int)id)
-                    .ToReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
-            this.SelectedCharaStyleIndex
-                .Subscribe(i => uiConfig.Value.ExoCharaVoiceroidId = (VoiceroidId)i)
-                .AddTo(this.CompositeDisposable);
 
             // 内包 ViewModel のセットアップ
             this.SetupViewModel(uiConfig, openFileDialogService);
@@ -97,19 +88,27 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<ExoCommonConfig> Common { get; }
 
         /// <summary>
-        /// 選択中キャラ別スタイルインデックスを取得する。
+        /// キャラ別スタイル設定 ViewModel コレクションを取得する。
         /// </summary>
-        public IReactiveProperty<int> SelectedCharaStyleIndex { get; }
+        public IReadOnlyCollection<ExoCharaStyleViewModel> CharaStyles
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
-        /// キャラ別スタイル設定 ViewModel を取得する。
+        /// 選択中キャラ別スタイル設定 ViewModel を取得する。
         /// </summary>
-        public ExoCharaStyleViewModel CharaStyle { get; private set; }
+        public IReactiveProperty<ExoCharaStyleViewModel> SelectedCharaStyle
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
         /// </summary>
-        public IReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
+        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを非表示にすべきか否かを取得する。
@@ -140,22 +139,46 @@ namespace VoiceroidUtil.ViewModel
             IReadOnlyReactiveProperty<UIConfig> uiConfig,
             IOpenFileDialogService openFileDialogService)
         {
-            var style =
-                this
-                    .ObserveConfigProperty(c => c.CharaStyles)
-                    .CombineLatest(
-                        uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
-                        (s, id) => s[id])
-                    .ToReadOnlyReactiveProperty()
+            var charaStylesObservable = this.ObserveConfigProperty(c => c.CharaStyles);
+
+            // ViewModel コレクション作成
+            this.CharaStyles =
+                (Enum.GetValues(typeof(VoiceroidId)) as VoiceroidId[])
+                    .Select(
+                        id =>
+                            new ExoCharaStyleViewModel(
+                                this.CanModify,
+                                charaStylesObservable
+                                    .Select(s => s[id])
+                                    .ToReadOnlyReactiveProperty()
+                                    .AddTo(this.CompositeDisposable),
+                                uiConfig,
+                                this.LastStatus,
+                                openFileDialogService)
+                                .AddTo(this.CompositeDisposable))
+                    .ToList()
+                    .AsReadOnly();
+
+            Func<VoiceroidId, ExoCharaStyleViewModel> charaStyleFinder =
+                id => this.CharaStyles.First(s => s.VoiceroidId.Value == id);
+
+            // 選択中 ViewModel
+            this.SelectedCharaStyle =
+                new ReactiveProperty<ExoCharaStyleViewModel>(
+                    charaStyleFinder(uiConfig.Value.ExoCharaVoiceroidId))
                     .AddTo(this.CompositeDisposable);
 
-            this.CharaStyle =
-                new ExoCharaStyleViewModel(
-                    this.CanModify,
-                    style,
-                    uiConfig,
-                    this.LastStatus,
-                    openFileDialogService);
+            // UI設定変更時に選択プロセス反映
+            uiConfig
+                .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
+                .Subscribe(id => this.SelectedCharaStyle.Value = charaStyleFinder(id))
+                .AddTo(this.CompositeDisposable);
+
+            // 選択中 ViewModel 変更時処理
+            this.SelectedCharaStyle
+                .Where(s => s != null)
+                .Subscribe(s => uiConfig.Value.ExoCharaVoiceroidId = s.VoiceroidId.Value)
+                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
@@ -179,5 +202,25 @@ namespace VoiceroidUtil.ViewModel
                     StatusText = @".exo ファイル作成設定を有効にしました。",
                 };
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public ExoConfigViewModel()
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<ExoConfig>(new ExoConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig { IsExoFileMaking = true }),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                NullServices.OpenFileDialog)
+        {
+        }
+
+        #endregion
     }
 }

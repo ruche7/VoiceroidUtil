@@ -19,19 +19,31 @@ namespace VoiceroidUtil
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public ConfigManager()
+        /// <param name="synchronizationContext">
+        /// PropertyChanged イベント通知に用いる同期コンテキスト。不要ならば null 。
+        /// </param>
+        public ConfigManager(SynchronizationContext synchronizationContext = null)
         {
+            this.SynchronizationContext = synchronizationContext;
+
             this.TalkTextReplaceConfigCore =
                 this.MakeConfig(this.TalkTextReplaceConfigKeeper);
             this.ExoConfigCore = this.MakeConfig(this.ExoConfigKeeper);
             this.AppConfigCore = this.MakeConfig(this.AppConfigKeeper);
             this.UIConfigCore = this.MakeConfig(this.UIConfigKeeper);
 
+            this.UpdateSynchronizationContext();
+
             this.IsLoadingCore =
                 new ReactiveProperty<bool>(false).AddTo(this.CompositeDisposable);
             this.IsLoadedCore =
                 new ReactiveProperty<bool>(false).AddTo(this.CompositeDisposable);
         }
+
+        /// <summary>
+        /// PropertyChanged イベント通知に用いる同期コンテキストを取得する。
+        /// </summary>
+        public SynchronizationContext SynchronizationContext { get; }
 
         /// <summary>
         /// トークテキスト置換設定を取得する。
@@ -105,6 +117,8 @@ namespace VoiceroidUtil
                 {
                     this.UIConfigCore.Value = this.UIConfigKeeper.Value;
                 }
+
+                this.UpdateSynchronizationContext();
 
                 // 成否に関わらずロード済みフラグを立てる
                 this.IsLoadedCore.Value = true;
@@ -224,6 +238,35 @@ namespace VoiceroidUtil
                 .AddTo(this.CompositeDisposable);
 
             return result;
+        }
+
+        /// <summary>
+        /// 現在保持している設定値の同期オブジェクトを更新する。
+        /// </summary>
+        private void UpdateSynchronizationContext()
+        {
+            var context = this.SynchronizationContext;
+
+            {
+                var c = this.TalkTextReplaceConfig.Value;
+                c.SynchronizationContext = context;
+            }
+            {
+                var c = this.ExoConfig.Value;
+                c.SynchronizationContext = context;
+                c.Common.SynchronizationContext = context;
+                c.CharaStyles.SynchronizationContext = context;
+            }
+            {
+                var c = this.AppConfig.Value;
+                c.SynchronizationContext = context;
+                c.YmmCharaRelations.SynchronizationContext = context;
+            }
+            {
+                var c = this.UIConfig.Value;
+                c.SynchronizationContext = context;
+                c.VoiceroidExecutablePathes.SynchronizationContext = context;
+            }
         }
 
         #region IDisposable の実装

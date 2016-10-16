@@ -207,5 +207,42 @@ namespace VoiceroidUtil.ViewModel
             this.Items.Value.RemoveAt(index);
             this.SelectedIndex.Value = Math.Min(index, this.Items.Value.Count - 1);
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public TalkTextReplaceItemsViewModel()
+            :
+            base(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceItemCollection>(
+                    new TalkTextReplaceItemCollection
+                    {
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = true,
+                            OldValue = @"old text",
+                            NewValue = @"new text",
+                        },
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = false,
+                            OldValue = @"あいうえお",
+                            NewValue = @"かきくけこさしすせそたちつてと",
+                        },
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = true,
+                            OldValue = @"XXX",
+                            NewValue = @"",
+                        },
+                    }))
+        {
+        }
+
+        #endregion
     }
 }

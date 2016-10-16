@@ -16,6 +16,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
+using RucheHome.Voiceroid;
 using RucheHome.Windows.Media;
 using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
@@ -51,6 +52,22 @@ namespace VoiceroidUtil.ViewModel
 
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;
+
+            // 各プロパティ値
+            this.VoiceroidId =
+                this
+                    .ObserveConfigProperty(c => c.VoiceroidId)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+            this.VoiceroidName =
+                this
+                    .ObserveConfigProperty(c => c.VoiceroidName)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+            this.Render = this.MakeConfigProperty(c => c.Render);
+            this.Text = this.MakeConfigProperty(c => c.Text);
+            this.IsTextClipping = this.MakeConfigProperty(c => c.IsTextClipping);
+            this.Play = this.MakeConfigProperty(c => c.Play);
 
             // 内包 ViewModel のセットアップ
             this.SetupViewModels();
@@ -136,9 +153,34 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// ExoCharaStyle 値を取得する。
+        /// VOICEROID識別IDを取得する。
         /// </summary>
-        public IReadOnlyReactiveProperty<ExoCharaStyle> CharaStyle => this.BaseConfig;
+        public IReadOnlyReactiveProperty<VoiceroidId> VoiceroidId { get; }
+
+        /// <summary>
+        /// VOICEROIDの名前を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<string> VoiceroidName { get; }
+
+        /// <summary>
+        /// RenderComponent 値を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<RenderComponent> Render { get; }
+
+        /// <summary>
+        /// TextComponent 値を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<TextComponent> Text { get; }
+
+        /// <summary>
+        /// テキストを1つ上のオブジェクトでクリッピングするか否かを取得する。
+        /// </summary>
+        public IReactiveProperty<bool> IsTextClipping { get; }
+
+        /// <summary>
+        /// PlayComponent 値を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<PlayComponent> Play { get; }
 
         /// <summary>
         /// X座標の ViewModel を取得する。
@@ -349,48 +391,29 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private void SetupViewModels()
         {
-            var render = this.CharaStyle.Value.Render;
-            var renderObs = this.ObserveConfigProperty(c => c.Render);
-            {
-                this.X = this.MakeMovableValueViewModel(render, renderObs, r => r.X);
-                this.Y = this.MakeMovableValueViewModel(render, renderObs, r => r.Y);
-                this.Z = this.MakeMovableValueViewModel(render, renderObs, r => r.Z);
-                this.Scale =
-                    this.MakeMovableValueViewModel(render, renderObs, r => r.Scale);
-                this.Transparency =
-                    this.MakeMovableValueViewModel(render, renderObs, r => r.Transparency);
-                this.Rotation =
-                    this.MakeMovableValueViewModel(render, renderObs, r => r.Rotation);
+            this.X = this.MakeMovableValueViewModel(this.Render, r => r.X);
+            this.Y = this.MakeMovableValueViewModel(this.Render, r => r.Y);
+            this.Z = this.MakeMovableValueViewModel(this.Render, r => r.Z);
+            this.Scale = this.MakeMovableValueViewModel(this.Render, r => r.Scale);
+            this.Transparency =
+                this.MakeMovableValueViewModel(this.Render, r => r.Transparency);
+            this.Rotation = this.MakeMovableValueViewModel(this.Render, r => r.Rotation);
 
-                // X, Y, Z の移動モード関連値は共通なので直近の設定値で上書き
-                this.SynchronizeXYZProperty(c => c.MoveMode);
-                this.SynchronizeXYZProperty(c => c.IsAccelerating);
-                this.SynchronizeXYZProperty(c => c.IsDecelerating);
-                this.SynchronizeXYZProperty(c => c.Interval);
-            }
+            // X, Y, Z の移動モード関連値は共通なので直近の設定値で上書き
+            this.SynchronizeXYZProperty(c => c.MoveMode);
+            this.SynchronizeXYZProperty(c => c.IsAccelerating);
+            this.SynchronizeXYZProperty(c => c.IsDecelerating);
+            this.SynchronizeXYZProperty(c => c.Interval);
 
-            var text = this.CharaStyle.Value.Text;
-            var textObs = this.ObserveConfigProperty(c => c.Text);
-            {
-                this.FontSize =
-                    this.MakeMovableValueViewModel(text, textObs, t => t.FontSize);
-                this.TextSpeed =
-                    this.MakeMovableValueViewModel(text, textObs, t => t.TextSpeed);
-            }
+            this.FontSize = this.MakeMovableValueViewModel(this.Text, t => t.FontSize);
+            this.TextSpeed = this.MakeMovableValueViewModel(this.Text, t => t.TextSpeed);
 
-            var play = this.CharaStyle.Value.Play;
-            var playObs = this.ObserveConfigProperty(c => c.Play);
-            {
-                this.PlayVolume =
-                    this.MakeMovableValueViewModel(play, playObs, p => p.Volume);
-                this.PlayBalance =
-                    this.MakeMovableValueViewModel(play, playObs, p => p.Balance);
-            }
+            this.PlayVolume = this.MakeMovableValueViewModel(this.Play, p => p.Volume);
+            this.PlayBalance = this.MakeMovableValueViewModel(this.Play, p => p.Balance);
 
             this.PlaySpeed =
                 this.MakeMovableValueViewModel(
-                    this.CharaStyle.Value,
-                    this.CharaStyle,
+                    this.BaseConfig,
                     v => v.PlaySpeed,
                     @"再生速度");
         }
@@ -403,29 +426,25 @@ namespace VoiceroidUtil.ViewModel
         /// INotifyPropertyChanged インタフェースを実装している必要がある。
         /// </typeparam>
         /// <param name="holder">オブジェクト。</param>
-        /// <param name="holderObservable">オブジェクトのプッシュ通知。</param>
         /// <param name="selector">
         /// オブジェクトの IMovableValue プロパティセレクタ。
         /// </param>
         /// <param name="name">名前。 null ならば自動決定される。</param>
         /// <returns>MovableValueViewModel 。</returns>
         private MovableValueViewModel MakeMovableValueViewModel<T>(
-            T holder,
-            IObservable<T> holderObservable,
+            IReadOnlyReactiveProperty<T> holder,
             Expression<Func<T, IMovableValue>> selector,
             string name = null)
             where T : INotifyPropertyChanged
         {
             Debug.Assert(holder != null);
-            Debug.Assert(holderObservable != null);
             Debug.Assert(selector != null);
 
             // 値取得
-            var initialValue = selector.Compile()(holder);
             var value =
-                holderObservable
+                holder
                     .ObserveInnerProperty(selector)
-                    .ToReadOnlyReactiveProperty(initialValue)
+                    .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
             // 名前取得
@@ -623,7 +642,7 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
-            this.Templates.Value[index].CopyTo(this.CharaStyle.Value, withoutText: true);
+            this.Templates.Value[index].CopyTo(this.BaseConfig.Value, withoutText: true);
 
             this.SetLastStatus(
                 AppStatusType.Success,
@@ -655,5 +674,25 @@ namespace VoiceroidUtil.ViewModel
                     SubStatusCommand = subStatusCommand ?? "",
                 };
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public ExoCharaStyleViewModel()
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<ExoCharaStyle>(
+                    new ExoCharaStyle(RucheHome.Voiceroid.VoiceroidId.YukariEx)),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                NullServices.OpenFileDialog)
+        {
+        }
+
+        #endregion
     }
 }

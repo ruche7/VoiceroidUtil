@@ -10,9 +10,7 @@
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.MovableValueMoveModeControl"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance
-        Type={x:Type vm:MovableValueViewModel},
-        IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance vm:MovableValueViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">

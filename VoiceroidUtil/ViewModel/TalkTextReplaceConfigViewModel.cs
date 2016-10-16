@@ -195,5 +195,24 @@ namespace VoiceroidUtil.ViewModel
                     StatusText = statusText,
                 };
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public TalkTextReplaceConfigViewModel()
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()))
+        {
+        }
+
+        #endregion
     }
 }
