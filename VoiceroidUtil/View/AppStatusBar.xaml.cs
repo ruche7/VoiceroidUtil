@@ -1,5 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Reactive.Linq;
 using System.Windows.Controls;
+using VoiceroidUtil.ViewModel;
 
 namespace VoiceroidUtil.View
 {
@@ -13,7 +17,7 @@ namespace VoiceroidUtil.View
         /// </summary>
         public AppStatusBar()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

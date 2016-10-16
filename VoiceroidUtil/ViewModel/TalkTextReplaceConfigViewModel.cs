@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Reactive.Linq;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using VoiceroidUtil.Extensions;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -15,19 +15,32 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public TalkTextReplaceConfigViewModel() : base(new TalkTextReplaceConfig())
+        /// <param name="canModify">
+        /// 再生や音声保存に関わる設定値の変更可否状態値。
+        /// </param>
+        /// <param name="config">設定値。</param>
+        /// <param name="appConfig">アプリ設定値。</param>
+        /// <param name="uiConfig">UI設定値。</param>
+        /// <param name="lastStatus">直近のアプリ状態値の設定先。</param>
+        public TalkTextReplaceConfigViewModel(
+            IReadOnlyReactiveProperty<bool> canModify,
+            IReadOnlyReactiveProperty<TalkTextReplaceConfig> config,
+            IReadOnlyReactiveProperty<AppConfig> appConfig,
+            IReadOnlyReactiveProperty<UIConfig> uiConfig,
+            IReactiveProperty<IAppStatus> lastStatus)
+            : base(canModify, config)
         {
-            // 設定
-            this.AppConfig =
-                new ReactiveProperty<AppConfig>(new AppConfig())
-                    .AddTo(this.CompositeDisposable);
-            this.UIConfig =
-                new ReactiveProperty<UIConfig>(new UIConfig())
-                    .AddTo(this.CompositeDisposable);
+            this.ValidateArgNull(appConfig, nameof(appConfig));
+            this.ValidateArgNull(uiConfig, nameof(uiConfig));
+            this.ValidateArgNull(lastStatus, nameof(lastStatus));
 
-            // 直近のアプリ状態値
-            this.LastStatus =
-                new ReactiveProperty<IAppStatus>(new AppStatus())
+            this.AppConfig = appConfig;
+            this.LastStatus = lastStatus;
+
+            // 選択中タブインデックス
+            this.SelectedTabIndex =
+                uiConfig
+                    .MakeInnerReactivePropery(c => c.TalkTextReplaceConfigTabIndex)
                     .AddTo(this.CompositeDisposable);
 
             // 内包 ViewModel のセットアップ
@@ -35,27 +48,17 @@ namespace VoiceroidUtil.ViewModel
 
             // ファイル作成設定有効化コマンド表示状態
             this.IsFileMakingCommandVisible =
-                this.AppConfig
-                    .Select(
-                        config =>
-                            (config == null) ?
-                                Observable.Return(false) :
-                                new[]
-                                {
-                                    config
-                                        .ObserveProperty(c => c.IsTextFileForceMaking)
-                                        .Select(f => !f),
-                                    config
-                                        .ObserveProperty(c => c.IsExoFileMaking)
-                                        .Select(f => !f),
-                                }
-                                .CombineLatestValuesAreAllTrue())
-                    .Switch()
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+                new[]
+                {
+                    appConfig.ObserveInnerProperty(c => c.IsTextFileForceMaking),
+                    appConfig.ObserveInnerProperty(c => c.IsExoFileMaking),
+                }
+                .CombineLatestValuesAreAllFalse()
+                .ToReadOnlyReactiveProperty()
+                .AddTo(this.CompositeDisposable);
             this.IsFileMakingCommandInvisible =
                 this.IsFileMakingCommandVisible
-                    .Select(f => !f)
+                    .Inverse()
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
@@ -68,55 +71,60 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// アプリ設定を取得する。
+        /// 選択中タブインデックスを取得または設定する。
         /// </summary>
-        /// <remarks>
-        /// ファイル保存設定の操作にのみ用いる。
-        /// </remarks>
-        public ReactiveProperty<AppConfig> AppConfig { get; }
-
-        /// <summary>
-        /// UI設定値を取得する。
-        /// </summary>
-        public ReactiveProperty<UIConfig> UIConfig { get; }
-
-        /// <summary>
-        /// 直近のアプリ状態値を取得する。
-        /// </summary>
-        public ReactiveProperty<IAppStatus> LastStatus { get; }
+        public IReactiveProperty<int> SelectedTabIndex { get; }
 
         /// <summary>
         /// 音声のトークテキスト置換アイテムコレクション ViewModel を取得する。
         /// </summary>
-        public TalkTextReplaceItemsViewModel VoiceReplaceItems { get; } =
-            new TalkTextReplaceItemsViewModel();
+        public TalkTextReplaceItemsViewModel VoiceReplaceItems { get; private set; }
 
         /// <summary>
         /// 字幕用ファイルのトークテキスト置換アイテムコレクション ViewModel を取得する。
         /// </summary>
-        public TalkTextReplaceItemsViewModel TextFileReplaceItems { get; } =
-            new TalkTextReplaceItemsViewModel();
+        public TalkTextReplaceItemsViewModel TextFileReplaceItems { get; private set; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
+        public IReadOnlyReactiveProperty<bool> IsFileMakingCommandVisible { get; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを非表示にすべきか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsFileMakingCommandInvisible { get; }
+        public IReadOnlyReactiveProperty<bool> IsFileMakingCommandInvisible { get; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを取得する。
         /// </summary>
-        public ReactiveCommand<string> FileMakingCommand { get; }
+        public ICommand FileMakingCommand { get; }
+
+        /// <summary>
+        /// アプリ設定を取得する。
+        /// </summary>
+        private IReadOnlyReactiveProperty<AppConfig> AppConfig { get; }
+
+        /// <summary>
+        /// 直近のアプリ状態値の設定先を取得する。
+        /// </summary>
+        private IReactiveProperty<IAppStatus> LastStatus { get; }
 
         /// <summary>
         /// 内包 ViewModel のセットアップを行う。
         /// </summary>
         private void SetupViewModels()
         {
+            // ViewModel 作成
+            this.VoiceReplaceItems =
+                new TalkTextReplaceItemsViewModel(
+                    this.CanModify,
+                    this.MakeConfigProperty(c => c.VoiceReplaceItems));
+            this.TextFileReplaceItems =
+                new TalkTextReplaceItemsViewModel(
+                    this.CanModify,
+                    this.MakeConfigProperty(c => c.TextFileReplaceItems));
+
             // 長音プリセット設定
             var longSoundPreset = new TalkTextReplacePreset(@"「～」を「ー」に置換");
             longSoundPreset.Items.Add(
@@ -140,23 +148,6 @@ namespace VoiceroidUtil.ViewModel
             symbolPausePreset.Items.Add(
                 new TalkTextReplaceItem { OldValue = @"▲", NewValue = @"" });
             this.TextFileReplaceItems.Presets.Add(symbolPausePreset);
-
-            // トークテキスト置換アイテムコレクション反映デリゲート
-            Action<TalkTextReplaceConfig> itemsSetter =
-                c =>
-                {
-                    this.VoiceReplaceItems.Items = c?.VoiceReplaceItems;
-                    this.TextFileReplaceItems.Items = c?.TextFileReplaceItems;
-                };
-
-            // 現在値を反映
-            itemsSetter(this.Value);
-
-            // トークテキスト置換設定変更時に反映させる
-            this
-                .ObserveProperty(self => self.Value)
-                .Subscribe(c => itemsSetter(c))
-                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
@@ -172,20 +163,20 @@ namespace VoiceroidUtil.ViewModel
         {
             if (
                 !this.CanModify.Value ||
-                (this.AppConfig.Value?.IsTextFileForceMaking != false &&
-                 this.AppConfig.Value?.IsExoFileMaking != false))
+                (this.AppConfig.Value.IsTextFileForceMaking != false &&
+                 this.AppConfig.Value.IsExoFileMaking != false))
             {
                 return;
             }
 
             // 設定有効化
             var statusText = @"ファイル作成設定を有効にしました。";
-            if (target == "text")
+            if (target == @"text")
             {
                 this.AppConfig.Value.IsTextFileForceMaking = true;
                 statusText = @"テキスト" + statusText;
             }
-            else if (target == "exo")
+            else if (target == @"exo")
             {
                 this.AppConfig.Value.IsExoFileMaking = true;
                 statusText = @".exo " + statusText;

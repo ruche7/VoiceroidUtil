@@ -140,12 +140,15 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
     <Compile Include="ExoCharaStyle.cs" />
     <Compile Include="ExoCharaStyleSet.cs" />
     <Compile Include="ExoCommonConfig.cs" />
     <Compile Include="ExoConfig.cs" />
     <Compile Include="ExoTextStyleTemplate.cs" />
+    <Compile Include="Extensions\ObservableExtension.cs" />
+    <Compile Include="Extensions\ReactivePropertyExtension.cs" />
     <Compile Include="Messaging\DirectoryOpenMessage.cs" />
     <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
     <Compile Include="Messaging\MessageKeys.cs" />
@@ -155,6 +158,13 @@
     <Compile Include="Messaging\VoiceroidActionMessage.cs" />
     <Compile Include="Messaging\VoiceroidActionMessageAction.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
+    <Compile Include="Services\IOpenFileDialogService.cs" />
+    <Compile Include="Services\IVoiceroidActionService.cs" />
+    <Compile Include="Services\IWindowActivateService.cs" />
+    <Compile Include="Services\OpenFileDialogService.cs" />
+    <Compile Include="Services\VoiceroidAction.cs" />
+    <Compile Include="Services\VoiceroidActionService.cs" />
+    <Compile Include="Services\WindowActivateService.cs" />
     <Compile Include="TalkTextReplaceConfig.cs" />
     <Compile Include="TalkTextReplaceItem.cs" />
     <Compile Include="TalkTextReplaceItemCollection.cs" />
@@ -169,7 +179,6 @@
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceConfigViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceItemsViewModel.cs" />
-    <Compile Include="ViewModel\UIConfigViewModel.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\VoiceroidViewModel.cs" />
     <Compile Include="View\AppStatusBar.xaml.cs">
@@ -219,10 +228,6 @@
     </Compile>
     <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
-    <DesignData Include="resources\design\TalkTextReplaceItemsViewModel.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </DesignData>
     <Page Include="resources\TabStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -402,6 +407,7 @@
   <ItemGroup>
     <Resource Include="resources\icon\exo.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
