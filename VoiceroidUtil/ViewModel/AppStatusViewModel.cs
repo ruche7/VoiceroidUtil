@@ -29,5 +29,28 @@ namespace VoiceroidUtil.ViewModel
         /// アプリ状態値を取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<IAppStatus> Status { get; }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public AppStatusViewModel()
+            :
+            this(
+                Observable.Return(
+                    new AppStatus
+                    {
+                        StatusType = AppStatusType.Success,
+                        StatusText = @"デザイン時用テキスト",
+                        SubStatusType = AppStatusType.Warning,
+                        SubStatusText = @"デザイン時用サブテキスト",
+                        SubStatusCommand = @"C:",
+                    }))
+        {
+        }
+
+        #endregion
     }
 }

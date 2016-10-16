@@ -80,7 +80,7 @@ namespace VoiceroidUtil.Services
                 var handle =
                     (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
                 var result =
-                    await Task.Run(
+                    await this.Window.Dispatcher.InvokeAsync(
                         () =>
                             handle.HasValue ?
                                 dialog.ShowDialog(handle.Value) : dialog.ShowDialog());

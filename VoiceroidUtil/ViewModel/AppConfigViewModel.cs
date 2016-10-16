@@ -296,5 +296,24 @@ namespace VoiceroidUtil.ViewModel
                     SubStatusCommand = subStatusCommand ?? "",
                 };
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public AppConfigViewModel()
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                NullServices.OpenFileDialog)
+        {
+        }
+
+        #endregion
     }
 }

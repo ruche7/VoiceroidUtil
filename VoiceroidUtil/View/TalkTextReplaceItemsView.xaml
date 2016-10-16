@@ -12,6 +12,9 @@
     x:Class="VoiceroidUtil.View.TalkTextReplaceItemsView"
     mc:Ignorable="d"
     d:DesignWidth="300"
+    d:DataContext="{d:DesignInstance
+        Type=vm:TalkTextReplaceItemsViewModel,
+        IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -39,8 +42,8 @@
 
         <!-- Row 0 -->
         <ListBox
-            ItemsSource="{Binding Items}"
-            SelectedIndex="{Binding SelectedIndex}"
+            ItemsSource="{Binding Items.Value}"
+            SelectedIndex="{Binding SelectedIndex.Value}"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             Grid.Row="0">

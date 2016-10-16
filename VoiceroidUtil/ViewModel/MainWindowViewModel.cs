@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Voiceroid;
+using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel
@@ -49,6 +50,11 @@ namespace VoiceroidUtil.ViewModel
             this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
             this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
             this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
+
+            this.IsTopmost =
+                appConfig
+                    .MakeInnerReactivePropery(c => c.IsTopmost)
+                    .AddTo(this.CompositeDisposable);
 
             // VoiceroidViewModel 作成
             var canModifyNotifier =
@@ -110,6 +116,11 @@ namespace VoiceroidUtil.ViewModel
         public string Title => nameof(VoiceroidUtil);
 
         /// <summary>
+        /// ウィンドウを常に最前面に表示するか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTopmost { get; }
+
+        /// <summary>
         /// VOICEROID操作 ViewModel を取得する。
         /// </summary>
         public VoiceroidViewModel Voiceroid { get; }
@@ -133,5 +144,29 @@ namespace VoiceroidUtil.ViewModel
         /// 直近のアプリ状態 ViewModel を取得する。
         /// </summary>
         public AppStatusViewModel LastStatus { get; }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public MainWindowViewModel()
+            :
+            this(
+                new ProcessFactory().Processes,
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig()),
+                new ReactiveProperty<ExoConfig>(new ExoConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                NullServices.OpenFileDialog,
+                NullServices.WindowActivate,
+                NullServices.VoiceroidAction)
+        {
+        }
+
+        #endregion
     }
 }

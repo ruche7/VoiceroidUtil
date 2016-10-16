@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -23,7 +24,9 @@ namespace VoiceroidUtil
         /// </summary>
         public App()
         {
-            this.ConfigManager = new ConfigManager().AddTo(this.CompositeDisposable);
+            this.ConfigManager =
+                new ConfigManager(SynchronizationContext.Current)
+                    .AddTo(this.CompositeDisposable);
             this.LastStatus =
                 new ReactiveProperty<IAppStatus>(new AppStatus())
                     .AddTo(this.CompositeDisposable);

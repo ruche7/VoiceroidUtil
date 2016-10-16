@@ -54,14 +54,14 @@ namespace VoiceroidUtil.ViewModel
             this.BaseConfig.ObserveInnerProperty(selector);
 
         /// <summary>
-        /// 設定値のプロパティをラップする IReactiveProperty{T} オブジェクトを作成する。
+        /// 設定値のプロパティをラップする ReactiveProperty{T} オブジェクトを作成する。
         /// </summary>
         /// <typeparam name="T">プロパティ型。</typeparam>
         /// <param name="selector">プロパティセレクタ。</param>
         /// <param name="alwaysCanModify">
         /// CanModify プロパティ値に依らず値変更可能ならば true 。
         /// </param>
-        /// <returns>IReactiveProperty{T} オブジェクト。</returns>
+        /// <returns>ReactiveProperty{T} オブジェクト。</returns>
         protected ReactiveProperty<T> MakeConfigProperty<T>(
             Expression<Func<TConfig, T>> selector,
             bool alwaysCanModify = false)

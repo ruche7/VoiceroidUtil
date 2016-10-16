@@ -25,7 +25,8 @@ namespace VoiceroidUtil.Services
 
         #region IWindowActivateService の実装
 
-        public Task Run() => Task.Run(() => this.Window.Activate());
+        public async Task Run() =>
+            await this.Window.Dispatcher.InvokeAsync(this.Window.Activate);
 
         #endregion
     }
