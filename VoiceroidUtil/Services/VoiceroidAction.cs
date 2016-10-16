@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VoiceroidUtil.Messaging
+namespace VoiceroidUtil.Services
 {
     /// <summary>
     /// VOICEROIDプロセスに対するアクションを表す列挙。

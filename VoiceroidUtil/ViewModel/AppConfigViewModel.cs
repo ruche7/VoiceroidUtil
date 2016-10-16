@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using RucheHome.Net;
-using VoiceroidUtil.Messaging;
+using VoiceroidUtil.Extensions;
+using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -18,16 +19,33 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AppConfigViewModel() : base(new AppConfig())
+        public AppConfigViewModel(
+            IReadOnlyReactiveProperty<bool> canModify,
+            IReadOnlyReactiveProperty<AppConfig> config,
+            IReadOnlyReactiveProperty<UIConfig> uiConfig,
+            IReactiveProperty<IAppStatus> lastStatus,
+            IOpenFileDialogService openFileDialogService)
+            : base(canModify, config)
         {
-            // UI設定値
-            this.UIConfig =
-                new ReactiveProperty<UIConfig>(new UIConfig())
-                    .AddTo(this.CompositeDisposable);
+            this.ValidateArgNull(uiConfig, nameof(uiConfig));
+            this.ValidateArgNull(lastStatus, nameof(lastStatus));
+            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
 
-            // 直近のアプリ状態値
-            this.LastStatus =
-                new ReactiveProperty<IAppStatus>(new AppStatus())
+            this.LastStatus = lastStatus;
+            this.OpenFileDialogService = openFileDialogService;
+
+            // UI開閉設定
+            this.IsGeneralUIExpanded =
+                uiConfig
+                    .MakeInnerReactivePropery(c => c.IsGeneralConfigExpanded)
+                    .AddTo(this.CompositeDisposable);
+            this.IsSaveUIExpanded =
+                uiConfig
+                    .MakeInnerReactivePropery(c => c.IsSaveConfigExpanded)
+                    .AddTo(this.CompositeDisposable);
+            this.IsYmmUIExpanded =
+                uiConfig
+                    .MakeInnerReactivePropery(c => c.IsYmmConfigExpanded)
                     .AddTo(this.CompositeDisposable);
 
             // 保存先ディレクトリ選択コマンド
@@ -51,66 +69,47 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeCommand<DragEventArgs>(
                     this.ExecuteDropSaveDirectoryCommand,
                     this.CanModify);
-
-            // アプリ更新情報チェックコマンド
-            this.UpdateCheckCommand =
-                this.MakeAsyncCommand(
-                    this.UpdateChecker.Run,
-                    this.ObserveConfigProperty(c => c.IsUpdateCheckingOnStartup));
-
-            // アプリ更新があるなら通知
-            this.UpdateChecker
-                .ObserveProperty(c => c.CanUpdate)
-                .Where(f => f)
-                .Subscribe(
-                    _ =>
-                        this.LastStatus.Value =
-                            new AppStatus
-                            {
-                                StatusType = AppStatusType.Information,
-                                StatusText =
-                                    @"version " +
-                                    this.UpdateChecker.NewestVersion +
-                                    @" が公開されています。",
-                                SubStatusText = @"ダウンロードページを開く",
-                                SubStatusCommand = this.UpdateChecker.PageUri.AbsoluteUri,
-                            });
         }
 
         /// <summary>
-        /// UI設定値を取得する。
+        /// アプリ設定値を取得する。
         /// </summary>
-        public ReactiveProperty<UIConfig> UIConfig { get; }
+        public IReadOnlyReactiveProperty<AppConfig> Config => this.BaseConfig;
 
         /// <summary>
-        /// 直近のアプリ状態値を取得する。
+        /// 一般設定UIを開いた状態にするか否かを取得する。
         /// </summary>
-        public ReactiveProperty<IAppStatus> LastStatus { get; }
+        public IReadOnlyReactiveProperty<bool> IsGeneralUIExpanded { get; }
+
+        /// <summary>
+        /// 音声保存設定UIを開いた状態にするか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsSaveUIExpanded { get; }
+
+        /// <summary>
+        /// ゆっくりMovieMaker連携設定UIを開いた状態にするか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsYmmUIExpanded { get; }
 
         /// <summary>
         /// 保存先ディレクトリ選択コマンドを取得する。
         /// </summary>
-        public ReactiveCommand SelectSaveDirectoryCommand { get; }
+        public ICommand SelectSaveDirectoryCommand { get; }
 
         /// <summary>
         /// 保存先ディレクトリオープンコマンドを取得する。
         /// </summary>
-        public ReactiveCommand OpenSaveDirectoryCommand { get; }
+        public ICommand OpenSaveDirectoryCommand { get; }
 
         /// <summary>
         /// 保存先ディレクトリドラッグオーバーコマンドを取得する。
         /// </summary>
-        public ReactiveCommand<DragEventArgs> DragOverSaveDirectoryCommand { get; }
+        public ICommand DragOverSaveDirectoryCommand { get; }
 
         /// <summary>
         /// 保存先ディレクトリドロップコマンドを取得する。
         /// </summary>
-        public ReactiveCommand<DragEventArgs> DropSaveDirectoryCommand { get; }
-
-        /// <summary>
-        /// アプリ更新情報チェックコマンドを取得する。
-        /// </summary>
-        public ReactiveCommand UpdateCheckCommand { get; }
+        public ICommand DropSaveDirectoryCommand { get; }
 
         /// <summary>
         /// IDataObject オブジェクトから有効なディレクトリパスを検索する。
@@ -151,34 +150,36 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// アプリ更新情報チェッカを取得する。
+        /// 直近のアプリ状態値の設定先を取得する。
         /// </summary>
-        private AppUpdateChecker UpdateChecker { get; } = new AppUpdateChecker();
+        private IReactiveProperty<IAppStatus> LastStatus { get; }
+
+        /// <summary>
+        /// ファイル選択ダイアログサービスを取得する。
+        /// </summary>
+        private IOpenFileDialogService OpenFileDialogService { get; }
 
         /// <summary>
         /// SelectSaveDirectoryCommand の実処理を行う。
         /// </summary>
         private async Task ExecuteSelectSaveDirectoryCommand()
         {
-            // メッセージ送信
-            var msg =
-                await this.Messenger.GetResponseAsync(
-                    new OpenFileDialogMessage
-                    {
-                        IsFolderPicker = true,
-                        Title = @"音声保存先の選択",
-                        InitialDirectory = this.Value.SaveDirectoryPath,
-                    });
+            // ダイアログ処理
+            var filePath =
+                await this.OpenFileDialogService.Run(
+                    title: @"音声保存先の選択",
+                    initialDirectory: this.Config.Value.SaveDirectoryPath,
+                    folderPicker: true);
 
             // 選択された？
-            if (msg.Response != null)
+            if (filePath != null)
             {
                 // パスが正常かチェック
-                var status = FilePathUtil.CheckPathStatus(msg.Response);
+                var status = FilePathUtil.CheckPathStatus(filePath);
                 if (status.StatusType == AppStatusType.None)
                 {
                     // 正常ならアプリ設定を上書き
-                    this.Value.SaveDirectoryPath = msg.Response;
+                    this.Config.Value.SaveDirectoryPath = filePath;
                 }
 
                 // ステータス更新
@@ -191,16 +192,33 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private async Task ExecuteOpenSaveDirectoryCommand()
         {
-            // メッセージ送信
-            var msg =
-                await this.Messenger.GetResponseAsync(
-                    new DirectoryOpenMessage { Path = this.Value.SaveDirectoryPath });
+            var path = this.Config.Value.SaveDirectoryPath;
 
-            // 結果の状態値を設定
-            // None なら今の状態を残す(状態リセットするほどの処理ではないため)
-            if (msg.Response != null && msg.Response.StatusType != AppStatusType.None)
+            if (string.IsNullOrEmpty(path))
             {
-                this.LastStatus.Value = msg.Response;
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    @"保存先フォルダー未設定です。");
+                return;
+            }
+            if (!Directory.Exists(path))
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    @"保存先フォルダーが見つかりませんでした。");
+                return;
+            }
+
+            try
+            {
+                await Task.Run(() => Process.Start(path));
+            }
+            catch
+            {
+                this.SetLastStatus(
+                    AppStatusType.Fail,
+                    @"保存先フォルダーを開けませんでした。");
+                return;
             }
         }
 
@@ -246,11 +264,37 @@ namespace VoiceroidUtil.ViewModel
                 // 正常ならパス上書き
                 if (status.StatusType == AppStatusType.None)
                 {
-                    this.Value.SaveDirectoryPath = path;
+                    this.Config.Value.SaveDirectoryPath = path;
                 }
 
                 this.LastStatus.Value = status;
             }
+        }
+
+        /// <summary>
+        /// 直近のアプリ状態を設定する。
+        /// </summary>
+        /// <param name="statusType">状態種別。</param>
+        /// <param name="statusText">状態テキスト。</param>
+        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
+        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
+        private void SetLastStatus(
+            AppStatusType statusType = AppStatusType.None,
+            string statusText = "",
+            AppStatusType subStatusType = AppStatusType.None,
+            string subStatusText = "",
+            string subStatusCommand = "")
+        {
+            this.LastStatus.Value =
+                new AppStatus
+                {
+                    StatusType = statusType,
+                    StatusText = statusText ?? "",
+                    SubStatusType = subStatusType,
+                    SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand ?? "",
+                };
         }
     }
 }

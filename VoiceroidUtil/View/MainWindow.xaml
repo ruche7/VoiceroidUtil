@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-    xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
     xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
@@ -41,60 +40,9 @@
             Gesture="Ctrl+E"
             Command="{Binding AppConfig.OpenSaveDirectoryCommand}" />
     </Window.InputBindings>
-
     <i:Interaction.Behaviors>
         <v:MainWindowConfigBehavior />
     </i:Interaction.Behaviors>
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closed">
-            <l:DataContextDisposeAction />
-        </i:EventTrigger>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding UIConfig.LoadCommand}" />
-            <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.LoadCommand}" />
-            <i:InvokeCommandAction Command="{Binding ExoConfig.LoadCommand}" />
-            <i:InvokeCommandAction Command="{Binding AppConfig.LoadCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger
-            SourceObject="{Binding AppConfig.IsLoaded}"
-            EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding AppConfig.UpdateCheckCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger SourceObject="{Binding UIConfig.Value}" EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding UIConfig.SaveCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger
-            SourceObject="{Binding TalkTextReplaceConfig.Value}"
-            EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding TalkTextReplaceConfig.SaveCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger SourceObject="{Binding ExoConfig.Value}" EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding ExoConfig.SaveCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger SourceObject="{Binding AppConfig.Value}" EventName="PropertyChanged">
-            <i:InvokeCommandAction Command="{Binding AppConfig.SaveCommand}" />
-        </i:EventTrigger> 
-        <l:InteractionMessageTrigger
-            Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.OpenFileDialogMessageKey}">
-            <msg:OpenFileDialogMessageAction />
-        </l:InteractionMessageTrigger>
-        <l:InteractionMessageTrigger
-            Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.DirectoryOpenMessageKey}">
-            <msg:DirectoryOpenMessageAction />
-        </l:InteractionMessageTrigger>
-        <l:InteractionMessageTrigger
-            Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.VoiceroidActionMessageKey}">
-            <msg:VoiceroidActionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
-        </l:InteractionMessageTrigger>
-        <l:InteractionMessageTrigger
-            Messenger="{Binding Messenger}"
-            MessageKey="{x:Static msg:MessageKeys.WindowActionMessageKey}">
-            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
-        </l:InteractionMessageTrigger>
-    </i:Interaction.Triggers>
     
     <DockPanel>
         <v:AppStatusBar

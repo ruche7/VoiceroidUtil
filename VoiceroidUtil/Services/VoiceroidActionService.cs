@@ -1,24 +1,30 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using Livet.Behaviors.Messaging;
-using Livet.Messaging;
 using RucheHome.Util;
+using RucheHome.Voiceroid;
 using RucheHome.Windows.WinApi;
 
-namespace VoiceroidUtil.Messaging
+namespace VoiceroidUtil.Services
 {
     /// <summary>
-    /// VoiceroidActionMessage を受け取って処理するアクションクラス。
+    /// VOICEROIDプロセスに対するアクションを提供するクラス。
     /// </summary>
-    public class VoiceroidActionMessageAction : InteractionMessageAction<FrameworkElement>
+    public class VoiceroidActionService : IVoiceroidActionService
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidActionMessageAction()
+        /// <param name="window">メインウィンドウ。</param>
+        public VoiceroidActionService(Window window)
         {
         }
+
+        /// <summary>
+        /// メインウィンドウを取得する。
+        /// </summary>
+        private Window Window { get; }
 
         /// <summary>
         /// Forward アクション処理を行う。
@@ -28,7 +34,7 @@ namespace VoiceroidUtil.Messaging
         {
             // VoiceroidUtilのメインウィンドウ作成
             var mainWinHandle =
-                (HwndSource.FromVisual(this.AssociatedObject) as HwndSource)?.Handle;
+                (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
             if (!mainWinHandle.HasValue)
             {
                 return;
@@ -72,43 +78,38 @@ namespace VoiceroidUtil.Messaging
         /// StopFlash アクション処理を行う。
         /// </summary>
         /// <param name="processWindow">VOICEROIDプロセスのメインウィンドウ。</param>
-        private void DoStopFlashAction(Win32Window processWindow)
-        {
+        private void DoStopFlashAction(Win32Window processWindow) =>
             processWindow.FlashTray(false);
-        }
 
-        #region InteractionMessageAction<FrameworkElement> のオーバライド
+        #region IVoiceroidActionService の実装
 
-        protected override void InvokeAction(InteractionMessage message)
+        public async Task Run(IProcess process, VoiceroidAction action)
         {
-            var m = message as VoiceroidActionMessage;
+            if (process == null)
+            {
+                throw new ArgumentNullException(nameof(process));
+            }
             if (
-                m?.Process == null ||
-                m.Process.MainWindowHandle == IntPtr.Zero ||
-                m.Action == VoiceroidAction.None)
+                process.MainWindowHandle == IntPtr.Zero ||
+                action == VoiceroidAction.None)
             {
                 return;
             }
 
             // VOICEROIDのメインウィンドウ作成
-            var processWin = new Win32Window(m.Process.MainWindowHandle);
+            var processWin = new Win32Window(process.MainWindowHandle);
 
             // アクション別処理
-            switch (m.Action)
+            switch (action)
             {
             case VoiceroidAction.Forward:
-                this.DoForwardAction(processWin);
+                await Task.Run(() => this.DoForwardAction(processWin));
                 break;
 
             case VoiceroidAction.StopFlash:
-                this.DoStopFlashAction(processWin);
+                await Task.Run(() => this.DoStopFlashAction(processWin));
                 break;
             }
-        }
-
-        protected override Freezable CreateInstanceCore()
-        {
-            return new VoiceroidActionMessageAction();
         }
 
         #endregion
