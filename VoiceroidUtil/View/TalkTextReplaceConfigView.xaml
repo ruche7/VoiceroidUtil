@@ -11,7 +11,7 @@
     d:DesignWidth="300"
     d:DesignHeight="200"
     d:DataContext="{d:DesignInstance
-        Type={x:Type vm:TalkTextReplaceConfigViewModel},
+        Type=vm:TalkTextReplaceConfigViewModel,
         IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
@@ -30,7 +30,7 @@
     </UserControl.Resources>
 
     <TabControl
-        SelectedIndex="{Binding UIConfig.Value.TalkTextReplaceConfigTabIndex}"
+        SelectedIndex="{Binding SelectedTabIndex.Value}"
         Style="{StaticResource modernTabControl}">
         <TabItem
             Style="{StaticResource modernTabItem}"

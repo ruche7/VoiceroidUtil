@@ -2,132 +2,129 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Collections.Specialized;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Reactive.Bindings.Notifiers;
 
 namespace VoiceroidUtil.ViewModel
 {
     /// <summary>
     /// TalkTextReplaceItemCollection インスタンスの操作を提供する ViewModel クラス。
     /// </summary>
-    public class TalkTextReplaceItemsViewModel : ViewModelBase
+    public class TalkTextReplaceItemsViewModel
+        : ConfigViewModelBase<TalkTextReplaceItemCollection>
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public TalkTextReplaceItemsViewModel()
+        /// <param name="canModify">
+        /// 再生や音声保存に関わる設定値の変更可否状態値。
+        /// </param>
+        /// <param name="items">アイテムコレクション。</param>
+        public TalkTextReplaceItemsViewModel(
+            IReadOnlyReactiveProperty<bool> canModify,
+            IReadOnlyReactiveProperty<TalkTextReplaceItemCollection> items)
+            : base(canModify, items)
         {
-            // アイテムコレクション
-            // イベントハンドラ追加のためにプロパティ経由で設定
-            this.Items = new TalkTextReplaceItemCollection();
+            // 選択中アイテムインデックス
+            this.SelectedIndex =
+                new ReactiveProperty<int>((items.Value.Count > 0) ? 0 : -1)
+                    .AddTo(this.CompositeDisposable);
 
             // アイテム追加コマンド
             this.AddCommand =
                 this.MakeCommand(
                     () =>
                     {
-                        this.Items.Add(new TalkTextReplaceItem());
-                        this.SelectedIndex = this.Items.Count - 1;
-                    });
+                        this.Items.Value.Add(new TalkTextReplaceItem());
+                        this.SelectedIndex.Value = this.Items.Value.Count - 1;
+                    },
+                    canModify);
 
             // プリセットアイテム追加コマンド
             this.AddPresetCommand =
-                this.MakeCommand<TalkTextReplacePreset>(this.ExecuteAddPresetCommand);
+                this.MakeCommand<TalkTextReplacePreset>(
+                    this.ExecuteAddPresetCommand,
+                    canModify);
+
+            // コレクションまたは選択中インデックスが変化した場合に Unit を発行する
+            var itemsNotifier =
+                new[]
+                {
+                    items.ToUnit(),
+                    items
+                        .Select(i => i.CollectionChangedAsObservable())
+                        .Switch()
+                        .ToUnit(),
+                    this.SelectedIndex.ToUnit(),
+                }
+                .Merge();
+
+            // コレクションが空でなくなったらアイテム選択
+            // 即座に書き換えるとうまくいかないので少し待ちを入れる
+            itemsNotifier
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(_ => items.Value.Count > 0 && this.SelectedIndex.Value < 0)
+                .Subscribe(_ => this.SelectedIndex.Value = 0)
+                .AddTo(this.CompositeDisposable);
 
             // アイテム削除コマンド
             this.RemoveCommand =
                 this.MakeCommand(
                     this.ExecuteRemoveCommand,
-                    this.ItemListChangedNotifier
+                    canModify,
+                    itemsNotifier
                         .Select(
                             _ =>
-                                this.SelectedIndex >= 0 &&
-                                this.SelectedIndex < this.Items.Count));
+                                this.SelectedIndex.Value >= 0 &&
+                                this.SelectedIndex.Value < this.Items.Value.Count));
 
             // アイテムクリアコマンド
             this.ClearCommand =
                 this.MakeCommand(
-                    this.Items.Clear,
-                    this.ItemListChangedNotifier.Select(_ => this.Items.Count > 0));
+                    this.Items.Value.Clear,
+                    canModify,
+                    itemsNotifier.Select(_ => this.Items.Value.Count > 0));
 
             // アイテム上移動コマンド
             this.UpCommand =
                 this.MakeCommand(
-                    () => this.Items.Move(this.SelectedIndex, this.SelectedIndex - 1),
-                    this.ItemListChangedNotifier
+                    () =>
+                        this.Items.Value.Move(
+                            this.SelectedIndex.Value,
+                            this.SelectedIndex.Value - 1),
+                    canModify,
+                    itemsNotifier
                         .Select(
                             _ =>
-                                this.SelectedIndex > 0 &&
-                                this.SelectedIndex < this.Items.Count));
+                                this.SelectedIndex.Value > 0 &&
+                                this.SelectedIndex.Value < this.Items.Value.Count));
 
             // アイテム下移動コマンド
             this.DownCommand =
                 this.MakeCommand(
-                    () => this.Items.Move(this.SelectedIndex, this.SelectedIndex + 1),
-                    this.ItemListChangedNotifier
+                    () =>
+                        this.Items.Value.Move(
+                            this.SelectedIndex.Value,
+                            this.SelectedIndex.Value + 1),
+                    canModify,
+                    itemsNotifier
                         .Select(
                             _ =>
-                                this.SelectedIndex >= 0 &&
-                                this.SelectedIndex + 1 < this.Items.Count));
+                                this.SelectedIndex.Value >= 0 &&
+                                this.SelectedIndex.Value + 1 < this.Items.Value.Count));
         }
 
         /// <summary>
-        /// アイテムコレクションを取得または設定する。
+        /// アイテムコレクションを取得する。
         /// </summary>
-        public TalkTextReplaceItemCollection Items
-        {
-            get { return this.items; }
-            set
-            {
-                var old = this.Items;
-                this.items = value ?? (new TalkTextReplaceItemCollection());
-                if (this.Items != old)
-                {
-                    // コレクション変更時イベントハンドラ設定
-                    if (old != null)
-                    {
-                        old.CollectionChanged -= this.OnItemsCollectionChanged;
-                    }
-                    this.Items.CollectionChanged += this.OnItemsCollectionChanged;
-
-                    this.RaisePropertyChanged();
-
-                    if (this.Items.Count > 0 && this.SelectedIndex < 0)
-                    {
-                        // 強制的に選択状態にする
-                        this.SelectedIndex = 0;
-                    }
-                    else
-                    {
-                        // アイテムリスト状態変更通知
-                        this.ItemListChangedNotifier.SwitchValue();
-                    }
-                }
-            }
-        }
-        private TalkTextReplaceItemCollection items = null;
+        public IReadOnlyReactiveProperty<TalkTextReplaceItemCollection> Items =>
+            this.BaseConfig;
 
         /// <summary>
         /// 選択中アイテムインデックスを取得する。
         /// </summary>
-        public int SelectedIndex
-        {
-            get { return this.selectedIndex; }
-            set
-            {
-                if (value != this.selectedIndex)
-                {
-                    this.selectedIndex = value;
-                    this.RaisePropertyChanged();
-
-                    // アイテムリスト状態変更通知
-                    this.ItemListChangedNotifier.SwitchValue();
-                }
-            }
-        }
-        private int selectedIndex = -1;
+        public IReactiveProperty<int> SelectedIndex { get; }
 
         /// <summary>
         /// プリセットコレクションを取得する。
@@ -138,40 +135,32 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// アイテム追加コマンドを取得する。
         /// </summary>
-        public ReactiveCommand AddCommand { get; }
+        public ICommand AddCommand { get; }
 
         /// <summary>
         /// プリセット追加コマンドを取得する。
         /// </summary>
-        public ReactiveCommand<TalkTextReplacePreset> AddPresetCommand { get; }
+        public ICommand AddPresetCommand { get; }
 
         /// <summary>
         /// アイテム削除コマンドを取得する。
         /// </summary>
-        public ReactiveCommand RemoveCommand { get; }
+        public ICommand RemoveCommand { get; }
 
         /// <summary>
         /// アイテムクリアコマンドを取得する。
         /// </summary>
-        public ReactiveCommand ClearCommand { get; }
+        public ICommand ClearCommand { get; }
 
         /// <summary>
         /// アイテム上移動コマンドを取得する。
         /// </summary>
-        public ReactiveCommand UpCommand { get; }
+        public ICommand UpCommand { get; }
 
         /// <summary>
         /// アイテム下移動コマンドを取得する。
         /// </summary>
-        public ReactiveCommand DownCommand { get; }
-
-        /// <summary>
-        /// アイテムリスト状態の変更を通知するオブジェクトを取得する。
-        /// </summary>
-        /// <remarks>
-        /// 通知される値に意味は無く、変更がある度に値が切り替わる。
-        /// </remarks>
-        private BooleanNotifier ItemListChangedNotifier { get; } = new BooleanNotifier();
+        public ICommand DownCommand { get; }
 
         /// <summary>
         /// AddPresetCommand の実処理を行う。
@@ -188,21 +177,21 @@ namespace VoiceroidUtil.ViewModel
             {
                 // 置換元文字列が同じアイテムを探す
                 var found =
-                    this.Items
+                    this.Items.Value
                         .Select((item, index) => new { item, index })
                         .FirstOrDefault(v => v.item.OldValue == p.OldValue);
 
                 if (found == null)
                 {
                     // 無いので新規追加
-                    this.Items.Add(p.Clone());
-                    this.SelectedIndex = this.Items.Count - 1;
+                    this.Items.Value.Add(p.Clone());
+                    this.SelectedIndex.Value = this.Items.Value.Count - 1;
                 }
                 else
                 {
                     // あるので上書き
-                    this.Items[found.index] = p.Clone();
-                    this.SelectedIndex = found.index;
+                    this.Items.Value[found.index] = p.Clone();
+                    this.SelectedIndex.Value = found.index;
                 }
             }
         }
@@ -212,25 +201,51 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         private void ExecuteRemoveCommand()
         {
-            var index = this.SelectedIndex;
-            if (index < 0 || index >= this.Items.Count)
+            var index = this.SelectedIndex.Value;
+            if (index < 0 || index >= this.Items.Value.Count)
             {
                 return;
             }
 
-            this.Items.RemoveAt(index);
-            this.SelectedIndex = Math.Min(index, this.Items.Count - 1);
+            this.Items.Value.RemoveAt(index);
+            this.SelectedIndex.Value = Math.Min(index, this.Items.Value.Count - 1);
         }
 
+        #region デザイン時用定義
+
         /// <summary>
-        /// Items のコレクション内容変更時に呼び出される。
+        /// デザイン時用コンストラクタ。
         /// </summary>
-        private void OnItemsCollectionChanged(
-            object sender,
-            NotifyCollectionChangedEventArgs e)
+        [Obsolete(@"Design time only.")]
+        public TalkTextReplaceItemsViewModel()
+            :
+            base(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceItemCollection>(
+                    new TalkTextReplaceItemCollection
+                    {
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = true,
+                            OldValue = @"old text",
+                            NewValue = @"new text",
+                        },
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = false,
+                            OldValue = @"あいうえお",
+                            NewValue = @"かきくけこさしすせそたちつてと",
+                        },
+                        new TalkTextReplaceItem
+                        {
+                            IsEnabled = true,
+                            OldValue = @"XXX",
+                            NewValue = @"",
+                        },
+                    }))
         {
-            // アイテムリスト状態変更通知
-            this.ItemListChangedNotifier.SwitchValue();
         }
+
+        #endregion
     }
 }

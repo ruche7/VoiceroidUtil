@@ -8,12 +8,10 @@
     xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.ExoConfigView"
-    mc:Ignorable="d" 
+    mc:Ignorable="d"
     d:DesignWidth="320"
     d:DesignHeight="320"
-    d:DataContext="{d:DesignInstance
-        Type={x:Type vm:ExoConfigViewModel},
-        IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance vm:ExoConfigViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -46,7 +44,7 @@
             <Button Content="有効にする(_E)" Command="{Binding FileMakingCommand}" />
         </StackPanel>
         <TabControl
-            SelectedIndex="{Binding UIConfig.Value.ExoConfigTabIndex}"
+            SelectedIndex="{Binding SelectedTabIndex.Value}"
             Style="{StaticResource modernTabControl}"
             Visibility="{Binding
                 Path=IsFileMakingCommandInvisible.Value,
@@ -62,7 +60,7 @@
                 </TabItem.Header>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel IsEnabled="{Binding CanModify.Value}">
-                        <Grid DataContext="{Binding Value.Common}" Margin="6">
+                        <Grid DataContext="{Binding Common.Value}" Margin="6">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -87,7 +85,7 @@
                                 Orientation="Horizontal"
                                 Grid.Row="0" Grid.Column="2">
                                 <Label
-                                    Content="(_W)"
+                                    Content="横(_W)"
                                     Target="{Binding ElementName=Common_Width}" />
                                 <tk:IntegerUpDown
                                     x:Name="Common_Width"
@@ -100,7 +98,7 @@
                                     Margin="2,0,0,0" />
                                 <Label Content="×" Margin="4,0" />
                                 <Label
-                                    Content="(_H)"
+                                    Content="縦(_H)"
                                     Target="{Binding ElementName=Common_Height}" />
                                 <tk:IntegerUpDown
                                     x:Name="Common_Height"
@@ -179,32 +177,36 @@
                         <AccessText Text="キャラクター別(_V)" Margin="2,0,0,0" />
                     </StackPanel>
                 </TabItem.Header>
-                <DockPanel Margin="4">
+                <DockPanel>
                     <ComboBox
-                        ItemsSource="{Binding Value.CharaStyles}"
-                        SelectedItem="{Binding CharaStyle.Value}"
+                        ItemsSource="{Binding CharaStyles}"
+                        SelectedItem="{Binding SelectedCharaStyle.Value}"
+                        Margin="4"
                         DockPanel.Dock="Top">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel>
-                                    <Image
-                                        Style="{StaticResource VoiceroidIdImage}"
-                                        Stretch="Uniform"
-                                        Width="24"
-                                        Height="24"
-                                        DockPanel.Dock="Left" />
+                                    <StackPanel
+                                        DataContext="{Binding VoiceroidId.Value}"
+                                        DockPanel.Dock="Left">
+                                        <Image
+                                            Style="{StaticResource VoiceroidIdImage}"
+                                            Stretch="Uniform"
+                                            Width="24"
+                                            Height="24" />
+                                    </StackPanel>
                                     <Label
-                                        Content="{Binding VoiceroidName}"
+                                        Content="{Binding VoiceroidName.Value}"
                                         Margin="4,0,0,0" />
                                 </DockPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <Border BorderThickness="1" BorderBrush="#FFABADB3" Margin="0,4,0,0">
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#DDDDDD" Margin="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <v:ExoCharaStyleView
-                                DataContext="{Binding CharaStyle}"
-                                Margin="2" />
+                                DataContext="{Binding SelectedCharaStyle.Value}"
+                                Margin="4" />
                         </ScrollViewer>
                     </Border>
                 </DockPanel>

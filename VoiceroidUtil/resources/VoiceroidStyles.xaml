@@ -3,43 +3,43 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:VoiceroidUtil">
 
-    <!-- VoiceroidId container -->
+    <!-- VoiceroidId -->
 
     <Style x:Key="VoiceroidIdImage" x:Shared="False" TargetType="Image">
         <Setter Property="Stretch" Value="None" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="YukariEx">
+            <DataTrigger Binding="{Binding}" Value="YukariEx">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/yukari_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="MakiEx">
+            <DataTrigger Binding="{Binding}" Value="MakiEx">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/maki_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="ZunkoEx">
+            <DataTrigger Binding="{Binding}" Value="ZunkoEx">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/zunko_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="Akane">
+            <DataTrigger Binding="{Binding}" Value="Akane">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/akane_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="Aoi">
+            <DataTrigger Binding="{Binding}" Value="Aoi">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/aoi_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="AiEx">
+            <DataTrigger Binding="{Binding}" Value="AiEx">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/ai_ok.png" />
             </DataTrigger>
-            <DataTrigger Binding="{Binding VoiceroidId}" Value="SeikaEx">
+            <DataTrigger Binding="{Binding}" Value="SeikaEx">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/seika_ok.png" />

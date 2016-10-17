@@ -1,36 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Util;
 
 namespace VoiceroidUtil.ViewModel
 {
     /// <summary>
     /// ViewModel のベースクラス。
     /// </summary>
-    public abstract class ViewModelBase : Livet.ViewModel
+    public abstract class ViewModelBase : BindableBase, IDisposable
     {
         /// <summary>
-        /// プロパティ値を設定し、変更をイベント通知する。
+        /// コンストラクタ。
         /// </summary>
-        /// <typeparam name="T">プロパティ値の型。</typeparam>
-        /// <param name="field">設定先フィールド。</param>
-        /// <param name="value">設定値。</param>
-        /// <param name="propertyName">
-        /// プロパティ名。 CallerMemberNameAttribute により自動設定される。
-        /// </param>
-        protected void SetProperty<T>(
-            ref T field,
-            T value,
-            [CallerMemberName] string propertyName = null)
+        public ViewModelBase()
         {
-            if (!EqualityComparer<T>.Default.Equals(field, value))
+        }
+
+        /// <summary>
+        /// IDisposable.Dispose をまとめて呼び出すためのコンテナを取得する。
+        /// </summary>
+        protected CompositeDisposable CompositeDisposable { get; } =
+            new CompositeDisposable();
+
+        /// <summary>
+        /// 引数値の null チェックを行う。
+        /// </summary>
+        /// <typeparam name="T">引数値の型。</typeparam>
+        /// <param name="arg">引数値。</param>
+        /// <param name="argName">引数名。</param>
+        protected void ValidateArgNull<T>(T arg, string argName)
+        {
+            if (arg == null)
             {
-                field = value;
-                this.RaisePropertyChanged(propertyName);
+                throw new ArgumentNullException(argName);
             }
         }
 
@@ -40,11 +47,11 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="action">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>コマンド。</returns>
-        protected ReactiveCommand MakeCommand(
+        protected ICommand MakeCommand(
             Action action,
             params IObservable<bool>[] executables)
             =>
-            (ReactiveCommand)this.MakeCommandCore(
+            this.MakeCommandCore(
                 (action == null) ? (Action<object>)null : (_ => action()),
                 executables,
                 e => e.ToReactiveCommand());
@@ -55,11 +62,11 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="action">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>コマンド。</returns>
-        protected ReactiveCommand MakeCommand(
+        protected ICommand MakeCommand(
             Action<object> action,
             params IObservable<bool>[] executables)
             =>
-            (ReactiveCommand)this.MakeCommandCore(
+            this.MakeCommandCore(
                 action,
                 executables,
                 e => e.ToReactiveCommand());
@@ -71,7 +78,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="action">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>コマンド。</returns>
-        protected ReactiveCommand<T> MakeCommand<T>(
+        protected ICommand MakeCommand<T>(
             Action<T> action,
             params IObservable<bool>[] executables)
             =>
@@ -86,12 +93,12 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ReactiveCommand MakeAsyncCommand(
+        protected ICommand MakeAsyncCommand(
             Func<Task> asyncFunc,
             params IObservable<bool>[] executables)
             =>
-            (ReactiveCommand)this.MakeAsyncCommandCore(
-                (new AsyncCommandExecuter(asyncFunc)).AddTo(this.CompositeDisposable),
+            this.MakeAsyncCommandCore(
+                new AsyncCommandExecuter(asyncFunc),
                 executables,
                 e => e.ToReactiveCommand(false));
 
@@ -101,12 +108,12 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ReactiveCommand MakeAsyncCommand(
+        protected ICommand MakeAsyncCommand(
             Func<object, Task> asyncFunc,
             params IObservable<bool>[] executables)
             =>
-            (ReactiveCommand)this.MakeAsyncCommandCore(
-                (new AsyncCommandExecuter(asyncFunc)).AddTo(this.CompositeDisposable),
+            this.MakeAsyncCommandCore(
+                new AsyncCommandExecuter(asyncFunc),
                 executables,
                 e => e.ToReactiveCommand(false));
 
@@ -117,12 +124,12 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ReactiveCommand<T> MakeAsyncCommand<T>(
+        protected ICommand MakeAsyncCommand<T>(
             Func<T, Task> asyncFunc,
             params IObservable<bool>[] executables)
             =>
             this.MakeAsyncCommandCore(
-                (new AsyncCommandExecuter<T>(asyncFunc)).AddTo(this.CompositeDisposable),
+                new AsyncCommandExecuter<T>(asyncFunc),
                 executables,
                 e => e.ToReactiveCommand<T>(false));
 
@@ -132,11 +139,11 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="asyncExecuter">非同期処理ヘルパー。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ReactiveCommand MakeAsyncCommand(
+        protected ICommand MakeAsyncCommand(
             AsyncCommandExecuter asyncExecuter,
             params IObservable<bool>[] executables)
             =>
-            (ReactiveCommand)this.MakeAsyncCommandCore(
+            this.MakeAsyncCommandCore(
                 asyncExecuter,
                 executables,
                 e => e.ToReactiveCommand(false));
@@ -148,7 +155,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="asyncExecuter">非同期処理ヘルパー。</param>
         /// <param name="executables">実行可能状態プッシュ通知。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ReactiveCommand<T> MakeAsyncCommand<T>(
+        protected ICommand MakeAsyncCommand<T>(
             AsyncCommandExecuter<T> asyncExecuter,
             params IObservable<bool>[] executables)
             =>
@@ -165,7 +172,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <param name="commandMaker">コマンド作成デリゲート。</param>
         /// <returns>コマンド。</returns>
-        private ReactiveCommand<T> MakeCommandCore<T>(
+        private ICommand MakeCommandCore<T>(
             Action<T> action,
             IObservable<bool>[] executables,
             Func<IObservable<bool>, ReactiveCommand<T>> commandMaker)
@@ -200,7 +207,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <param name="commandMaker">コマンド作成デリゲート。</param>
         /// <returns>非同期実行コマンド。</returns>
-        private ReactiveCommand<T> MakeAsyncCommandCore<T>(
+        private ICommand MakeAsyncCommandCore<T>(
             AsyncCommandExecuter<T> asyncExecuter,
             IObservable<bool>[] executables,
             Func<IObservable<bool>, ReactiveCommand<T>> commandMaker)
@@ -216,10 +223,10 @@ namespace VoiceroidUtil.ViewModel
 
             var commandExecutable =
                 (executables == null || executables.Length <= 0) ?
-                    asyncExecuter.ObserveExecutable() :
+                    asyncExecuter.IsExecutable :
                     new[]
                     {
-                        asyncExecuter.ObserveExecutable(),
+                        asyncExecuter.IsExecutable,
                         executables.CombineLatestValuesAreAllTrue(),
                     }
                     .CombineLatestValuesAreAllTrue();
@@ -231,5 +238,17 @@ namespace VoiceroidUtil.ViewModel
 
             return command;
         }
+
+        #region IDisposable の実装
+
+        /// <summary>
+        /// リソースを破棄する。
+        /// </summary>
+        public void Dispose()
+        {
+            this.CompositeDisposable.Dispose();
+        }
+
+        #endregion
     }
 }
