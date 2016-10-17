@@ -163,12 +163,14 @@
                         <CheckBox
                             Content="キャラクターを自動選択(_N)"
                             IsChecked="{Binding Config.Value.IsYmmCharaSelecting}" />
-                        <v:YmmCharaRelationsControl
-                            DataContext="{Binding Config.Value.YmmCharaRelations}"
+                        <StackPanel
                             IsEnabled="{Binding
                                 Path=Config.Value.IsYmmCharaSelecting,
                                 Mode=OneWay}"
-                            Margin="24,2,0,0" />
+                            Margin="24,2,0,0">
+                            <v:YmmCharaRelationsControl
+                                DataContext="{Binding Config.Value.YmmCharaRelations}" />
+                        </StackPanel>
                         <CheckBox
                             Content="追加ボタンを自動クリック(_B)"
                             IsChecked="{Binding Config.Value.IsYmmAddButtonClicking}"

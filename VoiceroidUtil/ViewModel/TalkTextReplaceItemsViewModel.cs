@@ -47,23 +47,26 @@ namespace VoiceroidUtil.ViewModel
                     this.ExecuteAddPresetCommand,
                     canModify);
 
-            var collectionChanged =
-                items.Select(i => i.CollectionChangedAsObservable()).Switch();
-
-            // コレクションが空でなくなったらアイテム選択
-            collectionChanged
-                .Where(_ => items.Value.Count > 0 && this.SelectedIndex.Value < 0)
-                .Subscribe(_ => this.SelectedIndex.Value = 0)
-                .AddTo(this.CompositeDisposable);
-
             // コレクションまたは選択中インデックスが変化した場合に Unit を発行する
             var itemsNotifier =
                 new[]
                 {
-                    collectionChanged.ToUnit(),
+                    items.ToUnit(),
+                    items
+                        .Select(i => i.CollectionChangedAsObservable())
+                        .Switch()
+                        .ToUnit(),
                     this.SelectedIndex.ToUnit(),
                 }
                 .Merge();
+
+            // コレクションが空でなくなったらアイテム選択
+            // 即座に書き換えるとうまくいかないので少し待ちを入れる
+            itemsNotifier
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(_ => items.Value.Count > 0 && this.SelectedIndex.Value < 0)
+                .Subscribe(_ => this.SelectedIndex.Value = 0)
+                .AddTo(this.CompositeDisposable);
 
             // アイテム削除コマンド
             this.RemoveCommand =
