@@ -10,9 +10,12 @@
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppStatusBar"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance
-        Type={x:Type vm:AppStatusViewModel},
-        IsDesignTimeCreatable=True}">
+    d:DesignWidth="300"
+    d:DataContext="{d:DesignInstance vm:AppStatusViewModel, IsDesignTimeCreatable=True}"
+    Background="#DDDDDD"
+    UseLayoutRounding="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -22,25 +25,25 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StatusBar Background="#DDDDDD">
+    <StatusBar DataContext="{Binding Status.Value}" Background="Transparent">
         <StatusBarItem x:Name="status" Padding="5,3">
             <!-- アプリ状態更新時の発光色設定 -->
             <StatusBarItem.Style>
                 <Style TargetType="StatusBarItem">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Information">
+                        <DataTrigger Binding="{Binding StatusType}" Value="Information">
                             <Setter Property="Background" Value="#f1eded" />
                             <Setter Property="Tag" Value="SkyBlue" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Warning">
+                        <DataTrigger Binding="{Binding StatusType}" Value="Warning">
                             <Setter Property="Background" Value="LemonChiffon" />
                             <Setter Property="Tag" Value="Yellow" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Fail">
+                        <DataTrigger Binding="{Binding StatusType}" Value="Fail">
                             <Setter Property="Background" Value="Pink" />
                             <Setter Property="Tag" Value="Violet" />
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Value.StatusType}" Value="Success">
+                        <DataTrigger Binding="{Binding StatusType}" Value="Success">
                             <Setter Property="Background" Value="#cdffcd" />
                             <Setter Property="Tag" Value="Lime" />
                         </DataTrigger>
@@ -50,12 +53,12 @@
 
             <!-- アプリ状態更新時の発光処理 -->
             <i:Interaction.Triggers>
-                <ei:PropertyChangedTrigger Binding="{Binding Value}">
+                <ei:PropertyChangedTrigger Binding="{Binding}">
                     <i:Interaction.Behaviors>
                         <ei:ConditionBehavior>
                             <ei:ConditionalExpression>
                                 <ei:ComparisonCondition
-                                    LeftOperand="{Binding Value.StatusType}"
+                                    LeftOperand="{Binding StatusType}"
                                     Operator="NotEqual"
                                     RightOperand="None" />
                             </ei:ConditionalExpression>
@@ -83,7 +86,7 @@
             <StackPanel Orientation="Horizontal">
                 <!-- StatusType -->
                 <Image
-                    DataContext="{Binding Value.StatusType}"
+                    DataContext="{Binding StatusType}"
                     Margin="0,0,2,0"
                     Grid.Row="0" Grid.Column="0">
                     <Image.Style>
@@ -117,13 +120,13 @@
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                     <!-- StatusText -->
                     <Label Margin="0,1" Grid.Row="0" Grid.Column="1">
-                        <TextBlock Text="{Binding Value.StatusText, Mode=OneWay}" />
+                        <TextBlock Text="{Binding StatusText, Mode=OneWay}" />
                     </Label>
 
                     <StackPanel Orientation="Horizontal">
                         <!-- SubStatusType -->
                         <Image
-                            DataContext="{Binding Value.SubStatusType}"
+                            DataContext="{Binding SubStatusType}"
                             Margin="0,0,2,0"
                             Grid.Row="1" Grid.Column="0">
                             <Image.Style>
@@ -173,11 +176,11 @@
                                                 <Hyperlink
                                                     Command="{x:Static ru:ProcessStartCommand.Instance}"
                                                     CommandParameter="{Binding
-                                                        Path=Value.SubStatusCommand}"
+                                                        Path=SubStatusCommand}"
                                                     ToolTip="{Binding
-                                                        Path=Value.SubStatusCommand}">
+                                                        Path=SubStatusCommand}">
                                                     <Run Text="{Binding
-                                                        Path=Value.SubStatusText,
+                                                        Path=SubStatusText,
                                                         Mode=OneWay}" />
                                                 </Hyperlink>
                                             </TextBlock>
@@ -185,20 +188,20 @@
                                     </Setter>
                                     <Style.Triggers>
                                         <DataTrigger
-                                            Binding="{Binding Value.SubStatusText}"
+                                            Binding="{Binding SubStatusText}"
                                             Value="">
                                             <Setter
                                                 Property="Visibility"
                                                 Value="Collapsed" />
                                         </DataTrigger>
                                         <DataTrigger
-                                            Binding="{Binding Value.SubStatusCommand}"
+                                            Binding="{Binding SubStatusCommand}"
                                             Value="">
                                             <Setter Property="Content">
                                                 <Setter.Value>
                                                     <TextBlock
                                                         Text="{Binding
-                                                            Path=Value.SubStatusText,
+                                                            Path=SubStatusText,
                                                             Mode=OneWay}" />
                                                 </Setter.Value>
                                             </Setter>

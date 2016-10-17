@@ -1,23 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using Livet.Behaviors.Messaging;
-using Livet.Messaging;
 using Microsoft.WindowsAPICodePack.Dialogs;
 
-namespace VoiceroidUtil.Messaging
+namespace VoiceroidUtil.Services
 {
     /// <summary>
-    /// OpenFileDialogMessage を受け取って処理するアクションクラス。
+    /// ファイルまたはディレクトリの選択ダイアログ処理を提供するクラス。
     /// </summary>
-    public class OpenFileDialogMessageAction : InteractionMessageAction<FrameworkElement>
+    public class OpenFileDialogService : IOpenFileDialogService
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public OpenFileDialogMessageAction()
+        /// <param name="window">親となるウィンドウ。</param>
+        public OpenFileDialogService(Window window)
         {
+            this.Window = window;
         }
 
         /// <summary>
@@ -43,51 +46,53 @@ namespace VoiceroidUtil.Messaging
             return string.IsNullOrWhiteSpace(path) ? null : path;
         }
 
-        #region InteractionMessageAction<FrameworkElement> のオーバライド
+        /// <summary>
+        /// 親ウィンドウを取得する。
+        /// </summary>
+        private Window Window { get; }
 
-        protected override void InvokeAction(InteractionMessage message)
+        #region IOpenFileDialogService の実装
+
+        public async Task<string> Run(
+            string title = null,
+            string initialDirectory = null,
+            IEnumerable<CommonFileDialogFilter> filters = null,
+            bool folderPicker = false)
         {
-            var m = message as OpenFileDialogMessage;
-            if (m == null)
-            {
-                return;
-            }
-
-            m.Response = null;
-
             if (!CommonOpenFileDialog.IsPlatformSupported)
             {
-                return;
+                return null;
             }
+
+            string filePath = null;
 
             using (var dialog = new CommonOpenFileDialog())
             {
-                dialog.IsFolderPicker = m.IsFolderPicker;
-                dialog.Title = m.Title;
-                dialog.InitialDirectory = MakeInitialDirectoryPath(m.InitialDirectory);
-                m.Filters?.ForEach(f => dialog.Filters.Add(f));
+                dialog.IsFolderPicker = folderPicker;
+                dialog.Title = title;
+                dialog.InitialDirectory = MakeInitialDirectoryPath(initialDirectory);
+                filters?.ToList().ForEach(f => dialog.Filters.Add(f));
                 dialog.EnsureValidNames = true;
                 dialog.EnsurePathExists = false;
                 dialog.EnsureFileExists = false;
                 dialog.Multiselect = false;
 
                 var handle =
-                    (HwndSource.FromVisual(this.AssociatedObject) as HwndSource)?.Handle;
+                    (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
                 var result =
-                    handle.HasValue ?
-                        dialog.ShowDialog(handle.Value) : dialog.ShowDialog();
+                    await this.Window.Dispatcher.InvokeAsync(
+                        () =>
+                            handle.HasValue ?
+                                dialog.ShowDialog(handle.Value) : dialog.ShowDialog());
                 if (result != CommonFileDialogResult.Ok)
                 {
-                    return;
+                    return null;
                 }
 
-                m.Response = Path.GetFullPath(dialog.FileName);
+                filePath = Path.GetFullPath(dialog.FileName);
             }
-        }
 
-        protected override Freezable CreateInstanceCore()
-        {
-            return new OpenFileDialogMessageAction();
+            return filePath;
         }
 
         #endregion

@@ -10,9 +10,7 @@
     x:Class="VoiceroidUtil.View.MovableValueControl"
     mc:Ignorable="d"
     d:DesignWidth="400"
-    d:DataContext="{d:DesignInstance
-        Type={x:Type vm:MovableValueViewModel},
-        IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance vm:MovableValueViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -39,19 +37,19 @@
         <!-- Column 0 -->
         <Slider
             Value="{Binding Begin.Value}"
-            Minimum="{Binding Constants.MinSliderValue}"
-            Maximum="{Binding Constants.MaxSliderValue}"
-            LargeChange="{Binding ValueLargeIncrement}"
-            SmallChange="{Binding ValueIncrement}"
+            Minimum="{Binding Constants.Value.MinSliderValue}"
+            Maximum="{Binding Constants.Value.MaxSliderValue}"
+            LargeChange="{Binding ValueLargeIncrement.Value}"
+            SmallChange="{Binding ValueIncrement.Value}"
             Grid.Column="0" />
 
         <!-- Column 1 -->
         <tk:DecimalUpDown
             Value="{Binding Begin.Value, UpdateSourceTrigger=PropertyChanged}"
-            Minimum="{Binding Constants.MinValue}"
-            Maximum="{Binding Constants.MaxValue}"
-            Increment="{Binding ValueIncrement}"
-            FormatString="{Binding ValueFormatString}"
+            Minimum="{Binding Constants.Value.MinValue}"
+            Maximum="{Binding Constants.Value.MaxValue}"
+            Increment="{Binding ValueIncrement.Value}"
+            FormatString="{Binding ValueFormatString.Value}"
             ButtonSpinnerLocation="Left"
             Grid.Column="1" />
 
@@ -61,9 +59,6 @@
             Padding="2,3"
             Margin="2,0"
             Grid.Column="2">
-            <tk:DropDownButton.Content>
-                <TextBlock Text="{Binding Name.Value}" TextAlignment="Center" Width="56" />
-            </tk:DropDownButton.Content>
             <tk:DropDownButton.DropDownContent>
                 <v:MovableValueMoveModeControl Margin="4" />
             </tk:DropDownButton.DropDownContent>
@@ -72,26 +67,28 @@
                     移動モード : <Run Text="{Binding MoveModeName.Value, Mode=OneWay}" />
                 </TextBlock>
             </tk:DropDownButton.ToolTip>
+
+            <TextBlock Text="{Binding Name}" TextAlignment="Center" Width="56" />
         </tk:DropDownButton>
 
         <!-- Column 3 -->
         <tk:DecimalUpDown
             Value="{Binding End.Value, UpdateSourceTrigger=PropertyChanged}"
             IsEnabled="{Binding IsMoving.Value}"
-            Minimum="{Binding Constants.MinValue}"
-            Maximum="{Binding Constants.MaxValue}"
-            Increment="{Binding ValueIncrement}"
-            FormatString="{Binding ValueFormatString}"
+            Minimum="{Binding Constants.Value.MinValue}"
+            Maximum="{Binding Constants.Value.MaxValue}"
+            Increment="{Binding ValueIncrement.Value}"
+            FormatString="{Binding ValueFormatString.Value}"
             Grid.Column="3" />
 
         <!-- Column 4 -->
         <Slider
             Value="{Binding End.Value}"
             IsEnabled="{Binding IsMoving.Value}"
-            Minimum="{Binding Constants.MinSliderValue}"
-            Maximum="{Binding Constants.MaxSliderValue}"
-            LargeChange="{Binding ValueLargeIncrement}"
-            SmallChange="{Binding ValueIncrement}"
+            Minimum="{Binding Constants.Value.MinSliderValue}"
+            Maximum="{Binding Constants.Value.MaxSliderValue}"
+            LargeChange="{Binding ValueLargeIncrement.Value}"
+            SmallChange="{Binding ValueIncrement.Value}"
             Grid.Column="4" />
     </Grid>
 </UserControl>

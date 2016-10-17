@@ -10,7 +10,7 @@ namespace VoiceroidUtil
     /// ReactiveCommand で非同期実行を行うためのジェネリッククラス。
     /// </summary>
     /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-    public class AsyncCommandExecuter<T> : IDisposable
+    public class AsyncCommandExecuter<T>
     {
         /// <summary>
         /// コンストラクタ。
@@ -24,20 +24,12 @@ namespace VoiceroidUtil
             }
 
             this.AsyncFunc = asyncFunc;
-            this.IsExecutable = new ReactiveProperty<bool>(true);
         }
 
         /// <summary>
-        /// 非同期実行可能な状態であるか否かを監視可能なオブジェクトを取得する。
+        /// 非同期実行可能な状態であるか否かを取得する。
         /// </summary>
-        /// <remarks>
-        /// Subscribe 時にまず最新値を返す。
-        /// ReactiveCommand の実行可能条件として利用するとよい。
-        /// </remarks>
-        public IObservable<bool> ObserveExecutable()
-        {
-            return this.IsExecutable;
-        }
+        public IReadOnlyReactiveProperty<bool> IsExecutable => this.IsExecutableCore;
 
         /// <summary>
         /// 非同期実行を行う。
@@ -50,30 +42,22 @@ namespace VoiceroidUtil
         public async void Execute(T parameter)
         {
             if (
-                this.IsExecutable.Value &&
+                this.IsExecutableCore.Value &&
                 Interlocked.Exchange(ref this.executeLock, 1) == 0)
             {
                 try
                 {
-                    this.IsExecutable.Value = false;
+                    this.IsExecutableCore.Value = false;
                     await this.AsyncFunc(parameter);
                 }
                 finally
                 {
                     Interlocked.Exchange(ref this.executeLock, 0);
-                    this.IsExecutable.Value = true;
+                    this.IsExecutableCore.Value = true;
                 }
             }
         }
         private int executeLock = 0;
-
-        /// <summary>
-        /// リソースを破棄する。
-        /// </summary>
-        public void Dispose()
-        {
-            this.IsExecutable?.Dispose();
-        }
 
         /// <summary>
         /// コンストラクタ。
@@ -83,7 +67,6 @@ namespace VoiceroidUtil
         /// </remarks>
         protected AsyncCommandExecuter()
         {
-            this.IsExecutable = new ReactiveProperty<bool>(true);
         }
 
         /// <summary>
@@ -94,7 +77,11 @@ namespace VoiceroidUtil
         /// <summary>
         /// 非同期実行可能な状態であるか否かを取得する。
         /// </summary>
-        private ReactiveProperty<bool> IsExecutable { get; }
+        /// <remarks>
+        /// 自己完結型なので Dispose は不要。
+        /// </remarks>
+        private ReactiveProperty<bool> IsExecutableCore { get; } =
+            new ReactiveProperty<bool>(true);
     }
 
     /// <summary>

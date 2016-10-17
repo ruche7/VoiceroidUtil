@@ -8,7 +8,7 @@
     x:Class="VoiceroidUtil.View.YmmCharaRelationsControl"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance
-        Type={x:Type local:YmmCharaRelationSet},
+        Type=local:YmmCharaRelationSet,
         IsDesignTimeCreatable=True}">
     <UserControl.Resources>
         <ResourceDictionary>

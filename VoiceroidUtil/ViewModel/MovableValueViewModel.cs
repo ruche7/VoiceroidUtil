@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -13,56 +11,57 @@ namespace VoiceroidUtil.ViewModel
     /// <summary>
     /// IMovableValue オブジェクトをラップする ViewModel クラス。
     /// </summary>
-    public class MovableValueViewModel : ViewModelBase
+    public class MovableValueViewModel : ConfigViewModelBase<IMovableValue>
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="name">名前。</param>
+        /// <param name="canModify">
+        /// 再生や音声保存に関わる設定値の変更可否状態値。
+        /// </param>
         /// <param name="value">ラップ対象値。</param>
-        public MovableValueViewModel(string name, IMovableValue value)
+        /// <param name="name">名前。</param>
+        public MovableValueViewModel(
+            IReadOnlyReactiveProperty<bool> canModify,
+            IReadOnlyReactiveProperty<IMovableValue> value,
+            string name)
+            : base(canModify, value)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            this.ValidateArgNull(name, nameof(name));
 
-            // 名前
-            this.Name =
-                (new ReactiveProperty<string>(name)).AddTo(this.CompositeDisposable);
-            this.Name
-                .Subscribe(
-                    n =>
-                    {
-                        if (n == null)
-                        {
-                            this.Name.Value = "";
-                        }
-                    })
-                .AddTo(this.CompositeDisposable);
-
-            // ラップ対象値
-            this.Base =
-                new ReactiveProperty<IMovableValue>(value)
-                    .AddTo(this.CompositeDisposable);
+            this.Name = name;
 
             // ラップ対象値の各プロパティラッパ群
-            this.Begin = this.MakeWrappingProperty(v => v.Begin);
-            this.End = this.MakeWrappingProperty(v => v.End);
-            this.MoveMode = this.MakeWrappingProperty(v => v.MoveMode);
-            this.IsAccelerating = this.MakeWrappingProperty(v => v.IsAccelerating);
-            this.IsDecelerating = this.MakeWrappingProperty(v => v.IsDecelerating);
-            this.Interval = this.MakeWrappingProperty(v => v.Interval);
+            this.Constants =
+                this
+                    .ObserveConfigProperty(v => v.Constants)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+            this.Begin = this.MakeConfigProperty(v => v.Begin);
+            this.End = this.MakeConfigProperty(v => v.End);
+            this.MoveMode = this.MakeConfigProperty(v => v.MoveMode);
+            this.IsAccelerating = this.MakeConfigProperty(v => v.IsAccelerating);
+            this.IsDecelerating = this.MakeConfigProperty(v => v.IsDecelerating);
+            this.Interval = this.MakeConfigProperty(v => v.Interval);
+
+            // Constants 依存プロパティ群
+            this.ValueFormatString =
+                this.MakeConstantsRelatingProperty(v => @"F" + v.Digits);
+            this.ValueIncrement =
+                this.MakeConstantsRelatingProperty(
+                    v => 1 / (decimal)Math.Pow(10, v.Digits));
+            this.ValueLargeIncrement =
+                this.ValueIncrement
+                    .Select(v => v * 10)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
 
             // MoveMode 依存プロパティ群
             this.IsMoving =
                 this.MakeMoveModeRelatingProperty(v => v != ExEdit.MoveMode.None);
             this.MoveModeName = this.MakeMoveModeRelatingProperty(v => v.GetName());
-            this.CanAccelerate = this.MakeMoveModeRelatingProperty(v => v.CanAccelerate());
+            this.CanAccelerate =
+                this.MakeMoveModeRelatingProperty(v => v.CanAccelerate());
             this.HasInterval = this.MakeMoveModeRelatingProperty(v => v.HasInterval());
 
             // MoveMode 変更時処理
@@ -79,112 +78,92 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// 名前を取得する。
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
         /// 定数情報を取得する。
         /// </summary>
-        public IMovableValueConstants Constants => this.Base.Value.Constants;
+        public IReadOnlyReactiveProperty<IMovableValueConstants> Constants { get; }
 
         /// <summary>
         /// 値のフォーマット文字列を取得する。
         /// </summary>
-        public string ValueFormatString => @"F" + this.Constants.Digits;
+        public IReadOnlyReactiveProperty<string> ValueFormatString { get; }
 
         /// <summary>
         /// 値のインクリメント量を取得する。
         /// </summary>
-        public decimal ValueIncrement => 1 / (decimal)Math.Pow(10, this.Constants.Digits);
+        public IReadOnlyReactiveProperty<decimal> ValueIncrement { get; }
 
         /// <summary>
         /// 値の大インクリメント量を取得する。
         /// </summary>
-        public decimal ValueLargeIncrement => this.ValueIncrement * 10;
-
-        /// <summary>
-        /// 名前を取得する。
-        /// </summary>
-        public ReactiveProperty<string> Name { get; }
+        public IReadOnlyReactiveProperty<decimal> ValueLargeIncrement { get; }
 
         /// <summary>
         /// 開始値を取得する。
         /// </summary>
-        public ReactiveProperty<decimal> Begin { get; }
+        public IReactiveProperty<decimal> Begin { get; }
 
         /// <summary>
         /// 終端値を取得する。
         /// </summary>
-        public ReactiveProperty<decimal> End { get; }
+        public IReactiveProperty<decimal> End { get; }
 
         /// <summary>
         /// 移動モードを取得する。
         /// </summary>
-        public ReactiveProperty<MoveMode> MoveMode { get; }
+        public IReactiveProperty<MoveMode> MoveMode { get; }
 
         /// <summary>
         /// 移動モードが MoveMode.None 以外であるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsMoving { get; }
+        public IReadOnlyReactiveProperty<bool> IsMoving { get; }
 
         /// <summary>
         /// 移動モード名を取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<string> MoveModeName { get; }
+        public IReadOnlyReactiveProperty<string> MoveModeName { get; }
 
         /// <summary>
         /// 移動モードに対して加減速指定が可能であるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> CanAccelerate { get; }
+        public IReadOnlyReactiveProperty<bool> CanAccelerate { get; }
 
         /// <summary>
         /// 移動モードが移動フレーム間隔設定を持つか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> HasInterval { get; }
+        public IReadOnlyReactiveProperty<bool> HasInterval { get; }
 
         /// <summary>
         /// 加速を行うか否かを取得する。
         /// </summary>
-        public ReactiveProperty<bool> IsAccelerating { get; }
+        public IReactiveProperty<bool> IsAccelerating { get; }
 
         /// <summary>
         /// 減速を行うか否かを取得する。
         /// </summary>
-        public ReactiveProperty<bool> IsDecelerating { get; }
+        public IReactiveProperty<bool> IsDecelerating { get; }
 
         /// <summary>
         /// 移動フレーム間隔を取得する。
         /// </summary>
-        public ReactiveProperty<int> Interval { get; }
+        public IReactiveProperty<int> Interval { get; }
 
         /// <summary>
-        /// ラップ対象値を差し替える。
-        /// </summary>
-        /// <param name="value">差し替える値。</param>
-        public void Reset(IMovableValue value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            this.Base.Value = value;
-        }
-
-        /// <summary>
-        /// ラップ対象値を取得する。
-        /// </summary>
-        private ReactiveProperty<IMovableValue> Base { get; }
-
-        /// <summary>
-        /// ラップ対象値のプロパティをラップする ReactiveProperty{T} 値を作成する。
+        /// Constants 値の変更に連動する ReadOnlyReactiveProperty{T} 値を作成する。
         /// </summary>
         /// <typeparam name="T">プロパティ型。</typeparam>
-        /// <param name="selector">プロパティセレクタ。</param>
-        /// <returns>ReactiveProperty{T} 値。</returns>
-        private ReactiveProperty<T> MakeWrappingProperty<T>(
-            Expression<Func<IMovableValue, T>> selector)
+        /// <param name="selector">値セレクタ。</param>
+        /// <returns>ReadOnlyReactiveProperty{T} 値。</returns>
+        private ReadOnlyReactiveProperty<T> MakeConstantsRelatingProperty<T>(
+            Func<IMovableValueConstants, T> selector)
             =>
-            this.Base
-                .Select(v => v.ObserveProperty(selector))
-                .Switch()
-                .ToReactiveProperty()
+            this.Constants
+                .Select(selector)
+                .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
 
         /// <summary>
@@ -201,27 +180,19 @@ namespace VoiceroidUtil.ViewModel
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
 
-        #region デザイン用定義
+        #region デザイン時用定義
 
         /// <summary>
-        /// デザイン用の定数情報クラス。
+        /// デザイン時用コンストラクタ。
         /// </summary>
-        private class ConstantsForDesign : IMovableValueConstants
-        {
-            public int Digits => 1;
-            public decimal DefaultValue => 0;
-            public decimal MinValue => -1000;
-            public decimal MaxValue => 1000;
-            public decimal MinSliderValue => -256;
-            public decimal MaxSliderValue => 256;
-        }
-
-        /// <summary>
-        /// デザイン用のコンストラクタ。
-        /// </summary>
-        [Obsolete(@"Can use only design time.", true)]
+        [Obsolete(@"Design time only.")]
         public MovableValueViewModel()
-            : this(@"Name", new MovableValue<ConstantsForDesign>())
+            :
+            this(
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<IMovableValue>(
+                    new MovableValue<PlayComponent.BalanceConst>()),
+                @"項目名")
         {
         }
 
