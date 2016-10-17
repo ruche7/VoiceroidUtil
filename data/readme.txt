@@ -100,11 +100,6 @@ VOICEROID+は、株式会社AHSから発売されている合成音声ソフトウェアです。
 - Apache License 2.0
 - http://rx.codeplex.com/
 
-『Livet』
-- Copyright (C) 2010 Livet Project
-- zlib/libpng License
-- http://ugaya40.hateblo.jp/entry/Livet
-
 『Extended WPF Toolkit Community Edition』
 - Copyright (C) Xceed
 - Microsoft Public License (Ms-PL)
