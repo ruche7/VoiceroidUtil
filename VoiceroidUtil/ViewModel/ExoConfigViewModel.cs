@@ -47,9 +47,7 @@ namespace VoiceroidUtil.ViewModel
 
             // 選択中タブインデックス
             this.SelectedTabIndex =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.ExoConfigTabIndex)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.ExoConfigTabIndex);
 
             // 設定
             this.Common = this.MakeConfigProperty(c => c.Common);

@@ -1,18 +1,20 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using RucheHome.Util;
+using VoiceroidUtil.Extensions;
 
 namespace VoiceroidUtil.ViewModel
 {
     /// <summary>
     /// ViewModel のベースクラス。
     /// </summary>
-    public abstract class ViewModelBase : BindableBase, IDisposable
+    public abstract class ViewModelBase : IDisposable
     {
         /// <summary>
         /// コンストラクタ。
@@ -40,6 +42,54 @@ namespace VoiceroidUtil.ViewModel
                 throw new ArgumentNullException(argName);
             }
         }
+
+        /// <summary>
+        /// IReactiveProperty{T} オブジェクトの内包オブジェクトのプロパティを対象とする
+        /// ReactiveProperty{TProperty} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">
+        /// 内包オブジェクト。 INotifyPropertyChanged を実装している必要がある。
+        /// </typeparam>
+        /// <typeparam name="TProperty">内包オブジェクト内プロパティの型。</typeparam>
+        /// <param name="owner">IReactiveProperty{T} オブジェクト。</param>
+        /// <param name="selector">内包オブジェクト内プロパティセレクタ。</param>
+        /// <param name="canModifyNotifier">
+        /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
+        /// </param>
+        /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
+        protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
+            IReactiveProperty<T> owner,
+            Expression<Func<T, TProperty>> selector,
+            IObservable<bool> canModifyNotifier = null)
+            where T : INotifyPropertyChanged
+            =>
+            owner
+                .MakeInnerReactiveProperty(selector, canModifyNotifier)
+                .AddTo(this.CompositeDisposable);
+
+        /// <summary>
+        /// IReadOnlyReactiveProperty{T} オブジェクトの内包オブジェクトのプロパティを
+        /// 対象とする ReactiveProperty{TProperty} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">
+        /// 内包オブジェクト。 INotifyPropertyChanged を実装している必要がある。
+        /// </typeparam>
+        /// <typeparam name="TProperty">内包オブジェクト内プロパティの型。</typeparam>
+        /// <param name="owner">IReadOnlyReactiveProperty{T} オブジェクト。</param>
+        /// <param name="selector">内包オブジェクト内プロパティセレクタ。</param>
+        /// <param name="canModifyNotifier">
+        /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
+        /// </param>
+        /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
+        protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
+            IReadOnlyReactiveProperty<T> owner,
+            Expression<Func<T, TProperty>> selector,
+            IObservable<bool> canModifyNotifier = null)
+            where T : INotifyPropertyChanged
+            =>
+            owner
+                .MakeInnerReactiveProperty(selector, canModifyNotifier)
+                .AddTo(this.CompositeDisposable);
 
         /// <summary>
         /// コマンドを作成する。
@@ -244,7 +294,7 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// リソースを破棄する。
         /// </summary>
-        public void Dispose()
+        public virtual void Dispose()
         {
             this.CompositeDisposable.Dispose();
         }
