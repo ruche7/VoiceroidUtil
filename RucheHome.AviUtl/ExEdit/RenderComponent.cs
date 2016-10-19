@@ -8,7 +8,7 @@ namespace RucheHome.AviUtl.ExEdit
     /// 標準描画コンポーネントを表すクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class RenderComponent : ComponentBase
+    public class RenderComponent : ComponentBase, ICloneable
     {
         #region アイテム名定数群
 
@@ -84,6 +84,20 @@ namespace RucheHome.AviUtl.ExEdit
             this.Scale = new MovableValue<ScaleConst>();
             this.Transparency = new MovableValue<TransparencyConst>();
             this.Rotation = new MovableValue<RotationConst>();
+        }
+
+        /// <summary>
+        /// コピーコンストラクタ。
+        /// </summary>
+        /// <param name="src">コピー元。</param>
+        public RenderComponent(RenderComponent src) : base()
+        {
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            src.CopyToCore(this);
         }
 
         /// <summary>
@@ -224,13 +238,10 @@ namespace RucheHome.AviUtl.ExEdit
         }
 
         /// <summary>
-        /// このコンポーネントの内容を別のコンポーネントへコピーする。
+        /// このコンポーネントのクローンを作成する。
         /// </summary>
-        /// <param name="target">コピー先。</param>
-        public void CopyTo(RenderComponent target)
-        {
-            this.CopyToCore(target);
-        }
+        /// <returns>クローン。</returns>
+        public RenderComponent Clone() => new RenderComponent(this);
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
@@ -240,6 +251,16 @@ namespace RucheHome.AviUtl.ExEdit
         {
             this.ResetDataMembers();
         }
+
+        #region ICloneable の明示的実装
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        object ICloneable.Clone() => this.Clone();
+
+        #endregion
 
         #region MovableValue{TConstants} ジェネリッククラス用の定数情報構造体群
 

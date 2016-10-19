@@ -7,13 +7,27 @@ namespace RucheHome.AviUtl.ExEdit
     /// <summary>
     /// VoiceroidUtilが認識しないコンポーネントを表すクラス。
     /// </summary>
-    public class UnknownComponent : IComponent
+    public class UnknownComponent : IComponent, ICloneable
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         public UnknownComponent()
         {
+        }
+
+        /// <summary>
+        /// コピーコンストラクタ。
+        /// </summary>
+        /// <param name="src">コピー元。</param>
+        public UnknownComponent(UnknownComponent src)
+        {
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            this.Items = src.Items.Clone();
         }
 
         /// <summary>
@@ -38,5 +52,21 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         /// <returns>アイテムコレクション。</returns>
         public IniFileItemCollection ToExoFileItems() => this.Items.Clone();
+
+        /// <summary>
+        /// このコンポーネントのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        public UnknownComponent Clone() => new UnknownComponent(this);
+
+        #region ICloneable の明示的実装
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        object ICloneable.Clone() => this.Clone();
+
+        #endregion
     }
 }

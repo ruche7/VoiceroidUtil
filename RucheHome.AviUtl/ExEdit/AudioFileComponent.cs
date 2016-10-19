@@ -8,7 +8,7 @@ namespace RucheHome.AviUtl.ExEdit
     /// 音声ファイルコンポーネントを表すクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class AudioFileComponent : ComponentBase
+    public class AudioFileComponent : ComponentBase, ICloneable
     {
         #region アイテム名定数群
 
@@ -70,6 +70,20 @@ namespace RucheHome.AviUtl.ExEdit
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.PlayPosition = new MovableValue<PlayPositionConst>();
             this.PlaySpeed = new MovableValue<PlaySpeedConst>();
+        }
+
+        /// <summary>
+        /// コピーコンストラクタ。
+        /// </summary>
+        /// <param name="src">コピー元。</param>
+        public AudioFileComponent(AudioFileComponent src) : base()
+        {
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            src.CopyToCore(this);
         }
 
         /// <summary>
@@ -152,13 +166,10 @@ namespace RucheHome.AviUtl.ExEdit
         private string filePath = "";
 
         /// <summary>
-        /// このコンポーネントの内容を別のコンポーネントへコピーする。
+        /// このコンポーネントのクローンを作成する。
         /// </summary>
-        /// <param name="target">コピー先。</param>
-        public void CopyTo(AudioFileComponent target)
-        {
-            this.CopyToCore(target);
-        }
+        /// <returns>クローン。</returns>
+        public AudioFileComponent Clone() => new AudioFileComponent(this);
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
@@ -168,6 +179,16 @@ namespace RucheHome.AviUtl.ExEdit
         {
             this.ResetDataMembers();
         }
+
+        #region ICloneable の明示的実装
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        object ICloneable.Clone() => this.Clone();
+
+        #endregion
 
         #region MovableValue{TConstants} ジェネリッククラス用の定数情報構造体群
 

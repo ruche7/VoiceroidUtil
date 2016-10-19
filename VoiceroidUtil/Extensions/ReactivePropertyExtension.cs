@@ -26,13 +26,13 @@ namespace VoiceroidUtil.Extensions
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
-        public static ReactiveProperty<TProperty> MakeInnerReactivePropery<T, TProperty>(
+        public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
             IObservable<bool> canModifyNotifier = null)
             where T : INotifyPropertyChanged
             =>
-            MakeInnerReactiveProperyCore(
+            MakeInnerReactivePropertyCore(
                 self,
                 selector,
                 canModifyNotifier,
@@ -52,13 +52,13 @@ namespace VoiceroidUtil.Extensions
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
-        public static ReactiveProperty<TProperty> MakeInnerReactivePropery<T, TProperty>(
+        public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReadOnlyReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
             IObservable<bool> canModifyNotifier = null)
             where T : INotifyPropertyChanged
             =>
-            MakeInnerReactiveProperyCore(
+            MakeInnerReactivePropertyCore(
                 self,
                 selector,
                 canModifyNotifier,
@@ -79,7 +79,7 @@ namespace VoiceroidUtil.Extensions
         /// <param name="setterExecuter">setter 処理実施デリゲート。</param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         private static ReactiveProperty<TProperty>
-        MakeInnerReactiveProperyCore<T, TProperty>(
+        MakeInnerReactivePropertyCore<T, TProperty>(
             IObservable<T> self,
             Expression<Func<T, TProperty>> selector,
             IObservable<bool> canModifyNotifier,
@@ -104,8 +104,9 @@ namespace VoiceroidUtil.Extensions
             else
             {
                 // canModifyNotifier が true を通知したタイミングで値を反映する
-                result
+                Observable
                     .CombineLatest(
+                        result,
                         canModifyNotifier,
                         (value, canModify) => new { value, canModify })
                     .Where(v => v.canModify)

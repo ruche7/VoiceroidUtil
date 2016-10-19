@@ -13,36 +13,96 @@ namespace VoiceroidUtil
     public class ExoTextStyleTemplate : IEquatable<ExoTextStyleTemplate>
     {
         /// <summary>
+        /// テキストコンポーネントから
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータをクリアする。
+        /// </summary>
+        /// <param name="target">テキストコンポーネント。</param>
+        public static void ClearUnused(TextComponent target)
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException(nameof(target));
+            }
+
+            target.IsAutoAdjusting = false;
+            target.IsAutoScrolling = false;
+            target.Text = "";
+        }
+
+        /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public ExoTextStyleTemplate()
+        /// <param name="render">標準描画コンポーネントのコピー元。</param>
+        /// <param name="text">テキストコンポーネントのコピー元。</param>
+        /// <param name="textClipping">
+        /// テキストを1つ上のオブジェクトでクリッピングするならば true 。
+        /// </param>
+        /// <param name="withoutUnused">
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータをクリアするならば true 。
+        /// </param>
+        public ExoTextStyleTemplate(
+            RenderComponent render,
+            TextComponent text,
+            bool textClipping,
+            bool withoutUnused = false)
         {
+            if (render == null)
+            {
+                throw new ArgumentNullException(nameof(render));
+            }
+            if (text == null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
+            this.Render = render.Clone();
+            this.Text = text.Clone();
+            this.IsTextClipping = textClipping;
+
+            if (withoutUnused)
+            {
+                this.ClearUnused();
+            }
         }
 
         /// <summary>
-        /// 標準描画コンポーネントを取得または設定する。
+        /// コピーコンストラクタ。
         /// </summary>
-        public RenderComponent Render
+        /// <param name="src">コピー元。</param>
+        /// <param name="withoutUnused">
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータをクリアするならば true 。
+        /// </param>
+        public ExoTextStyleTemplate(ExoTextStyleTemplate src, bool withoutUnused = false)
         {
-            get { return this.render; }
-            set { this.render = value ?? new RenderComponent(); }
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            this.Render = src.Render.Clone();
+            this.Text = src.Text.Clone();
+            this.IsTextClipping = src.IsTextClipping;
+
+            if (withoutUnused)
+            {
+                this.ClearUnused();
+            }
         }
-        private RenderComponent render = new RenderComponent();
 
         /// <summary>
-        /// テキストコンポーネントを取得または設定する。
+        /// 標準描画コンポーネントを取得する。
         /// </summary>
-        public TextComponent Text
-        {
-            get { return this.text; }
-            set { this.text = value ?? new TextComponent(); }
-        }
-        private TextComponent text = new TextComponent();
+        public RenderComponent Render { get; }
 
         /// <summary>
-        /// テキストを1つ上のオブジェクトでクリッピングするか否かを取得または設定する。
+        /// テキストコンポーネントを取得する。
         /// </summary>
-        public bool IsTextClipping { get; set; } = false;
+        public TextComponent Text { get; }
+
+        /// <summary>
+        /// テキストを1つ上のオブジェクトでクリッピングするか否かを取得する。
+        /// </summary>
+        public bool IsTextClipping { get; }
 
         /// <summary>
         /// 説明文を取得する。
@@ -74,78 +134,47 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// このオブジェクトの内容を別のオブジェクトへ上書きする。
-        /// </summary>
-        /// <param name="target">上書き対象。</param>
-        /// <param name="withoutText">テキストを上書きしないならば true 。</param>
-        public void CopyTo(ExoTextStyleTemplate target, bool withoutText = false)
-        {
-            if (target == null)
-            {
-                throw new ArgumentNullException(nameof(target));
-            }
-
-            this.Render.CopyTo(target.Render);
-
-            var oldText = target.Text.Text;
-            this.Text.CopyTo(target.Text);
-            if (withoutText)
-            {
-                target.Text.Text = oldText;
-            }
-
-            target.IsTextClipping = this.IsTextClipping;
-        }
-
-        /// <summary>
         /// このオブジェクトの内容を ExoCharaStyle オブジェクトへ上書きする。
         /// </summary>
         /// <param name="target">上書き対象の ExoCharaStyle オブジェクト。</param>
-        /// <param name="withoutText">テキストを上書きしないならば true 。</param>
-        public void CopyTo(ExoCharaStyle target, bool withoutText = false)
+        /// <param name="withoutUnused">
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータを無視するならば true 。
+        /// </param>
+        public void CopyTo(ExoCharaStyle target, bool withoutUnused = false)
         {
             if (target == null)
             {
                 throw new ArgumentNullException(nameof(target));
             }
 
-            this.Render.CopyTo(target.Render);
+            var src =
+                (!withoutUnused || this.IsUnusedCleared) ?
+                    this : new ExoTextStyleTemplate(this);
 
-            var oldText = target.Text.Text;
-            this.Text.CopyTo(target.Text);
-            if (withoutText)
-            {
-                target.Text.Text = oldText;
-            }
-
-            target.IsTextClipping = this.IsTextClipping;
+            target.Render = src.Render.Clone();
+            target.Text = src.Text.Clone();
+            target.IsTextClipping = src.IsTextClipping;
         }
 
         /// <summary>
-        /// このオブジェクトと他のオブジェクトがテキスト以外等価であるか否かを調べる。
+        /// このオブジェクトと他のオブジェクトが、AviUtl拡張編集ファイル用設定で
+        /// 利用されないパラメータ以外等価であるか否かを調べる。
         /// </summary>
         /// <param name="other">調べるオブジェクト。</param>
-        /// <returns>テキスト以外等価ならば true 。そうでなければ false 。</returns>
-        public bool EqualsWithoutText(ExoTextStyleTemplate other)
+        /// <returns>等価ならば true 。そうでなければ false 。</returns>
+        public bool EqualsWithoutUnused(ExoTextStyleTemplate other)
         {
             if (other == null)
             {
                 return false;
             }
 
-            var c1 = this;
-            if (this.Text.Text != "")
-            {
-                c1 = new ExoTextStyleTemplate();
-                this.CopyTo(c1, true);
-            }
-
-            var c2 = other;
-            if (other.Text.Text != "")
-            {
-                c2 = new ExoTextStyleTemplate();
-                other.CopyTo(c2, true);
-            }
+            var c1 =
+                this.IsUnusedCleared ?
+                    this : new ExoTextStyleTemplate(this, withoutUnused: true);
+            var c2 =
+                other.IsUnusedCleared ?
+                    other : new ExoTextStyleTemplate(other, withoutUnused: true);
 
             return c1.Equals(c2);
         }
@@ -169,30 +198,37 @@ namespace VoiceroidUtil
         /// <returns>等価ならば true 。そうでなければ false 。</returns>
         private static bool EqualsComponent<T>(T c1, T c2)
             where T : ComponentBase
-        {
-            var props =
-                typeof(T)
-                    .GetProperties(
-                        BindingFlags.Instance |
-                        BindingFlags.Public |
-                        BindingFlags.NonPublic)
-                    .Where(
-                        p =>
-                            p.CanRead &&
-                            p.IsDefined(typeof(ExoFileItemAttribute), true));
+            =>
+            typeof(T)
+                .GetProperties(
+                    BindingFlags.Instance |
+                    BindingFlags.Public |
+                    BindingFlags.NonPublic)
+                .Where(
+                    p =>
+                        p.CanRead &&
+                        p.IsDefined(typeof(ExoFileItemAttribute), true))
+                .All(
+                    prop =>
+                    {
+                        var v1 = prop.GetMethod.Invoke(c1, null);
+                        var v2 = prop.GetMethod.Invoke(c2, null);
+                        return (v1?.Equals(v2) == true || (v1 == null && v2 == null));
+                    });
 
-            foreach (var prop in props)
-            {
-                var v1 = prop.GetMethod.Invoke(c1, null);
-                var v2 = prop.GetMethod.Invoke(c2, null);
-                if (v1?.Equals(v2) != true && (v1 != null || v2 != null))
-                {
-                    return false;
-                }
-            }
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータが
+        /// クリアされているか否かを取得する。
+        /// </summary>
+        private bool IsUnusedCleared =>
+            this.Text.IsAutoAdjusting == false &&
+            this.Text.IsAutoScrolling == false &&
+            this.Text.Text == "";
 
-            return true;
-        }
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定で利用されないパラメータをクリアする。
+        /// </summary>
+        private void ClearUnused() => ClearUnused(this.Text);
 
         #region Object のオーバライド
 

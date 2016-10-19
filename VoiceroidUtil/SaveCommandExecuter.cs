@@ -411,20 +411,11 @@ namespace VoiceroidUtil
                 item.GroupId = common.IsGrouping ? 1 : 0;
                 item.IsClipping = charaStyle.IsTextClipping;
                 {
-                    var c = new TextComponent();
-                    charaStyle.Text.CopyTo(c);
-
-                    c.IsAutoScrolling = false;
-                    c.IsAutoAdjusting = false;
-                    c.Text = text;
-
+                    var c = charaStyle.Text.Clone();
+                    ExoTextStyleTemplate.ClearUnused(c);
                     item.Components.Add(c);
                 }
-                {
-                    var c = new RenderComponent();
-                    charaStyle.Render.CopyTo(c);
-                    item.Components.Add(c);
-                }
+                item.Components.Add(charaStyle.Render.Clone());
 
                 exo.LayerItems.Add(item);
             }
@@ -440,15 +431,11 @@ namespace VoiceroidUtil
                 item.IsAudio = true;
                 {
                     var c = new AudioFileComponent();
-                    c.PlaySpeed = charaStyle.PlaySpeed;
+                    c.PlaySpeed = charaStyle.PlaySpeed.Clone();
                     c.FilePath = waveFilePath;
                     item.Components.Add(c);
                 }
-                {
-                    var c = new PlayComponent();
-                    charaStyle.Play.CopyTo(c);
-                    item.Components.Add(c);
-                }
+                item.Components.Add(charaStyle.Play.Clone());
 
                 exo.LayerItems.Add(item);
             }
