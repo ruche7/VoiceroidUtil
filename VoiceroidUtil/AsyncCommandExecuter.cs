@@ -16,7 +16,14 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
-        public AsyncCommandExecuter(Func<T, Task> asyncFunc)
+        /// <param name="parameterFilter">
+        /// 本来のコマンドパラメータをデリゲートへ渡す値に変換するデリゲート。
+        /// 変換不要ならば null 。
+        /// 変換はコマンド呼び出し元スレッドで行われる。
+        /// </param>
+        public AsyncCommandExecuter(
+            Func<T, Task> asyncFunc,
+            Func<T, T> parameterConverter = null)
         {
             if (asyncFunc == null)
             {
@@ -24,6 +31,7 @@ namespace VoiceroidUtil
             }
 
             this.AsyncFunc = asyncFunc;
+            this.ParameterConverter = parameterConverter;
         }
 
         /// <summary>
@@ -48,6 +56,12 @@ namespace VoiceroidUtil
                 try
                 {
                     this.IsExecutableCore.Value = false;
+
+                    if (this.ParameterConverter != null)
+                    {
+                        parameter = this.ParameterConverter(parameter);
+                    }
+
                     await this.AsyncFunc(parameter);
                 }
                 finally
@@ -72,7 +86,12 @@ namespace VoiceroidUtil
         /// <summary>
         /// 非同期処理デリゲートを取得または設定する。
         /// </summary>
-        protected Func<T, Task> AsyncFunc { get; set; } = null;
+        protected Func<T, Task> AsyncFunc { get; set; }
+
+        /// <summary>
+        /// コマンドパラメータコンバータを取得または設定する。
+        /// </summary>
+        protected Func<T, T> ParameterConverter { get; set; }
 
         /// <summary>
         /// 非同期実行可能な状態であるか否かを取得する。
@@ -93,7 +112,15 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="asyncFunc">非同期処理デリゲート。</param>
-        public AsyncCommandExecuter(Func<object, Task> asyncFunc) : base(asyncFunc)
+        /// <param name="parameterFilter">
+        /// 本来のコマンドパラメータをデリゲートへ渡す値に変換するデリゲート。
+        /// 変換不要ならば null 。
+        /// 変換はコマンド呼び出し元スレッドで行われる。
+        /// </param>
+        public AsyncCommandExecuter(
+            Func<object, Task> asyncFunc,
+            Func<object, object> parameterConverter = null)
+            : base(asyncFunc, parameterConverter)
         {
         }
 

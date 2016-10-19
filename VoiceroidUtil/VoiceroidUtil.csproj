@@ -145,6 +145,7 @@
     <Compile Include="ExoTextStyleTemplate.cs" />
     <Compile Include="Extensions\ObservableExtension.cs" />
     <Compile Include="Extensions\ReactivePropertyExtension.cs" />
+    <Compile Include="PlayStopCommandExecuter.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />
     <Compile Include="Services\IVoiceroidActionService.cs" />
