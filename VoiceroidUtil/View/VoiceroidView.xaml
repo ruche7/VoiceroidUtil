@@ -48,7 +48,6 @@
             <ComboBox
                 ItemsSource="{Binding Processes}"
                 SelectedItem="{Binding SelectedProcess.Value}"
-                IsEnabled="{Binding IsIdle.Value}"
                 Padding="2,1"
                 MaxDropDownHeight="480"
                 TabIndex="0">
@@ -89,8 +88,7 @@
         <tk:WatermarkTextBox
             Text="{Binding TalkText.Value, UpdateSourceTrigger=PropertyChanged}"
             MaxLength="{Binding TalkTextLengthLimit.Value}"
-            IsReadOnly="{Binding IsIdle.Value, Converter={StaticResource boolInverter}}"
-            IsReadOnlyCaretVisible="True"
+            IsEnabled="{Binding Path=IsTalkTextEditable.Value}"
             AcceptsReturn="True"
             AcceptsTab="{Binding IsTalkTextTabAccepted.Value}"
             Margin="0,2,0,0"

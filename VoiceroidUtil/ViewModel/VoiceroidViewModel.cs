@@ -69,8 +69,6 @@ namespace VoiceroidUtil.ViewModel
             this.WindowActivateService = windowActivateService;
             this.VoiceroidActionService = voiceroidActionService;
 
-            this.VoiceReplaceItems =
-                this.MakeInnerPropertyOf(talkTextReplaceConfig, c => c.VoiceReplaceItems);
             this.IsTextClearing =
                 this.MakeInnerPropertyOf(appConfig, c => c.IsTextClearing);
             this.VoiceroidExecutablePathes =
@@ -126,7 +124,11 @@ namespace VoiceroidUtil.ViewModel
 
             // 非同期実行コマンドヘルパー
             var playStopCommandExecuter =
-                new AsyncCommandExecuter(this.ExecutePlayStopCommand);
+                new PlayStopCommandExecuter(
+                    () => this.SelectedProcess.Value,
+                    () => talkTextReplaceConfig.Value.VoiceReplaceItems,
+                    () => this.TalkText.Value,
+                    this.OnPlayStopCommandExecuted);
             var saveCommandExecuter =
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
@@ -134,7 +136,7 @@ namespace VoiceroidUtil.ViewModel
                     () => exoConfig.Value,
                     () => appConfig.Value,
                     () => this.TalkText.Value,
-                    async r => await this.OnSaveCommandExecuted(r));
+                    this.OnSaveCommandExecuted);
             var dropTalkTextFileCommandExecuter =
                 new AsyncCommandExecuter<DragEventArgs>(
                     this.ExecuteDropTalkTextFileCommand);
@@ -151,12 +153,25 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             // アイドル状態なら設定変更可能とする
-            this.IsIdle.Subscribe(i => canModifyNotifier.Value = i);
+            this.IsIdle.Subscribe(f => canModifyNotifier.Value = f);
+
+            // 音声保存しており、保存成功時クリア設定が有効ならトークテキスト編集不可
+            this.IsTalkTextEditable =
+                new[]
+                {
+                    saveCommandExecuter.IsExecutable.Inverse(),
+                    this.IsTextClearing,
+                }
+                .CombineLatestValuesAreAllTrue()
+                .Inverse()
+                .ToReadOnlyReactiveProperty()
+                .AddTo(this.CompositeDisposable);
 
             // 実行/終了コマンド
             this.RunExitCommand =
                 this.MakeAsyncCommand(
                     this.ExecuteRunExitCommand,
+                    canUseConfig,
                     this.IsIdle,
                     this.IsProcessStartup.Inverse(),
                     processSaving.Inverse(),
@@ -195,11 +210,13 @@ namespace VoiceroidUtil.ViewModel
             this.DragOverTalkTextFileCommand =
                 this.MakeCommand<DragEventArgs>(
                     this.ExecuteDragOverTalkTextFileCommand,
-                    this.IsIdle);
+                    this.IsTalkTextEditable);
 
             // トークテキスト用ファイルドロップコマンド
             this.DropTalkTextFileCommand =
-                this.MakeAsyncCommand(dropTalkTextFileCommandExecuter, this.IsIdle);
+                this.MakeAsyncCommand(
+                    dropTalkTextFileCommandExecuter,
+                    this.IsTalkTextEditable);
         }
 
         /// <summary>
@@ -250,6 +267,11 @@ namespace VoiceroidUtil.ViewModel
         /// トークテキストにタブ文字の入力を受け付けるか否かを取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<bool> IsTalkTextTabAccepted { get; }
+
+        /// <summary>
+        /// トークテキストを編集可能な状態であるか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTalkTextEditable { get; }
 
         /// <summary>
         /// アイドル状態であるか否かを取得する。
@@ -303,15 +325,6 @@ namespace VoiceroidUtil.ViewModel
             }
 
             return pathes.All(p => File.Exists(p)) ? pathes : null;
-        }
-
-        /// <summary>
-        /// 音声文字列置換アイテムコレクションを取得する。
-        /// </summary>
-        private IReadOnlyReactiveProperty<TalkTextReplaceItemCollection>
-        VoiceReplaceItems
-        {
-            get;
         }
 
         /// <summary>
@@ -541,66 +554,39 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// PlayStopCommand コマンドの実処理を行う。
+        /// PlayStopCommand コマンド完了時処理を行う。
         /// </summary>
-        private async Task ExecutePlayStopCommand()
+        /// <param name="result">アプリステータス。</param>
+        /// <param name="parameter">コマンドパラメータ。</param>
+        private async Task OnPlayStopCommandExecuted(
+            IAppStatus result,
+            PlayStopCommandExecuter.Parameter parameter)
         {
-            var process = this.SelectedProcess.Value;
-            if (process == null)
+            if (result != null)
             {
-                this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
-                return;
+                // アプリ状態更新
+                this.LastStatus.Value = result;
             }
 
-            if (process.IsPlaying)
+            var process = parameter?.Process;
+            if (process?.IsPlaying == true)
             {
-                if (!(await process.Stop()))
-                {
-                    this.SetLastStatus(AppStatusType.Fail, @"停止処理に失敗しました。");
-                    return;
-                }
-                this.SetLastStatus(AppStatusType.Success, @"停止処理に成功しました。");
-            }
-            else
-            {
-                // テキスト作成
-                var text = this.TalkText.Value;
-                text = this.VoiceReplaceItems.Value?.Replace(text) ?? text;
+                // 対象VOICEROIDを前面へ
+                await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
 
-                // テキスト設定
-                if (!(await process.SetTalkText(text)))
-                {
-                    this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
-                    return;
-                }
-
-                // 再生
-                try
-                {
-                    if (!(await process.Play()))
-                    {
-                        this.SetLastStatus(
-                            AppStatusType.Fail,
-                            @"再生処理に失敗しました。");
-                        return;
-                    }
-                    this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
-                }
-                finally
-                {
-                    // 対象VOICEROIDを前面へ
-                    await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
-
-                    // メインウィンドウを前面へ
-                    await this.ActivateMainWindow();
-                }
+                // メインウィンドウを前面へ
+                await this.ActivateMainWindow();
             }
         }
 
         /// <summary>
         /// SaveCommand コマンド完了時処理を行う。
         /// </summary>
-        private async Task OnSaveCommandExecuted(IAppStatus result)
+        /// <param name="result">アプリステータス。</param>
+        /// <param name="parameter">コマンドパラメータ。</param>
+        private async Task OnSaveCommandExecuted(
+            IAppStatus result,
+            SaveCommandExecuter.Parameter parameter)
         {
             if (result != null)
             {
