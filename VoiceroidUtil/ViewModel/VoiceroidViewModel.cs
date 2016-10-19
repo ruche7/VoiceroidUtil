@@ -71,15 +71,15 @@ namespace VoiceroidUtil.ViewModel
 
             this.VoiceReplaceItems =
                 talkTextReplaceConfig
-                    .MakeInnerReactivePropery(c => c.VoiceReplaceItems)
+                    .MakeInnerReactiveProperty(c => c.VoiceReplaceItems)
                     .AddTo(this.CompositeDisposable);
             this.IsTextClearing =
                 appConfig
-                    .MakeInnerReactivePropery(c => c.IsTextClearing)
+                    .MakeInnerReactiveProperty(c => c.IsTextClearing)
                     .AddTo(this.CompositeDisposable);
             this.VoiceroidExecutablePathes =
                 uiConfig
-                    .MakeInnerReactivePropery(c => c.VoiceroidExecutablePathes)
+                    .MakeInnerReactiveProperty(c => c.VoiceroidExecutablePathes)
                     .AddTo(this.CompositeDisposable);
 
             // 選択中VOICEROIDプロセス
@@ -129,7 +129,7 @@ namespace VoiceroidUtil.ViewModel
                     .AddTo(this.CompositeDisposable);
             this.IsTalkTextTabAccepted =
                 appConfig
-                    .MakeInnerReactivePropery(c => c.IsTabAccepted)
+                    .MakeInnerReactiveProperty(c => c.IsTabAccepted)
                     .AddTo(this.CompositeDisposable);
 
             // 非同期実行コマンドヘルパー

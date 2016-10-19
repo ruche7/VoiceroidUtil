@@ -54,16 +54,6 @@ namespace VoiceroidUtil.ViewModel
             this.OpenFileDialogService = openFileDialogService;
 
             // 各プロパティ値
-            this.VoiceroidId =
-                this
-                    .ObserveConfigProperty(c => c.VoiceroidId)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
-            this.VoiceroidName =
-                this
-                    .ObserveConfigProperty(c => c.VoiceroidName)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
             this.Render = this.MakeConfigProperty(c => c.Render);
             this.Text = this.MakeConfigProperty(c => c.Text);
             this.IsTextClipping = this.MakeConfigProperty(c => c.IsTextClipping);
@@ -109,65 +99,68 @@ namespace VoiceroidUtil.ViewModel
             // UI開閉設定
             this.IsTextUIExpanded =
                 uiConfig
-                    .MakeInnerReactivePropery(c => c.IsExoCharaTextExpanded)
+                    .MakeInnerReactiveProperty(c => c.IsExoCharaTextExpanded)
                     .AddTo(this.CompositeDisposable);
             this.IsAudioUIExpanded =
                 uiConfig
-                    .MakeInnerReactivePropery(c => c.IsExoCharaAudioExpanded)
+                    .MakeInnerReactiveProperty(c => c.IsExoCharaAudioExpanded)
                     .AddTo(this.CompositeDisposable);
             this.IsTextImportUIExpanded =
                 uiConfig
-                    .MakeInnerReactivePropery(c => c.IsExoCharaTextImportExpanded)
+                    .MakeInnerReactiveProperty(c => c.IsExoCharaTextImportExpanded)
                     .AddTo(this.CompositeDisposable);
 
             // テキストスタイル雛形用ファイルロード関連の非同期実行コマンドヘルパー作成
-            // どちらか一方の実行中は両方実行不可とする
             var selectTemplateFileCommandExecuter =
                 new AsyncCommandExecuter(this.ExecuteSelectTemplateFileCommand);
             var dropTemplateFileCommandExecuter =
                 new AsyncCommandExecuter<DragEventArgs>(
                     this.ExecuteDropTemplateFileCommand);
 
+            // どちらも実行可能ならロード可能状態とする
+            var templateLoadable =
+                new[]
+                {
+                    selectTemplateFileCommandExecuter.IsExecutable,
+                    dropTemplateFileCommandExecuter.IsExecutable,
+                }
+                .CombineLatestValuesAreAllTrue();
+
+            // テキストスタイル雛形ロード中フラグ
+            this.IsTemplateLoading =
+                templateLoadable
+                    .Inverse()
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // テキストスタイル雛形用ファイル選択コマンド
             this.SelectTemplateFileCommand =
                 this.MakeAsyncCommand(
                     selectTemplateFileCommandExecuter,
-                    dropTemplateFileCommandExecuter.IsExecutable);
+                    templateLoadable);
 
             // テキストスタイル雛形用ファイルドラッグオーバーコマンド
             this.DragOverTemplateFileCommand =
                 this.MakeCommand<DragEventArgs>(
                     this.ExecuteDragOverTemplateFileCommand,
-                    selectTemplateFileCommandExecuter.IsExecutable,
-                    dropTemplateFileCommandExecuter.IsExecutable);
+                    templateLoadable);
 
             // テキストスタイル雛形用ファイルドロップコマンド
             this.DropTemplateFileCommand =
                 this.MakeAsyncCommand(
                     dropTemplateFileCommandExecuter,
-                    selectTemplateFileCommandExecuter.IsExecutable);
+                    templateLoadable);
 
             // テキストスタイル雛形適用コマンド
             this.ApplyTemplateCommand =
                 this.MakeCommand(
                     this.ExecuteApplyTemplateCommand,
                     this.CanModify,
-                    selectTemplateFileCommandExecuter.IsExecutable,
-                    dropTemplateFileCommandExecuter.IsExecutable,
                     this.HasTemplate,
                     this.SelectedTemplateIndex
-                        .Select(i => i >= 0 && i < this.Templates.Value.Count));
+                        .Select(i => i >= 0 && i < this.Templates.Value.Count),
+                    templateLoadable);
         }
-
-        /// <summary>
-        /// VOICEROID識別IDを取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<VoiceroidId> VoiceroidId { get; }
-
-        /// <summary>
-        /// VOICEROIDの名前を取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<string> VoiceroidName { get; }
 
         /// <summary>
         /// RenderComponent 値を取得する。
@@ -273,6 +266,11 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<bool> HasTemplate { get; }
 
         /// <summary>
+        /// テキストスタイル雛形のロード中であるか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTemplateLoading { get; }
+
+        /// <summary>
         /// テキスト設定UIを開いた状態にするか否かを取得する。
         /// </summary>
         public IReactiveProperty<bool> IsTextUIExpanded { get; }
@@ -330,6 +328,22 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// レイヤーアイテム内にキャラスクリプト用定義が存在するか否かを取得する。
+        /// </summary>
+        /// <param name="layerItem">レイヤーアイテム。</param>
+        /// <returns>
+        /// キャラスクリプト用定義が存在するならば true 。そうでなければ false 。
+        /// </returns>
+        private static bool ContainsCharaScript(LayerItem layerItem) =>
+            layerItem
+                .GetComponents<UnknownComponent>()
+                .Any(
+                    c =>
+                        c.ComponentName == @"アニメーション効果" &&
+                        c.Items.Any(
+                            i => i.Name == @"name" && i.Value.EndsWith(@"@キャラ素材")));
+
+        /// <summary>
         /// レイヤーアイテム列挙からテキストスタイル雛形リストを作成する。
         /// </summary>
         /// <param name="layerItems">レイヤーアイテム列挙。</param>
@@ -345,29 +359,25 @@ namespace VoiceroidUtil.ViewModel
                 return result;
             }
 
-            foreach (var item in layerItems.OrderByDescending(i => i.LayerId))
+            // キャラスクリプト用ではないテキストオブジェクトのみ対象
+            // テキストが空でないものを優先
+            // その中でも開始フレーム位置が手前のものを優先
+            // その中でもレイヤー番号が小さいものを優先
+            var items =
+                from i in layerItems
+                let render = i.GetComponent<RenderComponent>()
+                let text = i.GetComponent<TextComponent>()
+                where render != null && text != null && !ContainsCharaScript(i)
+                orderby (text.Text != "") ? 0 : 1, i.BeginFrame, i.LayerId
+                select new { render, text, clipping = i.IsClipping };
+
+            foreach (var item in items)
             {
-                var render = item.GetComponent<RenderComponent>();
-                var text = item.GetComponent<TextComponent>();
-                if (render == null || text == null)
-                {
-                    continue;
-                }
-
                 var temp =
-                    new ExoTextStyleTemplate
-                    {
-                        Render = render,
-                        IsTextClipping = item.IsClipping,
-                    };
-                text.CopyTo(temp.Text);
-
-                // スタイル設定しない項目(テキスト除く)は固定値にする
-                temp.Text.IsAutoScrolling = false;
-                temp.Text.IsAutoAdjusting = false;
+                    new ExoTextStyleTemplate(item.render, item.text, item.clipping);
 
                 // 重複するなら無視
-                if (result.Any(t => t.EqualsWithoutText(temp)))
+                if (result.Any(t => t.EqualsWithoutUnused(temp)))
                 {
                     continue;
                 }
@@ -432,17 +442,19 @@ namespace VoiceroidUtil.ViewModel
         /// オブジェクト型。
         /// INotifyPropertyChanged インタフェースを実装している必要がある。
         /// </typeparam>
+        /// <typeparam name="TConstants">定数情報型。</typeparam>
         /// <param name="holder">オブジェクト。</param>
         /// <param name="selector">
-        /// オブジェクトの IMovableValue プロパティセレクタ。
+        /// オブジェクトの MovableValue{TConstants} プロパティセレクタ。
         /// </param>
         /// <param name="name">名前。 null ならば自動決定される。</param>
         /// <returns>MovableValueViewModel 。</returns>
-        private MovableValueViewModel MakeMovableValueViewModel<T>(
+        private MovableValueViewModel MakeMovableValueViewModel<T, TConstants>(
             IReadOnlyReactiveProperty<T> holder,
-            Expression<Func<T, IMovableValue>> selector,
+            Expression<Func<T, MovableValue<TConstants>>> selector,
             string name = null)
             where T : INotifyPropertyChanged
+            where TConstants : IMovableValueConstants, new()
         {
             Debug.Assert(holder != null);
             Debug.Assert(selector != null);
@@ -450,9 +462,18 @@ namespace VoiceroidUtil.ViewModel
             // 値取得
             var value =
                 holder
-                    .ObserveInnerProperty(selector)
-                    .ToReadOnlyReactiveProperty()
+                    .MakeInnerReactiveProperty(selector, this.CanModify)
                     .AddTo(this.CompositeDisposable);
+
+            // MoveMode が None なら End 値を Begin 値に追従させる
+            Observable
+                .CombineLatest(
+                    value.ObserveInnerProperty(v => v.Begin),
+                    value.ObserveInnerProperty(v => v.MoveMode),
+                    (begin, mode) => new { begin, mode })
+                .Where(v => v.mode == MoveMode.None)
+                .Subscribe(v => value.Value.End = v.begin)
+                .AddTo(this.CompositeDisposable);
 
             // 名前取得
             var info = ((MemberExpression)selector.Body).Member;
@@ -649,7 +670,9 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
-            this.Templates.Value[index].CopyTo(this.BaseConfig.Value, withoutText: true);
+            this.Templates.Value[index].CopyTo(
+                this.BaseConfig.Value,
+                withoutUnused: true);
 
             this.SetLastStatus(
                 AppStatusType.Success,
@@ -693,7 +716,7 @@ namespace VoiceroidUtil.ViewModel
             this(
                 new ReactiveProperty<bool>(true),
                 new ReactiveProperty<ExoCharaStyle>(
-                    new ExoCharaStyle(RucheHome.Voiceroid.VoiceroidId.YukariEx)),
+                    new ExoCharaStyle(VoiceroidId.YukariEx)),
                 new ReactiveProperty<UIConfig>(new UIConfig()),
                 new ReactiveProperty<IAppStatus>(new AppStatus()),
                 NullServices.OpenFileDialog)

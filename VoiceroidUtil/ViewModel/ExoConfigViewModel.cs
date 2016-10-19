@@ -48,11 +48,12 @@ namespace VoiceroidUtil.ViewModel
             // 選択中タブインデックス
             this.SelectedTabIndex =
                 uiConfig
-                    .MakeInnerReactivePropery(c => c.ExoConfigTabIndex)
+                    .MakeInnerReactiveProperty(c => c.ExoConfigTabIndex)
                     .AddTo(this.CompositeDisposable);
 
             // 設定
             this.Common = this.MakeConfigProperty(c => c.Common);
+            this.CharaStyles = this.MakeConfigProperty(c => c.CharaStyles);
 
             // 内包 ViewModel のセットアップ
             this.SetupViewModel(uiConfig, openFileDialogService);
@@ -88,22 +89,19 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<ExoCommonConfig> Common { get; }
 
         /// <summary>
-        /// キャラ別スタイル設定 ViewModel コレクションを取得する。
+        /// キャラ別スタイル設定セットを取得する。
         /// </summary>
-        public IReadOnlyCollection<ExoCharaStyleViewModel> CharaStyles
-        {
-            get;
-            private set;
-        }
+        public IReadOnlyReactiveProperty<ExoCharaStyleSet> CharaStyles { get; }
+
+        /// <summary>
+        /// 選択中キャラ別スタイル設定インデックスを取得する。
+        /// </summary>
+        public IReactiveProperty<int> SelectedCharaStyleIndex { get; private set; }
 
         /// <summary>
         /// 選択中キャラ別スタイル設定 ViewModel を取得する。
         /// </summary>
-        public IReactiveProperty<ExoCharaStyleViewModel> SelectedCharaStyle
-        {
-            get;
-            private set;
-        }
+        public ExoCharaStyleViewModel SelectedCharaStyle { get; private set; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
@@ -139,46 +137,53 @@ namespace VoiceroidUtil.ViewModel
             IReadOnlyReactiveProperty<UIConfig> uiConfig,
             IOpenFileDialogService openFileDialogService)
         {
-            var charaStylesObservable = this.ObserveConfigProperty(c => c.CharaStyles);
-
-            // ViewModel コレクション作成
-            this.CharaStyles =
-                (Enum.GetValues(typeof(VoiceroidId)) as VoiceroidId[])
-                    .Select(
-                        id =>
-                            new ExoCharaStyleViewModel(
-                                this.CanModify,
-                                charaStylesObservable
-                                    .Select(s => s[id])
-                                    .ToReadOnlyReactiveProperty()
-                                    .AddTo(this.CompositeDisposable),
-                                uiConfig,
-                                this.LastStatus,
-                                openFileDialogService)
-                                .AddTo(this.CompositeDisposable))
-                    .ToList()
-                    .AsReadOnly();
-
-            Func<VoiceroidId, ExoCharaStyleViewModel> charaStyleFinder =
-                id => this.CharaStyles.First(s => s.VoiceroidId.Value == id);
-
-            // 選択中 ViewModel
-            this.SelectedCharaStyle =
-                new ReactiveProperty<ExoCharaStyleViewModel>(
-                    charaStyleFinder(uiConfig.Value.ExoCharaVoiceroidId))
+            // 選択中キャラ別スタイルインデックス作成
+            this.SelectedCharaStyleIndex =
+                uiConfig
+                    .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
+                    .Select(id => (int)id)
+                    .ToReactiveProperty()
                     .AddTo(this.CompositeDisposable);
-
-            // UI設定変更時に選択プロセス反映
-            uiConfig
-                .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
-                .Subscribe(id => this.SelectedCharaStyle.Value = charaStyleFinder(id))
+            this.SelectedCharaStyleIndex
+                .Where(i => i >= 0)
+                .Subscribe(i => uiConfig.Value.ExoCharaVoiceroidId = (VoiceroidId)i)
                 .AddTo(this.CompositeDisposable);
 
-            // 選択中 ViewModel 変更時処理
-            this.SelectedCharaStyle
-                .Where(s => s != null)
-                .Subscribe(s => uiConfig.Value.ExoCharaVoiceroidId = s.VoiceroidId.Value)
+            // セットまたは選択中インデックスが変化した場合に Unit を発行する
+            var selectionNotifier =
+                new[]
+                {
+                    this.CharaStyles.ToUnit(),
+                    this.SelectedCharaStyleIndex.ToUnit(),
+                }
+                .Merge();
+
+            // 必ずアイテム選択状態にする
+            // 即座に書き換えるとうまくいかないので少し待ちを入れる
+            selectionNotifier
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(_ => this.SelectedCharaStyleIndex.Value < 0)
+                .Subscribe(
+                    _ =>
+                        this.SelectedCharaStyleIndex.Value =
+                            (int)uiConfig.Value.ExoCharaVoiceroidId)
                 .AddTo(this.CompositeDisposable);
+
+            // 選択中 ViewModel 作成
+            this.SelectedCharaStyle =
+                new ExoCharaStyleViewModel(
+                    this.CanModify,
+                    selectionNotifier
+                        .Select(
+                            _ =>
+                                this.CharaStyles.Value[
+                                    uiConfig.Value.ExoCharaVoiceroidId])
+                        .ToReadOnlyReactiveProperty()
+                        .AddTo(this.CompositeDisposable),
+                    uiConfig,
+                    this.LastStatus,
+                    openFileDialogService)
+                    .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
