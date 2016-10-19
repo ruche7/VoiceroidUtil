@@ -98,17 +98,11 @@ namespace VoiceroidUtil.ViewModel
 
             // UI開閉設定
             this.IsTextUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsExoCharaTextExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsExoCharaTextExpanded);
             this.IsAudioUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsExoCharaAudioExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsExoCharaAudioExpanded);
             this.IsTextImportUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsExoCharaTextImportExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsExoCharaTextImportExpanded);
 
             // テキストスタイル雛形用ファイルロード関連の非同期実行コマンドヘルパー作成
             var selectTemplateFileCommandExecuter =
@@ -460,10 +454,7 @@ namespace VoiceroidUtil.ViewModel
             Debug.Assert(selector != null);
 
             // 値取得
-            var value =
-                holder
-                    .MakeInnerReactiveProperty(selector, this.CanModify)
-                    .AddTo(this.CompositeDisposable);
+            var value = this.MakeInnerPropertyOf(holder, selector, this.CanModify);
 
             // MoveMode が None なら End 値を Begin 値に追従させる
             Observable

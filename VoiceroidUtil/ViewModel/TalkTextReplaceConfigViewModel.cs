@@ -39,9 +39,7 @@ namespace VoiceroidUtil.ViewModel
 
             // 選択中タブインデックス
             this.SelectedTabIndex =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.TalkTextReplaceConfigTabIndex)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.TalkTextReplaceConfigTabIndex);
 
             // 内包 ViewModel のセットアップ
             this.SetupViewModels();

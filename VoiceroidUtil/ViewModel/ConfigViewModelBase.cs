@@ -66,10 +66,9 @@ namespace VoiceroidUtil.ViewModel
             Expression<Func<TConfig, T>> selector,
             bool alwaysCanModify = false)
             =>
-            this.BaseConfig
-                .MakeInnerReactiveProperty(
-                    selector,
-                    alwaysCanModify ? null : this.CanModify)
-                .AddTo(this.CompositeDisposable);
+            this.MakeInnerPropertyOf(
+                this.BaseConfig,
+                selector,
+                alwaysCanModify ? null : this.CanModify);
     }
 }

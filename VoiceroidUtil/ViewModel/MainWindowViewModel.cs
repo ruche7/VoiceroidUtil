@@ -51,10 +51,7 @@ namespace VoiceroidUtil.ViewModel
             this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
             this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
 
-            this.IsTopmost =
-                appConfig
-                    .MakeInnerReactiveProperty(c => c.IsTopmost)
-                    .AddTo(this.CompositeDisposable);
+            this.IsTopmost = this.MakeInnerPropertyOf(appConfig, c => c.IsTopmost);
 
             // VoiceroidViewModel 作成
             var canModifyNotifier =
