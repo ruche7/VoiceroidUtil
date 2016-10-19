@@ -12,7 +12,7 @@ namespace RucheHome.AviUtl.ExEdit
     /// <typeparam name="TConstants">定数情報型。</typeparam>
     [DataContract(Namespace = "")]
     public class MovableValue<TConstants>
-        : BindableBase, IMovableValue, IEquatable<MovableValue<TConstants>>
+        : BindableBase, IMovableValue, IEquatable<MovableValue<TConstants>>, ICloneable
         where TConstants : IMovableValueConstants, new()
     {
         #region 静的定義群
@@ -241,6 +241,25 @@ namespace RucheHome.AviUtl.ExEdit
         }
 
         /// <summary>
+        /// コピーコンストラクタ。
+        /// </summary>
+        /// <param name="src">コピー元。</param>
+        public MovableValue(MovableValue<TConstants> src)
+        {
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            this.Begin = src.Begin;
+            this.End = src.End;
+            this.MoveMode = src.MoveMode;
+            this.IsAccelerating = src.IsAccelerating;
+            this.IsDecelerating = src.IsDecelerating;
+            this.Interval = src.Interval;
+        }
+
+        /// <summary>
         /// 定数情報を取得する。
         /// </summary>
         public IMovableValueConstants Constants => ThisConstants;
@@ -341,6 +360,12 @@ namespace RucheHome.AviUtl.ExEdit
         }
         private int interval = 0;
 
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        public MovableValue<TConstants> Clone() => new MovableValue<TConstants>(this);
+
         #region Object のオーバライド
 
         /// <summary>
@@ -415,6 +440,16 @@ namespace RucheHome.AviUtl.ExEdit
             this.IsAccelerating == other.IsAccelerating &&
             this.IsDecelerating == other.IsDecelerating &&
             this.Interval == other.Interval;
+
+        #endregion
+
+        #region ICloneable の明示的実装
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        object ICloneable.Clone() => this.Clone();
 
         #endregion
     }

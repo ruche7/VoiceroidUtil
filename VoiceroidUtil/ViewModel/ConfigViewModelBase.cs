@@ -67,7 +67,7 @@ namespace VoiceroidUtil.ViewModel
             bool alwaysCanModify = false)
             =>
             this.BaseConfig
-                .MakeInnerReactivePropery(
+                .MakeInnerReactiveProperty(
                     selector,
                     alwaysCanModify ? null : this.CanModify)
                 .AddTo(this.CompositeDisposable);

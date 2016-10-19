@@ -93,6 +93,9 @@
                                     <ComboBox
                                         ItemsSource="{Binding Templates.Value}"
                                         SelectedIndex="{Binding SelectedTemplateIndex.Value}"
+                                        IsEnabled="{Binding
+                                            Path=IsTemplateLoading.Value,
+                                            Converter={StaticResource boolInverter}}"
                                         DisplayMemberPath="Description" />
                                     <Button
                                         Command="{Binding ApplyTemplateCommand}"
