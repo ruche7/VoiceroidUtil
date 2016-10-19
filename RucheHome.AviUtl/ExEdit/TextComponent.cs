@@ -13,7 +13,7 @@ namespace RucheHome.AviUtl.ExEdit
     /// テキストコンポーネントを表すクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class TextComponent : ComponentBase
+    public class TextComponent : ComponentBase, ICloneable
     {
         #region アイテム名定数群
 
@@ -156,6 +156,20 @@ namespace RucheHome.AviUtl.ExEdit
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.FontSize = new MovableValue<FontSizeConst>();
             this.TextSpeed = new MovableValue<TextSpeedConst>();
+        }
+
+        /// <summary>
+        /// コピーコンストラクタ。
+        /// </summary>
+        /// <param name="src">コピー元。</param>
+        public TextComponent(TextComponent src) : base()
+        {
+            if (src == null)
+            {
+                throw new ArgumentNullException(nameof(src));
+            }
+
+            src.CopyToCore(this);
         }
 
         /// <summary>
@@ -476,13 +490,10 @@ namespace RucheHome.AviUtl.ExEdit
         private string text = "";
 
         /// <summary>
-        /// このコンポーネントの内容を別のコンポーネントへコピーする。
+        /// このコンポーネントのクローンを作成する。
         /// </summary>
-        /// <param name="target">コピー先。</param>
-        public void CopyTo(TextComponent target)
-        {
-            this.CopyToCore(target);
-        }
+        /// <returns>クローン。</returns>
+        public TextComponent Clone() => new TextComponent(this);
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
@@ -492,6 +503,16 @@ namespace RucheHome.AviUtl.ExEdit
         {
             this.ResetDataMembers();
         }
+
+        #region ICloneable の明示的実装
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>クローン。</returns>
+        object ICloneable.Clone() => this.Clone();
+
+        #endregion
 
         #region MovableValue{TConstants} ジェネリッククラス用の定数情報構造体群
 

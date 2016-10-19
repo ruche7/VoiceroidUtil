@@ -31,6 +31,14 @@ namespace RucheHome.AviUtl.ExEdit
         [ExoFileItem(ExoFileItemNameOfComponentName, Order = 0)]
         public abstract string ComponentName { get; }
 
+        string IComponent.ComponentName
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         /// <summary>
         /// このコンポーネントを
         /// 拡張編集オブジェクトファイルのアイテムコレクションに変換する。
@@ -116,7 +124,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         /// <param name="target">コピー先。</param>
         /// <remarks>
-        /// 継承先での CopyTo メソッドの実装に用いることができる。
+        /// 継承先でのコピーコンストラクタの実装に用いることができる。
         /// </remarks>
         protected void CopyToCore(ComponentBase target)
         {
@@ -148,9 +156,23 @@ namespace RucheHome.AviUtl.ExEdit
 
             foreach (var prop in props)
             {
-                prop.SetMethod.Invoke(
-                    target,
-                    new[] { prop.GetMethod.Invoke(this, null) });
+                var value = prop.GetMethod.Invoke(this, null);
+
+                // Clone メソッドがあるなら利用
+                var clone =
+                    prop.PropertyType.GetMethod(
+                        @"Clone",
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (clone != null)
+                {
+                    value = clone.Invoke(value, null);
+                }
+                else if (value is ICloneable)
+                {
+                    value = ((ICloneable)value).Clone();
+                }
+
+                prop.SetMethod.Invoke(target, new[] { value });
             }
         }
     }

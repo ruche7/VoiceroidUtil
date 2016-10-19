@@ -53,7 +53,7 @@ namespace VoiceroidUtil.ViewModel
 
             this.IsTopmost =
                 appConfig
-                    .MakeInnerReactivePropery(c => c.IsTopmost)
+                    .MakeInnerReactiveProperty(c => c.IsTopmost)
                     .AddTo(this.CompositeDisposable);
 
             // VoiceroidViewModel 作成

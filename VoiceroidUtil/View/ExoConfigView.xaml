@@ -179,15 +179,15 @@
                 </TabItem.Header>
                 <DockPanel>
                     <ComboBox
-                        ItemsSource="{Binding CharaStyles}"
-                        SelectedItem="{Binding SelectedCharaStyle.Value}"
+                        ItemsSource="{Binding CharaStyles.Value}"
+                        SelectedIndex="{Binding SelectedCharaStyleIndex.Value}"
                         Margin="4"
                         DockPanel.Dock="Top">
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel>
                                     <StackPanel
-                                        DataContext="{Binding VoiceroidId.Value}"
+                                        DataContext="{Binding VoiceroidId}"
                                         DockPanel.Dock="Left">
                                         <Image
                                             Style="{StaticResource VoiceroidIdImage}"
@@ -196,7 +196,7 @@
                                             Height="24" />
                                     </StackPanel>
                                     <Label
-                                        Content="{Binding VoiceroidName.Value}"
+                                        Content="{Binding VoiceroidName}"
                                         Margin="4,0,0,0" />
                                 </DockPanel>
                             </DataTemplate>
@@ -205,7 +205,7 @@
                     <Border BorderThickness="0,1,0,0" BorderBrush="#DDDDDD" Margin="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <v:ExoCharaStyleView
-                                DataContext="{Binding SelectedCharaStyle.Value}"
+                                DataContext="{Binding SelectedCharaStyle}"
                                 Margin="4" />
                         </ScrollViewer>
                     </Border>

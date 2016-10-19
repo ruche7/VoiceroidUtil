@@ -35,9 +35,9 @@ namespace RucheHome.AviUtl.ExEdit
         }
 
         /// <summary>
-        /// パース用メソッド群を保持する構造体。
+        /// パース用メソッド群を保持するクラス。
         /// </summary>
-        private struct ParseMethods
+        private class ParseMethods
         {
             /// <summary>
             /// パース可能であるか否かを調べるメソッド。
