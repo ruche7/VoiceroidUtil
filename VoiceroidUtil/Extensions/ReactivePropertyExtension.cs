@@ -46,7 +46,7 @@ namespace VoiceroidUtil.Extensions
         /// 内包オブジェクト。 INotifyPropertyChanged を実装している必要がある。
         /// </typeparam>
         /// <typeparam name="TProperty">内包オブジェクト内プロパティの型。</typeparam>
-        /// <param name="self">IReactiveProperty{T} オブジェクト。</param>
+        /// <param name="self">IReadOnlyReactiveProperty{T} オブジェクト。</param>
         /// <param name="selector">内包オブジェクト内プロパティセレクタ。</param>
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。

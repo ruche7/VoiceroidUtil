@@ -36,17 +36,11 @@ namespace VoiceroidUtil.ViewModel
 
             // UI開閉設定
             this.IsGeneralUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsGeneralConfigExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsGeneralConfigExpanded);
             this.IsSaveUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsSaveConfigExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsSaveConfigExpanded);
             this.IsYmmUIExpanded =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.IsYmmConfigExpanded)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.IsYmmConfigExpanded);
 
             // 保存先ディレクトリ選択コマンド
             this.SelectSaveDirectoryCommand =

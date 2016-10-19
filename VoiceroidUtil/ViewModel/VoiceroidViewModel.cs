@@ -70,17 +70,11 @@ namespace VoiceroidUtil.ViewModel
             this.VoiceroidActionService = voiceroidActionService;
 
             this.VoiceReplaceItems =
-                talkTextReplaceConfig
-                    .MakeInnerReactiveProperty(c => c.VoiceReplaceItems)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(talkTextReplaceConfig, c => c.VoiceReplaceItems);
             this.IsTextClearing =
-                appConfig
-                    .MakeInnerReactiveProperty(c => c.IsTextClearing)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(appConfig, c => c.IsTextClearing);
             this.VoiceroidExecutablePathes =
-                uiConfig
-                    .MakeInnerReactiveProperty(c => c.VoiceroidExecutablePathes)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(uiConfig, c => c.VoiceroidExecutablePathes);
 
             // 選択中VOICEROIDプロセス
             this.SelectedProcess =
@@ -128,9 +122,7 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
             this.IsTalkTextTabAccepted =
-                appConfig
-                    .MakeInnerReactiveProperty(c => c.IsTabAccepted)
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerPropertyOf(appConfig, c => c.IsTabAccepted);
 
             // 非同期実行コマンドヘルパー
             var playStopCommandExecuter =
