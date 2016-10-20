@@ -53,9 +53,14 @@
                 TabIndex="0">
                 <ComboBox.Resources>
                     <Style TargetType="ComboBoxItem">
-                        <Setter Property="Padding" Value="0,0,4,0" />
+                        <Setter Property="Padding" Value="0" />
                     </Style>
                 </ComboBox.Resources>
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>
@@ -64,13 +69,15 @@
                                 Margin="0,0,4,0"
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" />
-                                    <TextBlock Text=" (" />
-                                    <TextBlock Text="{Binding DisplayProduct}" />
-                                    <TextBlock Text=")" />
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                <TextBlock>
+                                    <Run Text="{Binding Name, Mode=OneWay}"
+                                    /><TextBlock FontSize="10">
+                                        <Run Text="（"
+                                        /><Run Text="{Binding DisplayProduct, Mode=OneWay}"
+                                        /><Run Text="）" />
+                                    </TextBlock>
+                                </TextBlock>
+                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                     <Image
                                         Style="{StaticResource VoiceroidProcessStatusIcon}" />
                                     <TextBlock

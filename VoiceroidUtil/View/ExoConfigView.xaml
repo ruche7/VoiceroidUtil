@@ -181,8 +181,14 @@
                     <ComboBox
                         ItemsSource="{Binding CharaStyles.Value}"
                         SelectedIndex="{Binding SelectedCharaStyleIndex.Value}"
-                        Margin="4"
+                        Padding="6,1"
+                        Margin="4,4,4,2"
                         DockPanel.Dock="Top">
+                        <ComboBox.Resources>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ComboBox.Resources>
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel>
