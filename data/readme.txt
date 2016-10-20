@@ -121,6 +121,7 @@ VOICEROID+は、株式会社AHSから発売されている合成音声ソフトウェアです。
 - 結月ゆかり    http://seiga.nicovideo.jp/seiga/im4538340
 - 弦巻マキ      http://seiga.nicovideo.jp/seiga/im4608092
 - 東北ずん子    http://seiga.nicovideo.jp/seiga/im4654903
+- 東北きりたん  http://seiga.nicovideo.jp/seiga/im6172244
 - 琴葉茜・葵    http://seiga.nicovideo.jp/seiga/im4681154
 
 blueberry様
@@ -161,6 +162,8 @@ ICOOON MONO 様のアイコン素材
 ------------------------------------------------------------
 ◆2016-XX-XX [1.5.0]
 
+- 『VOICEROID+ 東北きりたん EX』に対応。
+
 - AviUtl拡張編集ファイル(.exo)出力機能を追加。
     - 設定画面に「AviUtl拡張編集ファイル(.exo)を作成」設定を追加。
     - .exo 画面を追加。
@@ -168,7 +171,7 @@ ICOOON MONO 様のアイコン素材
 
 - 文章入力欄の最大文字数を 1023 文字(AviUtl拡張編集の最大文字数)に変更。
 
-- タブUIの表示スタイルを更新。
+- タブや一部コンボボックスの表示スタイルを更新。
 
 ------------------------------------------------------------
 ◆2016-09-07 [1.4.0]
