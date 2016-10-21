@@ -53,7 +53,7 @@
                 TabIndex="0">
                 <ComboBox.Resources>
                     <Style TargetType="ComboBoxItem">
-                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Padding" Value="0,0,4,0" />
                     </Style>
                 </ComboBox.Resources>
                 <ComboBox.ItemsPanel>
@@ -70,12 +70,13 @@
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                 <TextBlock>
-                                    <Run Text="{Binding Name, Mode=OneWay}"
-                                    /><TextBlock FontSize="10">
-                                        <Run Text="（"
-                                        /><Run Text="{Binding DisplayProduct, Mode=OneWay}"
-                                        /><Run Text="）" />
-                                    </TextBlock>
+                                    <Run
+                                        Text="{Binding Name, Mode=OneWay}"
+                                        FontWeight="Bold" />
+                                    <LineBreak />
+                                    <Run
+                                        Text="{Binding DisplayProduct, Mode=OneWay}"
+                                        FontSize="10" />
                                 </TextBlock>
                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                     <Image

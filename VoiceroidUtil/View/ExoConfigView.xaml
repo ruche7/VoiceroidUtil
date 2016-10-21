@@ -37,10 +37,12 @@
                 Converter={StaticResource boolVisibilityConverter}}"
             Margin="4,0,4,4"
             DockPanel.Dock="Top">
-            <Label
-                Content=".exo ファイル作成設定を有効にする必要があります。"
-                Foreground="Red"
-                Margin="0,0,0,4" />
+            <Label Foreground="Red" Margin="0,0,0,4">
+                <TextBlock>
+                    AviUtl拡張編集ファイル作成のための設定画面です。<LineBreak />
+                    .exo ファイル作成設定を有効にする必要があります。
+                </TextBlock>
+            </Label>
             <Button Content="有効にする(_E)" Command="{Binding FileMakingCommand}" />
         </StackPanel>
         <TabControl
