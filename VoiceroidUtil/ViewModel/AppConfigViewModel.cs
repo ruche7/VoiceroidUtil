@@ -37,6 +37,10 @@ namespace VoiceroidUtil.ViewModel
             // UI開閉設定
             this.IsGeneralUIExpanded =
                 this.MakeInnerPropertyOf(uiConfig, c => c.IsGeneralConfigExpanded);
+            this.IsVoiceroidVisibilityUIExpanded =
+                this.MakeInnerPropertyOf(
+                    uiConfig,
+                    c => c.IsVoiceroidVisibilityConfigExpanded);
             this.IsSaveUIExpanded =
                 this.MakeInnerPropertyOf(uiConfig, c => c.IsSaveConfigExpanded);
             this.IsYmmUIExpanded =
@@ -74,6 +78,11 @@ namespace VoiceroidUtil.ViewModel
         /// 一般設定UIを開いた状態にするか否かを取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<bool> IsGeneralUIExpanded { get; }
+
+        /// <summary>
+        /// VOICEROID表示切替設定UIを開いた状態にするか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsVoiceroidVisibilityUIExpanded { get; }
 
         /// <summary>
         /// 音声保存設定UIを開いた状態にするか否かを取得する。
