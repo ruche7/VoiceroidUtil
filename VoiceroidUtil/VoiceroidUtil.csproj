@@ -213,6 +213,8 @@
     <Compile Include="VoiceroidExecutablePathSet.cs" />
     <Compile Include="VoiceroidItemBase.cs" />
     <Compile Include="VoiceroidItemSetBase.cs" />
+    <Compile Include="VoiceroidVisibility.cs" />
+    <Compile Include="VoiceroidVisibilitySet.cs" />
     <Compile Include="WaveFileInfo.cs" />
     <Compile Include="YmmCharaRelation.cs" />
     <Compile Include="View\YmmCharaRelationsControl.xaml.cs">

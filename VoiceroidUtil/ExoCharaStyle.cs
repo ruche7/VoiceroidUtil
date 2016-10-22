@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using RucheHome.AviUtl.ExEdit;
-using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
