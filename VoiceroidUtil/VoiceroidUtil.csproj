@@ -145,6 +145,7 @@
     <Compile Include="ExoTextStyleTemplate.cs" />
     <Compile Include="Extensions\ObservableExtension.cs" />
     <Compile Include="Extensions\ReactivePropertyExtension.cs" />
+    <Compile Include="IVoiceroidItem.cs" />
     <Compile Include="PlayStopCommandExecuter.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />
@@ -210,6 +211,7 @@
     </Compile>
     <Compile Include="VoiceroidExecutablePath.cs" />
     <Compile Include="VoiceroidExecutablePathSet.cs" />
+    <Compile Include="VoiceroidItemBase.cs" />
     <Compile Include="VoiceroidItemSetBase.cs" />
     <Compile Include="WaveFileInfo.cs" />
     <Compile Include="YmmCharaRelation.cs" />
