@@ -7,7 +7,8 @@ namespace VoiceroidUtil
     /// VoiceroidExecutablePath インスタンスセットクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class VoiceroidExecutablePathSet : VoiceroidItemSetBase<VoiceroidExecutablePath>
+    public class VoiceroidExecutablePathSet
+        : VoiceroidItemSetBase<VoiceroidExecutablePath>
     {
         /// <summary>
         /// コンストラクタ。

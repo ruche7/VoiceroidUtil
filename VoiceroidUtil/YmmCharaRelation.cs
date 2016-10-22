@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -9,7 +8,7 @@ namespace VoiceroidUtil
     /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを定義するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class YmmCharaRelation : BindableConfigBase
+    public class YmmCharaRelation : VoiceroidItemBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -27,37 +26,9 @@ namespace VoiceroidUtil
         /// 『ゆっくりMovieMaker』のキャラ名。 null ならばVOICEROID識別IDから決定する。
         /// </param>
         public YmmCharaRelation(VoiceroidId voiceroidId, string ymmCharaName)
+            : base(voiceroidId)
         {
-            this.VoiceroidId = voiceroidId;
             this.YmmCharaName = ymmCharaName ?? voiceroidId.GetInfo()?.Name ?? "";
-        }
-
-        /// <summary>
-        /// VOICEROID識別IDを取得する。
-        /// </summary>
-        public VoiceroidId VoiceroidId { get; private set; }
-
-        /// <summary>
-        /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
-        /// </summary>
-        [DataMember(Name = nameof(VoiceroidId))]
-        private string VoiceroidIdString
-        {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
-                this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
-        }
-
-        /// <summary>
-        /// VOICEROIDの名前を取得する。
-        /// </summary>
-        public string VoiceroidName
-        {
-            get { return this.VoiceroidId.GetInfo().Name; }
         }
 
         /// <summary>
