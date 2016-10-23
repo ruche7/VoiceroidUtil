@@ -192,7 +192,7 @@
                                 Mode=OneWay}"
                             Margin="24,2,0,0">
                             <v:YmmCharaRelationsControl
-                                DataContext="{Binding Config.Value.YmmCharaRelations}" />
+                                DataContext="{Binding VisibleYmmCharaRelations.Value}" />
                         </StackPanel>
                         <CheckBox
                             Content="追加ボタンを自動クリック(_B)"

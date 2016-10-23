@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -64,7 +65,6 @@ namespace VoiceroidUtil.ViewModel
             this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
             this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
 
-            this.Processes = processes;
             this.LastStatus = lastStatus;
             this.WindowActivateService = windowActivateService;
             this.VoiceroidActionService = voiceroidActionService;
@@ -74,9 +74,17 @@ namespace VoiceroidUtil.ViewModel
             this.VoiceroidExecutablePathes =
                 this.MakeInnerPropertyOf(uiConfig, c => c.VoiceroidExecutablePathes);
 
+            // 表示状態のVOICEROIDプロセスコレクション
+            this.VisibleProcesses =
+                appConfig
+                    .ObserveInnerProperty(c => c.VoiceroidVisibilities)
+                    .Select(vv => vv.SelectVisibleOf(processes))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 選択中VOICEROIDプロセス
             this.SelectedProcess =
-                new ReactiveProperty<IProcess>(processes.First())
+                new ReactiveProperty<IProcess>(this.VisibleProcesses.Value.First())
                     .AddTo(this.CompositeDisposable);
 
             // UI設定周りのセットアップ
@@ -99,14 +107,15 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
             this.IsProcessExecutable =
-                Observable.CombineLatest(
-                    this.SelectedProcess,
-                    uiConfig.ObserveInnerProperty(c => c.VoiceroidExecutablePathes),
-                    (p, pathes) =>
-                    {
-                        var path = pathes[p.Id]?.Path;
-                        return (!string.IsNullOrEmpty(path) && File.Exists(path));
-                    })
+                Observable
+                    .CombineLatest(
+                        this.SelectedProcess,
+                        uiConfig.ObserveInnerProperty(c => c.VoiceroidExecutablePathes),
+                        (p, pathes) =>
+                        {
+                            var path = (p == null) ? null : pathes[p.Id]?.Path;
+                            return (!string.IsNullOrEmpty(path) && File.Exists(path));
+                        })
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
             var processSaving = this.ObserveSelectedProcessProperty(p => p.IsSaving);
@@ -220,9 +229,12 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// VOICEROIDプロセスリストを取得する。
+        /// 表示状態のVOICEROIDプロセスコレクションを取得する。
         /// </summary>
-        public IReadOnlyCollection<IProcess> Processes { get; }
+        public IReadOnlyReactiveProperty<ReadOnlyCollection<IProcess>> VisibleProcesses
+        {
+            get;
+        }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスを取得する。
@@ -389,27 +401,28 @@ namespace VoiceroidUtil.ViewModel
             IReadOnlyReactiveProperty<UIConfig> uiConfig,
             IReadOnlyCollection<IProcess> processes)
         {
-            // UI設定変更時に選択プロセス反映
-            uiConfig
-                .ObserveInnerProperty(c => c.VoiceroidId)
-                .Subscribe(
-                    id => this.SelectedProcess.Value = processes.First(p => p.Id == id))
+            // 設定変更時に選択中プロセス反映
+            Observable
+                .CombineLatest(
+                    this.VisibleProcesses,
+                    uiConfig.ObserveInnerProperty(c => c.VoiceroidId),
+                    (vp, id) => vp.FirstOrDefault(p => p.Id == id) ?? vp.First())
+                .Subscribe(p => this.SelectedProcess.Value = p)
                 .AddTo(this.CompositeDisposable);
 
-            // 選択プロセス変更時処理
+            // 選択中プロセス変更時処理
+            // 上書きは即座に行うとうまくいかないので少し待ちを入れる
             this.SelectedProcess
+                .Where(p => p != null)
+                .Subscribe(p => uiConfig.Value.VoiceroidId = p.Id)
+                .AddTo(this.CompositeDisposable);
+            this.SelectedProcess
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(p => p == null)
                 .Subscribe(
-                    p =>
-                    {
-                        // UI設定へ反映
-                        if (p != null)
-                        {
-                            uiConfig.Value.VoiceroidId = p.Id;
-                        }
-
-                        // アプリ状態リセット
-                        this.ResetLastStatus();
-                    })
+                    _ =>
+                        this.SelectedProcess.Value =
+                            processes.First(p => p.Id == uiConfig.Value.VoiceroidId))
                 .AddTo(this.CompositeDisposable);
 
             // 実行ファイルパス反映用デリゲート
@@ -428,7 +441,7 @@ namespace VoiceroidUtil.ViewModel
                 .Subscribe(
                     c =>
                     {
-                        foreach (var process in this.Processes)
+                        foreach (var process in processes)
                         {
                             pathSetter(process.Id, process.ExecutablePath);
                         }
@@ -436,7 +449,7 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             // VOICEROIDプロセスの実行ファイルパスが判明したらUI設定に反映する
-            foreach (var process in this.Processes)
+            foreach (var process in processes)
             {
                 var id = process.Id;
 
@@ -548,9 +561,6 @@ namespace VoiceroidUtil.ViewModel
                     return;
                 }
             }
-
-            // 成功時はアプリ状態リセット
-            this.ResetLastStatus();
         }
 
         /// <summary>
@@ -734,14 +744,6 @@ namespace VoiceroidUtil.ViewModel
                 @"テキストファイルから文章を設定しました。",
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText);
-        }
-
-        /// <summary>
-        /// 直近のアプリ状態をリセットする。
-        /// </summary>
-        private void ResetLastStatus()
-        {
-            this.LastStatus.Value = new AppStatus();
         }
 
         /// <summary>
