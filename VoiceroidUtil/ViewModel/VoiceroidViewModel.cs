@@ -82,6 +82,14 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
+            // 最適表示列数
+            // 5プロセス単位で列数を増やす
+            this.VisibleProcessesColumnCount =
+                this.VisibleProcesses
+                    .Select(vp => Math.Min(Math.Max(1, (vp.Count + 4) / 5), 3))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 選択中VOICEROIDプロセス
             this.SelectedProcess =
                 new ReactiveProperty<IProcess>(this.VisibleProcesses.Value.First())
@@ -235,6 +243,11 @@ namespace VoiceroidUtil.ViewModel
         {
             get;
         }
+
+        /// <summary>
+        /// 表示状態のVOICEROIDプロセスコレクションの最適表示列数を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<int> VisibleProcessesColumnCount { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスを取得する。
