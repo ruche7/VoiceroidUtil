@@ -16,16 +16,15 @@ namespace VoiceroidUtil
     /// </summary>
     /// <typeparam name="TItem">
     /// VOICEROID識別IDに紐付くアイテムの型。
-    /// INotifyPropertyChanged インタフェースを実装し、
-    /// VOICEROID識別IDを受け取るコンストラクタと
-    /// VOICEROID識別IDを返すパブリックな VoiceroidId プロパティを持つ必要がある。
+    /// IVoiceroidItem インタフェースを実装し、
+    /// VOICEROID識別IDを受け取るコンストラクタを持つ必要がある。
     /// </typeparam>
     /// <remarks>
     /// 内容が変更されると、インデクサを対象として PropertyChanged イベントが発生する。
     /// </remarks>
     [DataContract(Namespace = "")]
     public abstract class VoiceroidItemSetBase<TItem> : BindableBase, IEnumerable<TItem>
-        where TItem : INotifyPropertyChanged
+        where TItem : IVoiceroidItem
     {
         /// <summary>
         /// コンストラクタ。
@@ -40,10 +39,7 @@ namespace VoiceroidUtil
         /// VOICEROID識別IDに対応するアイテムを取得するインデクサ。
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>
-        public TItem this[VoiceroidId id]
-        {
-            get { return this.GetItem(id); }
-        }
+        public TItem this[VoiceroidId id] => this.GetItem(id);
 
         /// <summary>
         /// 列挙子を取得する。
@@ -104,7 +100,7 @@ namespace VoiceroidUtil
             {
                 throw new ArgumentNullException(nameof(item));
             }
-            if (GetId(item) != id)
+            if (item.VoiceroidId != id)
             {
                 throw new ArgumentException(
                     nameof(id) + @" != " + nameof(item) + @"." + nameof(VoiceroidId));
@@ -144,10 +140,8 @@ namespace VoiceroidUtil
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
             /// <returns></returns>
-            public bool Contains(VoiceroidId id)
-            {
-                return this.Any(item => GetId(item) == id);
-            }
+            public bool Contains(VoiceroidId id) =>
+                this.Any(item => item.VoiceroidId == id);
 
             /// <summary>
             /// 指定したVOICEROID識別IDを持つ要素のインデックスを取得する。
@@ -158,7 +152,7 @@ namespace VoiceroidUtil
             {
                 for (int i = 0; i < this.Count; ++i)
                 {
-                    if (GetId(this[i]) == id)
+                    if (this[i].VoiceroidId == id)
                     {
                         return i;
                     }
@@ -176,7 +170,7 @@ namespace VoiceroidUtil
                 }
 
                 // ID重複なら無視
-                if (this.Contains(GetId(item)))
+                if (this.Contains(item.VoiceroidId))
                 {
                     return;
                 }
@@ -192,8 +186,8 @@ namespace VoiceroidUtil
                 }
 
                 // ID重複なら無視
-                var id = GetId(item);
-                if (GetId(this[index]) != id && this.Contains(id))
+                var id = item.VoiceroidId;
+                if (this[index].VoiceroidId != id && this.Contains(id))
                 {
                     return;
                 }
@@ -202,16 +196,6 @@ namespace VoiceroidUtil
             }
 
             #endregion
-        }
-
-        /// <summary>
-        /// アイテムの VoiceroidId プロパティからVOICEROID識別ID値を取得する。
-        /// </summary>
-        /// <param name="item">アイテム。</param>
-        /// <returns>VOICEROID識別ID値。</returns>
-        private static VoiceroidId GetId(TItem item)
-        {
-            return ((dynamic)item).VoiceroidId;
         }
 
         /// <summary>
@@ -249,10 +233,8 @@ namespace VoiceroidUtil
         /// <summary>
         /// インデクサを対象として PropertyChanged イベントを発生させる。
         /// </summary>
-        private void RaiseIndexerPropertyChanged()
-        {
+        private void RaiseIndexerPropertyChanged() =>
             this.RaisePropertyChanged(Binding.IndexerName);
-        }
 
         /// <summary>
         /// 内部リストのコレクション内容変更時に呼び出される。
@@ -260,19 +242,17 @@ namespace VoiceroidUtil
         private void OnTableCollectionChanged(
             object sender,
             NotifyCollectionChangedEventArgs e)
-        {
-            // インデクサ変更通知
-            this.RaiseIndexerPropertyChanged();
-        }
+            =>
+            this.RaiseIndexerPropertyChanged(); // インデクサ変更通知
 
         /// <summary>
         /// 内部リストのアイテム内容変更時に呼び出される。
         /// </summary>
-        private void OnTableItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // インデクサ変更通知
-            this.RaiseIndexerPropertyChanged();
-        }
+        private void OnTableItemPropertyChanged(
+            object sender,
+            PropertyChangedEventArgs e)
+            =>
+            this.RaiseIndexerPropertyChanged(); // インデクサ変更通知
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

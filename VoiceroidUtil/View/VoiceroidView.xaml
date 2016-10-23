@@ -46,7 +46,7 @@
                 <Image Style="{StaticResource VoiceroidRunExitIcon}" />
             </Button>
             <ComboBox
-                ItemsSource="{Binding Processes}"
+                ItemsSource="{Binding VisibleProcesses.Value}"
                 SelectedItem="{Binding SelectedProcess.Value}"
                 Padding="2,1"
                 MaxDropDownHeight="480"
