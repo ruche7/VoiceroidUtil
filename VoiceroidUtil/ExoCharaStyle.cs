@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using RucheHome.AviUtl.ExEdit;
-using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -10,49 +9,19 @@ namespace VoiceroidUtil
     /// AviUtl拡張編集ファイル用のキャラ別スタイルを保持するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    public class ExoCharaStyle : BindableConfigBase
+    public class ExoCharaStyle : VoiceroidItemBase
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        public ExoCharaStyle(VoiceroidId voiceroidId)
+        public ExoCharaStyle(VoiceroidId voiceroidId) : base(voiceroidId)
         {
-            this.VoiceroidId = voiceroidId;
-
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.Render = new RenderComponent();
             this.Text = new TextComponent();
             this.Play = new PlayComponent();
             this.PlaySpeed = new MovableValue<AudioFileComponent.PlaySpeedConst>();
-        }
-
-        /// <summary>
-        /// VOICEROID識別IDを取得する。
-        /// </summary>
-        public VoiceroidId VoiceroidId { get; private set; }
-
-        /// <summary>
-        /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
-        /// </summary>
-        [DataMember(Name = nameof(VoiceroidId))]
-        private string VoiceroidIdString
-        {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
-                this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
-        }
-
-        /// <summary>
-        /// VOICEROIDの名前を取得する。
-        /// </summary>
-        public string VoiceroidName
-        {
-            get { return this.VoiceroidId.GetInfo().Name; }
         }
 
         /// <summary>
