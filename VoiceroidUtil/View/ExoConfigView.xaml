@@ -53,7 +53,7 @@
                 Converter={StaticResource boolVisibilityConverter}}">
             <TabItem
                 Style="{StaticResource modernTabItem}"
-                Background="{StaticResource modernTabItemBackgroundAkane}">
+                Background="{StaticResource modernTabItemBackgroundAoi}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
@@ -172,7 +172,7 @@
             </TabItem>
             <TabItem
                 Style="{StaticResource modernTabItem}"
-                Background="{StaticResource modernTabItemBackgroundAkane}">
+                Background="{StaticResource modernTabItemBackgroundAoi}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/main16.png" />
