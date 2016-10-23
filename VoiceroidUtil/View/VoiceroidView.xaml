@@ -58,7 +58,8 @@
                 </ComboBox.Resources>
                 <ComboBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="2" />
+                        <UniformGrid
+                            Columns="{Binding VisibleProcessesColumnCount.Value}" />
                     </ItemsPanelTemplate>
                 </ComboBox.ItemsPanel>
                 <ComboBox.ItemTemplate>
