@@ -85,16 +85,15 @@ namespace VoiceroidUtil.ViewModel
 
             // コレクションが空でなくなったらアイテム選択
             // 即座に書き換えるとうまくいかないので少し待ちを入れる
-            new[]
-            {
-                this.Templates.ToUnit(),
-                this.SelectedTemplateIndex.ToUnit(),
-            }
-            .Merge()
-            .Throttle(TimeSpan.FromMilliseconds(10))
-            .Where(_ => this.HasTemplate.Value && this.SelectedTemplateIndex.Value < 0)
-            .Subscribe(_ => this.SelectedTemplateIndex.Value = 0)
-            .AddTo(this.CompositeDisposable);
+            Observable
+                .CombineLatest(
+                    this.HasTemplate,
+                    this.SelectedTemplateIndex,
+                    (hasTemp, index) => new { hasTemp, index })
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(v => v.hasTemp && v.index < 0)
+                .Subscribe(_ => this.SelectedTemplateIndex.Value = 0)
+                .AddTo(this.CompositeDisposable);
 
             // UI開閉設定
             this.IsTextUIExpanded =

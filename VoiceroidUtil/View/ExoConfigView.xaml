@@ -181,8 +181,8 @@
                 </TabItem.Header>
                 <DockPanel>
                     <ComboBox
-                        ItemsSource="{Binding CharaStyles.Value}"
-                        SelectedIndex="{Binding SelectedCharaStyleIndex.Value}"
+                        ItemsSource="{Binding VisibleCharaStyles.Value}"
+                        SelectedItem="{Binding SelectedCharaStyle.Value}"
                         Padding="6,1"
                         Margin="4,4,4,2"
                         DockPanel.Dock="Top">
@@ -213,7 +213,7 @@
                     <Border BorderThickness="0,1,0,0" BorderBrush="#DDDDDD" Margin="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <v:ExoCharaStyleView
-                                DataContext="{Binding SelectedCharaStyle}"
+                                DataContext="{Binding SelectedCharaStyleViewModel}"
                                 Margin="4" />
                         </ScrollViewer>
                     </Border>

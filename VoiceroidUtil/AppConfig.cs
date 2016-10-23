@@ -26,6 +26,7 @@ namespace VoiceroidUtil
         public AppConfig()
         {
             // イベントハンドラ追加のためにプロパティ経由で設定
+            this.VoiceroidVisibilities = new VoiceroidVisibilitySet();
             this.YmmCharaRelations = new YmmCharaRelationSet();
         }
 
@@ -61,6 +62,22 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.tabAccepted, value); }
         }
         private bool tabAccepted = true;
+
+        /// <summary>
+        /// VOICEROID表示設定セットを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public VoiceroidVisibilitySet VoiceroidVisibilities
+        {
+            get { return this.voiceroidVisibilities; }
+            set
+            {
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.voiceroidVisibilities,
+                    value ?? (new VoiceroidVisibilitySet()));
+            }
+        }
+        private VoiceroidVisibilitySet voiceroidVisibilities = null;
 
         /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
