@@ -23,6 +23,8 @@
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
                 <ResourceDictionary>
                     <ObjectDataProvider
@@ -38,52 +40,67 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel Orientation="Vertical">
-        <Expander Header="一般" IsExpanded="{Binding IsGeneralUIExpanded.Value}">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
-                <StackPanel Orientation="Vertical">
+    <TabControl
+        SelectedIndex="{Binding SelectedTabIndex.Value}"
+        Style="{StaticResource modernTabControl}">
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/config.png" />
+                    <AccessText Text="一般(_G)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical" Margin="6">
                     <CheckBox
-                        Content="起動時にアプリの更新をチェック(_A)"
+                        Content="起動時にアプリの更新をチェック(_U)"
                         IsChecked="{Binding Config.Value.IsUpdateCheckingOnStartup}" />
                     <CheckBox
                         Content="ウィンドウを常に最前面に表示(_W)"
                         IsChecked="{Binding Config.Value.IsTopmost}"
                         Margin="0,4,0,0" />
                     <CheckBox
-                        Content="タブ文字の入力を許可(_I)"
+                        Content="タブ文字の入力を許可(_T)"
                         IsChecked="{Binding Config.Value.IsTabAccepted}"
                         Margin="0,4,0,0" />
+                    <GroupBox
+                        Header="VOICEROID表示切替"
+                        BorderBrush="#DDDDDD"
+                        Margin="0,4,0,0">
+                        <ItemsControl
+                            ItemsSource="{Binding Config.Value.VoiceroidVisibilities}"
+                            Margin="4,2">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox
+                                        Content="{Binding VoiceroidName}"
+                                        IsChecked="{Binding IsVisible}"
+                                        Margin="0,2,8,2" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </GroupBox>
                 </StackPanel>
-            </Border>
-        </Expander>
-        <Expander
-            Header="VOICEROID表示切替"
-            IsExpanded="{Binding IsVoiceroidVisibilityUIExpanded.Value}"
-            Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6,4">
-                <ItemsControl ItemsSource="{Binding Config.Value.VoiceroidVisibilities}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <CheckBox
-                                Content="{Binding VoiceroidName}"
-                                IsChecked="{Binding IsVisible}"
-                                Margin="0,2,8,2" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
-        </Expander>
-        <Expander
-            Header="音声保存"
-            IsExpanded="{Binding IsSaveUIExpanded.Value}"
-            Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
-                <StackPanel Orientation="Vertical">
+            </ScrollViewer>
+        </TabItem>
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/file_sound.png" />
+                    <AccessText Text="音声保存(_A)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -99,14 +116,16 @@
                             Text="{Binding Config.Value.SaveDirectoryPath}"
                             IsReadOnly="True"
                             IsReadOnlyCaretVisible="True"
-                            Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                            Background="{DynamicResource
+                                ResourceKey={x:Static SystemColors.ControlBrushKey}}"
                             Margin="2,0,0,0"
                             VerticalContentAlignment="Center"
                             AutoSelectBehavior="{x:Static tk:AutoSelectBehavior.OnFocus}"
                             Grid.Column="1">
                             <i:Interaction.Behaviors>
                                 <ru:DragDropCommandBehavior
-                                    PreviewDragOverCommand="{Binding DragOverSaveDirectoryCommand}"
+                                    PreviewDragOverCommand="{Binding
+                                        Path=DragOverSaveDirectoryCommand}"
                                     DropCommand="{Binding DropSaveDirectoryCommand}" />
                             </i:Interaction.Behaviors>
                         </tk:AutoSelectTextBox>
@@ -130,14 +149,16 @@
                                 DockPanel.Dock="Left" />
                             <ComboBox
                                 x:Name="Setting_FileName"
-                                ItemsSource="{Binding Source={StaticResource fileNameFormats}}"
+                                ItemsSource="{Binding
+                                    Source={StaticResource fileNameFormats}}"
                                 SelectedItem="{Binding Config.Value.FileNameFormat}"
                                 Margin="4,0,0,0">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock
                                             Text="{Binding
-                                                Converter={StaticResource enumDisplayConverter}}" />
+                                                Converter={StaticResource
+                                                    ResourceKey=enumDisplayConverter}}" />
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
@@ -154,7 +175,7 @@
                                 Mode=OneWay}"
                             Margin="20,4,0,0" />
                         <CheckBox
-                            Content="AviUtl拡張編集ファイル(.exo)を作成(_V)"
+                            Content="AviUtl拡張編集ファイル(.exo)を作成(_E)"
                             IsChecked="{Binding Config.Value.IsExoFileMaking}"
                             Margin="0,4,0,0" />
                         <CheckBox
@@ -163,19 +184,32 @@
                             Margin="0,4,0,0" />
                     </StackPanel>
                 </StackPanel>
-            </Border>
-        </Expander>
-        <Expander
-            Header="ゆっくりMovieMaker連携"
-            IsExpanded="{Binding IsYmmUIExpanded.Value}"
-            Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
+            </ScrollViewer>
+        </TabItem>
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/ymm.png" />
+                    <AccessText Text="YMM連携(_Y)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel
                     Orientation="Vertical"
-                    IsEnabled="{Binding CanModify.Value, Mode=OneWay}">
+                    IsEnabled="{Binding CanModify.Value, Mode=OneWay}"
+                    Margin="6">
+                    <Label>
+                        <TextBlock>
+                            <Run Text="ゆっくりMovieMaker" FontWeight="Bold" />
+                            との連携機能を設定します。
+                        </TextBlock>
+                    </Label>
                     <CheckBox
-                        Content="音声保存時、タイムラインにファイルパス設定(_Y)"
-                        IsChecked="{Binding Config.Value.IsSavedFileToYmm}" />
+                        Content="音声保存時、タイムラインにファイルパス設定(_S)"
+                        IsChecked="{Binding Config.Value.IsSavedFileToYmm}"
+                        Margin="0,6,0,0" />
                     <Label
                         Content="※カスタムボイス機能は働きません。"
                         FontSize="11"
@@ -200,7 +234,7 @@
                             Margin="0,4,0,0" />
                     </StackPanel>
                 </StackPanel>
-            </Border>
-        </Expander>
-    </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+    </TabControl>
 </UserControl>
