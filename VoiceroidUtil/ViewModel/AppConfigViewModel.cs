@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -34,9 +37,23 @@ namespace VoiceroidUtil.ViewModel
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;
 
+            // 表示状態の YmmCharaRelation コレクション
+            this.VisibleYmmCharaRelations =
+                Observable
+                    .CombineLatest(
+                        this.ObserveConfigProperty(c => c.YmmCharaRelations),
+                        this.ObserveConfigProperty(c => c.VoiceroidVisibilities),
+                        (r, vv) => vv.SelectVisibleOf(r))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // UI開閉設定
             this.IsGeneralUIExpanded =
                 this.MakeInnerPropertyOf(uiConfig, c => c.IsGeneralConfigExpanded);
+            this.IsVoiceroidVisibilityUIExpanded =
+                this.MakeInnerPropertyOf(
+                    uiConfig,
+                    c => c.IsVoiceroidVisibilityConfigExpanded);
             this.IsSaveUIExpanded =
                 this.MakeInnerPropertyOf(uiConfig, c => c.IsSaveConfigExpanded);
             this.IsYmmUIExpanded =
@@ -71,9 +88,23 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<AppConfig> Config => this.BaseConfig;
 
         /// <summary>
+        /// 表示状態の YmmCharaRelation コレクションを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<IReadOnlyCollection<YmmCharaRelation>>
+        VisibleYmmCharaRelations
+        {
+            get;
+        }
+
+        /// <summary>
         /// 一般設定UIを開いた状態にするか否かを取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<bool> IsGeneralUIExpanded { get; }
+
+        /// <summary>
+        /// VOICEROID表示切替設定UIを開いた状態にするか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsVoiceroidVisibilityUIExpanded { get; }
 
         /// <summary>
         /// 音声保存設定UIを開いた状態にするか否かを取得する。

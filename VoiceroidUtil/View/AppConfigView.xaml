@@ -12,6 +12,7 @@
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppConfigView"
     mc:Ignorable="d"
+    d:DesignWidth="400"
     d:DataContext="{d:DesignInstance vm:AppConfigViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
@@ -53,6 +54,28 @@
                         IsChecked="{Binding Config.Value.IsTabAccepted}"
                         Margin="0,4,0,0" />
                 </StackPanel>
+            </Border>
+        </Expander>
+        <Expander
+            Header="VOICEROID表示切替"
+            IsExpanded="{Binding IsVoiceroidVisibilityUIExpanded.Value}"
+            Margin="0,2,0,0">
+            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6,4">
+                <ItemsControl ItemsSource="{Binding Config.Value.VoiceroidVisibilities}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox
+                                Content="{Binding VoiceroidName}"
+                                IsChecked="{Binding IsVisible}"
+                                Margin="0,2,8,2" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </Border>
         </Expander>
         <Expander
@@ -169,7 +192,7 @@
                                 Mode=OneWay}"
                             Margin="24,2,0,0">
                             <v:YmmCharaRelationsControl
-                                DataContext="{Binding Config.Value.YmmCharaRelations}" />
+                                DataContext="{Binding VisibleYmmCharaRelations.Value}" />
                         </StackPanel>
                         <CheckBox
                             Content="追加ボタンを自動クリック(_B)"

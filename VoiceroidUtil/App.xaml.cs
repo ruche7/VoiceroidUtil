@@ -1,4 +1,8 @@
-﻿using System;
+﻿// 設定ロード完了まで待つならば定義
+// ウィンドウ表示後のコントロール表示変化を嫌うなら。
+#define WAIT_ON_CONFIG_LOADED
+
+using System;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -125,14 +129,18 @@ namespace VoiceroidUtil
         /// <summary>
         /// アプリケーションの開始時に呼び出される。
         /// </summary>
-        private void OnStartup(object sender, StartupEventArgs e)
+        private
+#if WAIT_ON_CONFIG_LOADED
+        async
+#endif // WAIT_ON_CONFIG_LOADED
+        void OnStartup(object sender, StartupEventArgs e)
         {
             this.SetupTraceListener();
             this.SetupUpdateChecker();
             this.SetupVoiceroidProcess();
 
             // 設定ロード開始
-            this.ConfigManager.Load().AddTo(this.CompositeDisposable);
+            var loadTask = this.ConfigManager.Load().AddTo(this.CompositeDisposable);
 
             // ロード済みかつ非ロード中なら設定使用可能
             var canUseConfig =
@@ -162,6 +170,11 @@ namespace VoiceroidUtil
                     new WindowActivateService(mainWindow),
                     new VoiceroidActionService(mainWindow))
                     .AddTo(this.CompositeDisposable);
+
+#if WAIT_ON_CONFIG_LOADED
+            // ロード完了まで待つ
+            await loadTask;
+#endif // WAIT_ON_CONFIG_LOADED
 
             // 表示
             mainWindow.Show();
