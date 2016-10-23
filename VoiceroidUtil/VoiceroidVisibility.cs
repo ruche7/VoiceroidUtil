@@ -32,6 +32,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// VOICEROIDを表示するか否かを取得する。
         /// </summary>
+        [DataMember]
         public bool IsVisible
         {
             get { return this.visible; }

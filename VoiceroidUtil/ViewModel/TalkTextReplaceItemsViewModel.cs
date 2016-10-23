@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Reactive.Bindings;
@@ -47,24 +48,23 @@ namespace VoiceroidUtil.ViewModel
                     this.ExecuteAddPresetCommand,
                     canModify);
 
-            // コレクションまたは選択中インデックスが変化した場合に Unit を発行する
+            // コレクションまたは選択中インデックスの変更通知
             var itemsNotifier =
-                new[]
-                {
-                    items.ToUnit(),
+                Observable.CombineLatest(
+                    items,
                     items
                         .Select(i => i.CollectionChangedAsObservable())
                         .Switch()
-                        .ToUnit(),
-                    this.SelectedIndex.ToUnit(),
-                }
-                .Merge();
+                        .ToUnit()
+                        .Merge(Observable.Return(Unit.Default)),
+                    this.SelectedIndex,
+                    (i, _, index) => new { count = i.Count, index });
 
             // コレクションが空でなくなったらアイテム選択
             // 即座に書き換えるとうまくいかないので少し待ちを入れる
             itemsNotifier
                 .Throttle(TimeSpan.FromMilliseconds(10))
-                .Where(_ => items.Value.Count > 0 && this.SelectedIndex.Value < 0)
+                .Where(n => n.count > 0 && n.index < 0)
                 .Subscribe(_ => this.SelectedIndex.Value = 0)
                 .AddTo(this.CompositeDisposable);
 
@@ -73,18 +73,14 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeCommand(
                     this.ExecuteRemoveCommand,
                     canModify,
-                    itemsNotifier
-                        .Select(
-                            _ =>
-                                this.SelectedIndex.Value >= 0 &&
-                                this.SelectedIndex.Value < this.Items.Value.Count));
+                    itemsNotifier.Select(n => n.index >= 0 && n.index < n.count));
 
             // アイテムクリアコマンド
             this.ClearCommand =
                 this.MakeCommand(
                     this.Items.Value.Clear,
                     canModify,
-                    itemsNotifier.Select(_ => this.Items.Value.Count > 0));
+                    itemsNotifier.Select(n => n.count > 0));
 
             // アイテム上移動コマンド
             this.UpCommand =
@@ -94,11 +90,7 @@ namespace VoiceroidUtil.ViewModel
                             this.SelectedIndex.Value,
                             this.SelectedIndex.Value - 1),
                     canModify,
-                    itemsNotifier
-                        .Select(
-                            _ =>
-                                this.SelectedIndex.Value > 0 &&
-                                this.SelectedIndex.Value < this.Items.Value.Count));
+                    itemsNotifier.Select(n => n.index > 0 && n.index < n.count));
 
             // アイテム下移動コマンド
             this.DownCommand =
@@ -108,11 +100,7 @@ namespace VoiceroidUtil.ViewModel
                             this.SelectedIndex.Value,
                             this.SelectedIndex.Value + 1),
                     canModify,
-                    itemsNotifier
-                        .Select(
-                            _ =>
-                                this.SelectedIndex.Value >= 0 &&
-                                this.SelectedIndex.Value + 1 < this.Items.Value.Count));
+                    itemsNotifier.Select(n => n.index >= 0 && n.index + 1 < n.count));
         }
 
         /// <summary>

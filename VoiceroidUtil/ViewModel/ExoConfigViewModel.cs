@@ -49,12 +49,36 @@ namespace VoiceroidUtil.ViewModel
             this.SelectedTabIndex =
                 this.MakeInnerPropertyOf(uiConfig, c => c.ExoConfigTabIndex);
 
-            // 設定
+            // 共通設定
             this.Common = this.MakeConfigProperty(c => c.Common);
-            this.CharaStyles = this.MakeConfigProperty(c => c.CharaStyles);
 
-            // 内包 ViewModel のセットアップ
-            this.SetupViewModel(uiConfig, openFileDialogService);
+            // 表示状態のキャラ別スタイル設定コレクション
+            this.VisibleCharaStyles =
+                Observable
+                    .CombineLatest(
+                        this.ObserveConfigProperty(c => c.CharaStyles),
+                        appConfig.ObserveInnerProperty(c => c.VoiceroidVisibilities),
+                        (cs, vv) => vv.SelectVisibleOf(cs))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // 選択中キャラ別スタイル
+            this.SelectedCharaStyle =
+                new ReactiveProperty<ExoCharaStyle>(this.VisibleCharaStyles.Value.First())
+                    .AddTo(this.CompositeDisposable);
+
+            // UI設定周りのセットアップ
+            this.SetupUIConfig(uiConfig);
+
+            // 選択中キャラ別スタイル ViewModel 作成
+            this.SelectedCharaStyleViewModel =
+                new ExoCharaStyleViewModel(
+                    this.CanModify,
+                    this.SelectedCharaStyle,
+                    uiConfig,
+                    this.LastStatus,
+                    openFileDialogService)
+                    .AddTo(this.CompositeDisposable);
 
             // ファイル作成設定有効化コマンド表示状態
             this.IsFileMakingCommandInvisible =
@@ -87,19 +111,23 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<ExoCommonConfig> Common { get; }
 
         /// <summary>
-        /// キャラ別スタイル設定セットを取得する。
+        /// 表示状態のキャラ別スタイル設定コレクションを取得する。
         /// </summary>
-        public IReadOnlyReactiveProperty<ExoCharaStyleSet> CharaStyles { get; }
+        public IReadOnlyReactiveProperty<ReadOnlyCollection<ExoCharaStyle>>
+        VisibleCharaStyles
+        {
+            get;
+        }
 
         /// <summary>
-        /// 選択中キャラ別スタイル設定インデックスを取得する。
+        /// 選択中キャラ別スタイル設定を取得する。
         /// </summary>
-        public IReactiveProperty<int> SelectedCharaStyleIndex { get; private set; }
+        public ReactiveProperty<ExoCharaStyle> SelectedCharaStyle { get; }
 
         /// <summary>
         /// 選択中キャラ別スタイル設定 ViewModel を取得する。
         /// </summary>
-        public ExoCharaStyleViewModel SelectedCharaStyle { get; private set; }
+        public ExoCharaStyleViewModel SelectedCharaStyleViewModel { get; }
 
         /// <summary>
         /// ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
@@ -127,61 +155,36 @@ namespace VoiceroidUtil.ViewModel
         private IReactiveProperty<IAppStatus> LastStatus { get; }
 
         /// <summary>
-        /// 内包 ViewModel のセットアップを行う。
+        /// UI設定周りのセットアップを行う。
         /// </summary>
         /// <param name="uiConfig">UI設定値。</param>
-        /// <param name="openFileDialogService">ファイル選択ダイアログサービス。</param>
-        private void SetupViewModel(
-            IReadOnlyReactiveProperty<UIConfig> uiConfig,
-            IOpenFileDialogService openFileDialogService)
+        private void SetupUIConfig(IReadOnlyReactiveProperty<UIConfig> uiConfig)
         {
-            // 選択中キャラ別スタイルインデックス作成
-            this.SelectedCharaStyleIndex =
-                uiConfig
-                    .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
-                    .Select(id => (int)id)
-                    .ToReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
-            this.SelectedCharaStyleIndex
-                .Where(i => i >= 0)
-                .Subscribe(i => uiConfig.Value.ExoCharaVoiceroidId = (VoiceroidId)i)
+            // 設定変更時に選択中キャラ別スタイル反映
+            Observable
+                .CombineLatest(
+                    this.VisibleCharaStyles,
+                    uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
+                    (vcs, id) =>
+                        vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
+                .Subscribe(s => this.SelectedCharaStyle.Value = s)
                 .AddTo(this.CompositeDisposable);
 
-            // セットまたは選択中インデックスが変化した場合に Unit を発行する
-            var selectionNotifier =
-                new[]
-                {
-                    this.CharaStyles.ToUnit(),
-                    this.SelectedCharaStyleIndex.ToUnit(),
-                }
-                .Merge();
-
-            // 必ずアイテム選択状態にする
-            // 即座に書き換えるとうまくいかないので少し待ちを入れる
-            selectionNotifier
+            // 選択中キャラ別スタイル変更時処理
+            // 上書きは即座に行うとうまくいかないので少し待ちを入れる
+            this.SelectedCharaStyle
+                .Where(s => s != null)
+                .Subscribe(s => uiConfig.Value.ExoCharaVoiceroidId = s.VoiceroidId)
+                .AddTo(this.CompositeDisposable);
+            this.SelectedCharaStyle
                 .Throttle(TimeSpan.FromMilliseconds(10))
-                .Where(_ => this.SelectedCharaStyleIndex.Value < 0)
+                .Where(s => s == null)
                 .Subscribe(
                     _ =>
-                        this.SelectedCharaStyleIndex.Value =
-                            (int)uiConfig.Value.ExoCharaVoiceroidId)
+                        this.SelectedCharaStyle.Value =
+                            this.BaseConfig.Value.CharaStyles.First(
+                                s => s.VoiceroidId == uiConfig.Value.ExoCharaVoiceroidId))
                 .AddTo(this.CompositeDisposable);
-
-            // 選択中 ViewModel 作成
-            this.SelectedCharaStyle =
-                new ExoCharaStyleViewModel(
-                    this.CanModify,
-                    selectionNotifier
-                        .Select(
-                            _ =>
-                                this.CharaStyles.Value[
-                                    uiConfig.Value.ExoCharaVoiceroidId])
-                        .ToReadOnlyReactiveProperty()
-                        .AddTo(this.CompositeDisposable),
-                    uiConfig,
-                    this.LastStatus,
-                    openFileDialogService)
-                    .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
