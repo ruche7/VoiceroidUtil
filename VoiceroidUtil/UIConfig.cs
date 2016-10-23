@@ -161,52 +161,15 @@ namespace VoiceroidUtil
         private bool exoCharaTextImportExpanded = true;
 
         /// <summary>
-        /// アプリ設定ビューの「一般」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
+        /// アプリ設定ビューのの選択中タブインデックスを取得または設定する。
         /// </summary>
         [DataMember]
-        public bool IsGeneralConfigExpanded
+        public int AppConfigTabIndex
         {
-            get { return this.generalConfigExpanded; }
-            set { this.SetProperty(ref this.generalConfigExpanded, value); }
+            get { return this.appConfigTabIndex; }
+            set { this.SetProperty(ref this.appConfigTabIndex, value); }
         }
-        private bool generalConfigExpanded = true;
-
-        /// <summary>
-        /// アプリ設定ビューの「VOICEROID表示切替」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
-        /// </summary>
-        [DataMember]
-        public bool IsVoiceroidVisibilityConfigExpanded
-        {
-            get { return this.voiceroidVisibilityConfigExpanded; }
-            set { this.SetProperty(ref this.voiceroidVisibilityConfigExpanded, value); }
-        }
-        private bool voiceroidVisibilityConfigExpanded = true;
-
-        /// <summary>
-        /// アプリ設定ビューの「音声保存」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
-        /// </summary>
-        [DataMember]
-        public bool IsSaveConfigExpanded
-        {
-            get { return this.saveConfigExpanded; }
-            set { this.SetProperty(ref this.saveConfigExpanded, value); }
-        }
-        private bool saveConfigExpanded = true;
-
-        /// <summary>
-        /// アプリ設定ビューの「ゆっくりMovieMaker連携」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
-        /// </summary>
-        [DataMember]
-        public bool IsYmmConfigExpanded
-        {
-            get { return this.ymmConfigExpanded; }
-            set { this.SetProperty(ref this.ymmConfigExpanded, value); }
-        }
-        private bool ymmConfigExpanded = true;
+        private int appConfigTabIndex = 0;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

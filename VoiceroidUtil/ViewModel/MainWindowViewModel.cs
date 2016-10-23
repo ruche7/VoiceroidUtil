@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Voiceroid;
-using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel

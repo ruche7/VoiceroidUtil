@@ -37,6 +37,10 @@ namespace VoiceroidUtil.ViewModel
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;
 
+            // 選択中タブインデックス
+            this.SelectedTabIndex =
+                this.MakeInnerPropertyOf(uiConfig, c => c.AppConfigTabIndex);
+
             // 表示状態の YmmCharaRelation コレクション
             this.VisibleYmmCharaRelations =
                 Observable
@@ -46,18 +50,6 @@ namespace VoiceroidUtil.ViewModel
                         (r, vv) => vv.SelectVisibleOf(r))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
-
-            // UI開閉設定
-            this.IsGeneralUIExpanded =
-                this.MakeInnerPropertyOf(uiConfig, c => c.IsGeneralConfigExpanded);
-            this.IsVoiceroidVisibilityUIExpanded =
-                this.MakeInnerPropertyOf(
-                    uiConfig,
-                    c => c.IsVoiceroidVisibilityConfigExpanded);
-            this.IsSaveUIExpanded =
-                this.MakeInnerPropertyOf(uiConfig, c => c.IsSaveConfigExpanded);
-            this.IsYmmUIExpanded =
-                this.MakeInnerPropertyOf(uiConfig, c => c.IsYmmConfigExpanded);
 
             // 保存先ディレクトリ選択コマンド
             this.SelectSaveDirectoryCommand =
@@ -83,6 +75,11 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// 選択中タブインデックスを取得する。
+        /// </summary>
+        public IReactiveProperty<int> SelectedTabIndex { get; }
+
+        /// <summary>
         /// アプリ設定値を取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<AppConfig> Config => this.BaseConfig;
@@ -95,26 +92,6 @@ namespace VoiceroidUtil.ViewModel
         {
             get;
         }
-
-        /// <summary>
-        /// 一般設定UIを開いた状態にするか否かを取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<bool> IsGeneralUIExpanded { get; }
-
-        /// <summary>
-        /// VOICEROID表示切替設定UIを開いた状態にするか否かを取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<bool> IsVoiceroidVisibilityUIExpanded { get; }
-
-        /// <summary>
-        /// 音声保存設定UIを開いた状態にするか否かを取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<bool> IsSaveUIExpanded { get; }
-
-        /// <summary>
-        /// ゆっくりMovieMaker連携設定UIを開いた状態にするか否かを取得する。
-        /// </summary>
-        public IReadOnlyReactiveProperty<bool> IsYmmUIExpanded { get; }
 
         /// <summary>
         /// 保存先ディレクトリ選択コマンドを取得する。
