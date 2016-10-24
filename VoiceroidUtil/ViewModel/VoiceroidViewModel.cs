@@ -83,10 +83,10 @@ namespace VoiceroidUtil.ViewModel
                     .AddTo(this.CompositeDisposable);
 
             // 最適表示列数
-            // 5プロセス単位で列数を増やす
+            // 6プロセス単位で列数を増やす
             this.VisibleProcessesColumnCount =
                 this.VisibleProcesses
-                    .Select(vp => Math.Min(Math.Max(1, (vp.Count + 4) / 5), 3))
+                    .Select(vp => Math.Min(Math.Max(1, (vp.Count + 5) / 6), 3))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
