@@ -19,6 +19,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
@@ -202,7 +204,10 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <Border BorderThickness="0,1,0,0" BorderBrush="#DDDDDD" Margin="0">
+                    <Border
+                        Style="{StaticResource solidBorder}"
+                        BorderThickness="0,1,0,0"
+                        Margin="0">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <v:ExoCharaStyleView
                                 DataContext="{Binding SelectedCharaStyleViewModel}"
