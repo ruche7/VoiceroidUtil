@@ -1,0 +1,15 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:VoiceroidUtil">
+
+    <SolidColorBrush
+        x:Key="windowBrush"
+        Color="{DynamicResource {x:Static SystemColors.WindowColorKey}}" />
+    <SolidColorBrush
+        x:Key="windowTextBrush"
+        Color="{DynamicResource {x:Static SystemColors.WindowTextColorKey}}" />
+    <SolidColorBrush x:Key="controlBrush" Color="#DDDDDD" />
+    <SolidColorBrush x:Key="controlHCBrush" Color="#404040" />
+
+</ResourceDictionary>

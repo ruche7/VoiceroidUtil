@@ -3,21 +3,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:local="clr-namespace:VoiceroidUtil">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Common Default -->
+    
     <Style TargetType="Button">
         <Setter Property="Padding" Value="8,4" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
-    <Style TargetType="ToggleButton">
-        <Setter Property="Padding" Value="8,4" />
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-    </Style>
-    <Style TargetType="tk:DropDownButton">
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-    </Style>
     <Style TargetType="Label">
+        <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -93,4 +92,52 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- WPF Toolkit Default -->
+
+    <Style TargetType="tk:DropDownButton">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                Value="Black">
+                <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+                <Setter Property="Background" Value="{StaticResource windowBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="tk:DecimalUpDown">
+        <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+        <Setter Property="Background" Value="{StaticResource windowBrush}" />
+    </Style>
+    <Style TargetType="tk:IntegerUpDown">
+        <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+        <Setter Property="Background" Value="{StaticResource windowBrush}" />
+    </Style>
+    <Style TargetType="tk:ColorCanvas">
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                Value="Black">
+                <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+                <Setter Property="Background" Value="{StaticResource windowBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Common Keyed -->
+    
+    <Style x:Key="solidBorder" TargetType="Border">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderBrush" Value="{StaticResource controlBrush}" />
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                Value="Black">
+                <Setter Property="BorderBrush" Value="{StaticResource controlHCBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
 </ResourceDictionary>

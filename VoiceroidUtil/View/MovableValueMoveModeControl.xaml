@@ -18,6 +18,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
@@ -46,6 +48,24 @@
                 ItemsSource="{Binding Source={StaticResource moveModes}}"
                 SelectedItem="{Binding MoveMode.Value}"
                 Margin="4,0,0,0">
+                <ComboBox.Resources>
+                    <Style TargetType="ComboBoxItem">
+                        <Style.Triggers>
+                            <DataTrigger
+                                Binding="{Binding
+                                    Path=Color,
+                                    Source={StaticResource windowBrush}}"
+                                Value="Black">
+                                <Setter
+                                    Property="Foreground"
+                                    Value="{StaticResource windowTextBrush}" />
+                                <Setter
+                                    Property="Background"
+                                    Value="{StaticResource windowBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ComboBox.Resources>
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock
