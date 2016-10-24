@@ -22,6 +22,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
@@ -59,12 +61,12 @@
         <Expander
             Header="テキスト"
             IsExpanded="{Binding IsTextUIExpanded.Value}">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4,2,4,6">
+            <Border Style="{StaticResource solidBorder}"  Padding="4,2,4,6">
                 <StackPanel Orientation="Vertical">
                     <Expander
                         Header=".exo ファイルから設定をインポート"
                         IsExpanded="{Binding IsTextImportUIExpanded.Value}">
-                        <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="4">
+                        <Border Style="{StaticResource solidBorder}" Padding="4">
                             <DockPanel IsEnabled="{Binding CanModify.Value}">
                                 <Button
                                     Command="{Binding SelectTemplateFileCommand}"
@@ -191,25 +193,24 @@
                                 Padding="6,3"
                                 Margin="4,0,0,0"
                                 Grid.Row="0" Grid.Column="2">
-                                <tk:DropDownButton.Content>
-                                    <StackPanel Orientation="Horizontal" MinWidth="76">
-                                        <Rectangle
-                                            Stroke="Gray"
-                                            Width="16"
-                                            RadiusX="4" RadiusY="4">
-                                            <Rectangle.Fill>
-                                                <SolidColorBrush
-                                                    Color="{Binding Text.Value.FontColor}" />
-                                            </Rectangle.Fill>
-                                        </Rectangle>
-                                        <AccessText Text="文字色(_C)" Margin="4,0,0,0" />
-                                    </StackPanel>
-                                </tk:DropDownButton.Content>
                                 <tk:DropDownButton.DropDownContent>
                                     <tk:ColorCanvas
                                         SelectedColor="{Binding Text.Value.FontColor}"
                                         UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
+
+                                <StackPanel Orientation="Horizontal" MinWidth="76">
+                                    <Rectangle
+                                        Stroke="Gray"
+                                        Width="16"
+                                        RadiusX="4" RadiusY="4">
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush
+                                                Color="{Binding Text.Value.FontColor}" />
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <AccessText Text="文字色(_C)" Margin="4,0,0,0" />
+                                </StackPanel>
                             </tk:DropDownButton>
 
                             <!-- Row 2 -->
@@ -237,27 +238,26 @@
                                 Padding="6,3"
                                 Margin="4,0,0,0"
                                 Grid.Row="2" Grid.Column="2">
-                                <tk:DropDownButton.Content>
-                                    <StackPanel Orientation="Horizontal" MinWidth="76">
-                                        <Rectangle
-                                            Stroke="Gray"
-                                            Width="16"
-                                            RadiusX="4" RadiusY="4">
-                                            <Rectangle.Fill>
-                                                <SolidColorBrush
-                                                    Color="{Binding
-                                                        Path=Text.Value.FontDecorationColor}" />
-                                            </Rectangle.Fill>
-                                        </Rectangle>
-                                        <AccessText Text="影・縁色(_E)" Margin="4,0,0,0" />
-                                    </StackPanel>
-                                </tk:DropDownButton.Content>
                                 <tk:DropDownButton.DropDownContent>
                                     <tk:ColorCanvas
                                         SelectedColor="{Binding
                                             Path=Text.Value.FontDecorationColor}"
                                             UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
+
+                                <StackPanel Orientation="Horizontal" MinWidth="76">
+                                    <Rectangle
+                                        Stroke="Gray"
+                                        Width="16"
+                                        RadiusX="4" RadiusY="4">
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush
+                                                Color="{Binding
+                                                    Path=Text.Value.FontDecorationColor}" />
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                    <AccessText Text="影・縁色(_E)" Margin="4,0,0,0" />
+                                </StackPanel>
                             </tk:DropDownButton>
                         </Grid>
                         <WrapPanel Orientation="Horizontal">
@@ -347,7 +347,7 @@
             Header="音声"
             IsExpanded="{Binding IsAudioUIExpanded.Value}"
             Margin="0,2,0,0">
-            <Border BorderThickness="1" BorderBrush="#FFABADB3" Padding="6">
+            <Border Style="{StaticResource solidBorder}" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <v:MovableValueControl DataContext="{Binding PlayVolume}" />
                     <v:MovableValueControl

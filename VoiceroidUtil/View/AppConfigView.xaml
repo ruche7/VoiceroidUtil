@@ -21,6 +21,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
@@ -65,13 +67,11 @@
                         Content="タブ文字の入力を許可(_T)"
                         IsChecked="{Binding Config.Value.IsTabAccepted}"
                         Margin="0,4,0,0" />
-                    <GroupBox
-                        Header="VOICEROID表示切替"
-                        BorderBrush="#DDDDDD"
-                        Margin="0,4,0,0">
+                    <Label Content="VOICEROID表示切替:" Margin="0,4,0,0" />
+                    <Border Style="{StaticResource solidBorder}" Margin="0,1,0,0">
                         <ItemsControl
                             ItemsSource="{Binding Config.Value.VoiceroidVisibilities}"
-                            Margin="4,2">
+                            Margin="6,4">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal" />
@@ -86,7 +86,7 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </GroupBox>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </TabItem>

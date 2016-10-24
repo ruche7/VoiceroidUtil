@@ -12,7 +12,6 @@
     mc:Ignorable="d"
     d:DesignWidth="300"
     d:DataContext="{d:DesignInstance vm:AppStatusViewModel, IsDesignTimeCreatable=True}"
-    Background="#DDDDDD"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
@@ -20,10 +19,25 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
+    <UserControl.Style>
+        <Style TargetType="UserControl">
+            <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+            <Setter Property="Background" Value="{StaticResource controlBrush}" />
+            <Style.Triggers>
+                <DataTrigger
+                    Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                    Value="Black">
+                    <Setter Property="Background" Value="{StaticResource controlHCBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Style>
 
     <StatusBar DataContext="{Binding Status.Value}" Background="Transparent">
         <StatusBarItem x:Name="status" Padding="5,3">
@@ -32,18 +46,22 @@
                 <Style TargetType="StatusBarItem">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding StatusType}" Value="Information">
+                            <Setter Property="Foreground" Value="Black" />
                             <Setter Property="Background" Value="#f1eded" />
                             <Setter Property="Tag" Value="SkyBlue" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding StatusType}" Value="Warning">
+                            <Setter Property="Foreground" Value="Black" />
                             <Setter Property="Background" Value="LemonChiffon" />
                             <Setter Property="Tag" Value="Yellow" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding StatusType}" Value="Fail">
+                            <Setter Property="Foreground" Value="Black" />
                             <Setter Property="Background" Value="Pink" />
                             <Setter Property="Tag" Value="Violet" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding StatusType}" Value="Success">
+                            <Setter Property="Foreground" Value="Black" />
                             <Setter Property="Background" Value="#cdffcd" />
                             <Setter Property="Tag" Value="Lime" />
                         </DataTrigger>
@@ -84,6 +102,19 @@
             </i:Interaction.Triggers>
 
             <StackPanel Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                        <Setter
+                            Property="Foreground"
+                            Value="{Binding
+                                Path=Foreground,
+                                RelativeSource={RelativeSource
+                                    Mode=FindAncestor,
+                                    AncestorType={x:Type StatusBarItem}}}"/>
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </StackPanel.Resources>
+
                 <!-- StatusType -->
                 <Image
                     DataContext="{Binding StatusType}"
