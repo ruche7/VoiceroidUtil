@@ -2,6 +2,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:VoiceroidUtil">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+    </ResourceDictionary.MergedDictionaries>
 
     <!-- Brushes -->
     <LinearGradientBrush
@@ -10,8 +13,12 @@
         EndPoint="0,1">
         <GradientStop Color="#B0E474" Offset="0" />
         <GradientStop Color="#B0E474" Offset="0.1" />
-        <GradientStop Color="White" Offset="0.2" />
-        <GradientStop Color="White" Offset="1" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="0.2" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="1" />
     </LinearGradientBrush>
     <LinearGradientBrush
         x:Key="modernTabItemBackgroundYukari"
@@ -19,8 +26,12 @@
         EndPoint="0,1">
         <GradientStop Color="#EFCCFF" Offset="0" />
         <GradientStop Color="#EFCCFF" Offset="0.1" />
-        <GradientStop Color="White" Offset="0.2" />
-        <GradientStop Color="White" Offset="1" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="0.2" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="1" />
     </LinearGradientBrush>
     <LinearGradientBrush
         x:Key="modernTabItemBackgroundMaki"
@@ -28,8 +39,12 @@
         EndPoint="0,1">
         <GradientStop Color="#FFEB90" Offset="0" />
         <GradientStop Color="#FFEB90" Offset="0.1" />
-        <GradientStop Color="White" Offset="0.2" />
-        <GradientStop Color="White" Offset="1" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="0.2" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="1" />
     </LinearGradientBrush>
     <LinearGradientBrush
         x:Key="modernTabItemBackgroundAkane"
@@ -37,8 +52,12 @@
         EndPoint="0,1">
         <GradientStop Color="#FFCCDA" Offset="0" />
         <GradientStop Color="#FFCCDA" Offset="0.1" />
-        <GradientStop Color="White" Offset="0.2" />
-        <GradientStop Color="White" Offset="1" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="0.2" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="1" />
     </LinearGradientBrush>
     <LinearGradientBrush
         x:Key="modernTabItemBackgroundAoi"
@@ -46,14 +65,20 @@
         EndPoint="0,1">
         <GradientStop Color="#CAEBFF" Offset="0" />
         <GradientStop Color="#CAEBFF" Offset="0.1" />
-        <GradientStop Color="White" Offset="0.2" />
-        <GradientStop Color="White" Offset="1" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="0.2" />
+        <GradientStop
+            Color="{Binding Color, Source={StaticResource windowBrush}}"
+            Offset="1" />
     </LinearGradientBrush>
 
     <!-- Controls -->
     <Style x:Key="modernTabControl" TargetType="TabControl">
+        <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
+        <Setter Property="Background" Value="{StaticResource windowBrush}" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
-        <Setter Property="BorderBrush" Value="#DDDDDD" />
+        <Setter Property="BorderBrush" Value="{StaticResource controlBrush}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
@@ -91,13 +116,21 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                Value="Black">
+                <Setter Property="BorderBrush" Value="{StaticResource controlHCBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="modernTabItem" TargetType="TabItem">
+        <Setter Property="Foreground" Value="{StaticResource windowTextBrush}" />
         <Setter
             Property="Background"
             Value="{StaticResource modernTabItemBackgroundDefault}" />
         <Setter Property="BorderThickness" Value="0,0,1,0" />
-        <Setter Property="BorderBrush" Value="#DDDDDD" />
+        <Setter Property="BorderBrush" Value="{StaticResource controlBrush}" />
         <Setter Property="Padding" Value="12,6,12,4" />
         <Setter Property="Template">
             <Setter.Value>
@@ -112,8 +145,10 @@
                             <ContentPresenter
                                 x:Name="content"
                                 ContentSource="Header"
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding
+                                    Property=HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding
+                                    Property=VerticalContentAlignment}"
                                 RecognizesAccessKey="True" />
                         </Border>
                     </StackPanel>
@@ -123,7 +158,7 @@
                             <Setter
                                 TargetName="Border"
                                 Property="Background"
-                                Value="#DDDDDD" />
+                                Value="{Binding BorderBrush, ElementName=Border}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
@@ -138,9 +173,21 @@
                                         Center="0.5,1"
                                         RadiusX="1"
                                         RadiusY="1">
-                                        <GradientStop Color="White" Offset="0" />
-                                        <GradientStop Color="White" Offset="0.5" />
-                                        <GradientStop Color="#DDDDDD" Offset="1" />
+                                        <GradientStop
+                                            Color="{Binding
+                                                Path=Color,
+                                                Source={StaticResource windowBrush}}"
+                                            Offset="0" />
+                                        <GradientStop
+                                            Color="{Binding
+                                                Path=Color,
+                                                Source={StaticResource windowBrush}}"
+                                            Offset="0.5" />
+                                        <GradientStop
+                                            Color="{Binding
+                                                Path=BorderBrush.Color,
+                                                ElementName=Border}"
+                                            Offset="1" />
                                     </RadialGradientBrush>
                                 </Setter.Value>
                             </Setter>
@@ -149,5 +196,12 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <DataTrigger
+                Binding="{Binding Color, Source={StaticResource windowBrush}}"
+                Value="Black">
+                <Setter Property="BorderBrush" Value="{StaticResource controlHCBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

@@ -11,15 +11,14 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
     Title="{Binding Title}"
+    Topmost="{Binding IsTopmost.Value, Mode=OneWay}"
     Icon="/VoiceroidUtil;component/resources/icon/main.ico"
     ResizeMode="CanResizeWithGrip"
-    Topmost="{Binding IsTopmost.Value, Mode=OneWay}"
-    UseLayoutRounding="True"
     Width="400"
     Height="400"
     MinWidth="360"
     MinHeight="240"
-    Background="White"
+    UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType">
     <Window.Resources>
