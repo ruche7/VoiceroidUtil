@@ -222,6 +222,10 @@
     </Compile>
     <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
+    <Page Include="resources\CommonBrushes.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="resources\TabStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

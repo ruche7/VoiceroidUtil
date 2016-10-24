@@ -18,6 +18,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
@@ -60,7 +62,25 @@
             Margin="2,0"
             Grid.Column="2">
             <tk:DropDownButton.DropDownContent>
-                <v:MovableValueMoveModeControl Margin="4" />
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding
+                                        Path=Color,
+                                        Source={StaticResource windowBrush}}"
+                                    Value="Black">
+                                    <Setter
+                                        Property="Background"
+                                        Value="{StaticResource windowBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <v:MovableValueMoveModeControl Margin="4" />
+                </StackPanel>
             </tk:DropDownButton.DropDownContent>
             <tk:DropDownButton.ToolTip>
                 <TextBlock>
