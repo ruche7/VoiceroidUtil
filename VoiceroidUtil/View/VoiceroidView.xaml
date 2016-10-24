@@ -70,16 +70,21 @@
                                 Margin="0,0,4,0"
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                <TextBlock>
-                                    <Run
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock
                                         Text="{Binding Name, Mode=OneWay}"
                                         FontWeight="Bold" />
-                                    <LineBreak />
-                                    <Run
+                                    <TextBlock
                                         Text="{Binding DisplayProduct, Mode=OneWay}"
-                                        FontSize="10" />
-                                </TextBlock>
-                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                        FontSize="11"
+                                        VerticalAlignment="Bottom"
+                                        Margin="6,0,0,0">
+                                        <TextBlock.LayoutTransform>
+                                            <ScaleTransform ScaleX="0.85" />
+                                        </TextBlock.LayoutTransform>
+                                    </TextBlock>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                     <Image
                                         Style="{StaticResource VoiceroidProcessStatusIcon}" />
                                     <TextBlock
