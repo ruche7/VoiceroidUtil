@@ -11,7 +11,7 @@
     d:DesignWidth="300"
     d:DesignHeight="200"
     d:DataContext="{d:DesignInstance
-        Type={x:Type vm:TalkTextReplaceConfigViewModel},
+        Type=vm:TalkTextReplaceConfigViewModel,
         IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
@@ -22,20 +22,26 @@
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
+                <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <TabControl SelectedIndex="{Binding UIConfig.Value.TalkTextReplaceConfigTabIndex}">
-        <TabItem>
+    <TabControl
+        SelectedIndex="{Binding SelectedTabIndex.Value}"
+        Style="{StaticResource modernTabControl}">
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundAkane}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/file_sound.png" />
                     <AccessText Text="音声(_V)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
-            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="2">
+            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="4">
                 <Label Margin="0,0,0,2" DockPanel.Dock="Top">
                     <TextBlock>
                         VOICEROIDにしゃべらせる文章の置換設定です。<LineBreak />
@@ -45,37 +51,45 @@
                 <v:TalkTextReplaceItemsView DataContext="{Binding VoiceReplaceItems}" />
             </DockPanel>
         </TabItem>
-        <TabItem>
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundAkane}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/file_text.png" />
-                    <AccessText Text="テキストファイル(_T)" Margin="2,0,0,0" />
+                    <AccessText Text="字幕(_T)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
-            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="2">
+            <DockPanel IsEnabled="{Binding CanModify.Value}" Margin="4">
                 <Label Margin="0,0,0,2" DockPanel.Dock="Top">
                     <TextBlock>
-                        テキストファイルに保存する文章の置換設定です。<LineBreak />
+                        字幕用ファイルに保存する文章の置換設定です。<LineBreak />
                         チェックの付いている項目のみ利用されます。
                     </TextBlock>
                 </Label>
                 <StackPanel
                     Visibility="{Binding
-                        Path=IsTextFileForceMakingCommandVisible.Value,
+                        Path=IsFileMakingCommandVisible.Value,
                         Converter={StaticResource boolVisibilityConverter}}"
                     Margin="0,6,0,0"
                     DockPanel.Dock="Top">
                     <Label
-                        Content="テキストファイル作成設定を有効にする必要があります。"
+                        Content="字幕用ファイル作成設定を有効にする必要があります。"
                         Foreground="Red"
+                        Margin="0,0,0,4" />
+                    <Button
+                        Content="テキストファイル作成設定を有効にする(_F)"
+                        Command="{Binding FileMakingCommand}"
+                        CommandParameter="text"
                         Margin="0,0,0,2" />
                     <Button
-                        Content="有効にする(_F)"
-                        Command="{Binding TextFileForceMakingCommand}" />
+                        Content="AviUtl拡張編集ファイル作成設定を有効にする(_E)"
+                        Command="{Binding FileMakingCommand}"
+                        CommandParameter="exo" />
                 </StackPanel>
                 <DockPanel
                     Visibility="{Binding
-                        Path=AppConfig.Value.IsTextFileForceMaking,
+                        Path=IsFileMakingCommandInvisible.Value,
                         Converter={StaticResource boolVisibilityConverter}}">
                     <v:TalkTextReplaceItemsView
                         DataContext="{Binding TextFileReplaceItems}" />

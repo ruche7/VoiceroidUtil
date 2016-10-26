@@ -1,131 +1,120 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading;
+using System.Collections.Generic;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Voiceroid;
+using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel
 {
     /// <summary>
     /// メインウィンドウの ViewModel クラス。
     /// </summary>
-    public class MainWindowViewModel : Livet.ViewModel
+    public class MainWindowViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MainWindowViewModel()
+        /// <param name="processes">VOICEROIDプロセスコレクション。</param>
+        /// <param name="canUseConfig">各設定値を利用可能な状態であるか否か。</param>
+        /// <param name="talkTextReplaceConfig">トークテキスト置換設定値。</param>
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定値。</param>
+        /// <param name="appConfig">アプリ設定値。</param>
+        /// <param name="uiConfig">UI設定値。</param>
+        /// <param name="lastStatus">直近のアプリ状態値の設定先。</param>
+        /// <param name="openFileDialogService">ファイル選択ダイアログサービス。</param>
+        /// <param name="windowActivateService">ウィンドウアクティブ化サービス。</param>
+        /// <param name="voiceroidActionService">
+        /// VOICEROIDプロセスアクションサービス。
+        /// </param>
+        public MainWindowViewModel(
+            IReadOnlyCollection<IProcess> processes,
+            IReadOnlyReactiveProperty<bool> canUseConfig,
+            IReadOnlyReactiveProperty<TalkTextReplaceConfig> talkTextReplaceConfig,
+            IReadOnlyReactiveProperty<ExoConfig> exoConfig,
+            IReadOnlyReactiveProperty<AppConfig> appConfig,
+            IReadOnlyReactiveProperty<UIConfig> uiConfig,
+            IReactiveProperty<IAppStatus> lastStatus,
+            IOpenFileDialogService openFileDialogService,
+            IWindowActivateService windowActivateService,
+            IVoiceroidActionService voiceroidActionService)
         {
-            // 子 ViewModel 作成
-            this.Voiceroid = (new VoiceroidViewModel()).AddTo(this.CompositeDisposable);
-            this.UIConfig = (new UIConfigViewModel()).AddTo(this.CompositeDisposable);
+            this.ValidateArgNull(processes, nameof(processes));
+            this.ValidateArgNull(canUseConfig, nameof(canUseConfig));
+            this.ValidateArgNull(talkTextReplaceConfig, nameof(talkTextReplaceConfig));
+            this.ValidateArgNull(exoConfig, nameof(exoConfig));
+            this.ValidateArgNull(appConfig, nameof(appConfig));
+            this.ValidateArgNull(uiConfig, nameof(uiConfig));
+            this.ValidateArgNull(lastStatus, nameof(lastStatus));
+            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
+            this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
+
+            this.IsTopmost = this.MakeInnerPropertyOf(appConfig, c => c.IsTopmost);
+
+            // VoiceroidViewModel 作成
+            var canModifyNotifier =
+                new ReactiveProperty<bool>(false).AddTo(this.CompositeDisposable);
+            this.Voiceroid =
+                new VoiceroidViewModel(
+                    processes,
+                    canUseConfig,
+                    talkTextReplaceConfig,
+                    exoConfig,
+                    appConfig,
+                    uiConfig,
+                    lastStatus,
+                    canModifyNotifier,
+                    windowActivateService,
+                    voiceroidActionService)
+                    .AddTo(this.CompositeDisposable);
+
+            // 設定変更可能状態
+            var canModify =
+                new[] { canUseConfig, canModifyNotifier }
+                    .CombineLatestValuesAreAllTrue()
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // その他 ViewModel 作成
             this.TalkTextReplaceConfig =
-                (new TalkTextReplaceConfigViewModel()).AddTo(this.CompositeDisposable);
-            this.AppConfig = (new AppConfigViewModel()).AddTo(this.CompositeDisposable);
-            this.LastStatus = (new AppStatusViewModel()).AddTo(this.CompositeDisposable);
-
-            // Messenger を MainWindowViewModel のもので上書き
-            this.Voiceroid.Messenger = this.Messenger;
-            this.UIConfig.Messenger = this.Messenger;
-            this.TalkTextReplaceConfig.Messenger = this.Messenger;
-            this.AppConfig.Messenger = this.Messenger;
-            this.LastStatus.Messenger = this.Messenger;
-
-            // 同期コンテキスト取得
-            var syncContext = SynchronizationContext.Current;
-
-            // 同期コンテキスト設定
-            this.UIConfig.Value.SynchronizationContext = syncContext;
-            this.TalkTextReplaceConfig.Value.SynchronizationContext = syncContext;
-            this.AppConfig.Value.SynchronizationContext = syncContext;
-
-            // UI設定を UIConfigViewModel のもので上書き
-            this.Voiceroid.UIConfig.Value = this.UIConfig.Value;
-            this.TalkTextReplaceConfig.UIConfig.Value = this.UIConfig.Value;
-            this.AppConfig.UIConfig.Value = this.UIConfig.Value;
-            this.UIConfig
-                .ObserveProperty(c => c.Value)
-                .Subscribe(
-                    c =>
-                    {
-                        // 同期コンテキスト設定
-                        c.SynchronizationContext = syncContext;
-
-                        // 各 ViewModel に設定
-                        this.Voiceroid.UIConfig.Value = c;
-                        this.TalkTextReplaceConfig.UIConfig.Value = c;
-                        this.AppConfig.UIConfig.Value = c;
-                    })
-                .AddTo(this.CompositeDisposable);
-
-            // トークテキスト置換設定を TalkTextReplaceConfigViewModel のもので上書き
-            this.Voiceroid.TalkTextReplaceConfig.Value = this.TalkTextReplaceConfig.Value;
-            this.TalkTextReplaceConfig
-                .ObserveProperty(c => c.Value)
-                .Subscribe(
-                    c =>
-                    {
-                        // 同期コンテキスト設定
-                        c.SynchronizationContext = syncContext;
-
-                        // 各 ViewModel に設定
-                        this.Voiceroid.TalkTextReplaceConfig.Value = c;
-                    })
-                .AddTo(this.CompositeDisposable);
-
-            // アプリ設定を AppConfigViewModel のもので上書き
-            this.Voiceroid.AppConfig.Value = this.AppConfig.Value;
-            this.TalkTextReplaceConfig.AppConfig.Value = this.AppConfig.Value;
-            this.AppConfig
-                .ObserveProperty(c => c.Value)
-                .Subscribe(
-                    c =>
-                    {
-                        // 同期コンテキスト設定
-                        c.SynchronizationContext = syncContext;
-
-                        // 各 ViewModel に設定
-                        this.Voiceroid.AppConfig.Value = c;
-                        this.TalkTextReplaceConfig.AppConfig.Value = c;
-                    })
-                .AddTo(this.CompositeDisposable);
-
-            // その他 ViewModel 間の関連付け
-            this.Voiceroid.IsIdle
-                .Subscribe(
-                    idle =>
-                    {
-                        this.TalkTextReplaceConfig.CanModify.Value = idle;
-                        this.AppConfig.CanModify.Value = idle;
-                    })
-                .AddTo(this.CompositeDisposable);
-            Observable
-                .Merge(
-                    this.Voiceroid.LastStatus,
-                    this.TalkTextReplaceConfig.LastStatus,
-                    this.AppConfig.LastStatus)
-                .Where(s => s != null)
-                .Subscribe(s => this.LastStatus.Value = s)
-                .AddTo(this.CompositeDisposable);
-
-            // トレースリスナ設定
-            var listener = Trace.Listeners[@"ErrorLogFile"] as ErrorLogFileTraceListener;
-            if (listener != null)
-            {
-                // 音声ファイル保存先をエラーログファイル保存先として使う
-                listener.DirectoryPathGetter =
-                    () => this.AppConfig.Value.SaveDirectoryPath;
-            }
+                new TalkTextReplaceConfigViewModel(
+                    canModify,
+                    talkTextReplaceConfig,
+                    appConfig,
+                    uiConfig,
+                    lastStatus)
+                    .AddTo(this.CompositeDisposable);
+            this.ExoConfig =
+                new ExoConfigViewModel(
+                    canModify,
+                    exoConfig,
+                    appConfig,
+                    uiConfig,
+                    lastStatus,
+                    openFileDialogService)
+                    .AddTo(this.CompositeDisposable);
+            this.AppConfig =
+                new AppConfigViewModel(
+                    canModify,
+                    appConfig,
+                    uiConfig,
+                    lastStatus,
+                    openFileDialogService)
+                    .AddTo(this.CompositeDisposable);
+            this.LastStatus =
+                new AppStatusViewModel(lastStatus).AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
         /// タイトルを取得する。
         /// </summary>
-        public string Title
-        {
-            get { return nameof(VoiceroidUtil); }
-        }
+        public string Title => nameof(VoiceroidUtil);
+
+        /// <summary>
+        /// ウィンドウを常に最前面に表示するか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTopmost { get; }
 
         /// <summary>
         /// VOICEROID操作 ViewModel を取得する。
@@ -133,14 +122,14 @@ namespace VoiceroidUtil.ViewModel
         public VoiceroidViewModel Voiceroid { get; }
 
         /// <summary>
-        /// UI設定 ViewModel を取得する。
-        /// </summary>
-        public UIConfigViewModel UIConfig { get; }
-
-        /// <summary>
         /// トークテキスト置換設定 ViewModel を取得する。
         /// </summary>
         public TalkTextReplaceConfigViewModel TalkTextReplaceConfig { get; }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定 ViewModel を取得する。
+        /// </summary>
+        public ExoConfigViewModel ExoConfig { get; }
 
         /// <summary>
         /// アプリ設定 ViewModel を取得する。
@@ -151,5 +140,29 @@ namespace VoiceroidUtil.ViewModel
         /// 直近のアプリ状態 ViewModel を取得する。
         /// </summary>
         public AppStatusViewModel LastStatus { get; }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public MainWindowViewModel()
+            :
+            this(
+                new ProcessFactory().Processes,
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig()),
+                new ReactiveProperty<ExoConfig>(new ExoConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                NullServices.OpenFileDialog,
+                NullServices.WindowActivate,
+                NullServices.VoiceroidAction)
+        {
+        }
+
+        #endregion
     }
 }

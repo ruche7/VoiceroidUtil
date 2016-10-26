@@ -13,7 +13,7 @@ namespace VoiceroidUtil.View
         /// </summary>
         public TalkTextReplaceItemsView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
 {
@@ -8,7 +7,6 @@ namespace VoiceroidUtil
     /// YmmCharaRelation インスタンスセットクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(YmmCharaRelation))]
     public class YmmCharaRelationSet : VoiceroidItemSetBase<YmmCharaRelation>
     {
         /// <summary>

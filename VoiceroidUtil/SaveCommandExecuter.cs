@@ -2,16 +2,70 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// ReactiveCommand でWAVEファイル保存周りの非同期実行を行うためのクラス。
+    /// ReactiveCommand でWAVEファイル保存処理の非同期実行を行うためのクラス。
     /// </summary>
-    public class SaveCommandExecuter : AsyncCommandExecuter
+    public class SaveCommandExecuter : AsyncCommandExecuter<SaveCommandExecuter.Parameter>
     {
+        /// <summary>
+        /// コマンドパラメータクラス。
+        /// </summary>
+        public class Parameter
+        {
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            /// <param name="process">VOICEROIDプロセス。</param>
+            /// <param name="talkTextReplaceConfig">トークテキスト置換設定。</param>
+            /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+            /// <param name="appConfig">アプリ設定。</param>
+            /// <param name="talkText">トークテキスト。</param>
+            public Parameter(
+                IProcess process,
+                TalkTextReplaceConfig talkTextReplaceConfig,
+                ExoConfig exoConfig,
+                AppConfig appConfig,
+                string talkText)
+            {
+                this.Process = process;
+                this.TalkTextReplaceConfig = talkTextReplaceConfig;
+                this.ExoConfig = exoConfig;
+                this.AppConfig = appConfig;
+                this.TalkText = talkText;
+            }
+
+            /// <summary>
+            /// VOICEROIDプロセスを取得する。
+            /// </summary>
+            public IProcess Process { get; }
+
+            /// <summary>
+            /// トークテキスト置換設定を取得する。
+            /// </summary>
+            public TalkTextReplaceConfig TalkTextReplaceConfig { get; }
+
+            /// <summary>
+            /// AviUtl拡張編集ファイル用設定を取得する。
+            /// </summary>
+            public ExoConfig ExoConfig { get; }
+
+            /// <summary>
+            /// アプリ設定を取得する。
+            /// </summary>
+            public AppConfig AppConfig { get; }
+
+            /// <summary>
+            /// トークテキストを取得する。
+            /// </summary>
+            public string TalkText { get; }
+        }
+
         /// <summary>
         /// コンストラクタ。
         /// </summary>
@@ -19,15 +73,19 @@ namespace VoiceroidUtil
         /// <param name="talkTextReplaceConfigGetter">
         /// トークテキスト置換設定取得デリゲート。
         /// </param>
+        /// <param name="exoConfigGetter">
+        /// AviUtl拡張編集ファイル用設定取得デリゲート。
+        /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
-            Func<IAppStatus, Task> resultNotifier)
+            Func<IAppStatus, Parameter, Task> resultNotifier)
             : base()
         {
             if (processGetter == null)
@@ -37,6 +95,10 @@ namespace VoiceroidUtil
             if (talkTextReplaceConfigGetter == null)
             {
                 throw new ArgumentNullException(nameof(talkTextReplaceConfigGetter));
+            }
+            if (exoConfigGetter == null)
+            {
+                throw new ArgumentNullException(nameof(exoConfigGetter));
             }
             if (appConfigGetter == null)
             {
@@ -51,12 +113,16 @@ namespace VoiceroidUtil
                 throw new ArgumentNullException(nameof(resultNotifier));
             }
 
-            this.AsyncFunc = _ => this.ExecuteAsync();
+            this.AsyncFunc = this.ExecuteAsync;
+            this.ParameterConverter =
+                _ =>
+                    new Parameter(
+                        processGetter(),
+                        talkTextReplaceConfigGetter(),
+                        exoConfigGetter(),
+                        appConfigGetter(),
+                        talkTextGetter());
 
-            this.ProcessGetter = processGetter;
-            this.TalkTextReplaceConfigGetter = talkTextReplaceConfigGetter;
-            this.AppConfigGetter = appConfigGetter;
-            this.TalkTextGetter = talkTextGetter;
             this.ResultNotifier = resultNotifier;
         }
 
@@ -67,25 +133,33 @@ namespace VoiceroidUtil
         /// <param name="talkTextReplaceConfigGetter">
         /// トークテキスト置換設定取得デリゲート。
         /// </param>
+        /// <param name="exoConfigGetter">
+        /// AviUtl拡張編集ファイル用設定取得デリゲート。
+        /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public SaveCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
+            Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
             Func<string> talkTextGetter,
-            Action<IAppStatus> resultNotifier)
+            Action<IAppStatus, Parameter> resultNotifier)
             :
             this(
                 processGetter,
                 talkTextReplaceConfigGetter,
+                exoConfigGetter,
                 appConfigGetter,
                 talkTextGetter,
                 (resultNotifier == null) ?
-                    null :
-                    new Func<IAppStatus, Task>(
-                        async r => await Task.Run(() => resultNotifier(r))))
+                    (Func<IAppStatus, Parameter, Task>)null :
+                    async (r, p) =>
+                    {
+                        resultNotifier(r, p);
+                        await Task.FromResult(0);
+                    })
         {
         }
 
@@ -101,7 +175,7 @@ namespace VoiceroidUtil
         /// <param name="process">VOICEROIDプロセス。</param>
         /// <param name="talkText">トークテキスト。</param>
         /// <returns>WAVEファイルパス。作成できないならば null 。</returns>
-        private static string MakeWaveFilePath(
+        private static async Task<string> MakeWaveFilePath(
             AppConfig config,
             IProcess process,
             string talkText)
@@ -121,15 +195,21 @@ namespace VoiceroidUtil
 
             // 同名ファイルがあるならば名前の末尾に "[数字]" を付ける
             var path = basePath;
-            for (
-                int i = 1;
-                File.Exists(path + @".wav") || File.Exists(path + @".txt");
-                ++i)
-            {
-                path = basePath + @"[" + i + @"]";
-            }
+            await Task.Run(
+                () =>
+                {
+                    for (
+                        int i = 1;
+                        File.Exists(path + @".wav") ||
+                        File.Exists(path + @".txt") ||
+                        File.Exists(path + @".exo");
+                        ++i)
+                    {
+                        path = basePath + @"[" + i + @"]";
+                    }
+                });
 
-            return path;
+            return (path + @".wav");
         }
 
         /// <summary>
@@ -184,69 +264,61 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// VOICEROIDプロセス取得デリゲートを取得する。
-        /// </summary>
-        private Func<IProcess> ProcessGetter { get; }
-
-        /// <summary>
-        /// トークテキスト置換設定取得デリゲートを取得する。
-        /// </summary>
-        private Func<TalkTextReplaceConfig> TalkTextReplaceConfigGetter { get; }
-
-        /// <summary>
-        /// アプリ設定取得デリゲートを取得する。
-        /// </summary>
-        private Func<AppConfig> AppConfigGetter { get; }
-
-        /// <summary>
-        /// トークテキスト取得デリゲートを取得する。
-        /// </summary>
-        private Func<string> TalkTextGetter { get; }
-
-        /// <summary>
         /// 処理結果のアプリ状態通知デリゲートを取得する。
         /// </summary>
-        private Func<IAppStatus, Task> ResultNotifier { get; }
+        private Func<IAppStatus, Parameter, Task> ResultNotifier { get; }
 
         /// <summary>
         /// 非同期の実処理を行う。
         /// </summary>
-        private async Task ExecuteAsync()
+        /// <param name="parameter">コマンドパラメータ。</param>
+        private async Task ExecuteAsync(Parameter parameter)
         {
-            var appConfig = this.AppConfigGetter();
-            if (appConfig == null)
+            var process = parameter?.Process;
+            var talkTextReplaceConfig = parameter?.TalkTextReplaceConfig;
+            var exoConfig = parameter?.ExoConfig;
+            var appConfig = parameter?.AppConfig;
+            var text = parameter?.TalkText;
+
+            if (process == null || exoConfig == null || appConfig == null || text == null)
             {
                 await this.NotifyResult(
+                    parameter,
                     AppStatusType.Fail,
                     @"ファイル保存を開始できませんでした。");
                 return;
             }
 
-            var process = this.ProcessGetter();
-            if (
-                process == null ||
-                !process.IsRunning ||
-                process.IsSaving ||
-                process.IsDialogShowing)
+            if (!process.IsRunning || process.IsSaving || process.IsDialogShowing)
             {
                 await this.NotifyResult(
+                    parameter,
                     AppStatusType.Fail,
                     @"ファイル保存を開始できませんでした。");
                 return;
             }
 
             // テキスト作成
-            var text = this.TalkTextGetter();
-            var talkTextReplaceConfig = this.TalkTextReplaceConfigGetter();
-            var voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+            var voiceText =
+                talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+            if (string.IsNullOrWhiteSpace(voiceText))
+            {
+                await this.NotifyResult(
+                    parameter,
+                    AppStatusType.Fail,
+                    @"文章の音声用置換結果が空文字列になります。",
+                    subStatusText: @"空文字列を再生することはできません。");
+                return;
+            }
             var fileText =
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // WAVEファイルパス決定
-            var filePath = MakeWaveFilePath(appConfig, process, text);
+            var filePath = await MakeWaveFilePath(appConfig, process, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
+                    parameter,
                     AppStatusType.Fail,
                     @"ファイル保存を開始できませんでした。");
                 return;
@@ -256,14 +328,17 @@ namespace VoiceroidUtil
             var pathStatus = FilePathUtil.CheckPathStatus(filePath);
             if (pathStatus.StatusType != AppStatusType.None)
             {
-                await this.ResultNotifier(pathStatus);
+                await this.ResultNotifier(pathStatus, parameter);
                 return;
             }
 
             // トークテキスト設定
             if (!(await process.SetTalkText(voiceText)))
             {
-                await this.NotifyResult(AppStatusType.Fail, @"文章の設定に失敗しました。");
+                await this.NotifyResult(
+                    parameter,
+                    AppStatusType.Fail,
+                    @"文章の設定に失敗しました。");
                 return;
             }
 
@@ -271,7 +346,7 @@ namespace VoiceroidUtil
             var result = await process.Save(filePath);
             if (!result.IsSucceeded)
             {
-                await this.NotifyResult(AppStatusType.Fail, result.Error);
+                await this.NotifyResult(parameter, AppStatusType.Fail, result.Error);
                 return;
             }
 
@@ -286,6 +361,7 @@ namespace VoiceroidUtil
                 if (!(await WriteTextFile(txtPath, fileText, appConfig.IsTextFileUtf8)))
                 {
                     await this.NotifyResult(
+                        parameter,
                         AppStatusType.Success,
                         statusText,
                         AppStatusType.Fail,
@@ -294,15 +370,138 @@ namespace VoiceroidUtil
                 }
             }
 
+            // .exo ファイル保存
+            if (appConfig.IsExoFileMaking)
+            {
+                var exoPath = Path.ChangeExtension(filePath, @".exo");
+                var ok =
+                    await this.DoWriteExoFile(
+                        exoPath,
+                        exoConfig,
+                        process.Id,
+                        filePath,
+                        fileText);
+                if (!ok)
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Success,
+                        statusText,
+                        AppStatusType.Fail,
+                        @".exo ファイルを保存できませんでした。");
+                    return;
+                }
+            }
+
             // ゆっくりMovieMaker処理
             var warnText = await DoOperateYmm(filePath, process.Id, appConfig);
 
             await this.NotifyResult(
+                parameter,
                 AppStatusType.Success,
                 statusText,
                 (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
                 warnText ?? @"保存先フォルダーを開く",
                 (warnText == null) ? appConfig.SaveDirectoryPath : null);
+        }
+
+        /// <summary>
+        /// 設定を基にAviUtl拡張編集ファイル書き出しを行う。
+        /// </summary>
+        /// <param name="exoFilePath">AviUtl拡張編集ファイルパス。</param>
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
+        /// <param name="waveFilePath">WAVEファイルパス。</param>
+        /// <param name="text">テキスト。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        private async Task<bool> DoWriteExoFile(
+            string exoFilePath,
+            ExoConfig exoConfig,
+            VoiceroidId voiceroidId,
+            string waveFilePath,
+            string text)
+        {
+            var common = exoConfig.Common;
+            var charaStyle = exoConfig.CharaStyles[voiceroidId];
+
+            // フレーム数算出
+            int frameCount = 0;
+            try
+            {
+                var waveTime =
+                    await Task.Run(() => (new WaveFileInfo(waveFilePath)).TotalTime);
+                var f =
+                    (waveTime.Ticks * common.Fps) /
+                    (charaStyle.PlaySpeed.Begin * (TimeSpan.TicksPerSecond / 100));
+                frameCount = (int)decimal.Ceiling(f);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return false;
+            }
+
+            var exo = new ExEditObject();
+
+            exo.Width = common.Width;
+            exo.Height = common.Height;
+            exo.Length = frameCount + common.ExtraFrames;
+
+            var scale = (decimal.GetBits(common.Fps)[3] & 0xFF0000) >> 16;
+            exo.FpsScale = (int)Math.Pow(10, scale);
+            exo.FpsBase = decimal.Floor(common.Fps * exo.FpsScale);
+
+            // テキストレイヤー追加
+            {
+                var item = new LayerItem();
+
+                item.BeginFrame = 1;
+                item.EndFrame = exo.Length;
+                item.LayerId = 1;
+                item.GroupId = common.IsGrouping ? 1 : 0;
+                item.IsClipping = charaStyle.IsTextClipping;
+                {
+                    var c = charaStyle.Text.Clone();
+                    ExoTextStyleTemplate.ClearUnused(c);
+                    item.Components.Add(c);
+                }
+                item.Components.Add(charaStyle.Render.Clone());
+
+                exo.LayerItems.Add(item);
+            }
+
+            // 音声レイヤー追加
+            {
+                var item = new LayerItem();
+
+                item.BeginFrame = 1;
+                item.EndFrame = frameCount;
+                item.LayerId = 2;
+                item.GroupId = common.IsGrouping ? 1 : 0;
+                item.IsAudio = true;
+                {
+                    var c = new AudioFileComponent();
+                    c.PlaySpeed = charaStyle.PlaySpeed.Clone();
+                    c.FilePath = waveFilePath;
+                    item.Components.Add(c);
+                }
+                item.Components.Add(charaStyle.Play.Clone());
+
+                exo.LayerItems.Add(item);
+            }
+
+            // ファイル書き出し
+            try
+            {
+                await ExoFileReaderWriter.WriteAsync(exoFilePath, exo);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -381,28 +580,29 @@ namespace VoiceroidUtil
         /// <summary>
         /// 処理結果のアプリ状態を通知する。
         /// </summary>
+        /// <param name="parameter">コマンドパラメータ。</param>
         /// <param name="statusType">状態種別。</param>
         /// <param name="statusText">状態テキスト。</param>
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
         /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
         private Task NotifyResult(
+            Parameter parameter,
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
             string subStatusText = "",
             string subStatusCommand = "")
-        {
-            return
-                this.ResultNotifier(
-                    new AppStatus
-                    {
-                        StatusType = statusType,
-                        StatusText = statusText ?? "",
-                        SubStatusType = subStatusType,
-                        SubStatusText = subStatusText ?? "",
-                        SubStatusCommand = subStatusCommand ?? "",
-                    });
-        }
+            =>
+            this.ResultNotifier(
+                new AppStatus
+                {
+                    StatusType = statusType,
+                    StatusText = statusText ?? "",
+                    SubStatusType = subStatusType,
+                    SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand ?? "",
+                },
+                parameter);
     }
 }

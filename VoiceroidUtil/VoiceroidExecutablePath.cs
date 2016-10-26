@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -9,8 +8,7 @@ namespace VoiceroidUtil
     /// VOICEROIDの実行ファイルパスを保持するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
-    public class VoiceroidExecutablePath : BindableConfigBase
+    public class VoiceroidExecutablePath : VoiceroidItemBase
     {
         /// <summary>
         /// コンストラクタ。
@@ -25,30 +23,10 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="path">実行ファイルパス。</param>
-        public VoiceroidExecutablePath(VoiceroidId voiceroidId, string path) : base()
+        public VoiceroidExecutablePath(VoiceroidId voiceroidId, string path)
+            : base(voiceroidId)
         {
-            this.VoiceroidId = voiceroidId;
             this.Path = path;
-        }
-
-        /// <summary>
-        /// VOICEROID識別IDを取得する。
-        /// </summary>
-        public VoiceroidId VoiceroidId { get; private set; }
-
-        /// <summary>
-        /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
-        /// </summary>
-        [DataMember(Name = nameof(VoiceroidId))]
-        private string VoiceroidIdString
-        {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
-                this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
         }
 
         /// <summary>
