@@ -10,8 +10,6 @@ namespace VoiceroidUtil
     /// アプリケーション設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(FileNameFormat))]
-    [KnownType(typeof(YmmCharaRelationSet))]
     public class AppConfig : BindableConfigBase
     {
         /// <summary>
@@ -28,6 +26,7 @@ namespace VoiceroidUtil
         public AppConfig()
         {
             // イベントハンドラ追加のためにプロパティ経由で設定
+            this.VoiceroidVisibilities = new VoiceroidVisibilitySet();
             this.YmmCharaRelations = new YmmCharaRelationSet();
         }
 
@@ -63,6 +62,22 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.tabAccepted, value); }
         }
         private bool tabAccepted = true;
+
+        /// <summary>
+        /// VOICEROID表示設定セットを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public VoiceroidVisibilitySet VoiceroidVisibilities
+        {
+            get { return this.voiceroidVisibilities; }
+            set
+            {
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.voiceroidVisibilities,
+                    value ?? (new VoiceroidVisibilitySet()));
+            }
+        }
+        private VoiceroidVisibilitySet voiceroidVisibilities = null;
 
         /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
@@ -134,6 +149,17 @@ namespace VoiceroidUtil
         private bool textFileUtf8 = true;
 
         /// <summary>
+        /// AviUtl拡張編集ファイルを作成するか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsExoFileMaking
+        {
+            get { return this.exoFileMaking; }
+            set { this.SetProperty(ref this.exoFileMaking, value); }
+        }
+        private bool exoFileMaking = false;
+
+        /// <summary>
         /// 音声保存成功時にテキストをクリアするか否かを取得または設定する。
         /// </summary>
         [DataMember]
@@ -176,23 +202,9 @@ namespace VoiceroidUtil
             get { return this.ymmCharaRelations; }
             set
             {
-                if (value != this.ymmCharaRelations)
-                {
-                    // 古い値からイベントハンドラを削除
-                    if (this.ymmCharaRelations != null)
-                    {
-                        this.ymmCharaRelations.PropertyChanged -=
-                            this.OnYmmCharaRelationsPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.ymmCharaRelations,
-                        value ?? (new YmmCharaRelationSet()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.ymmCharaRelations.PropertyChanged +=
-                        this.OnYmmCharaRelationsPropertyChanged;
-                }
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.ymmCharaRelations,
+                    value ?? (new YmmCharaRelationSet()));
             }
         }
         private YmmCharaRelationSet ymmCharaRelations = null;
@@ -207,17 +219,6 @@ namespace VoiceroidUtil
             set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
         }
         private bool ymmAddButtonClicking = true;
-
-        /// <summary>
-        /// YmmCharaRelations プロパティの内容変更時に呼び出される。
-        /// </summary>
-        private void OnYmmCharaRelationsPropertyChanged(
-            object sender,
-            PropertyChangedEventArgs e)
-        {
-            // YmmCharaRelations プロパティ自身の変更通知を行う
-            this.RaisePropertyChanged(nameof(YmmCharaRelations));
-        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

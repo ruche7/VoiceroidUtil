@@ -1,0 +1,114 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:local="clr-namespace:VoiceroidUtil"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
+    xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    x:Class="VoiceroidUtil.View.MovableValueControl"
+    mc:Ignorable="d"
+    d:DesignWidth="400"
+    d:DataContext="{d:DesignInstance vm:MovableValueViewModel, IsDesignTimeCreatable=True}"
+    UseLayoutRounding="True"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/Converters.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="70" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Column 0 -->
+        <Slider
+            Value="{Binding Begin.Value}"
+            Minimum="{Binding Constants.Value.MinSliderValue}"
+            Maximum="{Binding Constants.Value.MaxSliderValue}"
+            LargeChange="{Binding ValueLargeIncrement.Value}"
+            SmallChange="{Binding ValueIncrement.Value}"
+            Grid.Column="0" />
+
+        <!-- Column 1 -->
+        <tk:DecimalUpDown
+            Value="{Binding Begin.Value, UpdateSourceTrigger=PropertyChanged}"
+            Minimum="{Binding Constants.Value.MinValue}"
+            Maximum="{Binding Constants.Value.MaxValue}"
+            Increment="{Binding ValueIncrement.Value}"
+            FormatString="{Binding ValueFormatString.Value}"
+            ButtonSpinnerLocation="Left"
+            Grid.Column="1" />
+
+        <!-- Column 2 -->
+        <tk:DropDownButton
+            HorizontalAlignment="Stretch"
+            Padding="2,3"
+            Margin="2,0"
+            Grid.Column="2">
+            <tk:DropDownButton.DropDownContent>
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Style.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding
+                                        Path=Color,
+                                        Source={StaticResource windowBrush}}"
+                                    Value="Black">
+                                    <Setter
+                                        Property="Background"
+                                        Value="{StaticResource windowBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <v:MovableValueMoveModeControl Margin="4" />
+                </StackPanel>
+            </tk:DropDownButton.DropDownContent>
+            <tk:DropDownButton.ToolTip>
+                <TextBlock>
+                    移動モード : <Run Text="{Binding MoveModeName.Value, Mode=OneWay}" />
+                </TextBlock>
+            </tk:DropDownButton.ToolTip>
+
+            <TextBlock Text="{Binding Name}" TextAlignment="Center" Width="56" />
+        </tk:DropDownButton>
+
+        <!-- Column 3 -->
+        <tk:DecimalUpDown
+            Value="{Binding End.Value, UpdateSourceTrigger=PropertyChanged}"
+            IsEnabled="{Binding IsMoving.Value}"
+            Minimum="{Binding Constants.Value.MinValue}"
+            Maximum="{Binding Constants.Value.MaxValue}"
+            Increment="{Binding ValueIncrement.Value}"
+            FormatString="{Binding ValueFormatString.Value}"
+            Grid.Column="3" />
+
+        <!-- Column 4 -->
+        <Slider
+            Value="{Binding End.Value}"
+            IsEnabled="{Binding IsMoving.Value}"
+            Minimum="{Binding Constants.Value.MinSliderValue}"
+            Maximum="{Binding Constants.Value.MaxSliderValue}"
+            LargeChange="{Binding ValueLargeIncrement.Value}"
+            SmallChange="{Binding ValueIncrement.Value}"
+            Grid.Column="4" />
+    </Grid>
+</UserControl>

@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EF44D39C-4106-4E7B-AE0D-9A3B41DE6EAC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RucheHome.AviUtl</RootNamespace>
+    <AssemblyName>RucheHome.AviUtl</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExEdit\AudioFileComponent.cs" />
+    <Compile Include="ExEdit\BlendMode.cs" />
+    <Compile Include="ExEdit\ComponentBase.cs" />
+    <Compile Include="ExEdit\ComponentCollection.cs" />
+    <Compile Include="ExEdit\ComponentMaker.cs" />
+    <Compile Include="ExEdit\DefaultExoFileValueConverter.cs" />
+    <Compile Include="ExEdit\ExEditObject.cs" />
+    <Compile Include="ExEdit\ExoFileItemAttribute.cs" />
+    <Compile Include="ExEdit\ExoFileItemsConverter.cs" />
+    <Compile Include="ExEdit\ExoFileReaderWriter.cs" />
+    <Compile Include="ExEdit\FontDecoration.cs" />
+    <Compile Include="ExEdit\IComponent.cs" />
+    <Compile Include="ExEdit\IExoFileValueConverter.cs" />
+    <Compile Include="ExEdit\IMovableValue.cs" />
+    <Compile Include="ExEdit\IMovableValueConstants.cs" />
+    <Compile Include="ExEdit\LayerItem.cs" />
+    <Compile Include="ExEdit\LayerItemCollection.cs" />
+    <Compile Include="ExEdit\MovableValue.cs" />
+    <Compile Include="ExEdit\MoveMode.cs" />
+    <Compile Include="ExEdit\PlayComponent.cs" />
+    <Compile Include="ExEdit\RenderComponent.cs" />
+    <Compile Include="ExEdit\TextAlignment.cs" />
+    <Compile Include="ExEdit\TextComponent.cs" />
+    <Compile Include="ExEdit\UnknownComponent.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RucheHome.Text\RucheHome.Text.csproj">
+      <Project>{cee2280c-8026-46de-872e-f629259890eb}</Project>
+      <Name>RucheHome.Text</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RucheHomeLib\RucheHomeLib.csproj">
+      <Project>{df1b25fe-0fdf-4c86-a779-aff5217a7c6b}</Project>
+      <Name>RucheHomeLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

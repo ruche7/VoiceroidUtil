@@ -13,7 +13,7 @@ namespace VoiceroidUtil.View
         /// </summary>
         public AppStatusBar()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

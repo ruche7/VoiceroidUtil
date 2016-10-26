@@ -3,9 +3,58 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:VoiceroidUtil">
 
+    <!-- VoiceroidId -->
+
+    <Style x:Key="VoiceroidIdImage" x:Shared="False" TargetType="Image">
+        <Setter Property="Stretch" Value="None" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding}" Value="YukariEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/yukari_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="MakiEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/maki_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="ZunkoEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/zunko_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="KiritanEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Akane">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/akane_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="Aoi">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/aoi_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="AiEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/ai_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="SeikaEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/seika_ok.png" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    
     <!-- IProcess -->
     
-    <Style x:Key="VoiceroidImage" x:Shared="False" TargetType="Image">
+    <Style x:Key="VoiceroidProcessImage" x:Shared="False" TargetType="Image">
         <Setter Property="Stretch" Value="None" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
@@ -62,6 +111,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/zunko_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="KiritanEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="KiritanEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ok.png" />
             </MultiDataTrigger>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
@@ -138,7 +205,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="VoiceroidStatusIcon" x:Shared="False" TargetType="Image">
+    <Style x:Key="VoiceroidProcessStatusIcon" x:Shared="False" TargetType="Image">
         <Setter Property="Stretch" Value="None" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter
@@ -153,7 +220,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="VoiceroidStatusText" x:Shared="False" TargetType="TextBlock">
+    <Style x:Key="VoiceroidProcessStatusText" x:Shared="False" TargetType="TextBlock">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Text" Value="起動していません" />
         <Setter Property="Foreground" Value="Red" />

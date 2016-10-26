@@ -46,13 +46,6 @@
     <ApplicationIcon>resources\icon\main.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Hnx8.ReadJEnc">
-      <HintPath>..\libs\ReadJEnc\Hnx8.ReadJEnc.dll</HintPath>
-    </Reference>
-    <Reference Include="Livet, Version=1.3.0.0, Culture=neutral, PublicKeyToken=b0b1d3f711ef38cb, processorArchitecture=MSIL">
-      <HintPath>..\packages\LivetCask.1.3.1.0\lib\net45\Livet.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -63,11 +56,11 @@
       <HintPath>..\libs\Windows-API-Code-Pack-1.1\binaries\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.3.0.1\lib\net45\ReactiveProperty.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.3.2.0\lib\net45\ReactiveProperty.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.NET45, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.3.0.1\lib\net45\ReactiveProperty.NET45.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.3.2.0\lib\net45\ReactiveProperty.NET45.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -143,16 +136,26 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
+    <Compile Include="ConfigManager.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
-    <Compile Include="Messaging\AppSaveDirectorySelectionMessage.cs" />
-    <Compile Include="Messaging\AppSaveDirectorySelectionMessageAction.cs" />
-    <Compile Include="Messaging\DirectoryOpenMessage.cs" />
-    <Compile Include="Messaging\DirectoryOpenMessageAction.cs" />
-    <Compile Include="Messaging\MessageKeys.cs" />
-    <Compile Include="Messaging\VoiceroidAction.cs" />
-    <Compile Include="Messaging\VoiceroidActionMessage.cs" />
-    <Compile Include="Messaging\VoiceroidActionMessageAction.cs" />
+    <Compile Include="ExoCharaStyle.cs" />
+    <Compile Include="ExoCharaStyleSet.cs" />
+    <Compile Include="ExoCommonConfig.cs" />
+    <Compile Include="ExoConfig.cs" />
+    <Compile Include="ExoTextStyleTemplate.cs" />
+    <Compile Include="Extensions\ObservableExtension.cs" />
+    <Compile Include="Extensions\ReactivePropertyExtension.cs" />
+    <Compile Include="IVoiceroidItem.cs" />
+    <Compile Include="PlayStopCommandExecuter.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
+    <Compile Include="Services\IOpenFileDialogService.cs" />
+    <Compile Include="Services\IVoiceroidActionService.cs" />
+    <Compile Include="Services\IWindowActivateService.cs" />
+    <Compile Include="Services\NullServices.cs" />
+    <Compile Include="Services\OpenFileDialogService.cs" />
+    <Compile Include="Services\VoiceroidAction.cs" />
+    <Compile Include="Services\VoiceroidActionService.cs" />
+    <Compile Include="Services\WindowActivateService.cs" />
     <Compile Include="TalkTextReplaceConfig.cs" />
     <Compile Include="TalkTextReplaceItem.cs" />
     <Compile Include="TalkTextReplaceItemCollection.cs" />
@@ -161,10 +164,13 @@
     <Compile Include="ViewModel\AppConfigViewModel.cs" />
     <Compile Include="ViewModel\AppStatusViewModel.cs" />
     <Compile Include="ViewModel\ConfigViewModelBase.cs" />
+    <Compile Include="ViewModel\ExoCharaStyleViewModel.cs" />
+    <Compile Include="ViewModel\ExoConfigViewModel.cs" />
+    <Compile Include="ViewModel\MovableValueViewModel.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceConfigViewModel.cs" />
     <Compile Include="ViewModel\TalkTextReplaceItemsViewModel.cs" />
-    <Compile Include="ViewModel\UIConfigViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\VoiceroidViewModel.cs" />
     <Compile Include="View\AppStatusBar.xaml.cs">
       <DependentUpon>AppStatusBar.xaml</DependentUpon>
@@ -178,10 +184,22 @@
     <Compile Include="View\AppConfigView.xaml.cs">
       <DependentUpon>AppConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ExoCharaStyleView.xaml.cs">
+      <DependentUpon>ExoCharaStyleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ExoConfigView.xaml.cs">
+      <DependentUpon>ExoConfigView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\MainWindowConfigBehavior.cs" />
+    <Compile Include="View\MovableValueControl.xaml.cs">
+      <DependentUpon>MovableValueControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\MovableValueMoveModeControl.xaml.cs">
+      <DependentUpon>MovableValueMoveModeControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\TalkTextReplaceConfigView.xaml.cs">
       <DependentUpon>TalkTextReplaceConfigView.xaml</DependentUpon>
     </Compile>
@@ -193,22 +211,38 @@
     </Compile>
     <Compile Include="VoiceroidExecutablePath.cs" />
     <Compile Include="VoiceroidExecutablePathSet.cs" />
+    <Compile Include="VoiceroidItemBase.cs" />
     <Compile Include="VoiceroidItemSetBase.cs" />
+    <Compile Include="VoiceroidVisibility.cs" />
+    <Compile Include="VoiceroidVisibilitySet.cs" />
+    <Compile Include="WaveFileInfo.cs" />
     <Compile Include="YmmCharaRelation.cs" />
     <Compile Include="View\YmmCharaRelationsControl.xaml.cs">
       <DependentUpon>YmmCharaRelationsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="YmmCharaRelationSet.cs" />
     <Compile Include="YmmProcess.cs" />
-    <DesignData Include="resources\design\TalkTextReplaceItemsViewModel.xaml">
+    <Page Include="resources\CommonBrushes.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </DesignData>
+    </Page>
+    <Page Include="resources\TabStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\AppStatusBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="resources\CommonStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ExoCharaStyleView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ExoConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -229,6 +263,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\AppConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MovableValueControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\MovableValueMoveModeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -253,7 +295,9 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <None Include="Properties\App.manifest" />
+    <None Include="Properties\App.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
@@ -291,6 +335,14 @@
     <Resource Include="resources\icon\main.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RucheHome.AviUtl\RucheHome.AviUtl.csproj">
+      <Project>{ef44d39c-4106-4e7b-ae0d-9a3b41de6eac}</Project>
+      <Name>RucheHome.AviUtl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RucheHome.Text\RucheHome.Text.csproj">
+      <Project>{cee2280c-8026-46de-872e-f629259890eb}</Project>
+      <Name>RucheHome.Text</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RucheHome.Voiceroid\RucheHome.Voiceroid.csproj">
       <Project>{e7c4802c-d723-44b6-a272-9e570c84e754}</Project>
       <Name>RucheHome.Voiceroid</Name>
@@ -349,6 +401,16 @@
   <ItemGroup>
     <Resource Include="resources\icon\status_big_info.png" />
     <Resource Include="resources\icon\status_info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\exo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\kiritan_ng.png" />
+    <Resource Include="resources\voiceroid\kiritan_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\icon\ymm.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

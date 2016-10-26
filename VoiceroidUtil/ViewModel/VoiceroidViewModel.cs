@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -7,49 +8,95 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Hnx8.ReadJEnc;
-using Livet.Messaging.Windows;
+using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.AviUtl.ExEdit;
+using RucheHome.Text;
+using RucheHome.Util.Extensions.String;
 using RucheHome.Voiceroid;
-using VoiceroidUtil.Messaging;
+using VoiceroidUtil.Extensions;
+using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel
 {
     /// <summary>
     /// VOICEROIDの選択とその操作を提供する ViewModel クラス。
     /// </summary>
-    public class VoiceroidViewModel : Livet.ViewModel
+    public class VoiceroidViewModel : ViewModelBase
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidViewModel()
+        /// <param name="processes">VOICEROIDプロセスコレクション。</param>
+        /// <param name="canUseConfig">各設定値を利用可能な状態であるか否か。</param>
+        /// <param name="talkTextReplaceConfig">トークテキスト置換設定値。</param>
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定値。</param>
+        /// <param name="appConfig">アプリ設定値。</param>
+        /// <param name="uiConfig">UI設定値。</param>
+        /// <param name="lastStatus">直近のアプリ状態値の設定先。</param>
+        /// <param name="canModifyNotifier">
+        /// 設定変更可能な状態であるか否かの設定先。
+        /// </param>
+        /// <param name="windowActivateService">ウィンドウアクティブ化サービス。</param>
+        /// <param name="voiceroidActionService">
+        /// VOICEROIDプロセスアクションサービス。
+        /// </param>
+        public VoiceroidViewModel(
+            IReadOnlyCollection<IProcess> processes,
+            IReadOnlyReactiveProperty<bool> canUseConfig,
+            IReadOnlyReactiveProperty<TalkTextReplaceConfig> talkTextReplaceConfig,
+            IReadOnlyReactiveProperty<ExoConfig> exoConfig,
+            IReadOnlyReactiveProperty<AppConfig> appConfig,
+            IReadOnlyReactiveProperty<UIConfig> uiConfig,
+            IReactiveProperty<IAppStatus> lastStatus,
+            IReactiveProperty<bool> canModifyNotifier,
+            IWindowActivateService windowActivateService,
+            IVoiceroidActionService voiceroidActionService)
         {
-            // 設定
-            this.TalkTextReplaceConfig =
-                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig())
-                    .AddTo(this.CompositeDisposable);
-            this.AppConfig =
-                new ReactiveProperty<AppConfig>(new AppConfig())
-                    .AddTo(this.CompositeDisposable);
-            this.UIConfig =
-                new ReactiveProperty<UIConfig>(new UIConfig())
+            this.ValidateArgNull(processes, nameof(processes));
+            this.ValidateArgNull(canUseConfig, nameof(canUseConfig));
+            this.ValidateArgNull(talkTextReplaceConfig, nameof(talkTextReplaceConfig));
+            this.ValidateArgNull(exoConfig, nameof(exoConfig));
+            this.ValidateArgNull(appConfig, nameof(appConfig));
+            this.ValidateArgNull(uiConfig, nameof(uiConfig));
+            this.ValidateArgNull(lastStatus, nameof(lastStatus));
+            this.ValidateArgNull(canModifyNotifier, nameof(canModifyNotifier));
+            this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
+            this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
+
+            this.LastStatus = lastStatus;
+            this.WindowActivateService = windowActivateService;
+            this.VoiceroidActionService = voiceroidActionService;
+
+            this.IsTextClearing =
+                this.MakeInnerPropertyOf(appConfig, c => c.IsTextClearing);
+            this.VoiceroidExecutablePathes =
+                this.MakeInnerPropertyOf(uiConfig, c => c.VoiceroidExecutablePathes);
+
+            // 表示状態のVOICEROIDプロセスコレクション
+            this.VisibleProcesses =
+                appConfig
+                    .ObserveInnerProperty(c => c.VoiceroidVisibilities)
+                    .Select(vv => vv.SelectVisibleOf(processes))
+                    .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
-            // 直近のアプリ状態値
-            this.LastStatus =
-                new ReactiveProperty<IAppStatus>(new AppStatus())
+            // 最適表示列数
+            // 6プロセス単位で列数を増やす
+            this.VisibleProcessesColumnCount =
+                this.VisibleProcesses
+                    .Select(vp => Math.Min(Math.Max(1, (vp.Count + 5) / 6), 3))
+                    .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
             // 選択中VOICEROIDプロセス
             this.SelectedProcess =
-                new ReactiveProperty<IProcess>(
-                    this.ProcessFactory.Get(VoiceroidId.YukariEx))
+                new ReactiveProperty<IProcess>(this.VisibleProcesses.Value.First())
                     .AddTo(this.CompositeDisposable);
 
             // UI設定周りのセットアップ
-            this.SetupUIConfig();
+            this.SetupUIConfig(uiConfig, processes);
 
             // 選択プロセス状態
             this.IsProcessStartup =
@@ -67,232 +114,170 @@ namespace VoiceroidUtil.ViewModel
                     .ObserveSelectedProcessProperty(p => p.IsPlaying)
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
-            this.IsProcessSaving =
-                this
-                    .ObserveSelectedProcessProperty(p => p.IsSaving)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
-            this.IsProcessDialogShowing =
-                this
-                    .ObserveSelectedProcessProperty(p => p.IsDialogShowing)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
             this.IsProcessExecutable =
-                Observable.CombineLatest(
-                    this.SelectedProcess,
-                    this.UIConfig
-                        .Select(
-                            config =>
-                                (config == null) ?
-                                    Observable.Empty<VoiceroidExecutablePathSet>() :
-                                    config.ObserveProperty(
-                                        c => c.VoiceroidExecutablePathes))
-                        .Switch(),
-                    (p, pathes) =>
-                    {
-                        var path = pathes[p.Id]?.Path;
-                        return (!string.IsNullOrEmpty(path) && File.Exists(path));
-                    })
+                Observable
+                    .CombineLatest(
+                        this.SelectedProcess,
+                        uiConfig.ObserveInnerProperty(c => c.VoiceroidExecutablePathes),
+                        (p, pathes) =>
+                        {
+                            var path = (p == null) ? null : pathes[p.Id]?.Path;
+                            return (!string.IsNullOrEmpty(path) && File.Exists(path));
+                        })
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
+            var processSaving = this.ObserveSelectedProcessProperty(p => p.IsSaving);
+            var processDialogShowing =
+                this.ObserveSelectedProcessProperty(p => p.IsDialogShowing);
 
             // トークテキスト
             this.TalkText =
-                new ReactiveProperty<string>("")
-                    .AddTo(this.CompositeDisposable);
+                new ReactiveProperty<string>("").AddTo(this.CompositeDisposable);
             this.TalkTextLengthLimit =
-                new ReactiveProperty<int>(100000)
+                new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
+            this.IsTalkTextTabAccepted =
+                this.MakeInnerPropertyOf(appConfig, c => c.IsTabAccepted);
 
-            // コマンド実行用
-            this.RunExitCommandExecuter =
-                new AsyncCommandExecuter(this.ExecuteRunExitCommand)
-                    .AddTo(this.CompositeDisposable);
-            this.PlayStopCommandExecuter =
-                new AsyncCommandExecuter(this.ExecutePlayStopCommand)
-                    .AddTo(this.CompositeDisposable);
-            this.SaveCommandExecuter =
+            // 非同期実行コマンドヘルパー
+            var playStopCommandExecuter =
+                new PlayStopCommandExecuter(
+                    () => this.SelectedProcess.Value,
+                    () => talkTextReplaceConfig.Value.VoiceReplaceItems,
+                    () => this.TalkText.Value,
+                    this.OnPlayStopCommandExecuted);
+            var saveCommandExecuter =
                 new SaveCommandExecuter(
                     () => this.SelectedProcess.Value,
-                    () => this.TalkTextReplaceConfig.Value,
-                    () => this.AppConfig.Value,
+                    () => talkTextReplaceConfig.Value,
+                    () => exoConfig.Value,
+                    () => appConfig.Value,
                     () => this.TalkText.Value,
-                    async r => await this.OnSaveCommandExecuted(r))
-                    .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommandExecuter =
+                    this.OnSaveCommandExecuted);
+            var dropTalkTextFileCommandExecuter =
                 new AsyncCommandExecuter<DragEventArgs>(
-                    this.ExecuteDropTalkTextFileCommand)
-                    .AddTo(this.CompositeDisposable);
+                    this.ExecuteDropTalkTextFileCommand);
 
-            // どの非同期コマンドも実行可能ならばアイドル状態とみなす
+            // 再生も音声保存もしていない時をアイドル状態とみなす
             this.IsIdle =
                 new[]
                 {
-                    this.RunExitCommandExecuter.ObserveExecutable(),
-                    this.PlayStopCommandExecuter.ObserveExecutable(),
-                    this.SaveCommandExecuter.ObserveExecutable(),
-                    this.DropTalkTextFileCommandExecuter.ObserveExecutable(),
+                    playStopCommandExecuter.IsExecutable,
+                    saveCommandExecuter.IsExecutable,
                 }
                 .CombineLatestValuesAreAllTrue()
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
 
-            // 実行/終了コマンド
-            this.RunExitCommand =
+            // アイドル状態なら設定変更可能とする
+            this.IsIdle.Subscribe(f => canModifyNotifier.Value = f);
+
+            // 音声保存しており、保存成功時クリア設定が有効ならトークテキスト編集不可
+            this.IsTalkTextEditable =
                 new[]
                 {
-                    this.IsIdle,
-                    this.IsProcessStartup.Select(f => !f),
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
+                    saveCommandExecuter.IsExecutable.Inverse(),
+                    this.IsTextClearing,
                 }
                 .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
+                .Inverse()
+                .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
-            this.RunExitCommand
-                .Subscribe(this.RunExitCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+
+            // 実行/終了コマンド
+            this.RunExitCommand =
+                this.MakeAsyncCommand(
+                    this.ExecuteRunExitCommand,
+                    canUseConfig,
+                    this.IsIdle,
+                    this.IsProcessStartup.Inverse(),
+                    processSaving.Inverse(),
+                    processDialogShowing.Inverse());
 
             // 再生/停止コマンド
             this.PlayStopCommand =
-                new[]
-                {
+                this.MakeAsyncCommand(
+                    playStopCommandExecuter,
+                    canUseConfig,
                     this.IsIdle,
                     this.IsProcessRunning,
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
+                    processSaving.Inverse(),
+                    processDialogShowing.Inverse(),
                     new[]
                     {
                         this.IsProcessPlaying,
                         this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
                     }
                     .CombineLatest(flags => flags.Any(f => f)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.PlayStopCommand
-                .Subscribe(this.PlayStopCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    dropTalkTextFileCommandExecuter.IsExecutable);
 
             // 保存コマンド
             this.SaveCommand =
-                new[]
-                {
+                this.MakeAsyncCommand(
+                    saveCommandExecuter,
+                    canUseConfig,
                     this.IsIdle,
                     this.IsProcessRunning,
-                    this.IsProcessSaving.Select(f => !f),
-                    this.IsProcessDialogShowing.Select(f => !f),
+                    processSaving.Inverse(),
+                    processDialogShowing.Inverse(),
                     this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                }
-                .CombineLatestValuesAreAllTrue()
-                .ToReactiveCommand(false)
-                .AddTo(this.CompositeDisposable);
-            this.SaveCommand
-                .Subscribe(this.SaveCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
+                    dropTalkTextFileCommandExecuter.IsExecutable);
 
             // トークテキスト用ファイルドラッグオーバーコマンド
             this.DragOverTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DragOverTalkTextFileCommand
-                .Subscribe(this.ExecuteDragOverTalkTextFileCommand)
-                .AddTo(this.CompositeDisposable);
+                this.MakeCommand<DragEventArgs>(
+                    this.ExecuteDragOverTalkTextFileCommand,
+                    this.IsTalkTextEditable);
 
             // トークテキスト用ファイルドロップコマンド
             this.DropTalkTextFileCommand =
-                this.IsIdle
-                    .ToReactiveCommand<DragEventArgs>(false)
-                    .AddTo(this.CompositeDisposable);
-            this.DropTalkTextFileCommand
-                .Subscribe(this.DropTalkTextFileCommandExecuter.Execute)
-                .AddTo(this.CompositeDisposable);
-
-            // プロセス更新タイマ設定＆開始
-            this.ProcessUpdateTimer =
-                new ReactiveTimer(TimeSpan.FromMilliseconds(100))
-                    .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer
-                .Subscribe(_ => this.ProcessFactory.Update())
-                .AddTo(this.CompositeDisposable);
-            this.ProcessUpdateTimer.Start();
+                this.MakeAsyncCommand(
+                    dropTalkTextFileCommandExecuter,
+                    this.IsTalkTextEditable);
         }
 
         /// <summary>
-        /// トークテキスト置換設定を取得する。
+        /// 表示状態のVOICEROIDプロセスコレクションを取得する。
         /// </summary>
-        /// <remarks>
-        /// 外部からの設定以外で更新されることはない。
-        /// </remarks>
-        public ReactiveProperty<TalkTextReplaceConfig> TalkTextReplaceConfig { get; }
-
-        /// <summary>
-        /// アプリ設定を取得する。
-        /// </summary>
-        /// <remarks>
-        /// 外部からの設定以外で更新されることはない。
-        /// </remarks>
-        public ReactiveProperty<AppConfig> AppConfig { get; }
-
-        /// <summary>
-        /// UI設定値を取得する。
-        /// </summary>
-        public ReactiveProperty<UIConfig> UIConfig { get; }
-
-        /// <summary>
-        /// 直近のアプリ状態値を取得する。
-        /// </summary>
-        public ReactiveProperty<IAppStatus> LastStatus { get; }
-
-        /// <summary>
-        /// VOICEROIDプロセスリストを取得する。
-        /// </summary>
-        public ReadOnlyCollection<IProcess> Processes
+        public IReadOnlyReactiveProperty<ReadOnlyCollection<IProcess>> VisibleProcesses
         {
-            get { return this.ProcessFactory.Processes; }
+            get;
         }
+
+        /// <summary>
+        /// 表示状態のVOICEROIDプロセスコレクションの最適表示列数を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<int> VisibleProcessesColumnCount { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスを取得する。
         /// </summary>
-        public ReactiveProperty<IProcess> SelectedProcess { get; }
+        public IReactiveProperty<IProcess> SelectedProcess { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスが起動中であるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessStartup { get; }
+        public IReadOnlyReactiveProperty<bool> IsProcessStartup { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスが実行中であるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessRunning { get; }
+        public IReadOnlyReactiveProperty<bool> IsProcessRunning { get; }
 
         /// <summary>
-        /// 選択中のVOICEROIDプロセスが再生中であるか否かを取得する。
+        /// 選択中のVOICEROIDプロセスがトークテキストを再生中であるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessPlaying { get; }
-
-        /// <summary>
-        /// 選択中のVOICEROIDプロセスがWAVEファイル保存中であるか否かを取得する。
-        /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessSaving { get; }
-
-        /// <summary>
-        /// 選択中のVOICEROIDプロセスがダイアログ表示中であるか否かを取得する。
-        /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessDialogShowing { get; }
+        public IReadOnlyReactiveProperty<bool> IsProcessPlaying { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスが実行ファイルパス登録済みであるか否かを取得する。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsProcessExecutable { get; }
+        public IReadOnlyReactiveProperty<bool> IsProcessExecutable { get; }
 
         /// <summary>
         /// トークテキストを取得する。
         /// </summary>
-        public ReactiveProperty<string> TalkText { get; }
+        public IReactiveProperty<string> TalkText { get; }
 
         /// <summary>
         /// トークテキストの最大許容文字数を取得する。
@@ -301,40 +286,50 @@ namespace VoiceroidUtil.ViewModel
         /// 0 ならば上限を定めない。
         /// TalkText に直接文字列を設定する場合、この値は考慮されない。
         /// </remarks>
-        public ReactiveProperty<int> TalkTextLengthLimit { get; }
+        public IReactiveProperty<int> TalkTextLengthLimit { get; }
+
+        /// <summary>
+        /// トークテキストにタブ文字の入力を受け付けるか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTalkTextTabAccepted { get; }
+
+        /// <summary>
+        /// トークテキストを編集可能な状態であるか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsTalkTextEditable { get; }
 
         /// <summary>
         /// アイドル状態であるか否かを取得する。
         /// </summary>
         /// <remarks>
-        /// いずれの非同期コマンドも実行中でなければ true となる。
+        /// 再生も音声保存も実行中でなければ true となる。
         /// </remarks>
-        public ReadOnlyReactiveProperty<bool> IsIdle { get; }
+        public IReadOnlyReactiveProperty<bool> IsIdle { get; }
 
         /// <summary>
         /// 実行/終了コマンドを取得する。
         /// </summary>
-        public ReactiveCommand RunExitCommand { get; }
+        public ICommand RunExitCommand { get; }
 
         /// <summary>
         /// 再生/停止コマンドを取得する。
         /// </summary>
-        public ReactiveCommand PlayStopCommand { get; }
+        public ICommand PlayStopCommand { get; }
 
         /// <summary>
         /// 保存コマンドを取得する。
         /// </summary>
-        public ReactiveCommand SaveCommand { get; }
+        public ICommand SaveCommand { get; }
 
         /// <summary>
         /// トークテキスト用ファイルドラッグオーバーコマンドを取得する。
         /// </summary>
-        public ReactiveCommand<DragEventArgs> DragOverTalkTextFileCommand { get; }
+        public ICommand DragOverTalkTextFileCommand { get; }
 
         /// <summary>
         /// トークテキスト用ファイルドロップコマンドを取得する。
         /// </summary>
-        public ReactiveCommand<DragEventArgs> DropTalkTextFileCommand { get; }
+        public ICommand DropTalkTextFileCommand { get; }
 
         /// <summary>
         /// IDataObject オブジェクトからファイルパス配列を取得する。
@@ -358,63 +353,33 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// テキストファイルを非同期で読み取り、 StringBuilder に追加する。
+        /// 音声保存成功時にテキストをクリアするか否かを取得する。
         /// </summary>
-        /// <param name="reader">リーダー。</param>
-        /// <param name="fileInfo">ファイル情報。</param>
-        /// <param name="dest">追加先の StringBuilder 。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        private static Task<bool> AppendTextFromFile(
-            FileReader reader,
-            FileInfo fileInfo,
-            StringBuilder dest)
-        {
-            return
-                Task.Run(
-                    () =>
-                    {
-                        reader.Read(fileInfo);
-                        if (reader.Text == null)
-                        {
-                            return false;
-                        }
-                        dest.Append(reader.Text);
-                        return true;
-                    });
-        }
+        private IReadOnlyReactiveProperty<bool> IsTextClearing { get; }
 
         /// <summary>
-        /// VOICEROIDプロセスファクトリを取得する。
+        /// VOICEROIDの実行ファイルパスセットを取得する。
         /// </summary>
-        private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
-
-        /// <summary>
-        /// VOICEROIDプロセス更新タイマを取得する。
-        /// </summary>
-        private ReactiveTimer ProcessUpdateTimer { get; }
-
-        /// <summary>
-        /// 実行/終了コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter RunExitCommandExecuter { get; }
-
-        /// <summary>
-        /// 再生/停止コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter PlayStopCommandExecuter { get; }
-
-        /// <summary>
-        /// 保存コマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private SaveCommandExecuter SaveCommandExecuter { get; }
-
-        /// <summary>
-        /// トークテキスト用ファイルドロップコマンドの非同期実行用オブジェクトを取得する。
-        /// </summary>
-        private AsyncCommandExecuter<DragEventArgs> DropTalkTextFileCommandExecuter
+        private IReadOnlyReactiveProperty<VoiceroidExecutablePathSet>
+        VoiceroidExecutablePathes
         {
             get;
         }
+
+        /// <summary>
+        /// 直近のアプリ状態値の設定先を取得する。
+        /// </summary>
+        private IReactiveProperty<IAppStatus> LastStatus { get; }
+
+        /// <summary>
+        /// ウィンドウアクティブ化サービスを取得する。
+        /// </summary>
+        private IWindowActivateService WindowActivateService { get; }
+
+        /// <summary>
+        /// VOICEROIDプロセスアクションサービスを取得する。
+        /// </summary>
+        private IVoiceroidActionService VoiceroidActionService { get; }
 
         /// <summary>
         /// 選択中のVOICEROIDプロセスのプロパティ変更を監視する
@@ -443,33 +408,34 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// UI設定周りのセットアップを行う。
         /// </summary>
-        private void SetupUIConfig()
+        /// <param name="uiConfig">UI設定値。</param>
+        /// <param name="processes">VOICEROIDプロセスコレクション。</param>
+        private void SetupUIConfig(
+            IReadOnlyReactiveProperty<UIConfig> uiConfig,
+            IReadOnlyCollection<IProcess> processes)
         {
-            // UI設定変更時に選択プロセス反映
-            this.UIConfig
-                .Select(
-                    config =>
-                        (config == null) ?
-                            Observable.Empty<VoiceroidId>() :
-                            config.ObserveProperty(c => c.VoiceroidId))
-                .Switch()
-                .Subscribe(id => this.SelectedProcess.Value = this.ProcessFactory.Get(id))
+            // 設定変更時に選択中プロセス反映
+            Observable
+                .CombineLatest(
+                    this.VisibleProcesses,
+                    uiConfig.ObserveInnerProperty(c => c.VoiceroidId),
+                    (vp, id) => vp.FirstOrDefault(p => p.Id == id) ?? vp.First())
+                .Subscribe(p => this.SelectedProcess.Value = p)
                 .AddTo(this.CompositeDisposable);
 
-            // 選択プロセス変更時処理
+            // 選択中プロセス変更時処理
+            // 上書きは即座に行うとうまくいかないので少し待ちを入れる
             this.SelectedProcess
+                .Where(p => p != null)
+                .Subscribe(p => uiConfig.Value.VoiceroidId = p.Id)
+                .AddTo(this.CompositeDisposable);
+            this.SelectedProcess
+                .Throttle(TimeSpan.FromMilliseconds(10))
+                .Where(p => p == null)
                 .Subscribe(
-                    p =>
-                    {
-                        // UI設定へ反映
-                        if (p != null && this.UIConfig.Value != null)
-                        {
-                            this.UIConfig.Value.VoiceroidId = p.Id;
-                        }
-
-                        // アプリ状態リセット
-                        this.ResetLastStatus();
-                    })
+                    _ =>
+                        this.SelectedProcess.Value =
+                            processes.First(p => p.Id == uiConfig.Value.VoiceroidId))
                 .AddTo(this.CompositeDisposable);
 
             // 実行ファイルパス反映用デリゲート
@@ -477,21 +443,18 @@ namespace VoiceroidUtil.ViewModel
                 (id, path) =>
                 {
                     // パスが有効な場合のみ反映する
-                    if (
-                        this.UIConfig.Value != null &&
-                        !string.IsNullOrEmpty(path) &&
-                        File.Exists(path))
+                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
                     {
-                        this.UIConfig.Value.VoiceroidExecutablePathes[id].Path = path;
+                        uiConfig.Value.VoiceroidExecutablePathes[id].Path = path;
                     }
                 };
 
             // UI設定変更時に実行ファイルパスを反映する
-            this.UIConfig
+            uiConfig
                 .Subscribe(
                     c =>
                     {
-                        foreach (var process in this.Processes)
+                        foreach (var process in processes)
                         {
                             pathSetter(process.Id, process.ExecutablePath);
                         }
@@ -499,7 +462,7 @@ namespace VoiceroidUtil.ViewModel
                 .AddTo(this.CompositeDisposable);
 
             // VOICEROIDプロセスの実行ファイルパスが判明したらUI設定に反映する
-            foreach (var process in this.Processes)
+            foreach (var process in processes)
             {
                 var id = process.Id;
 
@@ -517,29 +480,15 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// メインウィンドウをアクティブにする。
         /// </summary>
-        private Task ActivateMainWindow()
-        {
-            return
-                this.Messenger.RaiseAsync(
-                    new WindowActionMessage(
-                        WindowAction.Active,
-                        MessageKeys.WindowActionMessageKey));
-        }
+        private Task ActivateMainWindow() => this.WindowActivateService.Run();
 
         /// <summary>
         /// VOICEROIDプロセスに対してアクションを行う。
         /// </summary>
         /// <param name="process">VOICEROIDプロセス。</param>
         /// <param name="action">アクション種別。</param>
-        private Task RaiseVoiceroidAction(IProcess process, VoiceroidAction action)
-        {
-            return
-                this.Messenger.RaiseAsync(
-                    new VoiceroidActionMessage(
-                        process,
-                        action,
-                        MessageKeys.VoiceroidActionMessageKey));
-        }
+        private Task RaiseVoiceroidAction(IProcess process, VoiceroidAction action) =>
+            this.VoiceroidActionService.Run(process, action);
 
         /// <summary>
         /// RunExitCommand コマンドの実処理を行う。
@@ -571,10 +520,12 @@ namespace VoiceroidUtil.ViewModel
             else
             {
                 // パス情報取得
-                var info = this.UIConfig.Value?.VoiceroidExecutablePathes[process.Id];
+                var info = this.VoiceroidExecutablePathes.Value?[process.Id];
                 if (info == null)
                 {
-                    this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
+                    this.SetLastStatus(
+                        AppStatusType.Fail,
+                        @"処理を開始できませんでした。");
                     return;
                 }
 
@@ -623,74 +574,42 @@ namespace VoiceroidUtil.ViewModel
                     return;
                 }
             }
-
-            // 成功時はアプリ状態リセット
-            this.ResetLastStatus();
         }
 
         /// <summary>
-        /// PlayStopCommand コマンドの実処理を行う。
+        /// PlayStopCommand コマンド完了時処理を行う。
         /// </summary>
-        private async Task ExecutePlayStopCommand()
+        /// <param name="result">アプリステータス。</param>
+        /// <param name="parameter">コマンドパラメータ。</param>
+        private async Task OnPlayStopCommandExecuted(
+            IAppStatus result,
+            PlayStopCommandExecuter.Parameter parameter)
         {
-            var process = this.SelectedProcess.Value;
-            if (process == null)
+            if (result != null)
             {
-                this.SetLastStatus(AppStatusType.Fail, @"処理を開始できませんでした。");
-                return;
+                // アプリ状態更新
+                this.LastStatus.Value = result;
             }
 
-            if (process.IsPlaying)
+            var process = parameter?.Process;
+            if (process?.IsPlaying == true)
             {
-                if (!(await process.Stop()))
-                {
-                    this.SetLastStatus(AppStatusType.Fail, @"停止処理に失敗しました。");
-                    return;
-                }
-                this.SetLastStatus(AppStatusType.Success, @"停止処理に成功しました。");
-            }
-            else
-            {
-                // テキスト作成
-                var text = this.TalkText.Value;
-                text =
-                    this.TalkTextReplaceConfig.Value?.VoiceReplaceItems.Replace(text) ??
-                    text;
+                // 対象VOICEROIDを前面へ
+                await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
 
-                // テキスト設定
-                if (!(await process.SetTalkText(text)))
-                {
-                    this.SetLastStatus(AppStatusType.Fail, @"文章の設定に失敗しました。");
-                    return;
-                }
-
-                // 再生
-                try
-                {
-                    if (!(await process.Play()))
-                    {
-                        this.SetLastStatus(
-                            AppStatusType.Fail,
-                            @"再生処理に失敗しました。");
-                        return;
-                    }
-                    this.SetLastStatus(AppStatusType.Success, @"再生処理に成功しました。");
-                }
-                finally
-                {
-                    // 対象VOICEROIDを前面へ
-                    await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
-
-                    // メインウィンドウを前面へ
-                    await this.ActivateMainWindow();
-                }
+                // メインウィンドウを前面へ
+                await this.ActivateMainWindow();
             }
         }
 
         /// <summary>
         /// SaveCommand コマンド完了時処理を行う。
         /// </summary>
-        private async Task OnSaveCommandExecuted(IAppStatus result)
+        /// <param name="result">アプリステータス。</param>
+        /// <param name="parameter">コマンドパラメータ。</param>
+        private async Task OnSaveCommandExecuted(
+            IAppStatus result,
+            SaveCommandExecuter.Parameter parameter)
         {
             if (result != null)
             {
@@ -699,7 +618,7 @@ namespace VoiceroidUtil.ViewModel
 
                 // 保存成功時のトークテキストクリア処理
                 if (
-                    this.AppConfig.Value?.IsTextClearing == true &&
+                    this.IsTextClearing.Value &&
                     result.StatusType == AppStatusType.Success)
                 {
                     this.TalkText.Value = "";
@@ -755,8 +674,7 @@ namespace VoiceroidUtil.ViewModel
                         var infos = Array.ConvertAll(pathes, p => new FileInfo(p));
                         var maxInfo =
                             infos.Aggregate((i1, i2) => (i1.Length > i2.Length) ? i1 : i2);
-                        var totalSize = infos.Sum(i => i.Length);
-                        return new { infos, maxInfo, totalSize };
+                        return new { infos, maxInfo };
                     });
 
             // ファイルサイズチェック
@@ -770,6 +688,31 @@ namespace VoiceroidUtil.ViewModel
                 return;
             }
 
+            // 全ファイル読み取り
+            List<string> fileTexts = null;
+            try
+            {
+                fileTexts = await Task.Run(() => TextFileReader.ReadAll(f.infos));
+            }
+            catch
+            {
+                this.SetLastStatus(
+                    AppStatusType.Fail,
+                    @"ファイルの読み取りに失敗しました。");
+                return;
+            }
+
+            // 読み取り失敗したファイルがある？
+            var failIndex = fileTexts.IndexOf(null);
+            if (failIndex >= 0)
+            {
+                this.SetLastStatus(
+                    AppStatusType.Warning,
+                    f.infos[failIndex].Name + @" の読み取りに失敗しました。",
+                    subStatusText: @"テキストファイルではない可能性があります。");
+                return;
+            }
+
             // 最大文字数
             int lenLimit = this.TalkTextLengthLimit.Value;
             if (lenLimit == 0)
@@ -777,44 +720,33 @@ namespace VoiceroidUtil.ViewModel
                 lenLimit = int.MaxValue;
             }
 
-            // 全ファイル読み取り
+            // 文字列連結
             var text = new StringBuilder();
-            using (var reader = new FileReader((int)f.maxInfo.Length))
+            foreach (var t in fileTexts)
             {
-                foreach (var info in f.infos)
+                // 空文字列でなく、末尾が改行以外ならば改行追加
+                if (text.Length > 0)
                 {
-                    // 空文字列でなく、末尾が改行以外ならば改行追加
-                    if (text.Length > 0)
+                    var end = text[text.Length - 1];
+                    if (end != '\r' && end != '\n')
                     {
-                        var end = text[text.Length - 1];
-                        if (end != '\r' && end != '\n')
-                        {
-                            text.AppendLine();
-                        }
-                    }
-                    if (text.Length >= lenLimit)
-                    {
-                        break;
-                    }
-
-                    // 読み取り
-                    if (!(await AppendTextFromFile(reader, info, text)))
-                    {
-                        this.SetLastStatus(
-                            AppStatusType.Warning,
-                            info.Name + @" の読み取りに失敗しました。",
-                            subStatusText: @"テキストファイルではない可能性があります。");
-                        return;
+                        text.AppendLine();
                     }
                 }
+
+                if (text.Length >= lenLimit)
+                {
+                    break;
+                }
+                text.Append(t);
             }
 
             // 許容文字数以上は切り捨てる
             string warnText = null;
             if (text.Length > lenLimit)
             {
-                text.Remove(lenLimit, text.Length - lenLimit);
-                warnText = lenLimit + @" 文字以上は切り捨てました。";
+                text.RemoveSurrogateSafe(lenLimit);
+                warnText = text.Length + @" 文字以降は切り捨てました。";
             }
 
             // テキスト設定
@@ -828,25 +760,19 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
-        /// 直近のアプリ状態をリセットする。
-        /// </summary>
-        private void ResetLastStatus()
-        {
-            this.LastStatus.Value = new AppStatus();
-        }
-
-        /// <summary>
         /// 直近のアプリ状態を設定する。
         /// </summary>
         /// <param name="statusType">状態種別。</param>
         /// <param name="statusText">状態テキスト。</param>
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
         private void SetLastStatus(
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = "")
+            string subStatusText = "",
+            string subStatusCommand = "")
         {
             this.LastStatus.Value =
                 new AppStatus
@@ -855,7 +781,32 @@ namespace VoiceroidUtil.ViewModel
                     StatusText = statusText ?? "",
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand ?? "",
                 };
         }
+
+        #region デザイン時用定義
+
+        /// <summary>
+        /// デザイン時用コンストラクタ。
+        /// </summary>
+        [Obsolete(@"Design time only.")]
+        public VoiceroidViewModel()
+            :
+            this(
+                new ProcessFactory().Processes,
+                new ReactiveProperty<bool>(true),
+                new ReactiveProperty<TalkTextReplaceConfig>(new TalkTextReplaceConfig()),
+                new ReactiveProperty<ExoConfig>(new ExoConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<UIConfig>(new UIConfig()),
+                new ReactiveProperty<IAppStatus>(new AppStatus()),
+                new ReactiveProperty<bool>(true),
+                NullServices.WindowActivate,
+                NullServices.VoiceroidAction)
+        {
+        }
+
+        #endregion
     }
 }

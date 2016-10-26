@@ -10,7 +10,6 @@ namespace VoiceroidUtil
     /// UI設定クラス。
     /// </summary>
     [DataContract(Namespace = "")]
-    [KnownType(typeof(VoiceroidId))]
     public class UIConfig : BindableConfigBase
     {
         /// <summary>
@@ -62,23 +61,9 @@ namespace VoiceroidUtil
             get { return this.voiceroidExecutablePathes; }
             set
             {
-                if (value != this.voiceroidExecutablePathes)
-                {
-                    // 古い値からイベントハンドラを削除
-                    if (this.voiceroidExecutablePathes != null)
-                    {
-                        this.voiceroidExecutablePathes.PropertyChanged -=
-                            this.OnVoiceroidExecutablePathesPropertyChanged;
-                    }
-
-                    this.SetProperty(
-                        ref this.voiceroidExecutablePathes,
-                        value ?? (new VoiceroidExecutablePathSet()));
-
-                    // 新しい値にイベントハンドラを追加
-                    this.voiceroidExecutablePathes.PropertyChanged +=
-                        this.OnVoiceroidExecutablePathesPropertyChanged;
-                }
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.voiceroidExecutablePathes,
+                    value ?? (new VoiceroidExecutablePathSet()));
             }
         }
         private VoiceroidExecutablePathSet voiceroidExecutablePathes = null;
@@ -95,51 +80,96 @@ namespace VoiceroidUtil
         private int talkTextReplaceConfigTabIndex = 0;
 
         /// <summary>
-        /// アプリ設定ビューの「一般」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
+        /// AviUtl拡張編集ファイル用設定ビューの選択中タブインデックスを
+        /// 取得または設定する。
         /// </summary>
         [DataMember]
-        public bool IsGeneralConfigExpanded
+        public int ExoConfigTabIndex
         {
-            get { return this.generalConfigExpanded; }
-            set { this.SetProperty(ref this.generalConfigExpanded, value); }
+            get { return this.exoConfigTabIndex; }
+            set { this.SetProperty(ref this.exoConfigTabIndex, value); }
         }
-        private bool generalConfigExpanded = true;
+        private int exoConfigTabIndex = 0;
 
         /// <summary>
-        /// アプリ設定ビューの「音声保存」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 選択中のVOICEROID識別IDを取得または設定する。
+        /// </summary>
+        public VoiceroidId ExoCharaVoiceroidId
+        {
+            get { return this.exoCharaVoiceroidId; }
+            set
+            {
+                this.SetProperty(
+                    ref this.exoCharaVoiceroidId,
+                    Enum.IsDefined(value.GetType(), value) ?
+                        value : VoiceroidId.YukariEx);
+            }
+        }
+        private VoiceroidId exoCharaVoiceroidId = VoiceroidId.YukariEx;
+
+        /// <summary>
+        /// ExoCharaVoiceroidId プロパティのシリアライズ用ラッパプロパティ。
+        /// </summary>
+        [DataMember(Name = nameof(ExoCharaVoiceroidId))]
+        private string ExoCharaVoiceroidIdString
+        {
+            get { return this.ExoCharaVoiceroidId.ToString(); }
+            set
+            {
+                VoiceroidId id;
+                this.ExoCharaVoiceroidId =
+                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
+            }
+        }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「テキスト」カテゴリを開いた状態にするか否かを取得または設定する。
         /// </summary>
         [DataMember]
-        public bool IsSaveConfigExpanded
+        public bool IsExoCharaTextExpanded
         {
-            get { return this.saveConfigExpanded; }
-            set { this.SetProperty(ref this.saveConfigExpanded, value); }
+            get { return this.exoCharaTextExpanded; }
+            set { this.SetProperty(ref this.exoCharaTextExpanded, value); }
         }
-        private bool saveConfigExpanded = true;
+        private bool exoCharaTextExpanded = true;
 
         /// <summary>
-        /// アプリ設定ビューの「ゆっくりMovieMaker連携」カテゴリを
-        /// 開いた状態にするか否かを取得または設定する。
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「音声」カテゴリを開いた状態にするか否かを取得または設定する。
         /// </summary>
         [DataMember]
-        public bool IsYmmConfigExpanded
+        public bool IsExoCharaAudioExpanded
         {
-            get { return this.ymmConfigExpanded; }
-            set { this.SetProperty(ref this.ymmConfigExpanded, value); }
+            get { return this.exoCharaAudioExpanded; }
+            set { this.SetProperty(ref this.exoCharaAudioExpanded, value); }
         }
-        private bool ymmConfigExpanded = true;
+        private bool exoCharaAudioExpanded = true;
 
         /// <summary>
-        /// VoiceroidExecutablePathes プロパティの内容変更時に呼び出される。
+        /// AviUtl拡張編集ファイル用設定ビューのキャラ別設定で
+        /// 「.exo ファイルから設定をインポート」エリアを開いた状態にするか否かを
+        /// 取得または設定する。
         /// </summary>
-        private void OnVoiceroidExecutablePathesPropertyChanged(
-            object sender,
-            PropertyChangedEventArgs e)
+        [DataMember]
+        public bool IsExoCharaTextImportExpanded
         {
-            // VoiceroidExecutablePathes プロパティ自身の変更通知を行う
-            this.RaisePropertyChanged(nameof(VoiceroidExecutablePathes));
+            get { return this.exoCharaTextImportExpanded; }
+            set { this.SetProperty(ref this.exoCharaTextImportExpanded, value); }
         }
+        private bool exoCharaTextImportExpanded = true;
+
+        /// <summary>
+        /// アプリ設定ビューのの選択中タブインデックスを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public int AppConfigTabIndex
+        {
+            get { return this.appConfigTabIndex; }
+            set { this.SetProperty(ref this.appConfigTabIndex, value); }
+        }
+        private int appConfigTabIndex = 0;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
