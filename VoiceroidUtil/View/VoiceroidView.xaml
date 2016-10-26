@@ -56,6 +56,12 @@
                         <Setter Property="Padding" Value="0,0,4,0" />
                     </Style>
                 </ComboBox.Resources>
+                <ComboBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid
+                            Columns="{Binding VisibleProcessesColumnCount.Value}" />
+                    </ItemsPanelTemplate>
+                </ComboBox.ItemsPanel>
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>
@@ -65,10 +71,18 @@
                                 DockPanel.Dock="Left" />
                             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" />
-                                    <TextBlock Text=" (" />
-                                    <TextBlock Text="{Binding DisplayProduct}" />
-                                    <TextBlock Text=")" />
+                                    <TextBlock
+                                        Text="{Binding Name, Mode=OneWay}"
+                                        FontWeight="Bold" />
+                                    <TextBlock
+                                        Text="{Binding DisplayProduct, Mode=OneWay}"
+                                        FontSize="11"
+                                        VerticalAlignment="Bottom"
+                                        Margin="6,0,0,0">
+                                        <TextBlock.LayoutTransform>
+                                            <ScaleTransform ScaleX="0.85" />
+                                        </TextBlock.LayoutTransform>
+                                    </TextBlock>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
                                     <Image

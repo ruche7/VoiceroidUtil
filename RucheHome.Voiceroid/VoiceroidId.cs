@@ -30,6 +30,12 @@ namespace RucheHome.Voiceroid
         ZunkoEx,
 
         /// <summary>
+        /// 東北きりたん EX
+        /// </summary>
+        [EnumMember]
+        KiritanEx,
+
+        /// <summary>
         /// 琴葉茜
         /// </summary>
         [EnumMember]
@@ -88,6 +94,11 @@ namespace RucheHome.Voiceroid
                     VoiceroidId.ZunkoEx,
                     @"東北ずん子",
                     @"VOICEROID＋ 東北ずん子 EX"),
+                new VoiceroidInfo(
+                    VoiceroidId.KiritanEx,
+                    @"東北きりたん",
+                    @"VOICEROID＋ 東北きりたん",
+                    @"VOICEROID＋ 東北きりたん EX"),
                 new VoiceroidInfo(
                     VoiceroidId.Akane,
                     @"琴葉茜",

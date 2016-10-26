@@ -406,6 +406,10 @@
     <Resource Include="resources\icon\exo.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="resources\voiceroid\kiritan_ng.png" />
+    <Resource Include="resources\voiceroid\kiritan_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="resources\icon\ymm.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
