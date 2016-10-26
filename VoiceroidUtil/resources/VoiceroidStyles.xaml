@@ -24,6 +24,11 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/zunko_ok.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="KiritanEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ok.png" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="Akane">
                 <Setter
                     Property="Source"
@@ -106,6 +111,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/zunko_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="KiritanEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="KiritanEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/kiritan_ok.png" />
             </MultiDataTrigger>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
