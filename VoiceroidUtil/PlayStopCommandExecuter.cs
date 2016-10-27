@@ -31,6 +31,10 @@ namespace VoiceroidUtil
                 this.Process = process;
                 this.VoiceReplaceItems = voiceReplaceItems;
                 this.TalkText = talkText;
+
+                var playing = process?.IsPlaying;
+                this.IsPlayAction = (playing == false);
+                this.IsStopAction = (playing == true);
             }
 
             /// <summary>
@@ -47,6 +51,16 @@ namespace VoiceroidUtil
             /// トークテキストを取得する。
             /// </summary>
             public string TalkText { get; }
+
+            /// <summary>
+            /// 再生処理を行うか否かを取得する。
+            /// </summary>
+            public bool IsPlayAction { get; }
+
+            /// <summary>
+            /// 停止処理を行うか否かを取得する。
+            /// </summary>
+            public bool IsStopAction { get; }
         }
 
         /// <summary>
@@ -133,19 +147,21 @@ namespace VoiceroidUtil
         /// <param name="parameter">コマンドパラメータ。</param>
         private async Task ExecuteAsync(Parameter parameter)
         {
-            var process = parameter?.Process;
-            if (process == null)
+            if (parameter?.IsPlayAction == true)
+            {
+                await this.ExecutePlay(parameter);
+            }
+            else if (parameter?.IsStopAction == true)
+            {
+                await this.ExecuteStop(parameter);
+            }
+            else
             {
                 await this.NotifyResult(
                     parameter,
                     AppStatusType.Fail,
                     @"処理を開始できませんでした。");
-                return;
             }
-
-            await (
-                process.IsPlaying ?
-                    this.ExecuteStop(parameter) : this.ExecutePlay(parameter));
         }
 
         /// <summary>
