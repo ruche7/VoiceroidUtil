@@ -981,7 +981,6 @@ namespace RucheHome.Voiceroid
                     ThreadTrace.WriteException(ex);
                     return false;
                 }
-                this.IsPlaying = true; // 一応立てる
 
                 // 保存ボタンが無効になるかダイアログが出るまで待つ
                 // ダイアログが出ない限りは失敗にしない
@@ -991,7 +990,14 @@ namespace RucheHome.Voiceroid
                         (await this.UpdateDialogShowing()),
                     f => f,
                     25);
-                return !this.IsDialogShowing;
+                if (this.IsDialogShowing)
+                {
+                    return false;
+                }
+
+                // Update を待たずにフラグ更新しておく
+                this.IsPlaying = true;
+                return true;
             }
 
             /// <summary>
@@ -1028,7 +1034,14 @@ namespace RucheHome.Voiceroid
                         () => this.SaveButton?.IsEnabled,
                         e => e != false,
                         25);
-                return (enabled == true);
+                if (enabled != true)
+                {
+                    return false;
+                }
+
+                // Update を待たずにフラグ更新しておく
+                this.IsPlaying = false;
+                return true;
             }
 
             /// <summary>
