@@ -591,11 +591,13 @@ namespace VoiceroidUtil.ViewModel
                 this.LastStatus.Value = result;
             }
 
-            var process = parameter?.Process;
-            if (process?.IsPlaying == true)
+            // 成否に関わらず再生処理が行われた時の処理
+            if (parameter?.IsPlayAction == true)
             {
                 // 対象VOICEROIDを前面へ
-                await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
+                await this.RaiseVoiceroidAction(
+                    parameter.Process,
+                    VoiceroidAction.Forward);
 
                 // メインウィンドウを前面へ
                 await this.ActivateMainWindow();
