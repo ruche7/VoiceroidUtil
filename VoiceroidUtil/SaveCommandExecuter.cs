@@ -463,6 +463,7 @@ namespace VoiceroidUtil
                 {
                     var c = charaStyle.Text.Clone();
                     ExoTextStyleTemplate.ClearUnused(c);
+                    c.Text = text;
                     item.Components.Add(c);
                 }
                 item.Components.Add(charaStyle.Render.Clone());
