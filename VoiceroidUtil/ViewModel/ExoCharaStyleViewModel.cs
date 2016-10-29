@@ -455,16 +455,6 @@ namespace VoiceroidUtil.ViewModel
             // 値取得
             var value = this.MakeInnerPropertyOf(holder, selector, this.CanModify);
 
-            // MoveMode が None なら End 値を Begin 値に追従させる
-            Observable
-                .CombineLatest(
-                    value.ObserveInnerProperty(v => v.Begin),
-                    value.ObserveInnerProperty(v => v.MoveMode),
-                    (begin, mode) => new { begin, mode })
-                .Where(v => v.mode == MoveMode.None)
-                .Subscribe(v => value.Value.End = v.begin)
-                .AddTo(this.CompositeDisposable);
-
             // 名前取得
             var info = ((MemberExpression)selector.Body).Member;
             name =
