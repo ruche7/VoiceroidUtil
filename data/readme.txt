@@ -54,6 +54,7 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
         - VOICEROID+ 結月ゆかり EX           [1.7.3]
         - VOICEROID+ 民安ともえ(弦巻マキ) EX [1.7.3]
         - VOICEROID+ 東北ずん子 EX           [1.7.3]
+        - VOICEROID+ 東北きりたん EX         [1.7.4]
         - VOICEROID+ 琴葉茜・葵              [1.7.3]
         - VOICEROID+ 月読アイ EX             [1.7.3]
         - VOICEROID+ 京町セイカ EX           [1.7.4]
