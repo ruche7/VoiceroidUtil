@@ -2,12 +2,12 @@
 
 ## About
 
-『VOICEROID+』シリーズを自動操作して音声の再生やWAVEファイル保存を行います。  
-また、保存したWAVEファイルのパスを『ゆっくりMovieMaker3』に渡すこともできます。
+VOICEROID動画制作支援ツール『VoiceroidUtil』のソースです。
 
-ビルドには Visual Studio 2015 が必要です。
-
-使用したライブラリや素材の詳細は data/readme.txt を参照してください。
+* MIT License です。
+* ビルドには Visual Studio 2015 が必要です。
+* 一部の画像リソースは再配布禁止のため、ダミー画像がコミットされています。
+* 使用したライブラリや素材の詳細は data/readme.txt を参照してください。
 
 ## Repository rules
 
