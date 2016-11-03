@@ -146,7 +146,7 @@ namespace VoiceroidUtil
             get { return this.textFileUtf8; }
             set { this.SetProperty(ref this.textFileUtf8, value); }
         }
-        private bool textFileUtf8 = true;
+        private bool textFileUtf8 = false;
 
         /// <summary>
         /// AviUtl拡張編集ファイルを作成するか否かを取得または設定する。
