@@ -65,6 +65,14 @@ namespace VoiceroidUtil
                 return status;
             }
 
+            if (RegexRecyclePath.IsMatch(path))
+            {
+                status.StatusType = AppStatusType.Warning;
+                status.StatusText = @"ごみ箱内は保存先フォルダーに設定できません。";
+                status.SubStatusText = @"別の場所を指定してください。";
+                return status;
+            }
+
             string invalidLetter = null;
             if (!IsValidPath(path, out invalidLetter))
             {
@@ -138,6 +146,12 @@ namespace VoiceroidUtil
         /// 1文字以上の空白文字にマッチする正規表現。
         /// </summary>
         private static readonly Regex RegexBlank = new Regex(@"\s+");
+
+        /// <summary>
+        /// ごみ箱およびそれ以下のファイルやディレクトリのパスにマッチする正規表現。
+        /// </summary>
+        private static readonly Regex RegexRecyclePath =
+            new Regex(@"^[a-z]+:[\\/]\$RECYCLE.BIN\b.*$", RegexOptions.IgnoreCase);
 
         /// <summary>
         /// CodePage932 エンコーディング。
