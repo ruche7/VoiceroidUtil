@@ -617,7 +617,7 @@ namespace VoiceroidUtil.ViewModel
         {
             if (GetFilePath(e?.Data) != null)
             {
-                e.Effects = DragDropEffects.Move;
+                e.Effects = DragDropEffects.Copy | DragDropEffects.Move;
                 e.Handled = true;
             }
         }

@@ -162,30 +162,39 @@ namespace VoiceroidUtil.ViewModel
         private IOpenFileDialogService OpenFileDialogService { get; }
 
         /// <summary>
+        /// 保存先ディレクトリパス設定を更新する。
+        /// </summary>
+        /// <param name="path">ディレクトリパス。</param>
+        private void UpdateSaveDirectoryPath(string path)
+        {
+            // パスが正常かチェック
+            var status = FilePathUtil.CheckPathStatus(path);
+            if (status.StatusType == AppStatusType.None)
+            {
+                // 正常ならアプリ設定を上書き
+                this.Config.Value.SaveDirectoryPath = path;
+            }
+
+            // ステータス更新
+            this.LastStatus.Value = status;
+        }
+
+        /// <summary>
         /// SelectSaveDirectoryCommand の実処理を行う。
         /// </summary>
         private async Task ExecuteSelectSaveDirectoryCommand()
         {
             // ダイアログ処理
-            var filePath =
+            var path =
                 await this.OpenFileDialogService.Run(
                     title: @"音声保存先の選択",
                     initialDirectory: this.Config.Value.SaveDirectoryPath,
                     folderPicker: true);
 
-            // 選択された？
-            if (filePath != null)
+            // 選択されたなら設定更新
+            if (path != null)
             {
-                // パスが正常かチェック
-                var status = FilePathUtil.CheckPathStatus(filePath);
-                if (status.StatusType == AppStatusType.None)
-                {
-                    // 正常ならアプリ設定を上書き
-                    this.Config.Value.SaveDirectoryPath = filePath;
-                }
-
-                // ステータス更新
-                this.LastStatus.Value = status;
+                this.UpdateSaveDirectoryPath(path);
             }
         }
 
@@ -233,7 +242,7 @@ namespace VoiceroidUtil.ViewModel
             // 有効なパスがあれば受け入れエフェクト設定
             if (FindDirectoryPath(e?.Data) != null)
             {
-                e.Effects = DragDropEffects.Move;
+                e.Effects = DragDropEffects.Copy | DragDropEffects.Move;
                 e.Handled = true;
             }
         }
@@ -255,22 +264,13 @@ namespace VoiceroidUtil.ViewModel
             // 末尾がディレクトリ区切り文字なら削除し、フルパスにする
             if (Path.GetFileName(path) == "")
             {
-                path = Path.GetDirectoryName(path);
+                // ドライブルートの場合は null が返ってくる
+                path = Path.GetDirectoryName(path) ?? path;
             }
             path = Path.GetFullPath(path);
 
-            // パスが正常かチェック
-            var status = FilePathUtil.CheckPathStatus(path);
-            if (status != null)
-            {
-                // 正常ならパス上書き
-                if (status.StatusType == AppStatusType.None)
-                {
-                    this.Config.Value.SaveDirectoryPath = path;
-                }
-
-                this.LastStatus.Value = status;
-            }
+            // 設定更新
+            this.UpdateSaveDirectoryPath(path);
         }
 
         /// <summary>
