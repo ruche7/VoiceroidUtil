@@ -92,6 +92,11 @@ namespace RucheHome.Voiceroid
             private const string SaveProgressDialogTitle = @"音声保存";
 
             /// <summary>
+            /// エラーダイアログタイトル文字列。
+            /// </summary>
+            private const string ErrorDialogTitle = @"エラー";
+
+            /// <summary>
             /// WAVEファイル名末尾の角カッコ数値文字列にマッチする正規表現。
             /// </summary>
             private static readonly Regex RegexWaveFileDigit = new Regex(@"\[\d+\]$");
@@ -157,6 +162,49 @@ namespace RucheHome.Voiceroid
                     {
                         return false;
                     }
+                }
+
+                return true;
+            }
+
+            /// <summary>
+            /// ディレクトリへの書き込み権限があるか否かを調べる。
+            /// </summary>
+            /// <param name="dirPath">ディレクトリパス。</param>
+            /// <returns>
+            /// 書き込み権限があるならば true 。そうでなければ false 。
+            /// </returns>
+            private static bool CheckDirectoryWritable(string dirPath)
+            {
+                if (dirPath == null)
+                {
+                    throw new ArgumentNullException(nameof(dirPath));
+                }
+
+                // 一時ファイルパス作成
+                string tempPath;
+                do
+                {
+                    tempPath = Path.Combine(dirPath, Path.GetRandomFileName());
+                }
+                while (File.Exists(tempPath));
+
+                // 実際に書き出してみて調べる
+                try
+                {
+                    File.WriteAllBytes(tempPath, new byte[] { 0 });
+                }
+                catch
+                {
+                    return false;
+                }
+                finally
+                {
+                    try
+                    {
+                        File.Delete(tempPath);
+                    }
+                    catch { }
                 }
 
                 return true;
@@ -491,6 +539,15 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// エラーダイアログを検索する。
+            /// </summary>
+            /// <returns>エラーダイアログ。見つからなければ null 。</returns>
+            private Task<Win32Window> FindErrorDialog()
+            {
+                return this.FindDialog(ErrorDialogTitle);
+            }
+
+            /// <summary>
             /// プロセス実行中ではない場合の状態セットアップを行う。
             /// </summary>
             private void SetupDeadState()
@@ -519,8 +576,8 @@ namespace RucheHome.Voiceroid
                 this.IsDialogShowing =
                     ((await this.FindSaveDialog()) != null) ||
                     ((await this.FindSaveProgressDialog()) != null) ||
-                    ((await this.FindDialog(@"注意")) != null) ||
-                    ((await this.FindDialog(@"エラー")) != null);
+                    ((await this.FindErrorDialog()) != null) ||
+                    ((await this.FindDialog(@"注意")) != null);
 
                 return this.IsDialogShowing;
             }
@@ -528,10 +585,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// トークテキストのカーソル位置を先頭に移動させる。
             /// </summary>
-            /// <returns>
-            /// カーソル位置設定タスク。
-            /// 成功すると true を返す。そうでなければ false を返す。
-            /// </returns>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
             /// <remarks>
             /// 再生中の場合は停止させる。既にWAVEファイル保存中である場合は失敗する。
             /// </remarks>
@@ -565,8 +619,7 @@ namespace RucheHome.Voiceroid
             /// 保存ダイアログのファイル名エディットコントロールを検索する処理を行う。
             /// </summary>
             /// <returns>
-            /// エディットコントロール検索タスク。
-            /// ファイル名エディットコントロールを返す。見つからなければ null を返す。
+            /// ファイル名エディットコントロール。見つからなければ null 。
             /// </returns>
             private async Task<Win32Window> DoFindFileNameEditTask()
             {
@@ -601,15 +654,12 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// WAVEファイル保存のGUI操作処理を行う。
+            /// WAVEファイルパスをファイル名エディットコントロールへ設定する処理を行う。
             /// </summary>
             /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <returns>
-            /// GUI操作タスク。
-            /// 成功すると true を返す。そうでなければ false を返す。
-            /// </returns>
-            private async Task<bool> DoSaveFileTask(
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            private async Task<bool> DoSetFilePathToEditTask(
                 Win32Window fileNameEdit,
                 string filePath)
             {
@@ -662,15 +712,62 @@ namespace RucheHome.Voiceroid
                     }
                 }
 
-                // 既存のファイルを削除
+                return true;
+            }
+
+            /// <summary>
+            /// 既に存在するWAVEファイルの削除処理を行う。
+            /// </summary>
+            /// <param name="filePath">WAVEファイルパス。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            private async Task<bool> DoEraseOldFileTask(string filePath)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    return false;
+                }
+
                 if (File.Exists(filePath))
                 {
-                    File.Delete(filePath);
+                    try
+                    {
+                        await Task.Run(() => File.Delete(filePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                        return false;
+                    }
                 }
+
+                // テキストファイルも削除
                 var txtPath = Path.ChangeExtension(filePath, @".txt");
                 if (File.Exists(txtPath))
                 {
-                    File.Delete(txtPath);
+                    try
+                    {
+                        await Task.Run(() => File.Delete(txtPath));
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            /// <summary>
+            /// ファイル名エディットコントロールの入力内容確定処理を行う。
+            /// </summary>
+            /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            private async Task<bool> DoDecideFilePathTask(Win32Window fileNameEdit)
+            {
+                if (fileNameEdit == null)
+                {
+                    return false;
                 }
 
                 // ENTERキー押下
@@ -705,23 +802,14 @@ namespace RucheHome.Voiceroid
                         this.FindSaveDialog,
                         (Win32Window d) => d == null,
                         150);
-                if (dialog != null)
-                {
-                    ThreadTrace.WriteLine(@"音声保存ダイアログが閉じていません。");
-                    return false;
-                }
-
-                return true;
+                return (dialog == null);
             }
 
             /// <summary>
             /// WAVEファイルの保存確認処理を行う。
             /// </summary>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <returns>
-            /// 保存確認タスク。
-            /// 保存されているならば true を返す。そうでなければ false を返す。
-            /// </returns>
+            /// <returns>保存されているならば true 。そうでなければ false 。</returns>
             private async Task<bool> DoCheckFileSavedTask(string filePath)
             {
                 if (string.IsNullOrWhiteSpace(filePath))
@@ -730,16 +818,24 @@ namespace RucheHome.Voiceroid
                 }
 
                 // ファイル保存 or 保存進捗ダイアログ表示 を待つ
-                bool saved = false;
-                bool progressFound =
+                bool saved = false, progressFound = false;
+                bool dialogFound =
                     await RepeatUntil(
                         async () =>
                             (saved = File.Exists(filePath)) ||
-                            (await this.FindSaveProgressDialog()) != null,
+                            (progressFound =
+                                ((await this.FindSaveProgressDialog()) != null)) ||
+                            await this.UpdateDialogShowing(),
                         f => f,
                         150);
                 if (!saved)
                 {
+                    // 保存進捗ダイアログ以外のダイアログが出ているなら失敗
+                    if (!progressFound && dialogFound)
+                    {
+                        return false;
+                    }
+
                     // 保存進捗ダイアログが閉じるまで待つ
                     if (progressFound)
                     {
@@ -1099,6 +1195,14 @@ namespace RucheHome.Voiceroid
                             error: @"保存先フォルダーを作成できませんでした。");
                     }
 
+                    // 保存先ディレクトリの書き込み権限確認
+                    if (!CheckDirectoryWritable(Path.GetDirectoryName(path)))
+                    {
+                        return new FileSaveResult(
+                            false,
+                            error: @"保存先フォルダーへの書き込み権限がありません。");
+                    }
+
                     // 保存ボタン押下
                     try
                     {
@@ -1123,21 +1227,36 @@ namespace RucheHome.Voiceroid
                         return new FileSaveResult(false, error: msg);
                     }
 
+                    string extraMsg = null;
+
                     // ファイル保存
-                    if (!(await this.DoSaveFileTask(fileNameEdit, path)))
+                    if (!(await this.DoSetFilePathToEditTask(fileNameEdit, path)))
                     {
-                        return new FileSaveResult(
-                            false,
-                            error: @"ファイル保存処理に失敗しました。");
+                        extraMsg = @"ファイル名を設定できませんでした。";
+                    }
+                    else if (!(await this.DoEraseOldFileTask(path)))
+                    {
+                        extraMsg = @"既存ファイルの削除に失敗しました。";
+                    }
+                    else if (!(await this.DoDecideFilePathTask(fileNameEdit)))
+                    {
+                        extraMsg = @"ファイル名の確定操作に失敗しました。";
+                    }
+                    else if (!(await this.DoCheckFileSavedTask(path)))
+                    {
+                        extraMsg =
+                            ((await this.FindErrorDialog()) == null) ?
+                                @"ファイル保存を確認できませんでした。" :
+                                @"文章が無音である可能性があります。";
                     }
 
-                    // ファイル保存成否を非同期で確認
-                    bool saved = await this.DoCheckFileSavedTask(path);
-                    if (!saved)
+                    // 追加情報が設定されていたら保存失敗
+                    if (extraMsg != null)
                     {
                         return new FileSaveResult(
                             false,
-                            error: @"ファイル保存を確認できませんでした。");
+                            error: @"ファイル保存処理に失敗しました。",
+                            extraMessage: extraMsg);
                     }
                 }
                 finally

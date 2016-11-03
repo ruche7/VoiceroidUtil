@@ -346,7 +346,11 @@ namespace VoiceroidUtil
             var result = await process.Save(filePath);
             if (!result.IsSucceeded)
             {
-                await this.NotifyResult(parameter, AppStatusType.Fail, result.Error);
+                await this.NotifyResult(
+                    parameter,
+                    AppStatusType.Fail,
+                    result.Error,
+                    subStatusText: result.ExtraMessage);
                 return;
             }
 

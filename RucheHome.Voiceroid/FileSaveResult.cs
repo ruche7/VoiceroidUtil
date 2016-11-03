@@ -13,14 +13,17 @@ namespace RucheHome.Voiceroid
         /// <param name="succeeded">ファイル保存成否。</param>
         /// <param name="filePath">保存ファイルパス。</param>
         /// <param name="error">保存失敗時のエラーテキスト。</param>
+        /// <param name="extraMessage">保存失敗時の追加情報テキスト。</param>
         public FileSaveResult(
             bool succeeded,
             string filePath = null,
-            string error = null)
+            string error = null,
+            string extraMessage = null)
         {
             this.IsSucceeded = succeeded;
             this.FilePath = filePath;
             this.Error = error;
+            this.ExtraMessage = extraMessage;
         }
 
         /// <summary>
@@ -37,5 +40,10 @@ namespace RucheHome.Voiceroid
         /// 保存失敗時のエラーテキストを取得する。
         /// </summary>
         public string Error { get; }
+
+        /// <summary>
+        /// 保存失敗時の追加情報テキストを取得する。
+        /// </summary>
+        public string ExtraMessage { get; }
     }
 }
