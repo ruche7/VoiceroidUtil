@@ -55,7 +55,12 @@ namespace VoiceroidUtil
         /// <summary>
         /// アプリ更新情報チェッカを取得する。
         /// </summary>
-        private AppUpdateChecker UpdateChecker { get; } = new AppUpdateChecker();
+        private AppUpdateChecker UpdateChecker { get; } =
+#if DEBUG
+            new AppUpdateChecker(AppUpdateChecker.DefaultBaseUri + @".debug/");
+#else // DEBUG
+            new AppUpdateChecker();
+#endif // DEBUG
 
         /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
@@ -101,8 +106,7 @@ namespace VoiceroidUtil
                             {
                                 StatusType = AppStatusType.Information,
                                 StatusText =
-                                    @"version " +
-                                    this.UpdateChecker.NewestVersion +
+                                    this.UpdateChecker.DisplayName +
                                     @" が公開されています。",
                                 SubStatusText = @"ダウンロードページを開く",
                                 SubStatusCommand =
