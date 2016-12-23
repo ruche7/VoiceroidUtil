@@ -115,6 +115,12 @@
                     </Style>
                 </StackPanel.Resources>
 
+                <!-- 高さ調整用 -->
+                <StackPanel Orientation="Vertical">
+                    <Label Content="" Margin="0,1" />
+                    <Label Content="" Margin="0,1" />
+                </StackPanel>
+                
                 <!-- StatusType -->
                 <Image
                     DataContext="{Binding StatusType}"

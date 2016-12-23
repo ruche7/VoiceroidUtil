@@ -199,7 +199,7 @@
                                         UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
 
-                                <StackPanel Orientation="Horizontal" MinWidth="76">
+                                <StackPanel Orientation="Horizontal" MinWidth="86">
                                     <Rectangle
                                         Stroke="Gray"
                                         Width="16"
@@ -245,7 +245,7 @@
                                             UsingAlphaChannel="False" />
                                 </tk:DropDownButton.DropDownContent>
 
-                                <StackPanel Orientation="Horizontal" MinWidth="76">
+                                <StackPanel Orientation="Horizontal" MinWidth="86">
                                     <Rectangle
                                         Stroke="Gray"
                                         Width="16"
@@ -293,7 +293,7 @@
                                         UpdateSourceTrigger=PropertyChanged}"
                                     Minimum="-100"
                                     Maximum="100"
-                                    MinWidth="48"
+                                    MinWidth="56"
                                     Margin="4,0,0,0" />
                                 <Label
                                     Content="行間(_R):"
@@ -306,7 +306,7 @@
                                         UpdateSourceTrigger=PropertyChanged}"
                                     Minimum="-100"
                                     Maximum="100"
-                                    MinWidth="48"
+                                    MinWidth="56"
                                     Margin="4,0,0,0" />
                             </StackPanel>
                         </WrapPanel>

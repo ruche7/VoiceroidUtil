@@ -205,8 +205,9 @@
                                             Width="24"
                                             Height="24" />
                                     </StackPanel>
-                                    <Label
-                                        Content="{Binding VoiceroidName}"
+                                    <TextBlock
+                                        Text="{Binding VoiceroidName}"
+                                        VerticalAlignment="Center"
                                         Margin="4,0,0,0" />
                                 </DockPanel>
                             </DataTemplate>
