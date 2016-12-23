@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -237,13 +238,17 @@ namespace VoiceroidUtil
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
         /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
+        /// <param name="subStatusCommandTip">
+        /// オプショナルなサブ状態コマンドのチップテキスト。
+        /// </param>
         private Task NotifyResult(
             Parameter parameter,
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
             string subStatusText = "",
-            string subStatusCommand = "")
+            ICommand subStatusCommand = null,
+            string subStatusCommandTip = "")
             =>
             this.ResultNotifier(
                 new AppStatus
@@ -252,7 +257,8 @@ namespace VoiceroidUtil
                     StatusText = statusText ?? "",
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
-                    SubStatusCommand = subStatusCommand ?? "",
+                    SubStatusCommand = subStatusCommand,
+                    SubStatusCommandTip = subStatusCommandTip ?? "",
                 },
                 parameter);
     }

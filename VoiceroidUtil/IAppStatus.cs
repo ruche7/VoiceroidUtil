@@ -31,6 +31,11 @@ namespace VoiceroidUtil
         /// <summary>
         /// オプショナルなサブ状態コマンドを取得する。
         /// </summary>
-        string SubStatusCommand { get; }
+        ICommand SubStatusCommand { get; }
+
+        /// <summary>
+        /// オプショナルなサブ状態コマンドのチップテキストを取得する。
+        /// </summary>
+        string SubStatusCommandTip { get; }
     }
 }

@@ -2,6 +2,7 @@
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Windows.Mvvm.Commands;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -46,7 +47,8 @@ namespace VoiceroidUtil.ViewModel
                         StatusText = @"デザイン時用テキスト",
                         SubStatusType = AppStatusType.Warning,
                         SubStatusText = @"デザイン時用サブテキスト",
-                        SubStatusCommand = @"C:",
+                        SubStatusCommand = new ProcessStartCommand(@"C:"),
+                        SubStatusCommandTip = @"C: を開く",
                     }))
         {
         }
