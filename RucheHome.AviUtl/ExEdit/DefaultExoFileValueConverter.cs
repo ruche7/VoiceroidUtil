@@ -81,7 +81,7 @@ namespace RucheHome.AviUtl.ExEdit
             if (value is Color)
             {
                 var color = (Color)value;
-                return $"{color.R:x2}{color.G:x2}{color.B:x2}";
+                return $@"{color.R:x2}{color.G:x2}{color.B:x2}";
             }
 
             // ToString

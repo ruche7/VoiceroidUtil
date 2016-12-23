@@ -412,11 +412,11 @@ namespace RucheHome.AviUtl.ExEdit
                         (this.IsDecelerating ? 32 : 0);
                 }
 
-                result = $"{begin},{end},{id}{this.MoveMode.GetExtraId()}";
+                result = $@"{begin},{end},{id}{this.MoveMode.GetExtraId()}";
 
                 if (this.MoveMode.HasInterval() && this.Interval != 0)
                 {
-                    result += $",{this.Interval}";
+                    result += $@",{this.Interval}";
                 }
             }
 

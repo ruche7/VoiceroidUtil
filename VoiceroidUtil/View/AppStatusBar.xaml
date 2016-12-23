@@ -195,7 +195,7 @@
                             </Image.Style>
                         </Image>
 
-                        <!-- SubStatusText, SubStatusCommand -->
+                        <!-- SubStatusText, SubStatusCommand, SubStatusCommandTip -->
                         <Label Margin="0,1" Grid.Row="1" Grid.Column="1">
                             <Label.Style>
                                 <Style
@@ -205,11 +205,8 @@
                                         <Setter.Value>
                                             <TextBlock>
                                                 <Hyperlink
-                                                    Command="{x:Static ru:ProcessStartCommand.Instance}"
-                                                    CommandParameter="{Binding
-                                                        Path=SubStatusCommand}"
-                                                    ToolTip="{Binding
-                                                        Path=SubStatusCommand}">
+                                                    Command="{Binding SubStatusCommand}"
+                                                    ToolTip="{Binding SubStatusCommandTip}">
                                                     <Run Text="{Binding
                                                         Path=SubStatusText,
                                                         Mode=OneWay}" />
@@ -227,7 +224,7 @@
                                         </DataTrigger>
                                         <DataTrigger
                                             Binding="{Binding SubStatusCommand}"
-                                            Value="">
+                                            Value="{x:Null}">
                                             <Setter Property="Content">
                                                 <Setter.Value>
                                                     <TextBlock

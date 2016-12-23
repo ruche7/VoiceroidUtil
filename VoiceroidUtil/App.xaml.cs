@@ -12,6 +12,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Net;
 using RucheHome.Voiceroid;
+using RucheHome.Windows.Mvvm.Commands;
 using VoiceroidUtil.Services;
 using VoiceroidUtil.View;
 using VoiceroidUtil.ViewModel;
@@ -110,6 +111,9 @@ namespace VoiceroidUtil
                                     @" が公開されています。",
                                 SubStatusText = @"ダウンロードページを開く",
                                 SubStatusCommand =
+                                    new ProcessStartCommand(
+                                        this.UpdateChecker.PageUri.AbsoluteUri),
+                                SubStatusCommandTip =
                                     this.UpdateChecker.PageUri.AbsoluteUri,
                             })
                 .AddTo(this.CompositeDisposable);

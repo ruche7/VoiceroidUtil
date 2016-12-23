@@ -116,7 +116,7 @@ namespace VoiceroidUtil
                 if (string.IsNullOrEmpty(text))
                 {
                     var c = this.Text.FontColor;
-                    text = $"RGB({c.R},{c.G},{c.B})";
+                    text = $@"RGB({c.R},{c.G},{c.B})";
                 }
                 else
                 {

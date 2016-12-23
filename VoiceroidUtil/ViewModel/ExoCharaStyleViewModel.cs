@@ -667,12 +667,16 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
         /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
         /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
+        /// <param name="subStatusCommandTip">
+        /// オプショナルなサブ状態コマンドのチップテキスト。
+        /// </param>
         private void SetLastStatus(
             AppStatusType statusType = AppStatusType.None,
             string statusText = "",
             AppStatusType subStatusType = AppStatusType.None,
             string subStatusText = "",
-            string subStatusCommand = "")
+            ICommand subStatusCommand = null,
+            string subStatusCommandTip = "")
         {
             this.LastStatus.Value =
                 new AppStatus
@@ -681,7 +685,8 @@ namespace VoiceroidUtil.ViewModel
                     StatusText = statusText ?? "",
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
-                    SubStatusCommand = subStatusCommand ?? "",
+                    SubStatusCommand = subStatusCommand,
+                    SubStatusCommandTip = subStatusCommandTip ?? "",
                 };
         }
 
