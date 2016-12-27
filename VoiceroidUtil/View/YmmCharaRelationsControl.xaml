@@ -28,7 +28,7 @@
                             Content="VOICEROID"
                             FontSize="11"
                             FontWeight="Bold"
-                            Width="88"
+                            Width="92"
                             DockPanel.Dock="Left" />
                         <Label
                             Content="ゆっくりMovieMaker"
@@ -44,7 +44,7 @@
                 <DockPanel Margin="0,1,0,0">
                     <Label
                         Content="{Binding VoiceroidName}"
-                        Width="72"
+                        Width="76"
                         DockPanel.Dock="Left" />
                     <Image
                         Source="/VoiceroidUtil;component/resources/icon/arrow_right.png"

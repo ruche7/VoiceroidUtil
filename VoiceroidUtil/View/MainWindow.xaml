@@ -41,10 +41,7 @@
     </i:Interaction.Behaviors>
     
     <DockPanel>
-        <v:AppStatusBar
-            DataContext="{Binding LastStatus}"
-            MinHeight="42"
-            DockPanel.Dock="Bottom" />
+        <v:AppStatusBar DataContext="{Binding LastStatus}" DockPanel.Dock="Bottom" />
         <TabControl Style="{StaticResource modernTabControl}">
             <TabItem
                 Style="{StaticResource modernTabItem}"
