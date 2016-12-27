@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2016-11-05
-  Version : 1.5.1
+   Update : 2016-12-27
+  Version : 1.6.0
        By : ルーチェ
 
 ================================================================================
@@ -41,7 +41,7 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
 下記の環境が必要です。
 
 - Windows 7 SP1, Windows 8.1, Windows 10
-    - Windows Vista SP2, 8 でも恐らく動きますが保証しません。
+    - Windows Vista SP2, Windows 8 でも恐らく動きますが保証しません。
     - Windows XP では動きません。
 
 - .NET Framework 4.5 以降
@@ -58,6 +58,7 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
         - VOICEROID+ 琴葉茜・葵              [1.7.3]
         - VOICEROID+ 月読アイ EX             [1.7.3]
         - VOICEROID+ 京町セイカ EX           [1.7.4]
+        - VOICEROID+ 水奈瀬コウ EX           [1.7.3]
 
 - ゆっくりMovieMaker
     - 動作確認済みバージョンは 3.4.8.1 です。
@@ -130,15 +131,18 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
 また、下記の画像素材を利用しています。
 
 阿国様
-- 結月ゆかり    http://seiga.nicovideo.jp/seiga/im4538340
-- 弦巻マキ      http://seiga.nicovideo.jp/seiga/im4608092
-- 東北ずん子    http://seiga.nicovideo.jp/seiga/im4654903
-- 東北きりたん  http://seiga.nicovideo.jp/seiga/im6172244
-- 琴葉茜・葵    http://seiga.nicovideo.jp/seiga/im4681154
+- 結月ゆかり            http://seiga.nicovideo.jp/seiga/im4538340
+- 弦巻マキ              http://seiga.nicovideo.jp/seiga/im4608092
+- 東北ずん子            http://seiga.nicovideo.jp/seiga/im4654903
+- 東北きりたん          http://seiga.nicovideo.jp/seiga/im6172244
+- 琴葉茜・葵            http://seiga.nicovideo.jp/seiga/im4681154
 
 blueberry様
-- 月読アイ      http://seiga.nicovideo.jp/seiga/im5730761
-- SD京町セイカ  http://seiga.nicovideo.jp/seiga/im5837297
+- 月読アイ              http://seiga.nicovideo.jp/seiga/im5730761
+- SD京町セイカ          http://seiga.nicovideo.jp/seiga/im5837297
+
+はるか様
+- デフォルメ水奈瀬コウ  http://seiga.nicovideo.jp/seiga/im5773085
 
 ICOOON MONO 様のアイコン素材
 - http://icooon-mono.com/
@@ -170,6 +174,16 @@ ICOOON MONO 様のアイコン素材
 
 ================================================================================
 ■更新履歴
+
+------------------------------------------------------------
+◆2016-12-27 [1.6.0]
+
+- 『VOICEROID+ 水奈瀬コウ EX』に対応。
+
+- Windows 7 環境やUIフォントにメイリオを使用している環境でのUI表示を調整。
+
+- 音声保存時、ステータスバーに表示される「保存先フォルダを開く」リンクを
+  クリックした際、保存したファイルが選択された状態でフォルダを開くように変更。
 
 ------------------------------------------------------------
 ◆2016-11-05 [1.5.1]
