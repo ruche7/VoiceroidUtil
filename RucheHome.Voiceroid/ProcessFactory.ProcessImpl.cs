@@ -105,7 +105,7 @@ namespace RucheHome.Voiceroid
             /// WAVEファイルパスを作成する。
             /// </summary>
             /// <param name="filePath">基となるファイルパス。</param>
-            /// <returns>WAVEファイルパス。</returns>
+            /// <returns>WAVEファイルパス。作成できなかった場合は null 。</returns>
             private static string MakeWaveFilePath(string filePath)
             {
                 if (filePath == null)
@@ -113,13 +113,19 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(filePath));
                 }
 
-                var path = Path.GetFullPath(filePath);
-                if (Path.GetExtension(path)?.ToLower() != @".wav")
+                try
                 {
-                    path += @".wav";
-                }
+                    var path = Path.GetFullPath(filePath);
+                    if (Path.GetExtension(path)?.ToLower() != @".wav")
+                    {
+                        path += @".wav";
+                    }
 
-                return path;
+                    return path;
+                }
+                catch { }
+
+                return null;
             }
 
             /// <summary>
@@ -1186,6 +1192,12 @@ namespace RucheHome.Voiceroid
                 {
                     // ファイルパス作成
                     path = MakeWaveFilePath(filePath);
+                    if (path == null)
+                    {
+                        return new FileSaveResult(
+                            false,
+                            error: @"ファイル名を作成できませんでした。");
+                    }
 
                     // 保存先ディレクトリ作成
                     if (!MakeDirectory(Path.GetDirectoryName(path)))

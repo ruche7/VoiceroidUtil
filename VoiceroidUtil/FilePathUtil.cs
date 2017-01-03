@@ -50,18 +50,24 @@ namespace VoiceroidUtil
         /// VOICEROIDの保存パスとして正常か調べ、結果のアプリ状態を返す。
         /// </summary>
         /// <param name="path">調べるパス。</param>
+        /// <param name="pathIsFile">
+        /// path がファイルならば true 。ディレクトリならば false 。
+        /// </param>
         /// <returns>
         /// 正常ならば StatusType が AppStatusType.None のアプリ状態。
         /// そうでなければ StatusType が AppStatusType.Warning のアプリ状態。
         /// </returns>
-        public static IAppStatus CheckPathStatus(string path)
+        public static IAppStatus CheckPathStatus(string path, bool pathIsFile)
         {
             var status = new AppStatus();
 
             if (string.IsNullOrWhiteSpace(path))
             {
                 status.StatusType = AppStatusType.Warning;
-                status.StatusText = @"保存先フォルダーが設定されていません。";
+                status.StatusText =
+                    pathIsFile ?
+                        @"ファイル名が空です。" :
+                        @"保存先フォルダーが設定されていません。";
                 return status;
             }
 
@@ -69,7 +75,7 @@ namespace VoiceroidUtil
             {
                 status.StatusType = AppStatusType.Warning;
                 status.StatusText = @"ごみ箱内は保存先フォルダーに設定できません。";
-                status.SubStatusText = @"別の場所を指定してください。";
+                status.SubStatusText = @"別の保存先を設定してください。";
                 return status;
             }
 
@@ -84,6 +90,28 @@ namespace VoiceroidUtil
                         @"保存先フォルダーパスに文字 """ +
                         invalidLetter +
                         @""" を含めないでください。";
+                return status;
+            }
+
+            var filePath =
+                pathIsFile ?
+                    path : Path.Combine(path, new string('x', MaxFileNameLength));
+            try
+            {
+                Path.GetFullPath(filePath);
+            }
+            catch (PathTooLongException)
+            {
+                status.StatusType = AppStatusType.Warning;
+                status.StatusText = @"保存先フォルダーのパスが長すぎます。";
+                status.SubStatusText = @"別の保存先を設定してください。";
+                return status;
+            }
+            catch
+            {
+                status.StatusType = AppStatusType.Fail;
+                status.StatusText = @"保存先フォルダーが不正です。";
+                status.SubStatusText = @"別の保存先を設定してください。";
                 return status;
             }
 
@@ -143,6 +171,22 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// テキストから作成されるファイル名の一部の最大文字数。
+        /// </summary>
+        private const int MaxFileNamePartFromTextLength = 13;
+
+        /// <summary>
+        /// 作成されるファイル名の最大文字数。
+        /// </summary>
+        private static readonly int MaxFileNameLength =
+            @"20010101_000000_".Length +
+            ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
+                .Max(id => id.GetInfo().Name.Length) +
+            @"_".Length +
+            MaxFileNamePartFromTextLength +
+            @".wav".Length;
+
+        /// <summary>
         /// 1文字以上の空白文字にマッチする正規表現。
         /// </summary>
         private static readonly Regex RegexBlank = new Regex(@"\s+");
@@ -172,22 +216,18 @@ namespace VoiceroidUtil
         /// テキストからファイル名の一部を作成する。
         /// </summary>
         /// <param name="text">テキスト。</param>
-        /// <param name="maxLength">最大文字数。 2 以上であること。</param>
         /// <returns>作成した文字列。</returns>
         /// <remarks>
-        /// テキストが最大文字数を超える場合、末尾に "+残り文字数" が付与され、
-        /// それと合わせて最大文字数となるようにテキストが削られる。
+        /// テキストの文字数が MaxFileNamePartFromTextLength を超える場合、
+        /// 末尾に "+残り文字数" が付与され、それと合わせて文字数が
+        /// MaxFileNamePartFromTextLength となるようにテキストが削られる。
         /// "+残り文字数" を入れる余裕がない場合は代わりに "-" が付与される。
         /// </remarks>
-        private static string MakeFileNamePartFromText(string text, int maxLength = 13)
+        private static string MakeFileNamePartFromText(string text)
         {
             if (text == null)
             {
                 throw new ArgumentNullException(nameof(text));
-            }
-            if (maxLength < 2)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxLength));
             }
 
             // CP932で表せない文字はVOICEROIDで扱えないため変換
@@ -202,24 +242,24 @@ namespace VoiceroidUtil
                     from c in RegexBlank.Replace(dest, "_")
                     select (Array.IndexOf(invalidChars, c) < 0) ? c : 'x');
 
-            if (dest.Length <= maxLength)
+            if (dest.Length <= MaxFileNamePartFromTextLength)
             {
                 // 無いはずだが、空文字列になってしまったらアンダーバー1文字とする
                 return (dest.Length > 0) ? dest : "_";
             }
 
             // "+残り文字数" 付与を試みる
-            for (int len = maxLength - 2; len > 0; --len)
+            for (int len = MaxFileNamePartFromTextLength - 2; len > 0; --len)
             {
                 var tail = @"+" + (dest.Length - len);
-                if (len + tail.Length <= maxLength)
+                if (len + tail.Length <= MaxFileNamePartFromTextLength)
                 {
                     return dest.Substring(0, len) + tail;
                 }
             }
 
             // "-" を付与して返す
-            return dest.Substring(0, maxLength - 1) + @"-";
+            return dest.Substring(0, MaxFileNamePartFromTextLength - 1) + @"-";
         }
     }
 }

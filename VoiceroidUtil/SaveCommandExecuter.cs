@@ -327,7 +327,7 @@ namespace VoiceroidUtil
             }
 
             // パスが正常かチェック
-            var pathStatus = FilePathUtil.CheckPathStatus(filePath);
+            var pathStatus = FilePathUtil.CheckPathStatus(filePath, pathIsFile: true);
             if (pathStatus.StatusType != AppStatusType.None)
             {
                 await this.ResultNotifier(pathStatus, parameter);
