@@ -89,7 +89,14 @@ namespace VoiceroidUtil.Services
                     return null;
                 }
 
-                filePath = Path.GetFullPath(dialog.FileName);
+                try
+                {
+                    filePath = Path.GetFullPath(dialog.FileName);
+                }
+                catch
+                {
+                    filePath = dialog.FileName;
+                }
             }
 
             return filePath;

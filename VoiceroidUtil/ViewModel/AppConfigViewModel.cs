@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Windows.Mvvm.Commands;
 using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 
@@ -168,15 +169,25 @@ namespace VoiceroidUtil.ViewModel
         private void UpdateSaveDirectoryPath(string path)
         {
             // パスが正常かチェック
-            var status = FilePathUtil.CheckPathStatus(path);
-            if (status.StatusType == AppStatusType.None)
+            var status = FilePathUtil.CheckPathStatus(path, pathIsFile: false);
+
+            // 正常でなければステータス更新のみ
+            if (status.StatusType != AppStatusType.None)
             {
-                // 正常ならアプリ設定を上書き
-                this.Config.Value.SaveDirectoryPath = path;
+                this.LastStatus.Value = status;
+                return;
             }
 
-            // ステータス更新
-            this.LastStatus.Value = status;
+            // フルパスにして設定
+            this.Config.Value.SaveDirectoryPath = Path.GetFullPath(path);
+
+            // 成功ステータス設定
+            this.SetLastStatus(
+                AppStatusType.Success,
+                @"保存先フォルダーを設定しました。",
+                subStatusText: @"保存先フォルダーを開く",
+                subStatusCommand: new ProcessStartCommand(path),
+                subStatusCommandTip: path);
         }
 
         /// <summary>
@@ -261,13 +272,12 @@ namespace VoiceroidUtil.ViewModel
 
             e.Handled = true;
 
-            // 末尾がディレクトリ区切り文字なら削除し、フルパスにする
+            // 末尾がディレクトリ区切り文字なら削除
             if (Path.GetFileName(path) == "")
             {
                 // ドライブルートの場合は null が返ってくる
                 path = Path.GetDirectoryName(path) ?? path;
             }
-            path = Path.GetFullPath(path);
 
             // 設定更新
             this.UpdateSaveDirectoryPath(path);

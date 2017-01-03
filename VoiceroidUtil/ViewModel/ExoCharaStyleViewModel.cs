@@ -555,7 +555,14 @@ namespace VoiceroidUtil.ViewModel
             }
 
             // 読み取り成功時点で直近ファイルパス上書き
-            this.LastTemplateFilePath.Value = Path.GetFullPath(filePath);
+            try
+            {
+                this.LastTemplateFilePath.Value = Path.GetFullPath(filePath);
+            }
+            catch
+            {
+                this.LastTemplateFilePath.Value = filePath;
+            }
 
             // 雛形作成
             var temps =
