@@ -29,46 +29,23 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// タイムラインウィンドウが開いているか否かを取得する。
-        /// </summary>
-        public bool IsTimelineOpened
-        {
-            get { return (this.TimelineWindow != null); }
-        }
-
-        /// <summary>
         /// 状態を更新する。
         /// </summary>
         /// <returns>
         /// タイムラインウィンドウが開いているならば true 。そうでなければ false 。
         /// </returns>
-        public async Task<bool> Update()
+        public bool Update()
         {
             // プロセス検索
             var process = Process.GetProcessesByName(ProcessName).FirstOrDefault();
             if (process == null)
             {
                 this.MainWindow = null;
-                this.TimelineWindow = null;
                 return false;
             }
 
-            // メインウィンドウ設定
+            // メインウィンドウ更新
             this.MainWindow = new Win32Window(process.MainWindowHandle);
-
-            // タイムラインウィンドウ検索
-            var tlWin = await this.FindTimelineWindow();
-            if (tlWin == null)
-            {
-                this.TimelineWindow = null;
-                return false;
-            }
-
-            // 初回 or 前回と異なるハンドル
-            if (this.TimelineWindow == null || tlWin.Handle != this.TimelineWindow.Handle)
-            {
-                this.TimelineWindow = tlWin;
-            }
 
             return true;
         }
@@ -214,11 +191,6 @@ namespace VoiceroidUtil
         private const string ProcessName = @"YukkuriMovieMaker_v3";
 
         /// <summary>
-        /// タイムラインウィンドウのタイトルプレフィクス文字列。
-        /// </summary>
-        private const string TimelineWindowTitlePrefix = @"タイムライン";
-
-        /// <summary>
         /// タイムラインウィンドウ内セリフエディットのオートメーションID。
         /// </summary>
         private const string TimelineSpeechEditAutomationId = @"SerifuTB";
@@ -267,28 +239,27 @@ namespace VoiceroidUtil
         /// <summary>
         /// メインウィンドウを取得または設定する。
         /// </summary>
-        private Win32Window MainWindow { get; set; } = null;
-
-        /// <summary>
-        /// タイムラインウィンドウを取得または設定する。
-        /// </summary>
-        private Win32Window TimelineWindow
+        private Win32Window MainWindow
         {
-            get { return this.timelineWindow; }
+            get { return mainWindow; }
             set
             {
-                if (value != this.timelineWindow)
+                if (value != mainWindow)
                 {
-                    this.timelineWindow = value;
+                    var oldHandle = this.mainWindow?.Handle;
+                    this.mainWindow = value;
 
-                    // キャッシュをクリア
-                    this.SpeechEditElementCache = null;
-                    this.CharaComboElementCache = null;
-                    this.AddButtonElementCache = null;
+                    // ウィンドウが変わったなら AutomationElement キャッシュをクリア
+                    if (this.mainWindow?.Handle != oldHandle)
+                    {
+                        this.SpeechEditElementCache = null;
+                        this.CharaComboElementCache = null;
+                        this.AddButtonElementCache = null;
+                    }
                 }
             }
         }
-        private Win32Window timelineWindow = null;
+        private Win32Window mainWindow = null;
 
         /// <summary>
         /// セリフエディットの AutomationElement キャッシュを取得または設定する。
@@ -309,24 +280,24 @@ namespace VoiceroidUtil
         private AutomationElement AddButtonElementCache { get; set; } = null;
 
         /// <summary>
-        /// タイムラインウィンドウ上の AutomationElement を検索する。
+        /// メインウィンドウ以下の AutomationElement を検索する。
         /// </summary>
         /// <param name="condition">検索条件。</param>
         /// <returns>AutomationElement 。利用できない場合は null 。</returns>
-        private async Task<AutomationElement> FindTimelineUIElement(
+        private async Task<AutomationElement> FindUIElement(
             PropertyCondition condition)
         {
-            if (this.TimelineWindow == null)
+            if (this.MainWindow == null)
             {
                 return null;
             }
 
-            // タイムラインウィンドウの AutomationElement 作成
-            var tlElem = AutomationElement.FromHandle(this.TimelineWindow.Handle);
+            // メインウィンドウの AutomationElement 作成
+            var mainElem = AutomationElement.FromHandle(this.MainWindow.Handle);
 
             // AutomationElement 作成
             // YMM上にアイテムが多いと時間が掛かるので非同期で
-            return await Task.Run(() => FindDescendant(tlElem, condition));
+            return await Task.Run(() => FindDescendant(mainElem, condition));
         }
 
         /// <summary>
@@ -338,7 +309,7 @@ namespace VoiceroidUtil
             if (this.SpeechEditElementCache == null)
             {
                 this.SpeechEditElementCache =
-                    await this.FindTimelineUIElement(
+                    await this.FindUIElement(
                         new PropertyCondition(
                             AutomationElement.AutomationIdProperty,
                             TimelineSpeechEditAutomationId));
@@ -356,7 +327,7 @@ namespace VoiceroidUtil
             if (this.CharaComboElementCache == null)
             {
                 this.CharaComboElementCache =
-                    await this.FindTimelineUIElement(
+                    await this.FindUIElement(
                         new PropertyCondition(
                             AutomationElement.AutomationIdProperty,
                             TimelineCharaComboBoxAutomationId));
@@ -374,47 +345,13 @@ namespace VoiceroidUtil
             if (this.AddButtonElementCache == null)
             {
                 this.AddButtonElementCache =
-                    await this.FindTimelineUIElement(
+                    await this.FindUIElement(
                         new PropertyCondition(
                             AutomationElement.NameProperty,
                             TimelineSpeechAddButtonName));
             }
 
             return this.AddButtonElementCache;
-        }
-
-        /// <summary>
-        /// タイムラインウィンドウを検索する。
-        /// </summary>
-        /// <returns>タイムラインウィンドウ。見つからなければ null 。</returns>
-        private async Task<Win32Window> FindTimelineWindow()
-        {
-            return
-                await Win32Window.Desktop
-                    .FindChildren()
-                    .ToObservable()
-                    .SelectMany(async w => (await this.IsTimelineWindow(w)) ? w : null)
-                    .FirstOrDefaultAsync(w => w != null);
-        }
-
-        /// <summary>
-        /// タイムラインウィンドウであるか否かを取得する。
-        /// </summary>
-        /// <param name="target">調べるウィンドウ。</param>
-        /// <returns>タイムラインウィンドウならば true 。そうでなければ false 。</returns>
-        private async Task<bool> IsTimelineWindow(Win32Window target)
-        {
-            var mainWin = this.MainWindow;
-            if (
-                mainWin == null ||
-                target == null ||
-                target.GetOwner()?.Handle != mainWin.Handle)
-            {
-                return false;
-            }
-
-            var textTask = target.GetTextAsync(UIControlTimeout);
-            return ((await textTask)?.StartsWith(TimelineWindowTitlePrefix) == true);
         }
     }
 }
