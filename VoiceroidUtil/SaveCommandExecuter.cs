@@ -534,7 +534,7 @@ namespace VoiceroidUtil
             // 状態更新
             try
             {
-                await YmmProcess.Update();
+                YmmProcess.Update();
             }
             catch (Exception ex)
             {
@@ -548,16 +548,10 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            // タイムラインウィンドウが開いていない？
-            if (!YmmProcess.IsTimelineOpened)
-            {
-                return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
-            }
-
             // ファイルパス設定
             if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
             {
-                return @"ゆっくりMovieMakerへのパス設定に失敗しました。";
+                return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
             }
 
             string warnText = null;
