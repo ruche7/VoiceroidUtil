@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.6.1
+-VoiceroidUtil version 1.6.2
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -379,15 +379,19 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 ---『VoiceroidUtil』のアイコンを右クリック（タッチパネルの場合はロングタップ）し、「管理者として実行」を選択してください。
 ---そもそも『ゆっくりMovieMaker』を管理者権限で実行することは推奨しません。
 --他のウィンドウ操作系ツールを動作させている場合、処理が競合する可能性があります。
+--Windows 7 Home かつ『カスペルスキー 2016』や『カスペルスキー セキュリティ 2017』を導入した環境において、連携に失敗することが確認されています。
+---version 1.6.2 で対処しましたが、根本解決できているか否かは不明です。
 --作者まで具体的な症状とPC環境（製品名、Windowsのバージョン等）を[[ご連絡>Home#about]]頂ければ改善できるかもしれません。（保証はできません）
---''Windows 7 Home かつ『カスペルスキー 2016』や『カスペルスキー セキュリティ 2017』を導入した環境において、連携に失敗することが確認されています。''
----現状、再現環境が無いため解決に至っていません。再現環境をお持ちで調査にご協力頂ける方は作者まで[[ご連絡>Home#about]]ください。
 :『ゆっくりMovieMaker』に字幕テキストが挿入されないことがある。|
 --[[設定画面>#explain-config]]/[[音声保存タブ>#explain-config-save]]の ''「文字コード UTF-8 で作成」チェックボックス'' にチェックが入っていると、『ゆっくりMovieMaker』の仕様により一部の短文が認識されません。
 --作業に支障がある場合は上記のチェックを外してください。
 
 *更新履歴 [#history]
 
+:2017-01-11|
+--version 1.6.2 に対応。
+--[[Q＆A>#qa]]を更新。
+---『ゆっくりMovieMaker』との連携がうまくいかない環境に対処したことを記載。
 :2017-01-04|
 --[[Q＆A>#qa]]を更新。
 ---『ゆっくりMovieMaker』との連携がうまくいかない環境が確認されていることを追記。
