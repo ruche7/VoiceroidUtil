@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -35,6 +36,7 @@ namespace VoiceroidUtil
             this.LastStatus =
                 new ReactiveProperty<IAppStatus>(new AppStatus())
                     .AddTo(this.CompositeDisposable);
+            this.UpdateChecker.SynchronizationContext = SynchronizationContext.Current;
         }
 
         /// <summary>
@@ -92,7 +94,7 @@ namespace VoiceroidUtil
                 .Where(f => f)
                 .Take(1)
                 .Where(_ => this.ConfigManager.AppConfig.Value.IsUpdateCheckingOnStartup)
-                .Subscribe(async _ => await this.UpdateChecker.Run())
+                .Subscribe(_ => Task.Run(() => this.UpdateChecker.Run()))
                 .AddTo(this.CompositeDisposable);
 
             // アプリ更新があるなら通知

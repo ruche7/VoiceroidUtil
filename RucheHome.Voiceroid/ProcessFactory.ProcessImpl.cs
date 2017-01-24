@@ -223,7 +223,7 @@ namespace RucheHome.Voiceroid
             /// <returns>
             /// ファイル名エディットコントロール。見つからなければ null 。
             /// </returns>
-            private static async Task<Win32Window> FindFileDialogFileNameEdit(
+            private static Win32Window FindFileDialogFileNameEdit(
                 Win32Window dialog)
             {
                 if (dialog == null)
@@ -235,7 +235,8 @@ namespace RucheHome.Voiceroid
                 try
                 {
                     return
-                        (await dialog.FindDescendantsAsync(@"Edit"))
+                        dialog
+                            .FindDescendants(@"Edit")
                             .FirstOrDefault(
                                 c => c.GetAncestor(5)?.Handle == dialog.Handle);
                 }
@@ -415,7 +416,7 @@ namespace RucheHome.Voiceroid
                     // プロパティ群更新
                     this.Process = process;
                     this.MainWindow = new Win32Window(process.MainWindowHandle);
-                    if (!(await this.UpdateControls()))
+                    if (!(await Task.Run(() => this.UpdateControls())))
                     {
                         this.SetupDeadState();
                         return;
@@ -446,7 +447,7 @@ namespace RucheHome.Voiceroid
             /// メインウィンドウのコントロール群を更新する。
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private async Task<bool> UpdateControls()
+            private bool UpdateControls()
             {
                 List<Win32Window> controls = null;
                 Win32Window talkEdit = null;
@@ -455,7 +456,7 @@ namespace RucheHome.Voiceroid
                 // 子コントロール群取得
                 try
                 {
-                    controls = await this.MainWindow.FindDescendantsAsync();
+                    controls = this.MainWindow.FindDescendants();
                 }
                 catch (Exception ex)
                 {
@@ -597,25 +598,26 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             private async Task<bool> SetTalkTextCursorToHead()
             {
-                if (this.TalkEdit == null || this.IsSaving || !(await this.Stop()))
+                var edit = this.TalkEdit;
+                if (edit == null || this.IsSaving || !(await this.Stop()))
                 {
                     return false;
                 }
 
-                var task =
-                    this.TalkEdit?.SendMessageAsync(
-                        EM_SETSEL,
-                        timeoutMilliseconds: UIControlTimeout);
-                if (task != null)
+                try
                 {
-                    try
-                    {
-                        return (await task).HasValue;
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadTrace.WriteException(ex);
-                    }
+                    return
+                        await Task.Run(
+                            () =>
+                                edit
+                                    .SendMessage(
+                                        EM_SETSEL,
+                                        timeoutMilliseconds: UIControlTimeout)
+                                    .HasValue);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
                 }
 
                 return false;
@@ -681,7 +683,9 @@ namespace RucheHome.Voiceroid
                         Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
                     try
                     {
-                        if (!(await fileNameEdit.SetTextAsync(filePath, timeout)))
+                        var ok =
+                            await Task.Run(() => fileNameEdit.SetText(filePath, timeout));
+                        if (!ok)
                         {
                             ThreadTrace.WriteLine(
                                 @"ファイルパス設定処理がタイムアウトしました。 " +
@@ -700,7 +704,8 @@ namespace RucheHome.Voiceroid
                         Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
                     try
                     {
-                        if ((await fileNameEdit.GetTextAsync(timeout)) == filePath)
+                        var text = await Task.Run(() => fileNameEdit.GetText(timeout));
+                        if (text == filePath)
                         {
                             break;
                         }
@@ -1001,7 +1006,7 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    return await edit.GetTextAsync(UIControlTimeout);
+                    return await Task.Run(() => edit.GetText(UIControlTimeout));
                 }
                 catch (Exception ex)
                 {
@@ -1032,7 +1037,7 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    if (!(await edit.SetTextAsync(text, timeout)))
+                    if (!(await Task.Run(() => edit.SetText(text, timeout))))
                     {
                         ThreadTrace.WriteLine(
                             @"トークテキスト設定処理がタイムアウトしました。 " +
