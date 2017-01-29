@@ -37,6 +37,7 @@ namespace VoiceroidUtil
                 new ReactiveProperty<IAppStatus>(new AppStatus())
                     .AddTo(this.CompositeDisposable);
             this.UpdateChecker.SynchronizationContext = SynchronizationContext.Current;
+            this.ProcessFactory = new ProcessFactory().AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// VOICEROIDプロセスファクトリを取得する。
         /// </summary>
-        private ProcessFactory ProcessFactory { get; } = new ProcessFactory();
+        private ProcessFactory ProcessFactory { get; }
 
         /// <summary>
         /// トレースリスナのセットアップを行う。

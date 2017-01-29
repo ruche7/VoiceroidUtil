@@ -10,15 +10,23 @@ namespace RucheHome.Voiceroid
     /// <summary>
     /// VOICEROIDプロセスファクトリクラス。
     /// </summary>
-    public partial class ProcessFactory
+    public partial class ProcessFactory : IDisposable
     {
         /// <summary>
         /// コンストラクタ。
         /// </summary>
         public ProcessFactory()
         {
-            this.Processes = new ReadOnlyCollection<IProcess>(this.Impls);
+            this.Processes = Array.AsReadOnly<IProcess>(this.Impls);
             this.Update();
+        }
+
+        /// <summary>
+        /// デストラクタ。
+        /// </summary>
+        ~ProcessFactory()
+        {
+            this.Dispose(false);
         }
 
         /// <summary>
@@ -63,5 +71,32 @@ namespace RucheHome.Voiceroid
             Array.ConvertAll(
                 (VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)),
                 id => new ProcessImpl(id));
+
+        #region IDisposable インタフェース実装
+
+        /// <summary>
+        /// リソースを破棄する。
+        /// </summary>
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// リソース破棄の実処理を行う。
+        /// </summary>
+        /// <param name="disposing">
+        /// Dispose メソッドから呼び出された場合は true 。
+        /// </param>
+        protected virtual void Dispose(bool disposing)
+        {
+            foreach (var p in this.Impls)
+            {
+                p.Dispose();
+            }
+        }
+
+        #endregion
     }
 }

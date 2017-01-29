@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using RucheHome.Threading;
 using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
@@ -17,7 +19,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// IProcess インタフェース実装クラス。
         /// </summary>
-        private class ProcessImpl : BindableBase, IProcess
+        private sealed class ProcessImpl : BindableBase, IProcess, IDisposable
         {
             /// <summary>
             /// コンストラクタ。
@@ -37,6 +39,14 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// デストラクタ。
+            /// </summary>
+            ~ProcessImpl()
+            {
+                this.Dispose(false);
+            }
+
+            /// <summary>
             /// 状態を更新する。
             /// </summary>
             public Task Update()
@@ -50,13 +60,7 @@ namespace RucheHome.Voiceroid
             /// <param name="voiceroidApps">VOICEROIDプロセス列挙。</param>
             public async Task Update(IEnumerable<Process> voiceroidApps)
             {
-                if (this.IsUpdating)
-                {
-                    return;
-                }
-
-                this.IsUpdating = true;
-                try
+                using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
                     // 対象プロセスを検索
                     var app = voiceroidApps?.FirstOrDefault(p => this.IsOwnProcess(p));
@@ -69,10 +73,6 @@ namespace RucheHome.Voiceroid
 
                     // 状態更新
                     await this.UpdateState(app);
-                }
-                finally
-                {
-                    this.IsUpdating = false;
                 }
             }
 
@@ -298,6 +298,16 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// 更新処理の排他制御を行うオブジェクトを取得する。
+            /// </summary>
+            private SemaphoreSlimLock UpdateLock { get; } = new SemaphoreSlimLock(1);
+
+            /// <summary>
+            /// 保存処理の排他制御を行うオブジェクトを取得する。
+            /// </summary>
+            private SemaphoreSlimLock SaveLock { get; } = new SemaphoreSlimLock(1);
+
+            /// <summary>
             /// プロセスを取得または設定する。
             /// </summary>
             private Process Process
@@ -346,16 +356,6 @@ namespace RucheHome.Voiceroid
             private Win32Window SaveButton { get; set; } = null;
 
             /// <summary>
-            /// 状態更新中であるか否かを取得または設定する。
-            /// </summary>
-            private bool IsUpdating { get; set; } = false;
-
-            /// <summary>
-            /// WAVEファイル保存タスク実行中であるか否かを取得または設定する。
-            /// </summary>
-            private bool IsSaveTaskRunning { get; set; } = false;
-
-            /// <summary>
             /// 対象プロセスであるか否かを取得する。
             /// </summary>
             /// <param name="process">調べるプロセス。</param>
@@ -366,6 +366,7 @@ namespace RucheHome.Voiceroid
                 {
                     return (
                         process != null &&
+                        !process.HasExited &&
                         process.MainModule.FileVersionInfo.ProductName == this.Product);
                 }
                 catch (Win32Exception ex)
@@ -403,43 +404,47 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 保存タスク処理中なら更新しない
-                if (this.IsRunning && this.IsSaveTaskRunning)
+                if (this.IsRunning && this.SaveLock.CurrentCount <= 0)
                 {
                     return;
                 }
 
-                // 現在と同じウィンドウが取得できた場合はスキップ
-                if (
-                    !this.IsRunning ||
-                    this.MainWindow.Handle != process.MainWindowHandle)
+                // 念のため待機
+                using (var saveLock = await this.SaveLock.WaitAsync())
                 {
-                    // プロパティ群更新
-                    this.Process = process;
-                    this.MainWindow = new Win32Window(process.MainWindowHandle);
-                    if (!(await Task.Run(() => this.UpdateControls())))
+                    // 現在と同じウィンドウが取得できた場合はスキップ
+                    if (
+                        !this.IsRunning ||
+                        this.MainWindow.Handle != process.MainWindowHandle)
                     {
-                        this.SetupDeadState();
-                        return;
+                        // プロパティ群更新
+                        this.Process = process;
+                        this.MainWindow = new Win32Window(process.MainWindowHandle);
+                        if (!(await Task.Run(() => this.UpdateControls())))
+                        {
+                            this.SetupDeadState();
+                            return;
+                        }
                     }
-                }
 
-                this.IsRunning = true;
+                    this.IsRunning = true;
 
-                // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                this.IsSaving = (
-                    (await this.FindSaveDialog()) != null ||
-                    (await this.FindSaveProgressDialog()) != null);
+                    // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
+                    this.IsSaving = (
+                        (await this.FindSaveDialog()) != null ||
+                        (await this.FindSaveProgressDialog()) != null);
 
-                if (this.IsSaving)
-                {
-                    this.IsDialogShowing = true;
-                }
-                else
-                {
-                    // 保存ボタンが押せない状態＝再生中と判定
-                    this.IsPlaying = !this.SaveButton.IsEnabled;
+                    if (this.IsSaving)
+                    {
+                        this.IsDialogShowing = true;
+                    }
+                    else
+                    {
+                        // 保存ボタンが押せない状態＝再生中と判定
+                        this.IsPlaying = !this.SaveButton.IsEnabled;
 
-                    await this.UpdateDialogShowing();
+                        await this.UpdateDialogShowing();
+                    }
                 }
             }
 
@@ -565,7 +570,6 @@ namespace RucheHome.Voiceroid
                 this.PlayButton = null;
                 this.StopButton = null;
                 this.SaveButton = null;
-                this.IsSaveTaskRunning = false;
 
                 this.IsRunning = false;
                 this.IsPlaying = false;
@@ -872,7 +876,7 @@ namespace RucheHome.Voiceroid
                 return true;
             }
 
-            #region IProcess インタフェース実装
+            #region IProcess の実装
 
             /// <summary>
             /// VOICEROID識別IDを取得する。
@@ -1189,12 +1193,11 @@ namespace RucheHome.Voiceroid
                         error: @"再生中の音声を停止できませんでした。");
                 }
 
-                this.IsSaveTaskRunning = true;
-                this.IsSaving = true;
-
                 string path = null;
-                try
+                using (var saveLock = await this.SaveLock.WaitAsync())
                 {
+                    this.IsSaving = true;
+
                     // ファイルパス作成
                     path = MakeWaveFilePath(filePath);
                     if (path == null)
@@ -1276,10 +1279,6 @@ namespace RucheHome.Voiceroid
                             extraMessage: extraMsg);
                     }
                 }
-                finally
-                {
-                    this.IsSaveTaskRunning = false;
-                }
 
                 return new FileSaveResult(true, path);
             }
@@ -1300,35 +1299,42 @@ namespace RucheHome.Voiceroid
                     throw new FileNotFoundException(nameof(executablePath));
                 }
 
-                // 既に実行中なら不可
                 if (this.Process != null)
                 {
                     return false;
                 }
 
-                // プロセス実行
-                bool ok =
-                    await Task.Run(
-                        () =>
-                        {
-                            var app = Process.Start(executablePath);
-                            app.WaitForInputIdle(1000);
-
-                            if (!this.IsOwnProcess(app))
-                            {
-                                if (!app.CloseMainWindow())
-                                {
-                                    app.Kill();
-                                }
-                                app.Close();
-                                return false;
-                            }
-
-                            return true;
-                        });
-                if (!ok)
+                using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
-                    return false;
+                    if (this.Process != null)
+                    {
+                        return false;
+                    }
+
+                    // プロセス実行
+                    bool ok =
+                        await Task.Run(
+                            () =>
+                            {
+                                var app = Process.Start(executablePath);
+                                app.WaitForInputIdle(UIControlTimeout);
+
+                                if (!this.IsOwnProcess(app))
+                                {
+                                    if (!app.CloseMainWindow())
+                                    {
+                                        app.Kill();
+                                    }
+                                    app.Close();
+                                    return false;
+                                }
+
+                                return true;
+                            });
+                    if (!ok)
+                    {
+                        return false;
+                    }
                 }
 
                 // スタートアップ状態になるまで少し待つ
@@ -1347,25 +1353,18 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                // 更新中なら待つ
-                if (await RepeatUntil(() => this.IsUpdating, f => !f, 100, 10))
-                {
-                    return false;
-                }
-
-                this.IsUpdating = true;
-                try
+                using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
                     if (this.Process == null)
                     {
                         return false;
                     }
 
+                    // プロセス終了
                     bool ok =
                         await Task.Run(
                             () =>
                             {
-                                // プロセス終了
                                 if (!this.Process.CloseMainWindow())
                                 {
                                     return false;
@@ -1384,12 +1383,33 @@ namespace RucheHome.Voiceroid
 
                     this.SetupDeadState();
                 }
-                finally
-                {
-                    this.IsUpdating = false;
-                }
 
                 return true;
+            }
+
+            #endregion
+
+            #region IDisposable の実装
+
+            /// <summary>
+            /// リソースを破棄する。
+            /// </summary>
+            public void Dispose()
+            {
+                this.Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            /// <summary>
+            /// リソース破棄の実処理を行う。
+            /// </summary>
+            /// <param name="disposing">
+            /// Dispose メソッドから呼び出された場合は true 。
+            /// </param>
+            private void Dispose(bool disposing)
+            {
+                this.UpdateLock.Dispose();
+                this.SaveLock.Dispose();
             }
 
             #endregion
