@@ -1,12 +1,13 @@
 @setlocal
 @echo off
 
-if "%VS140COMNTOOLS%"=="" (
-  echo VS140COMNTOOLS is not set.
-  goto ON_ERROR
+where VsMSBuildCmd.bat >nul 2>&1
+if errorlevel 1 (
+    echo Please set path to "Common7\Tools" in Visual Studio install directory.
+    goto ON_ERROR
 )
 
-call "%VS140COMNTOOLS%\VsMSBuildCmd.bat"
+call VsMSBuildCmd.bat
 if errorlevel 1 goto ON_ERROR
 
 pushd "%~dp0"
