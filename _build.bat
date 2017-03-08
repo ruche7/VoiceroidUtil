@@ -33,9 +33,9 @@ if exist __resources (
 )
 
 REM ---- Build solution
-MSBuild VoiceroidUtil.sln /t:Rebuild /p:Configuration=Debug
+MSBuild VoiceroidUtil.sln /m /t:Rebuild /p:Configuration=Debug
 if errorlevel 1 goto ON_ERROR_POPD
-MSBuild VoiceroidUtil.sln /t:Rebuild /p:Configuration=Release
+MSBuild VoiceroidUtil.sln /m /t:Rebuild /p:Configuration=Release
 if errorlevel 1 goto ON_ERROR_POPD
 
 REM ---- Reset resources
