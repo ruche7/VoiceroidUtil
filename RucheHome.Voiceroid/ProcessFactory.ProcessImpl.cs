@@ -312,7 +312,7 @@ namespace RucheHome.Voiceroid
             /// </summary>
             private Process Process
             {
-                get { return this.process; }
+                get => this.process;
                 set
                 {
                     this.process = value;
@@ -326,7 +326,7 @@ namespace RucheHome.Voiceroid
             /// </summary>
             private Win32Window MainWindow
             {
-                get { return this.mainWindow; }
+                get => this.mainWindow;
                 set
                 {
                     this.mainWindow = value;
@@ -886,26 +886,17 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// VOICEROID名を取得する。
             /// </summary>
-            public string Name
-            {
-                get { return this.Id.GetInfo().Name; }
-            }
+            public string Name => this.Id.GetInfo().Name;
 
             /// <summary>
             /// プロダクト名を取得する。
             /// </summary>
-            public string Product
-            {
-                get { return this.Id.GetInfo().Product; }
-            }
+            public string Product => this.Id.GetInfo().Product;
 
             /// <summary>
             /// 表示プロダクト名を取得する。
             /// </summary>
-            public string DisplayProduct
-            {
-                get { return this.Id.GetInfo().DisplayProduct; }
-            }
+            public string DisplayProduct => this.Id.GetInfo().DisplayProduct;
 
             /// <summary>
             /// 実行ファイルのパスを取得する。
@@ -916,8 +907,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public string ExecutablePath
             {
-                get { return this.executablePath; }
-                private set { this.SetProperty(ref this.executablePath, value); }
+                get => this.executablePath;
+                private set => this.SetProperty(ref this.executablePath, value);
             }
             private string executablePath = null;
 
@@ -930,8 +921,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public IntPtr MainWindowHandle
             {
-                get { return this.mainWindowHandle; }
-                private set { this.SetProperty(ref this.mainWindowHandle, value); }
+                get => this.mainWindowHandle;
+                private set => this.SetProperty(ref this.mainWindowHandle, value);
             }
             private IntPtr mainWindowHandle = IntPtr.Zero;
 
@@ -944,8 +935,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public bool IsStartup
             {
-                get { return this.startup; }
-                private set { this.SetProperty(ref this.startup, value); }
+                get => this.startup;
+                private set => this.SetProperty(ref this.startup, value);
             }
             private bool startup = false;
 
@@ -954,7 +945,7 @@ namespace RucheHome.Voiceroid
             /// </summary>
             public bool IsRunning
             {
-                get { return this.running; }
+                get => this.running;
                 private set
                 {
                     if (value != this.running)
@@ -971,8 +962,8 @@ namespace RucheHome.Voiceroid
             /// </summary>
             public bool IsPlaying
             {
-                get { return this.playing; }
-                set { this.SetProperty(ref this.playing, value); }
+                get => this.playing;
+                private set => this.SetProperty(ref this.playing, value);
             }
             private bool playing = false;
 
@@ -981,8 +972,8 @@ namespace RucheHome.Voiceroid
             /// </summary>
             public bool IsSaving
             {
-                get { return this.saving; }
-                set { this.SetProperty(ref this.saving, value); }
+                get => this.saving;
+                private set => this.SetProperty(ref this.saving, value);
             }
             private bool saving = false;
 
@@ -991,8 +982,8 @@ namespace RucheHome.Voiceroid
             /// </summary>
             public bool IsDialogShowing
             {
-                get { return this.dialogShowing; }
-                set { this.SetProperty(ref this.dialogShowing, value); }
+                get => this.dialogShowing;
+                private set => this.SetProperty(ref this.dialogShowing, value);
             }
             private bool dialogShowing = false;
 

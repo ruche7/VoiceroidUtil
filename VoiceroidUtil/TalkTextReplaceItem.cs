@@ -23,8 +23,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsEnabled
         {
-            get { return this.enabled; }
-            set { this.SetProperty(ref this.enabled, value); }
+            get => this.enabled;
+            set => this.SetProperty(ref this.enabled, value);
         }
         private bool enabled = true;
 
@@ -34,8 +34,8 @@ namespace VoiceroidUtil
         [DataMember]
         public string OldValue
         {
-            get { return this.oldValue; }
-            set { this.SetProperty(ref this.oldValue, value ?? ""); }
+            get => this.oldValue;
+            set => this.SetProperty(ref this.oldValue, value ?? "");
         }
         private string oldValue = "";
 
@@ -45,8 +45,8 @@ namespace VoiceroidUtil
         [DataMember]
         public string NewValue
         {
-            get { return this.newValue; }
-            set { this.SetProperty(ref this.newValue, value ?? ""); }
+            get => this.newValue;
+            set => this.SetProperty(ref this.newValue, value ?? "");
         }
         private string newValue = "";
 
@@ -57,25 +57,21 @@ namespace VoiceroidUtil
         /// <remarks>
         /// IsEnable が true かつ OldValue が空文字列でなければ利用可能。
         /// </remarks>
-        public bool IsAvailable()
-        {
-            return (this.IsEnabled && !string.IsNullOrEmpty(this.OldValue));
-        }
+        public bool IsAvailable() =>
+            this.IsEnabled && !string.IsNullOrEmpty(this.OldValue);
 
         /// <summary>
         /// アイテムのクローンを作成する。
         /// </summary>
         /// <returns>アイテムのクローン。</returns>
         public TalkTextReplaceItem Clone()
-        {
-            return
-                new TalkTextReplaceItem
-                {
-                    IsEnabled = this.IsEnabled,
-                    OldValue = this.OldValue,
-                    NewValue = this.NewValue,
-                };
-        }
+            =>
+            new TalkTextReplaceItem
+            {
+                IsEnabled = this.IsEnabled,
+                OldValue = this.OldValue,
+                NewValue = this.NewValue,
+            };
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

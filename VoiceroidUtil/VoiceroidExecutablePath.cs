@@ -35,8 +35,8 @@ namespace VoiceroidUtil
         [DataMember]
         public string Path
         {
-            get { return this.path; }
-            set { this.SetProperty(ref this.path, value); }
+            get => this.path;
+            set => this.SetProperty(ref this.path, value);
         }
         private string path = null;
     }

@@ -174,11 +174,9 @@ namespace RucheHome.AviUtl.ExEdit
                 {
                     // ディクショナリ未登録なら作成
                     result =
-                        Activator.CreateInstance(converterType) as IExoFileValueConverter;
-                    if (result == null)
-                    {
-                        throw new InvalidOperationException(@"Invalid converter type.");
-                    }
+                        Activator.CreateInstance(converterType) as IExoFileValueConverter
+                            ?? throw new InvalidOperationException(
+                                @"Invalid converter type.");
                     ItemConverters.Add(converterType, result);
                 }
             }

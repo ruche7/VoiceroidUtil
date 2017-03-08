@@ -13,12 +13,8 @@ namespace VoiceroidUtil
         /// <param name="description">説明文。</param>
         public TalkTextReplacePreset(string description)
         {
-            if (description == null)
-            {
-                throw new ArgumentNullException(nameof(description));
-            }
-
-            this.Description = description;
+            this.Description =
+                description ?? throw new ArgumentNullException(nameof(description));
         }
 
         /// <summary>

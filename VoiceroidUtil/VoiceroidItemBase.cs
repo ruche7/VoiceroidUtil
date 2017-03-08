@@ -25,7 +25,7 @@ namespace VoiceroidUtil
         /// </summary>
         public VoiceroidId VoiceroidId
         {
-            get { return this.voiceroidId; }
+            get => this.voiceroidId;
             private set
             {
                 this.SetProperty(
@@ -45,13 +45,10 @@ namespace VoiceroidUtil
         [DataMember(Name = nameof(VoiceroidId))]
         private string VoiceroidIdString
         {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
+            get => this.VoiceroidId.ToString();
+            set =>
                 this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
+                    Enum.TryParse(value, out VoiceroidId id) ? id : VoiceroidId.YukariEx;
         }
 
         /// <summary>
@@ -59,8 +56,8 @@ namespace VoiceroidUtil
         /// </summary>
         public string VoiceroidName
         {
-            get { return this.voiceroidName; }
-            private set { this.SetProperty(ref this.voiceroidName, value ?? ""); }
+            get => this.voiceroidName;
+            private set => this.SetProperty(ref this.voiceroidName, value ?? "");
         }
         private string voiceroidName = "";
     }

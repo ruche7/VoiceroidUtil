@@ -29,7 +29,7 @@ namespace VoiceroidUtil
         [DataMember]
         public TalkTextReplaceItemCollection VoiceReplaceItems
         {
-            get { return this.voiceReplaceItems; }
+            get => this.voiceReplaceItems;
             set
             {
                 var v = value ?? new TalkTextReplaceItemCollection();
@@ -54,7 +54,7 @@ namespace VoiceroidUtil
         [DataMember]
         public TalkTextReplaceItemCollection TextFileReplaceItems
         {
-            get { return this.textFileReplaceItems; }
+            get => this.textFileReplaceItems;
             set
             {
                 var v = value ?? new TalkTextReplaceItemCollection();

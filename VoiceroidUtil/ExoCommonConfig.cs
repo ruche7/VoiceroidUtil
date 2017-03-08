@@ -72,13 +72,11 @@ namespace VoiceroidUtil
         [DataMember]
         public int Width
         {
-            get { return this.width; }
-            set
-            {
+            get => this.width;
+            set =>
                 this.SetProperty(
                     ref this.width,
                     Math.Min(Math.Max(MinWidth, value), MaxWidth));
-            }
         }
         private int width = 1280;
 
@@ -88,13 +86,11 @@ namespace VoiceroidUtil
         [DataMember]
         public int Height
         {
-            get { return this.height; }
-            set
-            {
+            get => this.height;
+            set =>
                 this.SetProperty(
                     ref this.height,
                     Math.Min(Math.Max(MinHeight, value), MaxHeight));
-            }
         }
         private int height = 720;
 
@@ -104,15 +100,13 @@ namespace VoiceroidUtil
         [DataMember]
         public decimal Fps
         {
-            get { return this.fps; }
-            set
-            {
+            get => this.fps;
+            set =>
                 this.SetProperty(
                     ref this.fps,
                     decimal.Round(
                         Math.Min(Math.Max(MinFps, value), MaxFps),
                         MaxFpsDigits));
-            }
         }
         private decimal fps = 60;
 
@@ -122,13 +116,11 @@ namespace VoiceroidUtil
         [DataMember]
         public int ExtraFrames
         {
-            get { return this.extraFrames; }
-            set
-            {
+            get => this.extraFrames;
+            set =>
                 this.SetProperty(
                     ref this.extraFrames,
                     Math.Min(Math.Max(MinExtraFrames, value), MaxExtraFrames));
-            }
         }
         private int extraFrames = 0;
 
@@ -138,8 +130,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsGrouping
         {
-            get { return this.grouping; }
-            set { this.SetProperty(ref this.grouping, value); }
+            get => this.grouping;
+            set => this.SetProperty(ref this.grouping, value);
         }
         private bool grouping = true;
 

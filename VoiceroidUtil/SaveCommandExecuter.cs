@@ -450,31 +450,36 @@ namespace VoiceroidUtil
                 return false;
             }
 
-            var exo = new ExEditObject();
+            var exo =
+                new ExEditObject
+                {
+                    Width = common.Width,
+                    Height = common.Height,
+                    Length = frameCount + common.ExtraFrames,
+                };
 
-            exo.Width = common.Width;
-            exo.Height = common.Height;
-            exo.Length = frameCount + common.ExtraFrames;
-
+            // decimal の小数部桁数を取得
             var scale = (decimal.GetBits(common.Fps)[3] & 0xFF0000) >> 16;
+
             exo.FpsScale = (int)Math.Pow(10, scale);
             exo.FpsBase = decimal.Floor(common.Fps * exo.FpsScale);
 
             // テキストレイヤー追加
             {
-                var item = new LayerItem();
+                var item =
+                    new LayerItem
+                    {
+                        BeginFrame = 1,
+                        EndFrame = exo.Length,
+                        LayerId = 1,
+                        GroupId = common.IsGrouping ? 1 : 0,
+                        IsClipping = charaStyle.IsTextClipping
+                    };
 
-                item.BeginFrame = 1;
-                item.EndFrame = exo.Length;
-                item.LayerId = 1;
-                item.GroupId = common.IsGrouping ? 1 : 0;
-                item.IsClipping = charaStyle.IsTextClipping;
-                {
-                    var c = charaStyle.Text.Clone();
-                    ExoTextStyleTemplate.ClearUnused(c);
-                    c.Text = text;
-                    item.Components.Add(c);
-                }
+                var c = charaStyle.Text.Clone();
+                ExoTextStyleTemplate.ClearUnused(c);
+                c.Text = text;
+                item.Components.Add(c);
                 item.Components.Add(charaStyle.Render.Clone());
 
                 exo.LayerItems.Add(item);
@@ -482,19 +487,22 @@ namespace VoiceroidUtil
 
             // 音声レイヤー追加
             {
-                var item = new LayerItem();
+                var item =
+                    new LayerItem
+                    {
+                        BeginFrame = 1,
+                        EndFrame = frameCount,
+                        LayerId = 2,
+                        GroupId = common.IsGrouping ? 1 : 0,
+                        IsAudio = true,
+                    };
 
-                item.BeginFrame = 1;
-                item.EndFrame = frameCount;
-                item.LayerId = 2;
-                item.GroupId = common.IsGrouping ? 1 : 0;
-                item.IsAudio = true;
-                {
-                    var c = new AudioFileComponent();
-                    c.PlaySpeed = charaStyle.PlaySpeed.Clone();
-                    c.FilePath = waveFilePath;
-                    item.Components.Add(c);
-                }
+                item.Components.Add(
+                    new AudioFileComponent
+                    {
+                        PlaySpeed = charaStyle.PlaySpeed.Clone(),
+                        FilePath = waveFilePath,
+                    });
                 item.Components.Add(charaStyle.Play.Clone());
 
                 exo.LayerItems.Add(item);

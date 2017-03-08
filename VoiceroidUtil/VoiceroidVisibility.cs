@@ -35,8 +35,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsVisible
         {
-            get { return this.visible; }
-            set { this.SetProperty(ref this.visible, value); }
+            get => this.visible;
+            set => this.SetProperty(ref this.visible, value);
         }
         private bool visible = true;
 

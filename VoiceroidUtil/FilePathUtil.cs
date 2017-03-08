@@ -79,8 +79,7 @@ namespace VoiceroidUtil
                 return status;
             }
 
-            string invalidLetter = null;
-            if (!IsValidPath(path, out invalidLetter))
+            if (!IsValidPath(path, out string invalidLetter))
             {
                 status.StatusType = AppStatusType.Warning;
                 status.StatusText = @"VOICEROIDが対応していない保存先フォルダーです。";

@@ -78,9 +78,8 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             // Color
-            if (value is Color)
+            if (value is Color color)
             {
-                var color = (Color)value;
                 return $@"{color.R:x2}{color.G:x2}{color.B:x2}";
             }
 
@@ -139,8 +138,8 @@ namespace RucheHome.AviUtl.ExEdit
             // bool
             if (objectType == typeof(bool))
             {
-                int v;
-                return int.TryParse(value, out v) ? Tuple.Create<object>(v != 0) : null;
+                return
+                    int.TryParse(value, out var v) ? Tuple.Create<object>(v != 0) : null;
             }
 
             // enum
@@ -161,13 +160,12 @@ namespace RucheHome.AviUtl.ExEdit
             // Color
             if (objectType == typeof(Color))
             {
-                uint v;
                 bool ok =
                     uint.TryParse(
                         value,
                         NumberStyles.HexNumber,
                         CultureInfo.InvariantCulture,
-                        out v);
+                        out var v);
                 if (!ok || v > 0xFFFFFF)
                 {
                     return null;

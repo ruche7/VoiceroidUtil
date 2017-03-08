@@ -294,12 +294,12 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>セクションコレクションデータ。</returns>
         public IniFileSectionCollection ToExoFileSections()
         {
-            var sections = new IniFileSectionCollection();
-
-            // ファイルセクション追加
-            sections.Add(
-                SectionNameOfFile,
-                ExoFileItemsConverter.ToItems(this));
+            // ファイルセクション追加しつつ作成
+            var sections =
+                new IniFileSectionCollection
+                {
+                    { SectionNameOfFile, ExoFileItemsConverter.ToItems(this) },
+                };
 
             // レイヤーアイテムセクション群追加
             foreach (var v in this.LayerItems.Select((item, i) => new { item, i }))

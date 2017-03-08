@@ -31,14 +31,6 @@ namespace RucheHome.AviUtl.ExEdit
         [ExoFileItem(ExoFileItemNameOfComponentName, Order = 0)]
         public abstract string ComponentName { get; }
 
-        string IComponent.ComponentName
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         /// <summary>
         /// このコンポーネントを
         /// 拡張編集オブジェクトファイルのアイテムコレクションに変換する。

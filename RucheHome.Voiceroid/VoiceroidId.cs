@@ -76,11 +76,8 @@ namespace RucheHome.Voiceroid
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>
         /// <returns>VOICEROID情報。</returns>
-        public static VoiceroidInfo GetInfo(this VoiceroidId id)
-        {
-            VoiceroidInfo info = null;
-            return Infos.TryGetValue(id, out info) ? info : null;
-        }
+        public static VoiceroidInfo GetInfo(this VoiceroidId id) =>
+            Infos.TryGetValue(id, out var info) ? info : null;
 
         /// <summary>
         /// VoiceroidInfo テーブル。
