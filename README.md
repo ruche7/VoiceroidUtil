@@ -5,7 +5,7 @@
 VOICEROID動画制作支援ツール『VoiceroidUtil』のソースです。
 
 * MIT License です。
-* ビルドには Visual Studio 2015 が必要です。
+* ビルドには Visual Studio 2017 が必要です。
 * RucheHomeLib および libs/Windows-API-Code-Pack-1.1 は submodule です。
 * 使用ライブラリの一部はNuGetパッケージです。
 * 画像リソースの一部は再配布禁止のため、ダミー画像がコミットされています。

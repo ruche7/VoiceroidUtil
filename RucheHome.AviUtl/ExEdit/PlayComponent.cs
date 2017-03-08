@@ -83,13 +83,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<VolumeConst> Volume
         {
-            get { return this.volume; }
-            set
-            {
+            get => this.volume;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.volume,
                     value ?? new MovableValue<VolumeConst>());
-            }
         }
         private MovableValue<VolumeConst> volume = null;
 
@@ -100,13 +98,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<BalanceConst> Balance
         {
-            get { return this.balance; }
-            set
-            {
+            get => this.balance;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.balance,
                     value ?? new MovableValue<BalanceConst>());
-            }
         }
         private MovableValue<BalanceConst> balance = null;
 

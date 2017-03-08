@@ -112,13 +112,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<CoordConst> X
         {
-            get { return this.x; }
-            set
-            {
+            get => this.x;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.x,
                     value ?? new MovableValue<CoordConst>());
-            }
         }
         private MovableValue<CoordConst> x = null;
 
@@ -129,13 +127,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<CoordConst> Y
         {
-            get { return this.y; }
-            set
-            {
+            get => this.y;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.y,
                     value ?? new MovableValue<CoordConst>());
-            }
         }
         private MovableValue<CoordConst> y = null;
 
@@ -146,13 +142,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<CoordConst> Z
         {
-            get { return this.z; }
-            set
-            {
+            get => this.z;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.z,
                     value ?? new MovableValue<CoordConst>());
-            }
         }
         private MovableValue<CoordConst> z = null;
 
@@ -163,13 +157,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<ScaleConst> Scale
         {
-            get { return this.scale; }
-            set
-            {
+            get => this.scale;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.scale,
                     value ?? new MovableValue<ScaleConst>());
-            }
         }
         private MovableValue<ScaleConst> scale = null;
 
@@ -180,13 +172,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<TransparencyConst> Transparency
         {
-            get { return this.transparency; }
-            set
-            {
+            get => this.transparency;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.transparency,
                     value ?? new MovableValue<TransparencyConst>());
-            }
         }
         private MovableValue<TransparencyConst> transparency = null;
 
@@ -197,13 +187,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<RotationConst> Rotation
         {
-            get { return this.rotation; }
-            set
-            {
+            get => this.rotation;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.rotation,
                     value ?? new MovableValue<RotationConst>());
-            }
         }
         private MovableValue<RotationConst> rotation = null;
 
@@ -213,13 +201,11 @@ namespace RucheHome.AviUtl.ExEdit
         [ExoFileItem(ExoFileItemNameOfBlendMode, Order = 7)]
         public BlendMode BlendMode
         {
-            get { return this.blendMode; }
-            set
-            {
+            get => this.blendMode;
+            set =>
                 this.SetProperty(
                     ref this.blendMode,
                     Enum.IsDefined(value.GetType(), value) ? value : BlendMode.Normal);
-            }
         }
         private BlendMode blendMode = BlendMode.Normal;
 
@@ -229,12 +215,10 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember(Name = nameof(BlendMode))]
         private string BlendModeString
         {
-            get { return this.BlendMode.ToString(); }
-            set
-            {
-                BlendMode mode;
-                this.BlendMode = Enum.TryParse(value, out mode) ? mode : BlendMode.Normal;
-            }
+            get => this.BlendMode.ToString();
+            set =>
+                this.BlendMode =
+                    Enum.TryParse(value, out BlendMode mode) ? mode : BlendMode.Normal;
         }
 
         /// <summary>

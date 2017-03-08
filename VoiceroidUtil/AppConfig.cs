@@ -36,8 +36,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsUpdateCheckingOnStartup
         {
-            get { return this.updateCheckingOnStartup; }
-            set { this.SetProperty(ref this.updateCheckingOnStartup, value); }
+            get => this.updateCheckingOnStartup;
+            set => this.SetProperty(ref this.updateCheckingOnStartup, value);
         }
         private bool updateCheckingOnStartup = true;
 
@@ -47,8 +47,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTopmost
         {
-            get { return this.topmost; }
-            set { this.SetProperty(ref this.topmost, value); }
+            get => this.topmost;
+            set => this.SetProperty(ref this.topmost, value);
         }
         private bool topmost = false;
 
@@ -58,8 +58,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTabAccepted
         {
-            get { return this.tabAccepted; }
-            set { this.SetProperty(ref this.tabAccepted, value); }
+            get => this.tabAccepted;
+            set => this.SetProperty(ref this.tabAccepted, value);
         }
         private bool tabAccepted = true;
 
@@ -69,13 +69,11 @@ namespace VoiceroidUtil
         [DataMember]
         public VoiceroidVisibilitySet VoiceroidVisibilities
         {
-            get { return this.voiceroidVisibilities; }
-            set
-            {
+            get => this.voiceroidVisibilities;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.voiceroidVisibilities,
                     value ?? (new VoiceroidVisibilitySet()));
-            }
         }
         private VoiceroidVisibilitySet voiceroidVisibilities = null;
 
@@ -85,13 +83,11 @@ namespace VoiceroidUtil
         [DataMember]
         public string SaveDirectoryPath
         {
-            get { return this.saveDirectoryPath; }
-            set
-            {
+            get => this.saveDirectoryPath;
+            set =>
                 this.SetProperty(
                     ref this.saveDirectoryPath,
                     string.IsNullOrWhiteSpace(value) ? DefaultSaveDirectoryPath : value);
-            }
         }
         private string saveDirectoryPath = DefaultSaveDirectoryPath;
 
@@ -100,14 +96,12 @@ namespace VoiceroidUtil
         /// </summary>
         public FileNameFormat FileNameFormat
         {
-            get { return this.fileNameFormat; }
-            set
-            {
+            get => this.fileNameFormat;
+            set =>
                 this.SetProperty(
                     ref this.fileNameFormat,
                     Enum.IsDefined(value.GetType(), value) ?
                         value : FileNameFormat.DateTimeNameText);
-            }
         }
         private FileNameFormat fileNameFormat = FileNameFormat.DateTimeNameText;
 
@@ -117,13 +111,11 @@ namespace VoiceroidUtil
         [DataMember(Name = nameof(FileNameFormat))]
         private string FileNameFormatString
         {
-            get { return this.FileNameFormat.ToString(); }
-            set
-            {
-                FileNameFormat f;
+            get => this.FileNameFormat.ToString();
+            set =>
                 this.FileNameFormat =
-                    Enum.TryParse(value, out f) ? f : FileNameFormat.DateTimeNameText;
-            }
+                    Enum.TryParse(value, out FileNameFormat f) ?
+                        f : FileNameFormat.DateTimeNameText;
         }
 
         /// <summary>
@@ -132,8 +124,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTextFileForceMaking
         {
-            get { return this.textFileForceMaking; }
-            set { this.SetProperty(ref this.textFileForceMaking, value); }
+            get => this.textFileForceMaking;
+            set => this.SetProperty(ref this.textFileForceMaking, value);
         }
         private bool textFileForceMaking = true;
 
@@ -143,8 +135,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTextFileUtf8
         {
-            get { return this.textFileUtf8; }
-            set { this.SetProperty(ref this.textFileUtf8, value); }
+            get => this.textFileUtf8;
+            set => this.SetProperty(ref this.textFileUtf8, value);
         }
         private bool textFileUtf8 = false;
 
@@ -154,8 +146,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsExoFileMaking
         {
-            get { return this.exoFileMaking; }
-            set { this.SetProperty(ref this.exoFileMaking, value); }
+            get => this.exoFileMaking;
+            set => this.SetProperty(ref this.exoFileMaking, value);
         }
         private bool exoFileMaking = false;
 
@@ -165,8 +157,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTextClearing
         {
-            get { return this.textClearing; }
-            set { this.SetProperty(ref this.textClearing, value); }
+            get => this.textClearing;
+            set => this.SetProperty(ref this.textClearing, value);
         }
         private bool textClearing = false;
 
@@ -177,8 +169,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsSavedFileToYmm
         {
-            get { return this.savedFileToYmm; }
-            set { this.SetProperty(ref this.savedFileToYmm, value); }
+            get => this.savedFileToYmm;
+            set => this.SetProperty(ref this.savedFileToYmm, value);
         }
         private bool savedFileToYmm = true;
 
@@ -188,8 +180,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsYmmCharaSelecting
         {
-            get { return this.ymmCharaSelecting; }
-            set { this.SetProperty(ref this.ymmCharaSelecting, value); }
+            get => this.ymmCharaSelecting;
+            set => this.SetProperty(ref this.ymmCharaSelecting, value);
         }
         private bool ymmCharaSelecting = true;
 
@@ -199,13 +191,11 @@ namespace VoiceroidUtil
         [DataMember]
         public YmmCharaRelationSet YmmCharaRelations
         {
-            get { return this.ymmCharaRelations; }
-            set
-            {
+            get => this.ymmCharaRelations;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.ymmCharaRelations,
                     value ?? (new YmmCharaRelationSet()));
-            }
         }
         private YmmCharaRelationSet ymmCharaRelations = null;
 
@@ -215,8 +205,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsYmmAddButtonClicking
         {
-            get { return this.ymmAddButtonClicking; }
-            set { this.SetProperty(ref this.ymmAddButtonClicking, value); }
+            get => this.ymmAddButtonClicking;
+            set => this.SetProperty(ref this.ymmAddButtonClicking, value);
         }
         private bool ymmAddButtonClicking = true;
 

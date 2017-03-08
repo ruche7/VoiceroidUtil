@@ -30,8 +30,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>パース結果。</returns>
         public static MovableValue<TConstants> Parse(string value)
         {
-            MovableValue<TConstants> result;
-            if (!TryParse(value, out result))
+            if (!TryParse(value, out var result))
             {
                 throw new ArgumentException(@"Invalid format.", nameof(value));
             }
@@ -62,8 +61,7 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             // 開始値
-            decimal begin;
-            if (!decimal.TryParse(vals[0], out begin))
+            if (!decimal.TryParse(vals[0], out decimal begin))
             {
                 return false;
             }
@@ -75,17 +73,18 @@ namespace RucheHome.AviUtl.ExEdit
             else if (vals.Length == 3 || vals.Length == 4)
             {
                 // 終端値
-                decimal end;
-                if (!decimal.TryParse(vals[1], out end))
+                if (!decimal.TryParse(vals[1], out decimal end))
                 {
                     return false;
                 }
 
                 // 移動モード＆加減速
-                MoveMode moveMode = MoveMode.None;
-                bool accel = false;
-                bool decel = false;
-                if (!TryParseMoveMode(vals[2], out moveMode, out accel, out decel))
+                if (
+                    !TryParseMoveMode(
+                        vals[2],
+                        out var moveMode,
+                        out bool accel,
+                        out bool decel))
                 {
                     return false;
                 }
@@ -104,7 +103,7 @@ namespace RucheHome.AviUtl.ExEdit
                     new MovableValue<TConstants>(
                         begin,
                         end,
-                        moveMode,
+                        MoveMode.None,
                         accel,
                         decel,
                         param);
@@ -151,8 +150,7 @@ namespace RucheHome.AviUtl.ExEdit
                 extra = value.Substring(nonDigitPos.Value);
             }
 
-            int id = 0;
-            if (!int.TryParse(idStr, out id))
+            if (!int.TryParse(idStr, out int id))
             {
                 return false;
             }
@@ -270,8 +268,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public decimal Begin
         {
-            get { return this.begin; }
-            set { this.SetProperty(ref this.begin, CorrectValue(value)); }
+            get => this.begin;
+            set => this.SetProperty(ref this.begin, CorrectValue(value));
         }
         private decimal begin = 0;
 
@@ -284,8 +282,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public decimal End
         {
-            get { return this.end; }
-            set { this.SetProperty(ref this.end, CorrectValue(value)); }
+            get => this.end;
+            set => this.SetProperty(ref this.end, CorrectValue(value));
         }
         private decimal end = 0;
 
@@ -294,13 +292,11 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public MoveMode MoveMode
         {
-            get { return this.moveMode; }
-            set
-            {
+            get => this.moveMode;
+            set =>
                 this.SetProperty(
                     ref this.moveMode,
                     Enum.IsDefined(value.GetType(), value) ? value : MoveMode.None);
-            }
         }
         private MoveMode moveMode = MoveMode.None;
 
@@ -310,12 +306,10 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember(Name = nameof(MoveMode))]
         private string MoveModeString
         {
-            get { return this.MoveMode.ToString(); }
-            set
-            {
-                MoveMode type;
-                this.MoveMode = Enum.TryParse(value, out type) ? type : MoveMode.None;
-            }
+            get => this.MoveMode.ToString();
+            set =>
+                this.MoveMode =
+                    Enum.TryParse(value, out MoveMode type) ? type : MoveMode.None;
         }
 
         /// <summary>
@@ -327,8 +321,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsAccelerating
         {
-            get { return this.accelerating; }
-            set { this.SetProperty(ref this.accelerating, value); }
+            get => this.accelerating;
+            set => this.SetProperty(ref this.accelerating, value);
         }
         private bool accelerating = false;
 
@@ -341,8 +335,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsDecelerating
         {
-            get { return this.decelerating; }
-            set { this.SetProperty(ref this.decelerating, value); }
+            get => this.decelerating;
+            set => this.SetProperty(ref this.decelerating, value);
         }
         private bool decelerating = false;
 
@@ -355,8 +349,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public int Interval
         {
-            get { return this.interval; }
-            set { this.SetProperty(ref this.interval, value); }
+            get => this.interval;
+            set => this.SetProperty(ref this.interval, value);
         }
         private int interval = 0;
 

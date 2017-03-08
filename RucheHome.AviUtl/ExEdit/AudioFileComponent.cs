@@ -102,13 +102,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<PlayPositionConst> PlayPosition
         {
-            get { return this.playPosition; }
-            set
-            {
+            get => this.playPosition;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.playPosition,
                     value ?? new MovableValue<PlayPositionConst>());
-            }
         }
         private MovableValue<PlayPositionConst> playPosition = null;
 
@@ -119,13 +117,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<PlaySpeedConst> PlaySpeed
         {
-            get { return this.playSpeed; }
-            set
-            {
+            get => this.playSpeed;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.playSpeed,
                     value ?? new MovableValue<PlaySpeedConst>());
-            }
         }
         private MovableValue<PlaySpeedConst> playSpeed = null;
 
@@ -136,8 +132,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsLooping
         {
-            get { return this.looping; }
-            set { this.SetProperty(ref this.looping, value); }
+            get => this.looping;
+            set => this.SetProperty(ref this.looping, value);
         }
         private bool looping = false;
 
@@ -148,8 +144,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsVideoFileLinking
         {
-            get { return this.videoFileLinking; }
-            set { this.SetProperty(ref this.videoFileLinking, value); }
+            get => this.videoFileLinking;
+            set => this.SetProperty(ref this.videoFileLinking, value);
         }
         private bool videoFileLinking = false;
 
@@ -160,8 +156,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public string FilePath
         {
-            get { return this.filePath; }
-            set { this.SetProperty(ref this.filePath, value ?? ""); }
+            get => this.filePath;
+            set => this.SetProperty(ref this.filePath, value ?? "");
         }
         private string filePath = "";
 

@@ -30,13 +30,11 @@ namespace VoiceroidUtil
         [DataMember]
         public RenderComponent Render
         {
-            get { return this.render; }
-            set
-            {
+            get => this.render;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.render,
                     value ?? new RenderComponent());
-            }
         }
         private RenderComponent render = null;
 
@@ -46,13 +44,11 @@ namespace VoiceroidUtil
         [DataMember]
         public TextComponent Text
         {
-            get { return this.text; }
-            set
-            {
+            get => this.text;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.text,
                     value ?? new TextComponent());
-            }
         }
         private TextComponent text = null;
 
@@ -62,8 +58,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsTextClipping
         {
-            get { return this.textClipping; }
-            set { this.SetProperty(ref this.textClipping, value); }
+            get => this.textClipping;
+            set => this.SetProperty(ref this.textClipping, value);
         }
         private bool textClipping = false;
 
@@ -73,13 +69,11 @@ namespace VoiceroidUtil
         [DataMember]
         public PlayComponent Play
         {
-            get { return this.play; }
-            set
-            {
+            get => this.play;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.play,
                     value ?? new PlayComponent());
-            }
         }
         private PlayComponent play = null;
 
@@ -89,13 +83,11 @@ namespace VoiceroidUtil
         [DataMember]
         public MovableValue<AudioFileComponent.PlaySpeedConst> PlaySpeed
         {
-            get { return this.playSpeed; }
-            set
-            {
+            get => this.playSpeed;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.playSpeed,
                     value ?? new MovableValue<AudioFileComponent.PlaySpeedConst>());
-            }
         }
         private MovableValue<AudioFileComponent.PlaySpeedConst> playSpeed = null;
 

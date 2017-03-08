@@ -45,7 +45,7 @@ namespace RucheHome.Text
         [DataMember]
         public string Name
         {
-            get { return this.name; }
+            get => this.name;
             private set
             {
                 ValidateName(value, nameof(value));

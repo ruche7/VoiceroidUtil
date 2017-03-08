@@ -37,8 +37,8 @@ namespace VoiceroidUtil
         [DataMember]
         public string YmmCharaName
         {
-            get { return this.ymmCharaName; }
-            set { this.SetProperty(ref this.ymmCharaName, value ?? ""); }
+            get => this.ymmCharaName;
+            set => this.SetProperty(ref this.ymmCharaName, value ?? "");
         }
         private string ymmCharaName = "";
 

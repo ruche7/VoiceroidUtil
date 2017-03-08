@@ -76,8 +76,7 @@ namespace VoiceroidUtil
         /// </summary>
         private void SetupTraceListener()
         {
-            var listener = Trace.Listeners[@"ErrorLogFile"] as ErrorLogFileTraceListener;
-            if (listener != null)
+            if (Trace.Listeners[@"ErrorLogFile"] is ErrorLogFileTraceListener listener)
             {
                 // 音声ファイル保存先をエラーログファイル保存先として使う
                 listener.DirectoryPathGetter =

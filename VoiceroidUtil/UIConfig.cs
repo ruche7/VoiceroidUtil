@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.Serialization;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
@@ -26,14 +25,12 @@ namespace VoiceroidUtil
         /// </summary>
         public VoiceroidId VoiceroidId
         {
-            get { return this.voiceroidId; }
-            set
-            {
+            get => this.voiceroidId;
+            set =>
                 this.SetProperty(
                     ref this.voiceroidId,
                     Enum.IsDefined(value.GetType(), value) ?
                         value : VoiceroidId.YukariEx);
-            }
         }
         private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
 
@@ -43,13 +40,10 @@ namespace VoiceroidUtil
         [DataMember(Name = nameof(VoiceroidId))]
         private string VoiceroidIdString
         {
-            get { return this.VoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
+            get => this.VoiceroidId.ToString();
+            set =>
                 this.VoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
+                    Enum.TryParse(value, out VoiceroidId id) ? id : VoiceroidId.YukariEx;
         }
 
         /// <summary>
@@ -58,13 +52,11 @@ namespace VoiceroidUtil
         [DataMember]
         public VoiceroidExecutablePathSet VoiceroidExecutablePathes
         {
-            get { return this.voiceroidExecutablePathes; }
-            set
-            {
+            get => this.voiceroidExecutablePathes;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.voiceroidExecutablePathes,
                     value ?? (new VoiceroidExecutablePathSet()));
-            }
         }
         private VoiceroidExecutablePathSet voiceroidExecutablePathes = null;
 
@@ -74,8 +66,8 @@ namespace VoiceroidUtil
         [DataMember]
         public int TalkTextReplaceConfigTabIndex
         {
-            get { return this.talkTextReplaceConfigTabIndex; }
-            set { this.SetProperty(ref this.talkTextReplaceConfigTabIndex, value); }
+            get => this.talkTextReplaceConfigTabIndex;
+            set => this.SetProperty(ref this.talkTextReplaceConfigTabIndex, value);
         }
         private int talkTextReplaceConfigTabIndex = 0;
 
@@ -86,8 +78,8 @@ namespace VoiceroidUtil
         [DataMember]
         public int ExoConfigTabIndex
         {
-            get { return this.exoConfigTabIndex; }
-            set { this.SetProperty(ref this.exoConfigTabIndex, value); }
+            get => this.exoConfigTabIndex;
+            set => this.SetProperty(ref this.exoConfigTabIndex, value);
         }
         private int exoConfigTabIndex = 0;
 
@@ -97,14 +89,12 @@ namespace VoiceroidUtil
         /// </summary>
         public VoiceroidId ExoCharaVoiceroidId
         {
-            get { return this.exoCharaVoiceroidId; }
-            set
-            {
+            get => this.exoCharaVoiceroidId;
+            set =>
                 this.SetProperty(
                     ref this.exoCharaVoiceroidId,
                     Enum.IsDefined(value.GetType(), value) ?
                         value : VoiceroidId.YukariEx);
-            }
         }
         private VoiceroidId exoCharaVoiceroidId = VoiceroidId.YukariEx;
 
@@ -114,13 +104,10 @@ namespace VoiceroidUtil
         [DataMember(Name = nameof(ExoCharaVoiceroidId))]
         private string ExoCharaVoiceroidIdString
         {
-            get { return this.ExoCharaVoiceroidId.ToString(); }
-            set
-            {
-                VoiceroidId id;
+            get => this.ExoCharaVoiceroidId.ToString();
+            set =>
                 this.ExoCharaVoiceroidId =
-                    Enum.TryParse(value, out id) ? id : VoiceroidId.YukariEx;
-            }
+                    Enum.TryParse(value, out VoiceroidId id) ? id : VoiceroidId.YukariEx;
         }
 
         /// <summary>
@@ -130,8 +117,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsExoCharaTextExpanded
         {
-            get { return this.exoCharaTextExpanded; }
-            set { this.SetProperty(ref this.exoCharaTextExpanded, value); }
+            get => this.exoCharaTextExpanded;
+            set => this.SetProperty(ref this.exoCharaTextExpanded, value);
         }
         private bool exoCharaTextExpanded = true;
 
@@ -142,8 +129,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsExoCharaAudioExpanded
         {
-            get { return this.exoCharaAudioExpanded; }
-            set { this.SetProperty(ref this.exoCharaAudioExpanded, value); }
+            get => this.exoCharaAudioExpanded;
+            set => this.SetProperty(ref this.exoCharaAudioExpanded, value);
         }
         private bool exoCharaAudioExpanded = true;
 
@@ -155,8 +142,8 @@ namespace VoiceroidUtil
         [DataMember]
         public bool IsExoCharaTextImportExpanded
         {
-            get { return this.exoCharaTextImportExpanded; }
-            set { this.SetProperty(ref this.exoCharaTextImportExpanded, value); }
+            get => this.exoCharaTextImportExpanded;
+            set => this.SetProperty(ref this.exoCharaTextImportExpanded, value);
         }
         private bool exoCharaTextImportExpanded = true;
 
@@ -166,8 +153,8 @@ namespace VoiceroidUtil
         [DataMember]
         public int AppConfigTabIndex
         {
-            get { return this.appConfigTabIndex; }
-            set { this.SetProperty(ref this.appConfigTabIndex, value); }
+            get => this.appConfigTabIndex;
+            set => this.SetProperty(ref this.appConfigTabIndex, value);
         }
         private int appConfigTabIndex = 0;
 

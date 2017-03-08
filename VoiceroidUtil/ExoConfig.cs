@@ -26,13 +26,11 @@ namespace VoiceroidUtil
         [DataMember]
         public ExoCommonConfig Common
         {
-            get { return this.common; }
-            set
-            {
+            get => this.common;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.common,
                     value ?? new ExoCommonConfig());
-            }
         }
         private ExoCommonConfig common = null;
 
@@ -42,13 +40,11 @@ namespace VoiceroidUtil
         [DataMember]
         public ExoCharaStyleSet CharaStyles
         {
-            get { return this.charaStyles; }
-            set
-            {
+            get => this.charaStyles;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.charaStyles,
                     value ?? new ExoCharaStyleSet());
-            }
         }
         private ExoCharaStyleSet charaStyles = null;
 

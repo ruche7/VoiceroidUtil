@@ -23,10 +23,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// プロセスが起動しているか否かを取得する。
         /// </summary>
-        public bool IsRunning
-        {
-            get { return (this.MainWindow != null); }
-        }
+        public bool IsRunning => (this.MainWindow != null);
 
         /// <summary>
         /// 状態を更新する。
@@ -241,10 +238,10 @@ namespace VoiceroidUtil
         /// </summary>
         private Win32Window MainWindow
         {
-            get { return mainWindow; }
+            get => this.mainWindow;
             set
             {
-                if (value != mainWindow)
+                if (value != this.mainWindow)
                 {
                     var oldHandle = this.mainWindow?.Handle;
                     this.mainWindow = value;

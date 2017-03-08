@@ -25,12 +25,8 @@ namespace VoiceroidUtil
             Func<T, Task> asyncFunc,
             Func<T, T> parameterConverter = null)
         {
-            if (asyncFunc == null)
-            {
-                throw new ArgumentNullException(nameof(asyncFunc));
-            }
-
-            this.AsyncFunc = asyncFunc;
+            this.AsyncFunc =
+                asyncFunc ?? throw new ArgumentNullException(nameof(asyncFunc));
             this.ParameterConverter = parameterConverter;
         }
 

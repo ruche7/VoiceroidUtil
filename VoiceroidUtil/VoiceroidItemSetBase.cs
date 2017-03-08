@@ -204,7 +204,7 @@ namespace VoiceroidUtil
         [DataMember]
         private InnerList Table
         {
-            get { return this.table; }
+            get => this.table;
             set
             {
                 if (value == null)

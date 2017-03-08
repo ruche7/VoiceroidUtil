@@ -41,8 +41,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         public IniFileItemCollection Items
         {
-            get { return this.items; }
-            set { this.items = value ?? new IniFileItemCollection(); }
+            get => this.items;
+            set => this.items = value ?? new IniFileItemCollection();
         }
         private IniFileItemCollection items = new IniFileItemCollection();
 

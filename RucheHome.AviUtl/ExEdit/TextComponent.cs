@@ -184,13 +184,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<FontSizeConst> FontSize
         {
-            get { return this.fontSize; }
-            set
-            {
+            get => this.fontSize;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.fontSize,
                     value ?? new MovableValue<FontSizeConst>());
-            }
         }
         private MovableValue<FontSizeConst> fontSize = null;
 
@@ -201,13 +199,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public MovableValue<TextSpeedConst> TextSpeed
         {
-            get { return this.textSpeed; }
-            set
-            {
+            get => this.textSpeed;
+            set =>
                 this.SetPropertyWithPropertyChangedChain(
                     ref this.textSpeed,
                     value ?? new MovableValue<TextSpeedConst>());
-            }
         }
         private MovableValue<TextSpeedConst> textSpeed = null;
 
@@ -218,8 +214,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsAutoScrolling
         {
-            get { return this.autoScrolling; }
-            set { this.SetProperty(ref this.autoScrolling, value); }
+            get => this.autoScrolling;
+            set => this.SetProperty(ref this.autoScrolling, value);
         }
         private bool autoScrolling = false;
 
@@ -230,8 +226,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsIndividualizing
         {
-            get { return this.individualizing; }
-            set { this.SetProperty(ref this.individualizing, value); }
+            get => this.individualizing;
+            set => this.SetProperty(ref this.individualizing, value);
         }
         private bool individualizing = false;
 
@@ -242,8 +238,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsAligningOnMotion
         {
-            get { return this.aligningOnMotion; }
-            set { this.SetProperty(ref this.aligningOnMotion, value); }
+            get => this.aligningOnMotion;
+            set => this.SetProperty(ref this.aligningOnMotion, value);
         }
         private bool aligningOnMotion = false;
 
@@ -254,8 +250,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsAutoAdjusting
         {
-            get { return this.autoAdjusting; }
-            set { this.SetProperty(ref this.autoAdjusting, value); }
+            get => this.autoAdjusting;
+            set => this.SetProperty(ref this.autoAdjusting, value);
         }
         private bool autoAdjusting = false;
 
@@ -266,13 +262,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public Color FontColor
         {
-            get { return this.fontColor; }
-            set
-            {
+            get => this.fontColor;
+            set =>
                 this.SetProperty(
                     ref this.fontColor,
                     Color.FromRgb(value.R, value.G, value.B));
-            }
         }
         private Color fontColor = Colors.White;
 
@@ -283,13 +277,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public Color FontDecorationColor
         {
-            get { return this.fontDecorationColor; }
-            set
-            {
+            get => this.fontDecorationColor;
+            set =>
                 this.SetProperty(
                     ref this.fontDecorationColor,
                     Color.FromRgb(value.R, value.G, value.B));
-            }
         }
         private Color fontDecorationColor = Colors.Black;
 
@@ -300,11 +292,9 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public string FontFamilyName
         {
-            get { return this.fontFamilyName; }
-            set
-            {
+            get => this.fontFamilyName;
+            set =>
                 this.SetProperty(ref this.fontFamilyName, value ?? DefaultFontFamilyName);
-            }
         }
         private string fontFamilyName = DefaultFontFamilyName;
 
@@ -317,13 +307,11 @@ namespace RucheHome.AviUtl.ExEdit
             Order = 8)]
         public FontDecoration FontDecoration
         {
-            get { return this.fontDecoration; }
-            set
-            {
+            get => this.fontDecoration;
+            set =>
                 this.SetProperty(
                     ref this.fontDecoration,
                     Enum.IsDefined(value.GetType(), value) ? value : FontDecoration.None);
-            }
         }
         private FontDecoration fontDecoration = FontDecoration.None;
 
@@ -333,13 +321,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember(Name = nameof(FontDecoration))]
         private string FontDecorationString
         {
-            get { return this.FontDecoration.ToString(); }
-            set
-            {
-                FontDecoration deco;
+            get => this.FontDecoration.ToString();
+            set =>
                 this.FontDecoration =
-                    Enum.TryParse(value, out deco) ? deco : FontDecoration.None;
-            }
+                    Enum.TryParse(value, out FontDecoration deco) ?
+                        deco : FontDecoration.None;
         }
 
         /// <summary>
@@ -348,14 +334,12 @@ namespace RucheHome.AviUtl.ExEdit
         [ExoFileItem(ExoFileItemNameOfTextAlignment, Order = 12)]
         public TextAlignment TextAlignment
         {
-            get { return this.textAlignment; }
-            set
-            {
+            get => this.textAlignment;
+            set =>
                 this.SetProperty(
                     ref this.textAlignment,
                     Enum.IsDefined(value.GetType(), value) ?
                         value : TextAlignment.TopLeft);
-            }
         }
         private TextAlignment textAlignment = TextAlignment.TopLeft;
 
@@ -365,13 +349,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember(Name = nameof(TextAlignment))]
         private string TextAlignmentString
         {
-            get { return this.TextAlignment.ToString(); }
-            set
-            {
-                TextAlignment deco;
+            get => this.TextAlignment.ToString();
+            set =>
                 this.TextAlignment =
-                    Enum.TryParse(value, out deco) ? deco : TextAlignment.TopLeft;
-            }
+                    Enum.TryParse(value, out TextAlignment deco) ?
+                        deco : TextAlignment.TopLeft;
         }
 
         /// <summary>
@@ -381,8 +363,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsBold
         {
-            get { return this.bold; }
-            set { this.SetProperty(ref this.bold, value); }
+            get => this.bold;
+            set => this.SetProperty(ref this.bold, value);
         }
         private bool bold = false;
 
@@ -393,8 +375,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsItalic
         {
-            get { return this.italic; }
-            set { this.SetProperty(ref this.italic, value); }
+            get => this.italic;
+            set => this.SetProperty(ref this.italic, value);
         }
         private bool italic = false;
 
@@ -405,13 +387,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public int LetterSpace
         {
-            get { return this.letterSpace; }
-            set
-            {
+            get => this.letterSpace;
+            set =>
                 this.SetProperty(
                     ref this.letterSpace,
                     Math.Min(Math.Max(-100, value), 100));
-            }
         }
         private int letterSpace = 0;
 
@@ -422,13 +402,11 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public int LineSpace
         {
-            get { return this.lineSpace; }
-            set
-            {
+            get => this.lineSpace;
+            set =>
                 this.SetProperty(
                     ref this.lineSpace,
                     Math.Min(Math.Max(-100, value), 100));
-            }
         }
         private int lineSpace = 0;
 
@@ -439,8 +417,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsHighDefinition
         {
-            get { return this.highDefinition; }
-            set { this.SetProperty(ref this.highDefinition, value); }
+            get => this.highDefinition;
+            set => this.SetProperty(ref this.highDefinition, value);
         }
         private bool highDefinition = true;
 
@@ -451,8 +429,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsSoft
         {
-            get { return this.soft; }
-            set { this.SetProperty(ref this.soft, value); }
+            get => this.soft;
+            set => this.SetProperty(ref this.soft, value);
         }
         private bool soft = true;
 
@@ -463,8 +441,8 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public bool IsMonospacing
         {
-            get { return this.monospacing; }
-            set { this.SetProperty(ref this.monospacing, value); }
+            get => this.monospacing;
+            set => this.SetProperty(ref this.monospacing, value);
         }
         private bool monospacing = false;
 
@@ -475,7 +453,7 @@ namespace RucheHome.AviUtl.ExEdit
         [DataMember]
         public string Text
         {
-            get { return this.text; }
+            get => this.text;
             set
             {
                 var v = value ?? "";
@@ -661,8 +639,7 @@ namespace RucheHome.AviUtl.ExEdit
                     throw new ArgumentNullException(nameof(objectType));
                 }
 
-                byte exoValue;
-                if (!byte.TryParse(value, out exoValue))
+                if (!byte.TryParse(value, out var exoValue))
                 {
                     return null;
                 }
@@ -750,13 +727,12 @@ namespace RucheHome.AviUtl.ExEdit
                             i =>
                             {
                                 // 16進数文字列から int に変換
-                                int c;
                                 bool ok =
                                     int.TryParse(
                                         exoValue.Substring(i * 4, 4),
                                         NumberStyles.AllowHexSpecifier,
                                         CultureInfo.InvariantCulture,
-                                        out c);
+                                        out var c);
 
                                 // 変換失敗時は -1 を返す
                                 return ok ? c : -1;
