@@ -18,7 +18,6 @@ using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Media;
-using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 
 namespace VoiceroidUtil.ViewModel
@@ -693,7 +692,9 @@ namespace VoiceroidUtil.ViewModel
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
                     SubStatusCommand = subStatusCommand,
-                    SubStatusCommandTip = subStatusCommandTip ?? "",
+                    SubStatusCommandTip =
+                        string.IsNullOrEmpty(subStatusCommandTip) ?
+                            null : subStatusCommandTip,
                 };
         }
 

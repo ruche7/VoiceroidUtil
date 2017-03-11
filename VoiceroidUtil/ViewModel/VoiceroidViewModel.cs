@@ -82,6 +82,21 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
+            // VOICEROID選択コマンド実行可能状態
+            // 表示状態のVOICEROIDプロセスが2つ以上あれば選択可能
+            this.IsSelectVoiceroidCommandExecutable =
+                this.VisibleProcesses
+                    .Select(vp => vp.Count >= 2)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // VOICEROID選択コマンドのチップテキスト
+            this.SelectVoiceroidCommandTip =
+                this.VisibleProcesses
+                    .Select(_ => this.MakeSelectVoiceroidCommandTip())
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 最適表示列数
             // 6プロセス単位で列数を増やす
             this.VisibleProcessesColumnCount =
@@ -184,7 +199,29 @@ namespace VoiceroidUtil.ViewModel
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
 
-            // 実行/終了コマンド
+            // VOICEROID選択コマンドコレクション(要素数 10 固定)
+            this.SelectVoiceroidCommands =
+                new ReadOnlyCollection<ICommand>(
+                    Enumerable.Range(0, 10)
+                        .Select(
+                            index =>
+                                this.MakeCommand(
+                                    () => this.ExecuteSelectVoiceroidCommand(index),
+                                    this.IsSelectVoiceroidCommandExecutable,
+                                    this.VisibleProcesses.Select(vp => index < vp.Count)))
+                        .ToArray());
+
+            // 前方/後方VOICEROID選択コマンド
+            this.SelectPreviousVoiceroidCommand =
+                this.MakeCommand(
+                    this.ExecuteSelectPreviousVoiceroidCommand,
+                    this.IsSelectVoiceroidCommandExecutable);
+            this.SelectNextVoiceroidCommand =
+                this.MakeCommand(
+                    this.ExecuteSelectNextVoiceroidCommand,
+                    this.IsSelectVoiceroidCommandExecutable);
+
+            // 起動/終了コマンド
             this.RunExitCommand =
                 this.MakeAsyncCommand(
                     this.ExecuteRunExitCommand,
@@ -243,6 +280,19 @@ namespace VoiceroidUtil.ViewModel
         {
             get;
         }
+
+        /// <summary>
+        /// VOICEROID選択コマンドを実行可能な状態であるか否かを取得する。
+        /// </summary>
+        /// <remarks>
+        /// (VisibleProcesses.Value.Count >= 2) の判定結果を返す。
+        /// </remarks>
+        public IReadOnlyReactiveProperty<bool> IsSelectVoiceroidCommandExecutable { get; }
+
+        /// <summary>
+        /// VOICEROID選択コマンドのチップテキストを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<string> SelectVoiceroidCommandTip { get; }
 
         /// <summary>
         /// 表示状態のVOICEROIDプロセスコレクションの最適表示列数を取得する。
@@ -305,6 +355,24 @@ namespace VoiceroidUtil.ViewModel
         /// 再生も音声保存も実行中でなければ true となる。
         /// </remarks>
         public IReadOnlyReactiveProperty<bool> IsIdle { get; }
+
+        /// <summary>
+        /// VOICEROID選択コマンドコレクションを取得する。
+        /// </summary>
+        /// <remarks>
+        /// 要素数は 10 固定。表示中VOICEROIDのインデックスに対応する。
+        /// </remarks>
+        public ReadOnlyCollection<ICommand> SelectVoiceroidCommands { get; }
+
+        /// <summary>
+        /// 前方VOICEROID選択コマンドを取得する。
+        /// </summary>
+        public ICommand SelectPreviousVoiceroidCommand { get; }
+
+        /// <summary>
+        /// 後方VOICEROID選択コマンドを取得する。
+        /// </summary>
+        public ICommand SelectNextVoiceroidCommand { get; }
 
         /// <summary>
         /// 実行/終了コマンドを取得する。
@@ -478,6 +546,21 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// VOICEROID選択コマンドのチップテキストを作成する。
+        /// </summary>
+        /// <returns>チップテキスト。表示不要ならば null 。</returns>
+        private string MakeSelectVoiceroidCommandTip() =>
+            !this.IsSelectVoiceroidCommandExecutable.Value ?
+                null :
+                @"F1/F2 : 前/次のVOICEROIDを選択" + Environment.NewLine +
+                string.Join(
+                    Environment.NewLine,
+                    this.VisibleProcesses.Value.Select(
+                        (p, i) =>
+                            @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
+                            p.Name + @" を選択"));
+
+        /// <summary>
         /// メインウィンドウをアクティブにする。
         /// </summary>
         private Task ActivateMainWindow() => this.WindowActivateService.Run();
@@ -489,6 +572,54 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="action">アクション種別。</param>
         private Task RaiseVoiceroidAction(IProcess process, VoiceroidAction action) =>
             this.VoiceroidActionService.Run(process, action);
+
+        /// <summary>
+        /// 各 SelectVoiceroidCommands コマンドの実処理を行う。
+        /// </summary>
+        /// <param name="index">インデックス。</param>
+        private void ExecuteSelectVoiceroidCommand(int index)
+        {
+            if (
+                this.IsSelectVoiceroidCommandExecutable.Value &&
+                index < this.VisibleProcesses.Value.Count)
+            {
+                this.SelectedProcess.Value = this.VisibleProcesses.Value[index];
+            }
+        }
+
+        /// <summary>
+        /// SelectPreviousVoiceroidCommand コマンドの実処理を行う。
+        /// </summary>
+        private void ExecuteSelectPreviousVoiceroidCommand()
+        {
+            var index =
+                Array.IndexOf(
+                    this.VisibleProcesses.Value.Select(p => p.Id).ToArray(),
+                    this.SelectedProcess.Value.Id);
+            if (index >= 0)
+            {
+                --index;
+                this.ExecuteSelectVoiceroidCommand(
+                    (index < 0) ? (this.VisibleProcesses.Value.Count - 1) : index);
+            }
+        }
+
+        /// <summary>
+        /// SelectNextVoiceroidCommand コマンドの実処理を行う。
+        /// </summary>
+        private void ExecuteSelectNextVoiceroidCommand()
+        {
+            var index =
+                Array.IndexOf(
+                    this.VisibleProcesses.Value.Select(p => p.Id).ToArray(),
+                    this.SelectedProcess.Value.Id);
+            if (index >= 0)
+            {
+                ++index;
+                this.ExecuteSelectVoiceroidCommand(
+                    (index < this.VisibleProcesses.Value.Count) ? index : 0);
+            }
+        }
 
         /// <summary>
         /// RunExitCommand コマンドの実処理を行う。
@@ -788,7 +919,9 @@ namespace VoiceroidUtil.ViewModel
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
                     SubStatusCommand = subStatusCommand,
-                    SubStatusCommandTip = subStatusCommandTip ?? "",
+                    SubStatusCommandTip =
+                        string.IsNullOrEmpty(subStatusCommandTip) ?
+                            null : subStatusCommandTip,
                 };
         }
 

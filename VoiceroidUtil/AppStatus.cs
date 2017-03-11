@@ -43,6 +43,6 @@ namespace VoiceroidUtil
         /// <summary>
         /// オプショナルなサブ状態コマンドのチップテキストを取得または設定する。
         /// </summary>
-        public string SubStatusCommandTip { get; set; } = "";
+        public string SubStatusCommandTip { get; set; } = null;
     }
 }

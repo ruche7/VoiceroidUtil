@@ -5,8 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
-    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
-    xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppStatusBar"
     mc:Ignorable="d"

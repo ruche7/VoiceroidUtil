@@ -6,7 +6,6 @@
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:aviutl="http://schemas.ruche-home.net/xaml/aviutl"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.MovableValueMoveModeControl"
     mc:Ignorable="d"
