@@ -555,10 +555,12 @@ namespace VoiceroidUtil.ViewModel
                 @"F1/F2 : 前/次のVOICEROIDを選択" + Environment.NewLine +
                 string.Join(
                     Environment.NewLine,
-                    this.VisibleProcesses.Value.Select(
-                        (p, i) =>
-                            @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
-                            p.Name + @" を選択"));
+                    this.VisibleProcesses.Value
+                        .Take(10)
+                        .Select(
+                            (p, i) =>
+                                @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
+                                p.Name + @" を選択"));
 
         /// <summary>
         /// メインウィンドウをアクティブにする。

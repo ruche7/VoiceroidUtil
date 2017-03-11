@@ -54,6 +54,12 @@ namespace RucheHome.Voiceroid
         AiEx,
 
         /// <summary>
+        /// 月読ショウタ EX
+        /// </summary>
+        [EnumMember]
+        ShoutaEx,
+
+        /// <summary>
         /// 京町セイカ EX
         /// </summary>
         [EnumMember]
@@ -114,6 +120,10 @@ namespace RucheHome.Voiceroid
                     VoiceroidId.AiEx,
                     @"月読アイ",
                     @"VOICEROID＋ 月読アイ EX"),
+                new VoiceroidInfo(
+                    VoiceroidId.ShoutaEx,
+                    @"月読ショウタ",
+                    @"VOICEROID＋ 月読ショウタ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.SeikaEx,
                     @"京町セイカ",

@@ -264,10 +264,12 @@ namespace VoiceroidUtil.ViewModel
                 @"F1/F2 : 前/次のキャラを選択" + Environment.NewLine +
                 string.Join(
                     Environment.NewLine,
-                    this.VisibleCharaStyles.Value.Select(
-                        (p, i) =>
-                            @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
-                            p.VoiceroidName + @" を選択"));
+                    this.VisibleCharaStyles.Value
+                        .Take(10)
+                        .Select(
+                            (p, i) =>
+                                @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
+                                p.VoiceroidName + @" を選択"));
 
         /// <summary>
         /// FileMakingCommand の実処理を行う。

@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
-    xmlns:local="clr-namespace:VoiceroidUtil">
+    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/VoiceroidUtil;component/resources/CommonBrushes.xaml" />
     </ResourceDictionary.MergedDictionaries>
