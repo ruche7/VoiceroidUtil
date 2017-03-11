@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:VoiceroidUtil">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- VoiceroidId -->
 
@@ -43,6 +42,11 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/ai_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="ShoutaEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/shouta_ok.png" />
             </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="SeikaEx">
                 <Setter
@@ -188,6 +192,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/ai_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="ShoutaEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/shouta_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="ShoutaEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/shouta_ok.png" />
             </MultiDataTrigger>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
