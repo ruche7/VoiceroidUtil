@@ -4,7 +4,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
-    xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.MovableValueControl"

@@ -7,7 +7,6 @@
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
-    xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.TalkTextReplaceItemsView"
     mc:Ignorable="d"

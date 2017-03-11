@@ -6,7 +6,6 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
-    xmlns:local="clr-namespace:VoiceroidUtil"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.VoiceroidView"
     mc:Ignorable="d"
@@ -38,7 +37,7 @@
         <DockPanel Grid.Row="0">
             <Button
                 Command="{Binding RunExitCommand}"
-                ToolTip="起動/終了"
+                ToolTip="起動/終了 (F3)"
                 Margin="1,0,0,0"
                 Padding="4"
                 TabIndex="1"
@@ -48,6 +47,7 @@
             <ComboBox
                 ItemsSource="{Binding VisibleProcesses.Value}"
                 SelectedItem="{Binding SelectedProcess.Value}"
+                ToolTip="{Binding SelectVoiceroidCommandTip.Value}"
                 Padding="2,1"
                 MaxDropDownHeight="480"
                 TabIndex="0">
@@ -116,8 +116,8 @@
             <tk:WatermarkTextBox.Watermark>
                 <TextBlock>
                     しゃべらせたい文章を入力してください。<LineBreak />
-                    Ctrl+Q または入力中に Alt+Enter で再生します。<LineBreak />
-                    Ctrl+S または入力中に Ctrl+Enter で音声保存します。<LineBreak />
+                    F5, Ctrl+Q または入力中に Alt+Enter で再生します。<LineBreak />
+                    F6, Ctrl+S または入力中に Ctrl+Enter で音声保存します。<LineBreak />
                     Ctrl+E で保存先フォルダーを開きます。
                 </TextBlock>
             </tk:WatermarkTextBox.Watermark>
@@ -131,7 +131,7 @@
 
         <!-- Row 2 -->
         <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Grid.Row="2">
-            <Button Command="{Binding PlayStopCommand}" ToolTip="Ctrl+Q">
+            <Button Command="{Binding PlayStopCommand}" ToolTip="F5">
                 <StackPanel Orientation="Horizontal">
                     <Image Style="{StaticResource VoiceroidPlayStopIcon}" />
                     <AccessText
@@ -139,7 +139,7 @@
                         Margin="2,0,0,0" />
                 </StackPanel>
             </Button>
-            <Button Command="{Binding SaveCommand}" ToolTip="Ctrl+S" Margin="2,0,0,0">
+            <Button Command="{Binding SaveCommand}" ToolTip="F6" Margin="2,0,0,0">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/save.png" />
                     <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />

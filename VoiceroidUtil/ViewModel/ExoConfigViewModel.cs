@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using RucheHome.Voiceroid;
 using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 
@@ -62,6 +60,21 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
+            // キャラ別スタイル設定選択コマンド実行可能状態
+            // 表示状態のキャラ別スタイル設定が2つ以上あれば選択可能
+            this.IsSelectCharaStyleCommandExecutable =
+                this.VisibleCharaStyles
+                    .Select(vcs => vcs.Count >= 2)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // キャラ別スタイル設定選択コマンドのチップテキスト
+            this.SelectCharaStyleCommandTip =
+                this.VisibleCharaStyles
+                    .Select(_ => this.MakeSelectCharaStyleCommandTip())
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 選択中キャラ別スタイル
             this.SelectedCharaStyle =
                 new ReactiveProperty<ExoCharaStyle>(this.VisibleCharaStyles.Value.First())
@@ -98,6 +111,29 @@ namespace VoiceroidUtil.ViewModel
                     this.ExecuteFileMakingCommand,
                     this.CanModify,
                     this.IsFileMakingCommandVisible);
+
+            // キャラ別スタイル設定選択コマンドコレクション(要素数 10 固定)
+            this.SelectCharaStyleCommands =
+                new ReadOnlyCollection<ICommand>(
+                    Enumerable.Range(0, 10)
+                        .Select(
+                            index =>
+                                this.MakeCommand(
+                                    () => this.ExecuteSelectCharaStyleCommand(index),
+                                    this.IsSelectCharaStyleCommandExecutable,
+                                    this.VisibleCharaStyles.Select(
+                                        vcs => index < vcs.Count)))
+                        .ToArray());
+
+            // 前方/後方キャラ別スタイル設定選択コマンド
+            this.SelectPreviousCharaStyleCommand =
+                this.MakeCommand(
+                    this.ExecuteSelectPreviousCharaStyleCommand,
+                    this.IsSelectCharaStyleCommandExecutable);
+            this.SelectNextCharaStyleCommand =
+                this.MakeCommand(
+                    this.ExecuteSelectNextCharaStyleCommand,
+                    this.IsSelectCharaStyleCommandExecutable);
         }
 
         /// <summary>
@@ -118,6 +154,19 @@ namespace VoiceroidUtil.ViewModel
         {
             get;
         }
+
+        /// <summary>
+        /// キャラ別スタイル設定選択コマンドを実行可能な状態であるか否かを取得する。
+        /// </summary>
+        /// <remarks>
+        /// (VisibleCharaStyles.Value.Count >= 2) の判定結果を返す。
+        /// </remarks>
+        public IReadOnlyReactiveProperty<bool> IsSelectCharaStyleCommandExecutable { get; }
+
+        /// <summary>
+        /// キャラ別スタイル設定選択コマンドのチップテキストを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<string> SelectCharaStyleCommandTip { get; }
 
         /// <summary>
         /// 選択中キャラ別スタイル設定を取得する。
@@ -143,6 +192,24 @@ namespace VoiceroidUtil.ViewModel
         /// ファイル作成設定有効化コマンドを取得する。
         /// </summary>
         public ICommand FileMakingCommand { get; }
+
+        /// <summary>
+        /// キャラ別スタイル設定選択コマンドコレクションを取得する。
+        /// </summary>
+        /// <remarks>
+        /// 要素数は 10 固定。表示中キャラ別スタイルのインデックスに対応する。
+        /// </remarks>
+        public ReadOnlyCollection<ICommand> SelectCharaStyleCommands { get; }
+
+        /// <summary>
+        /// 前方キャラ別スタイル設定選択コマンドを取得する。
+        /// </summary>
+        public ICommand SelectPreviousCharaStyleCommand { get; }
+
+        /// <summary>
+        /// 後方キャラ別スタイル設定選択コマンドを取得する。
+        /// </summary>
+        public ICommand SelectNextCharaStyleCommand { get; }
 
         /// <summary>
         /// アプリ設定を取得する。
@@ -188,6 +255,21 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// キャラ別スタイル設定選択コマンドのチップテキストを作成する。
+        /// </summary>
+        /// <returns>チップテキスト。表示不要ならば null 。</returns>
+        private string MakeSelectCharaStyleCommandTip() =>
+            !this.IsSelectCharaStyleCommandExecutable.Value ?
+                null :
+                @"F1/F2 : 前/次のキャラを選択" + Environment.NewLine +
+                string.Join(
+                    Environment.NewLine,
+                    this.VisibleCharaStyles.Value.Select(
+                        (p, i) =>
+                            @"Ctrl+" + ((i < 9) ? (i + 1) : 0) + @" : " +
+                            p.VoiceroidName + @" を選択"));
+
+        /// <summary>
         /// FileMakingCommand の実処理を行う。
         /// </summary>
         private void ExecuteFileMakingCommand()
@@ -207,6 +289,54 @@ namespace VoiceroidUtil.ViewModel
                     StatusType = AppStatusType.Success,
                     StatusText = @".exo ファイル作成設定を有効にしました。",
                 };
+        }
+
+        /// <summary>
+        /// 各 SelectCharaStyleCommands コマンドの実処理を行う。
+        /// </summary>
+        /// <param name="index">インデックス。</param>
+        private void ExecuteSelectCharaStyleCommand(int index)
+        {
+            if (
+                this.IsSelectCharaStyleCommandExecutable.Value &&
+                index < this.VisibleCharaStyles.Value.Count)
+            {
+                this.SelectedCharaStyle.Value = this.VisibleCharaStyles.Value[index];
+            }
+        }
+
+        /// <summary>
+        /// SelectPreviousCharaStyleCommand コマンドの実処理を行う。
+        /// </summary>
+        private void ExecuteSelectPreviousCharaStyleCommand()
+        {
+            var index =
+                Array.IndexOf(
+                    this.VisibleCharaStyles.Value.Select(p => p.VoiceroidId).ToArray(),
+                    this.SelectedCharaStyle.Value.VoiceroidId);
+            if (index >= 0)
+            {
+                --index;
+                this.ExecuteSelectCharaStyleCommand(
+                    (index < 0) ? (this.VisibleCharaStyles.Value.Count - 1) : index);
+            }
+        }
+
+        /// <summary>
+        /// SelectNextCharaStyleCommand コマンドの実処理を行う。
+        /// </summary>
+        private void ExecuteSelectNextCharaStyleCommand()
+        {
+            var index =
+                Array.IndexOf(
+                    this.VisibleCharaStyles.Value.Select(p => p.VoiceroidId).ToArray(),
+                    this.SelectedCharaStyle.Value.VoiceroidId);
+            if (index >= 0)
+            {
+                ++index;
+                this.ExecuteSelectCharaStyleCommand(
+                    (index < this.VisibleCharaStyles.Value.Count) ? index : 0);
+            }
         }
 
         #region デザイン時用定義

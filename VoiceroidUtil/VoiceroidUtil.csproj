@@ -178,6 +178,7 @@
     <Compile Include="View\ExoConfigView.xaml.cs">
       <DependentUpon>ExoConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\IndexedCommandKeyBindingBehavior.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

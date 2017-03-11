@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 using VoiceroidUtil.Extensions;
 
 namespace VoiceroidUtil.ViewModel

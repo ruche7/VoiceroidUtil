@@ -258,7 +258,9 @@ namespace VoiceroidUtil
                     SubStatusType = subStatusType,
                     SubStatusText = subStatusText ?? "",
                     SubStatusCommand = subStatusCommand,
-                    SubStatusCommandTip = subStatusCommandTip ?? "",
+                    SubStatusCommandTip =
+                        string.IsNullOrEmpty(subStatusCommandTip) ?
+                            null : subStatusCommandTip,
                 },
                 parameter);
     }
