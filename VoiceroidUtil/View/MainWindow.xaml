@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.MainWindow"
@@ -19,8 +20,7 @@
     MinHeight="240"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
-    TextOptions.TextRenderingMode="ClearType"
-    FocusManager.FocusedElement="{Binding ElementName=Tab_Voiceroid}">
+    TextOptions.TextRenderingMode="ClearType">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -28,18 +28,61 @@
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+
+    <i:Interaction.Behaviors>
+        <v:MainWindowConfigBehavior />
+
+        <!-- Input Ctrl+1,2,3,... : Voiceroid, ExoCharaStyles -->
+        <v:IndexedCommandKeyBindingBehavior Modifiers="Ctrl">
+            <MultiBinding>
+                <MultiBinding.Converter>
+                    <ru:MultiEnumerableEachConverter
+                        Converter="{StaticResource multiCommandConverter}" />
+                </MultiBinding.Converter>
+
+                <Binding Path="Voiceroid.SelectVoiceroidCommands" />
+                <Binding Path="ExoConfig.SelectCharaStyleCommands" />
+            </MultiBinding>
+        </v:IndexedCommandKeyBindingBehavior>
+    </i:Interaction.Behaviors>
     <Window.InputBindings>
+        <!-- Input: All -->
         <KeyBinding
             Gesture="Ctrl+E"
             Command="{Binding AppConfig.OpenSaveDirectoryCommand}" />
-    </Window.InputBindings>
-    <i:Interaction.Behaviors>
-        <v:MainWindowConfigBehavior />
-    </i:Interaction.Behaviors>
 
+        <!-- Input: Voiceroid, ExoCharaStyles -->
+        <KeyBinding Gesture="F1">
+            <KeyBinding.Command>
+                <MultiBinding Converter="{StaticResource multiCommandConverter}">
+                    <Binding Path="Voiceroid.SelectPreviousVoiceroidCommand" />
+                    <Binding Path="ExoConfig.SelectPreviousCharaStyleCommand" />
+                </MultiBinding>
+            </KeyBinding.Command>
+        </KeyBinding>
+        <KeyBinding Gesture="F2">
+            <KeyBinding.Command>
+                <MultiBinding Converter="{StaticResource multiCommandConverter}">
+                    <Binding Path="Voiceroid.SelectNextVoiceroidCommand" />
+                    <Binding Path="ExoConfig.SelectNextCharaStyleCommand" />
+                </MultiBinding>
+            </KeyBinding.Command>
+        </KeyBinding>
+
+        <!-- Input: Voiceroid -->
+        <KeyBinding Gesture="F3" Command="{Binding Voiceroid.RunExitCommand}" />
+        <KeyBinding Gesture="Ctrl+Q" Command="{Binding Voiceroid.PlayStopCommand}" />
+        <KeyBinding Gesture="F5" Command="{Binding Voiceroid.PlayStopCommand}" />
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding Voiceroid.SaveCommand}" />
+        <KeyBinding Gesture="F6" Command="{Binding Voiceroid.SaveCommand}" />
+    </Window.InputBindings>
+
+    <!-- Body -->
     <DockPanel>
         <v:AppStatusBar
             DataContext="{Binding LastStatus}"
@@ -47,37 +90,8 @@
             DockPanel.Dock="Bottom" />
         <TabControl Style="{StaticResource modernTabControl}" TabIndex="0">
             <TabItem
-                x:Name="Tab_Voiceroid"
                 Style="{StaticResource modernTabItem}"
                 Background="{StaticResource modernTabItemBackgroundYukari}">
-                <i:Interaction.Behaviors>
-                    <v:IndexedCommandKeyBindingBehavior
-                        Modifiers="Ctrl"
-                        Commands="{Binding Voiceroid.SelectVoiceroidCommands}" />
-                </i:Interaction.Behaviors>
-                <TabItem.InputBindings>
-                    <KeyBinding
-                        Gesture="F1"
-                        Command="{Binding Voiceroid.SelectPreviousVoiceroidCommand}" />
-                    <KeyBinding
-                        Gesture="F2"
-                        Command="{Binding Voiceroid.SelectNextVoiceroidCommand}" />
-                    <KeyBinding
-                        Gesture="F3"
-                        Command="{Binding Voiceroid.RunExitCommand}" />
-                    <KeyBinding
-                        Gesture="Ctrl+Q"
-                        Command="{Binding Voiceroid.PlayStopCommand}" />
-                    <KeyBinding
-                        Gesture="F5"
-                        Command="{Binding Voiceroid.PlayStopCommand}" />
-                    <KeyBinding
-                        Gesture="Ctrl+S"
-                        Command="{Binding Voiceroid.SaveCommand}" />
-                    <KeyBinding
-                        Gesture="F6"
-                        Command="{Binding Voiceroid.SaveCommand}" />
-                </TabItem.InputBindings>
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <Image Source="/VoiceroidUtil;component/resources/icon/main16.png" />
