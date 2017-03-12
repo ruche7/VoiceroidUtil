@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using RucheHome.Windows.Mvvm.Behaviors;
 
-namespace VoiceroidUtil.View
+namespace VoiceroidUtil.Mvvm
 {
     /// <summary>
     /// 修飾キーと数字キーの組み合わせをコマンド列挙の各要素に割り当てるビヘイビアクラス。

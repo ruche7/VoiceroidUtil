@@ -7,6 +7,7 @@
     xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
     xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
+    xmlns:mvvm="clr-namespace:VoiceroidUtil.Mvvm"
     x:Class="VoiceroidUtil.View.MainWindow"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
@@ -35,10 +36,10 @@
     </Window.Resources>
 
     <i:Interaction.Behaviors>
-        <v:MainWindowConfigBehavior />
+        <mvvm:MainWindowConfigBehavior />
 
         <!-- Input Ctrl+1,2,3,... : Voiceroid, ExoCharaStyles -->
-        <v:IndexedCommandKeyBindingBehavior Modifiers="Ctrl">
+        <mvvm:IndexedCommandKeyBindingBehavior Modifiers="Ctrl">
             <MultiBinding>
                 <MultiBinding.Converter>
                     <ru:MultiEnumerableEachConverter
@@ -48,7 +49,7 @@
                 <Binding Path="Voiceroid.SelectVoiceroidCommands" />
                 <Binding Path="ExoConfig.SelectCharaStyleCommands" />
             </MultiBinding>
-        </v:IndexedCommandKeyBindingBehavior>
+        </mvvm:IndexedCommandKeyBindingBehavior>
     </i:Interaction.Behaviors>
     <Window.InputBindings>
         <!-- Input: All -->
