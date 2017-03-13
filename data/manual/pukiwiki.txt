@@ -8,13 +8,14 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.6.2
+-VoiceroidUtil version 1.7.0
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
 -[[VOICEROID+ 東北きりたん EX>http://www.ah-soft.com/voiceroid/kiritan/]] version 1.7.4
 -[[VOICEROID+ 琴葉茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]] version 1.7.3
 -[[VOICEROID+ 月読アイ EX>http://www.ah-soft.com/voiceroid/ai/]] version 1.7.3
+-[[VOICEROID+ 月読ショウタ EX>http://www.ah-soft.com/voiceroid/shota/]] version 1.7.3
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] version 1.7.4
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] version 1.7.3
 -[[ゆっくりMovieMaker3>http://manjubox.net/YukkuriMovieMaker.php]] version 3.4.8.1
@@ -52,6 +53,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 東北きりたん EX>http://www.ah-soft.com/voiceroid/kiritan/]] （version 1.5.0 より）
 -[[VOICEROID+ 琴葉茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]]
 -[[VOICEROID+ 月読アイ EX>http://www.ah-soft.com/voiceroid/ai/]] （version 1.3.0 より）
+-[[VOICEROID+ 月読ショウタ EX>http://www.ah-soft.com/voiceroid/shota/]] （version 1.7.0 より）
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] （version 1.1.0 より）
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] （version 1.6.0 より）
 
@@ -99,11 +101,15 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 --操作するVOICEROID本体を選択します。
 --VOICEROID本体は予め起動させておくか、選択後に ''起動/終了ボタン'' を用いて起動させてください。
 ---「起動しています」と表示されていれば操作可能です。
+--@kbd{Ctrl+数字}; のショートカット入力を行うことで対応する位置のVOICEROIDを選択できます。
+--@kbd{F1}; のショートカット入力を行うことで1つ前のVOICEROIDを選択できます。
+--@kbd{F2}; のショートカット入力を行うことで1つ後のVOICEROIDを選択できます。
 :&#9313;起動/終了ボタン|
 --VOICEROID本体を起動あるいは終了させることができます。
 --VOICEROID本体の情報を登録するために、一度だけ手動でVOICEROID本体を起動させる必要があります。
 ---まだ情報が登録されていない場合はボタンが黒く表示されています。
 ---一度情報が登録されれば、『VoiceroidUtil』を終了しても情報は保持されます。
+--@kbd{F3}; のショートカット入力を行うことでもボタンをクリックできます。
 --VOICEROID本体側でフレーズ編集等を行っている場合、このボタンで終了させようとしてもダイアログが表示されてしまうため、終了できません。
 :&#9314;入力文テキストボックス|
 --しゃべらせたり音声ファイル保存したりする文章を入力します。改行も可能です。
@@ -115,7 +121,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 ---実際に再生される文章は、入力文に対して[[置換画面>#explain-replace]]の設定内容による置換を行ったものになります。
 --再生中の場合は「停止」ボタンに変化し、VOICEROID本体に再生停止を指示します。
 --VOICEROID本体とは異なり、入力文テキストボックスのカーソル位置に依らず常に全文再生となります。
---@kbd{Ctrl+Q}; のショートカット入力を行うことでもボタンをクリックできます。
+--@kbd{F5}; または @kbd{Ctrl+Q}; のショートカット入力を行うことでもボタンをクリックできます。
 :&#9316;「音声保存」ボタン|
 --VOICEROID本体に入力文の音声保存を指示します。
 ---実際に音声保存される文章は、入力文に対して[[置換画面>#explain-replace]]の設定内容による置換を行ったものになります。
@@ -123,8 +129,8 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 ---保存フォルダが存在しない場合、フォルダの作成を試みます。
 --[[設定画面>#explain-config]]の各タブページの設定内容次第で、各種ファイルの作成や『ゆっくりMovieMaker』との連携も同時に行います。
 ---『ゆっくりMovieMaker』が起動していない場合は連携を行わず、エラーにもなりません。
---@kbd{Ctrl+S}; のショートカット入力を行うことでもボタンをクリックできます。
---@kbd{Ctrl+E}; のショートカット入力を行うことで保存先フォルダを開くことができます。
+--@kbd{F6}; または @kbd{Ctrl+S}; のショートカット入力を行うことでもボタンをクリックできます。
+--@kbd{F9}; または @kbd{Ctrl+E}; のショートカット入力を行うことで保存先フォルダを開くことができます。
 --入力文に発声可能な文字が含まれていない場合、音声保存に失敗します。
 
 **設定画面 [#explain-config]
@@ -166,6 +172,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 :&#9314;保存先フォルダを開くボタン|
 --音声ファイルの保存先フォルダをエクスプローラで開きます。
 --保存先フォルダが存在しない場合は警告表示が行われるのみです。
+--@kbd{F9}; または @kbd{Ctrl+E}; のショートカット入力を行うことでもボタンをクリックできます。
 :&#9315;「ファイル命名」コンボボックス|
 #ref(設定画面_音声保存_ファイル命名.png,left,nolink,「ファイル命名」コンボボックス);
 --音声ファイル名の付け方を選択します。
@@ -294,6 +301,9 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 --設定を行うVOICEROIDキャラクターを選択します。
 --以降の設定は、ここで選択したVOICEROIDを用いて音声保存＆AviUtl拡張編集ファイル作成を行う際に利用されるものとなります。
 --設定はVOICEROIDキャラクターごとに保存されており、このコンボボックスの操作によって消えたり上書きされたりすることはありません。
+--@kbd{Ctrl+数字}; のショートカット入力を行うことで対応する位置のVOICEROIDを選択できます。
+--@kbd{F1}; のショートカット入力を行うことで1つ前のVOICEROIDを選択できます。
+--@kbd{F2}; のショートカット入力を行うことで1つ後のVOICEROIDを選択できます。
 :&#9313;「クリックしてファイル選択 または ファイルをここへドロップ」ボタン|
 --AviUtl拡張編集画面からのエクスポート等によって作成されたAviUtl拡張編集ファイルを読み取り、テキストの設定に利用できます。
 --このボタンをクリックすると出てくるダイアログでファイルを選択するか、このボタンへファイルを直接ドロップすることで読み取れます。
@@ -388,6 +398,10 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 *更新履歴 [#history]
 
+:2017-03-13|
+--version 1.7.0 に対応。
+---『VOICEROID+ 月読ショウタ EX』追加。
+---各種ショートカット入力の説明を追記。
 :2017-01-11|
 --version 1.6.2 に対応。
 --[[Q＆A>#qa]]を更新。
