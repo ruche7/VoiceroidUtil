@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2017-01-11
-  Version : 1.6.2
+   Update : 2017-03-13
+  Version : 1.7.0
        By : ルーチェ
 
 ================================================================================
@@ -57,6 +57,7 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
         - VOICEROID+ 東北きりたん EX         [1.7.4]
         - VOICEROID+ 琴葉茜・葵              [1.7.3]
         - VOICEROID+ 月読アイ EX             [1.7.3]
+        - VOICEROID+ 月読ショウタ EX         [1.7.3]
         - VOICEROID+ 京町セイカ EX           [1.7.4]
         - VOICEROID+ 水奈瀬コウ EX           [1.7.3]
 
@@ -131,18 +132,19 @@ AviUtlは、ＫＥＮくん氏が開発した動画編集ツールです。
 また、下記の画像素材を利用しています。
 
 阿国様
-- 結月ゆかり            http://seiga.nicovideo.jp/seiga/im4538340
-- 弦巻マキ              http://seiga.nicovideo.jp/seiga/im4608092
-- 東北ずん子            http://seiga.nicovideo.jp/seiga/im4654903
-- 東北きりたん          http://seiga.nicovideo.jp/seiga/im6172244
-- 琴葉茜・葵            http://seiga.nicovideo.jp/seiga/im4681154
+- 結月ゆかり              http://seiga.nicovideo.jp/seiga/im4538340
+- 弦巻マキ                http://seiga.nicovideo.jp/seiga/im4608092
+- 東北ずん子              http://seiga.nicovideo.jp/seiga/im4654903
+- 東北きりたん            http://seiga.nicovideo.jp/seiga/im6172244
+- 琴葉茜・葵              http://seiga.nicovideo.jp/seiga/im4681154
 
 blueberry様
-- 月読アイ              http://seiga.nicovideo.jp/seiga/im5730761
-- SD京町セイカ          http://seiga.nicovideo.jp/seiga/im5837297
+- 月読アイ                http://seiga.nicovideo.jp/seiga/im5730761
+- SD京町セイカ            http://seiga.nicovideo.jp/seiga/im5837297
 
 はるか様
-- デフォルメ水奈瀬コウ  http://seiga.nicovideo.jp/seiga/im5773085
+- デフォルメ水奈瀬コウ    http://seiga.nicovideo.jp/seiga/im5773085
+- デフォルメ月読ショウタ  http://seiga.nicovideo.jp/seiga/im5768553
 
 ICOOON MONO 様のアイコン素材
 - http://icooon-mono.com/
@@ -174,6 +176,21 @@ ICOOON MONO 様のアイコン素材
 
 ================================================================================
 ■更新履歴
+
+------------------------------------------------------------
+◆2017-03-13 [1.7.0]
+
+- 『VOICEROID+ 月読ショウタ EX』に対応。
+
+- ショートカットキーを追加。
+    - Ctrl+数字 : 対応する位置のVOICEROIDを選択
+    - F1/F2     : 前/次のVOICEROIDを選択
+    - F3        : VOICEROID起動/終了
+    - F5        : 再生 (Ctrl+Q と同じ)
+    - F6        : 音声保存 (Ctrl+S と同じ)
+    - F9        : 音声保存先フォルダーを開く (Ctrl+E と同じ)
+
+- ショートカットキーが効かなくなることがあった不具合を修正。
 
 ------------------------------------------------------------
 ◆2017-01-11 [1.6.2]
