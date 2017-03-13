@@ -134,8 +134,10 @@
     <Compile Include="Extensions\ObservableExtension.cs" />
     <Compile Include="Extensions\ReactivePropertyExtension.cs" />
     <Compile Include="IVoiceroidItem.cs" />
+    <Compile Include="Mvvm\CommandActivator.cs" />
     <Compile Include="Mvvm\IndexedCommandKeyBindingBehavior.cs" />
     <Compile Include="Mvvm\MainWindowConfigBehavior.cs" />
+    <Compile Include="Mvvm\NotifyActiveTabNameBehavior.cs" />
     <Compile Include="PlayStopCommandExecuter.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />

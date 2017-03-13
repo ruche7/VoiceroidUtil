@@ -131,7 +131,7 @@
                         </tk:AutoSelectTextBox>
                         <Button
                             Command="{Binding OpenSaveDirectoryCommand}"
-                            ToolTip="保存先フォルダーを開く (Ctrl+E)"
+                            ToolTip="保存先フォルダーを開く (F9)"
                             Margin="1,0,0,0"
                             Padding="3,0"
                             Grid.Column="2">

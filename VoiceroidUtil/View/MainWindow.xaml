@@ -31,6 +31,11 @@
                     Source="/VoiceroidUtil;component/resources/TabStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
+                <ResourceDictionary>
+                    <mvvm:CommandActivator
+                        x:Key="tabNameCommandActivator"
+                        x:Shared="True" />
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -46,8 +51,14 @@
                         Converter="{StaticResource multiCommandConverter}" />
                 </MultiBinding.Converter>
 
-                <Binding Path="Voiceroid.SelectVoiceroidCommands" />
-                <Binding Path="ExoConfig.SelectCharaStyleCommands" />
+                <Binding
+                    Path="Voiceroid.SelectVoiceroidCommands"
+                    Converter="{StaticResource tabNameCommandActivator}"
+                    ConverterParameter="TabItem_Voiceroid" />
+                <Binding
+                    Path="ExoConfig.SelectCharaStyleCommands"
+                    Converter="{StaticResource tabNameCommandActivator}"
+                    ConverterParameter="TabItem_ExoCharaStyle" />
             </MultiBinding>
         </mvvm:IndexedCommandKeyBindingBehavior>
     </i:Interaction.Behaviors>
@@ -56,31 +67,71 @@
         <KeyBinding
             Gesture="Ctrl+E"
             Command="{Binding AppConfig.OpenSaveDirectoryCommand}" />
+        <KeyBinding
+            Gesture="F9"
+            Command="{Binding AppConfig.OpenSaveDirectoryCommand}" />
 
         <!-- Input: Voiceroid, ExoCharaStyles -->
         <KeyBinding Gesture="F1">
             <KeyBinding.Command>
                 <MultiBinding Converter="{StaticResource multiCommandConverter}">
-                    <Binding Path="Voiceroid.SelectPreviousVoiceroidCommand" />
-                    <Binding Path="ExoConfig.SelectPreviousCharaStyleCommand" />
+                    <Binding
+                        Path="Voiceroid.SelectPreviousVoiceroidCommand"
+                        Converter="{StaticResource tabNameCommandActivator}"
+                        ConverterParameter="TabItem_Voiceroid" />
+                    <Binding
+                        Path="ExoConfig.SelectPreviousCharaStyleCommand"
+                        Converter="{StaticResource tabNameCommandActivator}"
+                        ConverterParameter="TabItem_ExoCharaStyle" />
                 </MultiBinding>
             </KeyBinding.Command>
         </KeyBinding>
         <KeyBinding Gesture="F2">
             <KeyBinding.Command>
                 <MultiBinding Converter="{StaticResource multiCommandConverter}">
-                    <Binding Path="Voiceroid.SelectNextVoiceroidCommand" />
-                    <Binding Path="ExoConfig.SelectNextCharaStyleCommand" />
+                    <Binding
+                        Path="Voiceroid.SelectNextVoiceroidCommand"
+                        Converter="{StaticResource tabNameCommandActivator}"
+                        ConverterParameter="TabItem_Voiceroid" />
+                    <Binding
+                        Path="ExoConfig.SelectNextCharaStyleCommand"
+                        Converter="{StaticResource tabNameCommandActivator}"
+                        ConverterParameter="TabItem_ExoCharaStyle" />
                 </MultiBinding>
             </KeyBinding.Command>
         </KeyBinding>
 
         <!-- Input: Voiceroid -->
-        <KeyBinding Gesture="F3" Command="{Binding Voiceroid.RunExitCommand}" />
-        <KeyBinding Gesture="Ctrl+Q" Command="{Binding Voiceroid.PlayStopCommand}" />
-        <KeyBinding Gesture="F5" Command="{Binding Voiceroid.PlayStopCommand}" />
-        <KeyBinding Gesture="Ctrl+S" Command="{Binding Voiceroid.SaveCommand}" />
-        <KeyBinding Gesture="F6" Command="{Binding Voiceroid.SaveCommand}" />
+        <KeyBinding
+            Gesture="F3"
+            Command="{Binding
+                Path=Voiceroid.RunExitCommand,
+                Converter={StaticResource tabNameCommandActivator},
+                ConverterParameter=TabItem_Voiceroid}" />
+        <KeyBinding
+            Gesture="Ctrl+Q"
+            Command="{Binding
+                Path=Voiceroid.PlayStopCommand,
+                Converter={StaticResource tabNameCommandActivator},
+                ConverterParameter=TabItem_Voiceroid}" />
+        <KeyBinding
+            Gesture="F5"
+            Command="{Binding
+                Path=Voiceroid.PlayStopCommand,
+                Converter={StaticResource tabNameCommandActivator},
+                ConverterParameter=TabItem_Voiceroid}" />
+        <KeyBinding
+            Gesture="Ctrl+S"
+            Command="{Binding
+                Path=Voiceroid.SaveCommand,
+                Converter={StaticResource tabNameCommandActivator},
+                ConverterParameter=TabItem_Voiceroid}" />
+        <KeyBinding
+            Gesture="F6"
+            Command="{Binding
+                Path=Voiceroid.SaveCommand,
+                Converter={StaticResource tabNameCommandActivator},
+                ConverterParameter=TabItem_Voiceroid}" />
     </Window.InputBindings>
 
     <!-- Body -->
@@ -89,8 +140,19 @@
             DataContext="{Binding LastStatus}"
             TabIndex="1"
             DockPanel.Dock="Bottom" />
-        <TabControl Style="{StaticResource modernTabControl}" TabIndex="0">
+        <TabControl
+            x:Name="TabControl_Main"
+            Style="{StaticResource modernTabControl}"
+            TabIndex="0">
+            <i:Interaction.Behaviors>
+                <mvvm:NotifyActiveTabNameBehavior
+                    ActiveTabName="{Binding
+                        Path=ActivateParameter,
+                        Source={StaticResource tabNameCommandActivator},
+                        Mode=OneWayToSource}" />
+            </i:Interaction.Behaviors>
             <TabItem
+                x:Name="TabItem_Voiceroid"
                 Style="{StaticResource modernTabItem}"
                 Background="{StaticResource modernTabItemBackgroundYukari}">
                 <TabItem.Header>

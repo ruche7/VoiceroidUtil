@@ -173,6 +173,7 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem
+                x:Name="TabItem_ExoCharaStyle"
                 Style="{StaticResource modernTabItem}"
                 Background="{StaticResource modernTabItemBackgroundAoi}">
                 <TabItem.Header>
