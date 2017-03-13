@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Markup;
 using RucheHome.Windows.Mvvm.Behaviors;
 
-namespace VoiceroidUtil.View
+namespace VoiceroidUtil.Mvvm
 {
     /// <summary>
     /// 修飾キーと数字キーの組み合わせをコマンド列挙の各要素に割り当てるビヘイビアクラス。
     /// </summary>
+    [ContentProperty(nameof(Commands))]
     public class IndexedCommandKeyBindingBehavior
         : FrameworkElementBehavior<FrameworkElement>
     {
@@ -45,16 +48,19 @@ namespace VoiceroidUtil.View
         public static readonly DependencyProperty CommandsProperty =
             DependencyProperty.Register(
                 nameof(Commands),
-                typeof(IEnumerable<ICommand>),
+                typeof(IEnumerable),
                 typeof(IndexedCommandKeyBindingBehavior),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// コマンド列挙を取得または設定する。
         /// </summary>
-        public IEnumerable<ICommand> Commands
+        /// <remarks>
+        /// 実体が ICommand である object の列挙も受け取れるようにする。
+        /// </remarks>
+        public IEnumerable Commands
         {
-            get => (IEnumerable<ICommand>)this.GetValue(CommandsProperty);
+            get => (IEnumerable)this.GetValue(CommandsProperty);
             set => this.SetValue(CommandsProperty, value);
         }
 
@@ -65,15 +71,20 @@ namespace VoiceroidUtil.View
         /// </summary>
         protected override void OnAssociatedObjectLoaded()
         {
+            var commands = this.Commands?.Cast<object>();
             var inputBindings = this.AssociatedObject.InputBindings;
-            if (this.Commands == null || inputBindings == null)
+            if (
+                commands == null ||
+                commands.Any(c => !(c is ICommand)) ||
+                inputBindings == null)
             {
                 return;
             }
 
             var keyBindings =
-                this.Commands
+                commands
                     .Take(10)
+                    .Cast<ICommand>()
                     .SelectMany(
                         (command, index) =>
                             new[]

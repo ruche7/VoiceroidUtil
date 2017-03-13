@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Interactivity;
 using RucheHome.Util;
 
-namespace VoiceroidUtil.View
+namespace VoiceroidUtil.Mvvm
 {
     /// <summary>
     /// メインウィンドウ設定のロード、適用、セーブを担うビヘイビアクラス。

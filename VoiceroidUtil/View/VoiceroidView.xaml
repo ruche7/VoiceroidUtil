@@ -118,7 +118,7 @@
                     しゃべらせたい文章を入力してください。<LineBreak />
                     F5, Ctrl+Q または入力中に Alt+Enter で再生します。<LineBreak />
                     F6, Ctrl+S または入力中に Ctrl+Enter で音声保存します。<LineBreak />
-                    Ctrl+E で保存先フォルダーを開きます。
+                    F9, Ctrl+E で保存先フォルダーを開きます。
                 </TextBlock>
             </tk:WatermarkTextBox.Watermark>
 

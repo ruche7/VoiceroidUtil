@@ -134,6 +134,10 @@
     <Compile Include="Extensions\ObservableExtension.cs" />
     <Compile Include="Extensions\ReactivePropertyExtension.cs" />
     <Compile Include="IVoiceroidItem.cs" />
+    <Compile Include="Mvvm\CommandActivator.cs" />
+    <Compile Include="Mvvm\IndexedCommandKeyBindingBehavior.cs" />
+    <Compile Include="Mvvm\MainWindowConfigBehavior.cs" />
+    <Compile Include="Mvvm\NotifyActiveTabNameBehavior.cs" />
     <Compile Include="PlayStopCommandExecuter.cs" />
     <Compile Include="SaveCommandExecuter.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />
@@ -178,11 +182,9 @@
     <Compile Include="View\ExoConfigView.xaml.cs">
       <DependentUpon>ExoConfigView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\IndexedCommandKeyBindingBehavior.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\MainWindowConfigBehavior.cs" />
     <Compile Include="View\MovableValueControl.xaml.cs">
       <DependentUpon>MovableValueControl.xaml</DependentUpon>
     </Compile>
@@ -409,6 +411,7 @@
     <Resource Include="resources\voiceroid\shouta_ng.png" />
     <Resource Include="resources\voiceroid\shouta_ok.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
