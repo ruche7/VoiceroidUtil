@@ -17,7 +17,7 @@ version 1.4.0 リリース以降は下記のルールで作業しています。
 
 * `master` には基本的に直接コミットしない。
     * 作業ブランチから Pull Request を通して反映する。
-    * [README.md](README.md)(当ファイル)の編集と、 [data/manual](data/manual) ディレクトリ以下をリリース直後に微修正する場合のみ例外とする。
+    * [README.md](README.md)(当ファイル)の編集と、 [data/manual](data/manual) ディレクトリ以下を修正する場合のみ例外とする。
 * 機能追加、バグ修正等を行う際はまず Issue を立て、それに対応するブランチを作成して作業する。
     * 機能追加のブランチ名は `feature/Issue番号-機能内容` とする。(ex. `feature/5-exo_output`)
     * バグ修正のブランチ名は `fix/Issue番号-バグ内容` とする。(ex. `fix/7-crash_at_save`)
