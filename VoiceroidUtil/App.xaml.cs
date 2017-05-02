@@ -4,8 +4,11 @@
 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,46 +33,111 @@ namespace VoiceroidUtil
         /// </summary>
         public App()
         {
+            try
+            {
+                this.Initialize();
+            }
+            catch (Exception ex)
+            {
+                // 必要なファイル(DLL等)が不足しているとここに来る
+                this.OnInitializeException(ex);
+            }
+        }
+
+        /// <summary>
+        /// IDisposable.Dispose をまとめて呼び出すためのコンテナを取得する。
+        /// </summary>
+        private CompositeDisposable CompositeDisposable { get; set; }
+
+        /// <summary>
+        /// 設定マネージャを取得する。
+        /// </summary>
+        private ConfigManager ConfigManager { get; set; }
+
+        /// <summary>
+        /// 直近のアプリ状態値の設定先を取得する。
+        /// </summary>
+        private IReactiveProperty<IAppStatus> LastStatus { get; set; }
+
+        /// <summary>
+        /// アプリ更新情報チェッカを取得する。
+        /// </summary>
+        private AppUpdateChecker UpdateChecker { get; set; }
+
+        /// <summary>
+        /// VOICEROIDプロセスファクトリを取得する。
+        /// </summary>
+        private ProcessFactory ProcessFactory { get; set; }
+
+        /// <summary>
+        /// プロパティの初期化を行う。
+        /// </summary>
+        /// <remarks>
+        /// 実行に必要なファイル(DLL等)が不足している場合に例外を捕捉できるよう、
+        /// コンストラクタの実処理をこのメソッドで行い、コンストラクタから呼び出す。
+        /// </remarks>
+        private void Initialize()
+        {
+            this.CompositeDisposable = new CompositeDisposable();
             this.ConfigManager =
                 new ConfigManager(SynchronizationContext.Current)
                     .AddTo(this.CompositeDisposable);
             this.LastStatus =
                 new ReactiveProperty<IAppStatus>(new AppStatus())
                     .AddTo(this.CompositeDisposable);
-            this.UpdateChecker.SynchronizationContext = SynchronizationContext.Current;
+            this.UpdateChecker =
+#if DEBUG
+                new AppUpdateChecker(AppUpdateChecker.DefaultBaseUri + @".debug/")
+#else // DEBUG
+                new AppUpdateChecker()
+#endif // DEBUG
+                {
+                    SynchronizationContext = SynchronizationContext.Current,
+                };
             this.ProcessFactory = new ProcessFactory().AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
-        /// IDisposable.Dispose をまとめて呼び出すためのコンテナを取得する。
+        /// Initialize メソッドで例外が発生した時の処理を行う。
         /// </summary>
-        private CompositeDisposable CompositeDisposable { get; } =
-            new CompositeDisposable();
+        /// <param name="ex">例外。</param>
+        private void OnInitializeException(Exception ex)
+        {
+            try
+            {
+                // ダイアログ表示
+                MessageBox.Show(
+                    nameof(VoiceroidUtil) + @" の初期化に失敗しました。" +
+                    Environment.NewLine +
+                    @"フォルダ内の構成を変更してしまっていませんか？" +
+                    Environment.NewLine + Environment.NewLine +
+                    @"---------- 報告用エラー情報 ----------" + Environment.NewLine + ex,
+                    nameof(VoiceroidUtil),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
 
-        /// <summary>
-        /// 設定マネージャを取得する。
-        /// </summary>
-        private ConfigManager ConfigManager { get; }
-
-        /// <summary>
-        /// 直近のアプリ状態値の設定先を取得する。
-        /// </summary>
-        private IReactiveProperty<IAppStatus> LastStatus { get; }
-
-        /// <summary>
-        /// アプリ更新情報チェッカを取得する。
-        /// </summary>
-        private AppUpdateChecker UpdateChecker { get; } =
-#if DEBUG
-            new AppUpdateChecker(AppUpdateChecker.DefaultBaseUri + @".debug/");
-#else // DEBUG
-            new AppUpdateChecker();
-#endif // DEBUG
-
-        /// <summary>
-        /// VOICEROIDプロセスファクトリを取得する。
-        /// </summary>
-        private ProcessFactory ProcessFactory { get; }
+                // ログファイル書き出し
+                var logFilePath =
+                    Path.Combine(
+                        Environment.GetFolderPath(
+                            Environment.SpecialFolder.LocalApplicationData),
+                        Assembly
+                            .GetEntryAssembly()
+                            .GetCustomAttribute<AssemblyCompanyAttribute>()
+                            .Company,
+                        nameof(VoiceroidUtil),
+                        @"InitializeError.txt");
+                File.WriteAllText(
+                    logFilePath,
+                    $@"[{DateTime.Now}]" + Environment.NewLine + ex,
+                    new UTF8Encoding(false));
+            }
+            finally
+            {
+                // アプリ終了
+                this.Shutdown(1);
+            }
+        }
 
         /// <summary>
         /// トレースリスナのセットアップを行う。
