@@ -42,9 +42,20 @@ namespace VoiceroidUtil
             }
 
             // メインウィンドウ更新
+            // ハンドルが変わった場合は AutomationElement キャッシュがクリアされる
             this.MainWindow = new Win32Window(process.MainWindowHandle);
 
             return true;
+        }
+
+        /// <summary>
+        /// 内部に保持しているコントロール操作用 AutomationElement キャッシュをクリアする。
+        /// </summary>
+        public void ClearElementCache()
+        {
+            this.SpeechEditElementCache = null;
+            this.CharaComboElementCache = null;
+            this.AddButtonElementCache = null;
         }
 
         /// <summary>
@@ -249,9 +260,7 @@ namespace VoiceroidUtil
                     // ウィンドウが変わったなら AutomationElement キャッシュをクリア
                     if (this.mainWindow?.Handle != oldHandle)
                     {
-                        this.SpeechEditElementCache = null;
-                        this.CharaComboElementCache = null;
-                        this.AddButtonElementCache = null;
+                        this.ClearElementCache();
                     }
                 }
             }
