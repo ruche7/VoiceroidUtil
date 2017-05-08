@@ -1,10 +1,14 @@
 @setlocal
 @echo off
 
-set SRC_EXE_DIR=%~dp0\VoiceroidUtil\bin\Release
+set TARGET_CONFIG=%~1
+if "%TARGET_CONFIG%"=="" set TARGET_CONFIG=Release
+
+set SRC_EXE_DIR=%~dp0\VoiceroidUtil\bin\%TARGET_CONFIG%
 set SRC_EXE_FILE=%SRC_EXE_DIR%\VoiceroidUtil.exe
 set SRC_DOC_FILE=%~dp0\data\readme.txt
 set DEST_BASE_DIR=%~dp0\__release\VoiceroidUtil
+if not "%TARGET_CONFIG%"=="Release" set DEST_BASE_DIR=%DEST_BASE_DIR%_%TARGET_CONFIG%
 set DEST_SYSTEM_DIR=%DEST_BASE_DIR%\system
 
 REM ---- check source
