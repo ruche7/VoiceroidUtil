@@ -1,5 +1,6 @@
 @setlocal
 @echo off
+set RET=1
 
 where VsMSBuildCmd.bat >nul 2>&1
 if errorlevel 1 (
@@ -29,27 +30,29 @@ REM ---- Overwrite resources
 if exist __resources (
     rmdir /S /Q __resources_temp >nul 2>&1
     xcopy /Y /E /I VoiceroidUtil\resources __resources_temp
+    if errorlevel 1 goto ON_ERROR_POPD
     xcopy /Y /E /I __resources VoiceroidUtil\resources
+    if errorlevel 1 goto ON_ERROR_RESET_RESOURCE
 )
 
 REM ---- Build solution
 MSBuild VoiceroidUtil.sln /m /t:Rebuild /p:Configuration=Debug
-if errorlevel 1 goto ON_ERROR_POPD
+if errorlevel 1 goto ON_ERROR_RESET_RESOURCE
 MSBuild VoiceroidUtil.sln /m /t:Rebuild /p:Configuration=Release
-if errorlevel 1 goto ON_ERROR_POPD
+if errorlevel 1 goto ON_ERROR_RESET_RESOURCE
+
+set RET=0
 
 REM ---- Reset resources
+:ON_ERROR_RESET_RESOURCE
 if exist __resources (
     xcopy /Y /E /I __resources_temp VoiceroidUtil\resources
     rmdir /S /Q __resources_temp >nul 2>&1
 )
 
-popd
-
-exit /b 0
-
 :ON_ERROR_POPD
 popd
+
 :ON_ERROR
-pause
-exit /b 1
+if not "%RET%"=="0" pause
+endlocal && exit /b %RET%
