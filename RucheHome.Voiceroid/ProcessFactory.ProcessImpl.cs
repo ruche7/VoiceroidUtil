@@ -76,24 +76,47 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// ダイアログ種別列挙。
+            /// </summary>
+            private enum DialogType
+            {
+                /// <summary>
+                /// 保存ダイアログ。
+                /// </summary>
+                Save,
+
+                /// <summary>
+                /// 保存進捗ダイアログ。
+                /// </summary>
+                SaveProgress,
+
+                /// <summary>
+                /// エラーダイアログ。
+                /// </summary>
+                Error,
+
+                /// <summary>
+                /// 注意ダイアログ。
+                /// </summary>
+                Caution,
+            }
+
+            /// <summary>
             /// UI操作のタイムアウトミリ秒数。
             /// </summary>
             private const int UIControlTimeout = 1500;
 
             /// <summary>
-            /// 保存ダイアログタイトル文字列。
+            /// ダイアログ種別ごとのタイトル文字列のディクショナリ。
             /// </summary>
-            private const string SaveDialogTitle = @"音声ファイルの保存";
-
-            /// <summary>
-            /// 保存進捗ダイアログタイトル文字列。
-            /// </summary>
-            private const string SaveProgressDialogTitle = @"音声保存";
-
-            /// <summary>
-            /// エラーダイアログタイトル文字列。
-            /// </summary>
-            private const string ErrorDialogTitle = @"エラー";
+            private static readonly Dictionary<DialogType, string> DialogTitles =
+                new Dictionary<DialogType, string>
+                {
+                    { DialogType.Save, @"音声ファイルの保存" },
+                    { DialogType.SaveProgress, @"音声保存" },
+                    { DialogType.Error, @"エラー" },
+                    { DialogType.Caution, @"注意" },
+                };
 
             /// <summary>
             /// WAVEファイル名末尾の角カッコ数値文字列にマッチする正規表現。
@@ -429,20 +452,15 @@ namespace RucheHome.Voiceroid
                     this.IsRunning = true;
 
                     // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                    this.IsSaving = (
-                        (await this.FindSaveDialog()) != null ||
-                        (await this.FindSaveProgressDialog()) != null);
+                    // ついでに FindDialogs 内で IsDialogShowing プロパティも更新される
+                    this.IsSaving =
+                        (await this.FindDialogs()).Keys
+                            .Any(t => t == DialogType.Save || t == DialogType.SaveProgress);
 
-                    if (this.IsSaving)
-                    {
-                        this.IsDialogShowing = true;
-                    }
-                    else
+                    if (!this.IsSaving)
                     {
                         // 保存ボタンが押せない状態＝再生中と判定
                         this.IsPlaying = !this.SaveButton.IsEnabled;
-
-                        await this.UpdateDialogShowing();
                     }
                 }
             }
@@ -514,12 +532,18 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// メインウィンドウをオーナーとするダイアログを検索する。
             /// </summary>
-            /// <param name="title">タイトル文字列。限定しないならば null 。</param>
+            /// <param name="type">ダイアログ種別。</param>
             /// <returns>ダイアログ。見つからなければ null 。</returns>
-            private async Task<Win32Window> FindDialog(string title = null)
+            private async Task<Win32Window> FindDialog(DialogType type)
             {
                 var mainWin = this.MainWindow;
                 if (mainWin == null)
+                {
+                    return null;
+                }
+
+                string title = null;
+                if (!DialogTitles.TryGetValue(type, out title))
                 {
                     return null;
                 }
@@ -532,30 +556,25 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// 保存ダイアログを検索する。
+            /// メインウィンドウをオーナーとするダイアログを検索し、
+            /// 見つかったダイアログ種別とその実体を返す。
             /// </summary>
-            /// <returns>保存ダイアログ。見つからなければ null 。</returns>
-            private Task<Win32Window> FindSaveDialog()
+            /// <returns>ダイアログ種別と実体のディクショナリ。</returns>
+            private async Task<Dictionary<DialogType, Win32Window>> FindDialogs()
             {
-                return this.FindDialog(SaveDialogTitle);
-            }
+                var types = (DialogType[])Enum.GetValues(typeof(DialogType));
+                var dialogs = await Task.WhenAll(types.Select(t => this.FindDialog(t)));
 
-            /// <summary>
-            /// 保存進捗ダイアログを検索する。
-            /// </summary>
-            /// <returns>保存進捗ダイアログ。見つからなければ null 。</returns>
-            private Task<Win32Window> FindSaveProgressDialog()
-            {
-                return this.FindDialog(SaveProgressDialogTitle);
-            }
+                var result =
+                    Enumerable
+                        .Zip(types, dialogs, (type, dialog) => new { type, dialog })
+                        .Where(v => v.dialog != null)
+                        .ToDictionary(v => v.type, v => v.dialog);
 
-            /// <summary>
-            /// エラーダイアログを検索する。
-            /// </summary>
-            /// <returns>エラーダイアログ。見つからなければ null 。</returns>
-            private Task<Win32Window> FindErrorDialog()
-            {
-                return this.FindDialog(ErrorDialogTitle);
+                // ダイアログ表示中フラグを更新
+                this.IsDialogShowing = (result.Count > 0);
+
+                return result;
             }
 
             /// <summary>
@@ -582,12 +601,8 @@ namespace RucheHome.Voiceroid
             /// <returns>更新した値。</returns>
             private async Task<bool> UpdateDialogShowing()
             {
-                // 開いていても影響のないダイアログは無視
-                this.IsDialogShowing =
-                    ((await this.FindSaveDialog()) != null) ||
-                    ((await this.FindSaveProgressDialog()) != null) ||
-                    ((await this.FindErrorDialog()) != null) ||
-                    ((await this.FindDialog(@"注意")) != null);
+                // FindDialogs 内で更新される
+                await this.FindDialogs();
 
                 return this.IsDialogShowing;
             }
@@ -635,15 +650,17 @@ namespace RucheHome.Voiceroid
             private async Task<Win32Window> DoFindFileNameEditTask()
             {
                 // いずれかのダイアログが出るまで待つ
-                if (!(await RepeatUntil(this.UpdateDialogShowing, f => f, 150)))
+                var dialogs =
+                    await RepeatUntil(this.FindDialogs, dlgs => dlgs.Count > 0, 150);
+                if (dialogs.Count <= 0)
                 {
                     ThreadTrace.WriteLine(@"ダイアログ検索処理がタイムアウトしました。");
                     return null;
                 }
 
                 // 保存ダイアログ取得
-                var dialog = await this.FindSaveDialog();
-                if (dialog == null)
+                Win32Window dialog = null;
+                if (!dialogs.TryGetValue(DialogType.Save, out dialog))
                 {
                     ThreadTrace.WriteLine(@"音声保存ダイアログが見つかりません。");
                     return null;
@@ -813,7 +830,7 @@ namespace RucheHome.Voiceroid
                 // 保存ダイアログが閉じるまで待つ
                 var dialog =
                     await RepeatUntil(
-                        this.FindSaveDialog,
+                        () => this.FindDialog(DialogType.Save),
                         (Win32Window d) => d == null,
                         150);
                 return (dialog == null);
@@ -831,38 +848,35 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                // ファイル保存 or 保存進捗ダイアログ表示 を待つ
-                bool saved = false, progressFound = false;
-                bool dialogFound =
+                // ファイル保存完了 or ダイアログ表示 を待つ
+                // ファイル保存完了なら null を返す
+                var dialogs =
                     await RepeatUntil(
                         async () =>
-                            (saved = File.Exists(filePath)) ||
-                            (progressFound =
-                                ((await this.FindSaveProgressDialog()) != null)) ||
-                            await this.UpdateDialogShowing(),
-                        f => f,
+                            File.Exists(filePath) ? null : (await this.FindDialogs()),
+                        dlgs => (dlgs == null || dlgs.Count > 0),
                         150);
-                if (!saved)
+                if (dialogs != null)
                 {
                     // 保存進捗ダイアログ以外のダイアログが出ているなら失敗
-                    if (!progressFound && dialogFound)
+                    if (!dialogs.ContainsKey(DialogType.SaveProgress))
                     {
+                        ThreadTrace.WriteLine(
+                            @"保存進捗ダイアログ以外のダイアログが開いています。 dialogs=" +
+                            string.Join(
+                                @",",
+                                dialogs.Where(v => v.Value != null).Select(v => v.Key)));
                         return false;
                     }
 
                     // 保存進捗ダイアログが閉じるまで待つ
-                    if (progressFound)
-                    {
-                        await RepeatUntil(
-                            this.FindSaveProgressDialog,
-                            (Win32Window d) => d == null);
-                    }
+                    await RepeatUntil(
+                        () => this.FindDialog(DialogType.SaveProgress),
+                        (Win32Window d) => d == null);
 
-                    if (!(await RepeatUntil(() => File.Exists(filePath), f => f, 10)))
+                    // 改めてファイル保存完了チェック
+                    if (!(await RepeatUntil(() => File.Exists(filePath), f => f, 25)))
                     {
-                        ThreadTrace.WriteLine(
-                            @"音声ファイルの保存を確認できません。 " +
-                            nameof(progressFound) + '=' + progressFound);
                         return false;
                     }
                 }
@@ -1255,7 +1269,7 @@ namespace RucheHome.Voiceroid
                     else if (!(await this.DoCheckFileSavedTask(path)))
                     {
                         extraMsg =
-                            ((await this.FindErrorDialog()) == null) ?
+                            ((await this.FindDialog(DialogType.Error)) == null) ?
                                 @"ファイル保存を確認できませんでした。" :
                                 @"文章が無音である可能性があります。";
                     }
