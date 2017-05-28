@@ -166,21 +166,6 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライ回数。
-        /// </summary>
-        private const int YmmRetryCount = 3;
-
-        /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライインターバル。
-        /// </summary>
-        private static readonly TimeSpan YmmRetryInterval = TimeSpan.FromMilliseconds(200);
-
-        /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
-        /// </summary>
-        private static YmmProcess YmmProcess { get; } = new YmmProcess();
-
-        /// <summary>
         /// WAVEファイルパスを作成する。
         /// </summary>
         /// <param name="config">アプリ設定。</param>
@@ -533,6 +518,21 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
+        /// </summary>
+        private static YmmProcess YmmProcess { get; } = new YmmProcess();
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライ回数。
+        /// </summary>
+        private const int YmmRetryCount = 8;
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライインターバル。
+        /// </summary>
+        private static readonly TimeSpan YmmRetryInterval = TimeSpan.FromMilliseconds(250);
+
+        /// <summary>
         /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
@@ -556,14 +556,14 @@ namespace VoiceroidUtil
                 // リトライ時処理
                 if (ri > 0)
                 {
-                    YmmProcess.ClearElementCache();
+                    YmmProcess.Reset();
                     await Task.Delay(YmmRetryInterval);
                 }
 
                 // 状態更新
                 try
                 {
-                    YmmProcess.Update();
+                    await YmmProcess.Update();
                 }
                 catch (Exception ex)
                 {
