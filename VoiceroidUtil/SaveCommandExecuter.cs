@@ -166,11 +166,6 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
-        /// </summary>
-        private static YmmProcess YmmProcess { get; } = new YmmProcess();
-
-        /// <summary>
         /// WAVEファイルパスを作成する。
         /// </summary>
         /// <param name="config">アプリ設定。</param>
@@ -523,6 +518,21 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
+        /// </summary>
+        private static YmmProcess YmmProcess { get; } = new YmmProcess();
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライ回数。
+        /// </summary>
+        private const int YmmRetryCount = 8;
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライインターバル。
+        /// </summary>
+        private static readonly TimeSpan YmmRetryInterval = TimeSpan.FromMilliseconds(250);
+
+        /// <summary>
         /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
@@ -539,51 +549,75 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            // 状態更新
-            try
-            {
-                YmmProcess.Update();
-            }
-            catch (Exception ex)
-            {
-                ThreadTrace.WriteException(ex);
-                return @"ゆっくりMovieMakerの起動状態確認に失敗しました。";
-            }
-
-            // そもそも起動していないなら何もしない
-            if (!YmmProcess.IsRunning)
-            {
-                return null;
-            }
-
-            // ファイルパス設定
-            if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
-            {
-                return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
-            }
-
             string warnText = null;
 
-            // キャラ選択
-            // そもそもキャラ名が存在しない場合は失敗しても警告にしない
-            if (config.IsYmmCharaSelecting)
+            for (int ri = 0; ri <= YmmRetryCount; ++ri)
             {
-                var name = config.YmmCharaRelations[voiceroidId].YmmCharaName;
-                if (
-                    !string.IsNullOrEmpty(name) &&
-                    (await YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                // リトライ時処理
+                if (ri > 0)
                 {
-                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
+                    YmmProcess.Reset();
+                    await Task.Delay(YmmRetryInterval);
                 }
-            }
 
-            // ボタン押下
-            // キャラ選択に失敗していても行う
-            if (
-                config.IsYmmAddButtonClicking &&
-                !(await YmmProcess.ClickTimelineSpeechAddButton()))
-            {
-                warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
+                // 状態更新
+                try
+                {
+                    await YmmProcess.Update();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return @"ゆっくりMovieMakerの起動状態確認に失敗しました。";
+                }
+
+                // そもそも起動していないなら何もしない
+                if (!YmmProcess.IsRunning)
+                {
+                    return null;
+                }
+
+                // ファイルパス設定
+                if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
+                {
+                    warnText = @"ゆっくりMovieMakerのタイムラインが見つかりません。";
+                    continue;
+                }
+
+                // キャラ選択
+                // そもそもキャラ名が存在しない場合は何もしない
+                if (config.IsYmmCharaSelecting)
+                {
+                    var name = config.YmmCharaRelations[voiceroidId].YmmCharaName;
+                    if (
+                        !string.IsNullOrEmpty(name) &&
+                        (await YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                    {
+                        warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
+                        continue;
+                    }
+                }
+
+                // ボタン押下
+                if (
+                    config.IsYmmAddButtonClicking &&
+                    !(await YmmProcess.ClickTimelineSpeechAddButton()))
+                {
+                    warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
+                    continue;
+                }
+
+#if DEBUG
+                // デバッグ時にはリトライ回数を報告
+                if (ri > 0)
+                {
+                    warnText = @"YMMリトライ回数 : " + ri;
+                    ThreadDebug.WriteLine(warnText);
+                    return warnText;
+                }
+#endif // DEBUG
+
+                return null;
             }
 
             return warnText;
