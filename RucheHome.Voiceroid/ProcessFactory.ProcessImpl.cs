@@ -52,23 +52,15 @@ namespace RucheHome.Voiceroid
             public bool IsUIAutomationEnabled { get; set; } = true;
 
             /// <summary>
-            /// 状態を更新する。
+            /// プロセス列挙を基に状態を更新する。
             /// </summary>
-            public Task Update()
-            {
-                return this.Update(FindProcesses());
-            }
-
-            /// <summary>
-            /// 既知のVOICEROIDプロセス列挙を基に状態を更新する。
-            /// </summary>
-            /// <param name="voiceroidApps">VOICEROIDプロセス列挙。</param>
-            public async Task Update(IEnumerable<Process> voiceroidApps)
+            /// <param name="apps">プロセス列挙。</param>
+            public async Task Update(IEnumerable<Process> apps)
             {
                 using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
                     // 対象プロセスを検索
-                    var app = voiceroidApps?.FirstOrDefault(p => this.IsOwnProcess(p));
+                    var app = apps?.FirstOrDefault(p => this.IsOwnProcess(p));
                     if (app == null)
                     {
                         this.IsStartup = false;

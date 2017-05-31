@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -30,33 +31,28 @@ namespace RucheHome.Voiceroid
         }
 
         /// <summary>
-        /// プロセスリストを取得する。
+        /// VOICEROIDプロセスリストを取得する。
         /// </summary>
         public ReadOnlyCollection<IProcess> Processes { get; }
 
         /// <summary>
-        /// プロセスを取得する。
+        /// VOICEROIDプロセスを取得する。
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>
         /// <returns>プロセス。</returns>
-        public IProcess Get(VoiceroidId id)
-        {
-            return this.Processes.First(p => p.Id == id);
-        }
+        public IProcess Get(VoiceroidId id) => this.Processes.First(p => p.Id == id);
 
         /// <summary>
-        /// 全プロセスの状態を更新する。
+        /// 全VOICEROIDプロセスの状態を更新する。
         /// </summary>
         public Task Update()
         {
-            var voiceroidApps = FindProcesses();
-            return
-                Task.WhenAll(
-                    Array.ConvertAll(this.Impls, p => p.Update(voiceroidApps)));
+            var apps = FindProcesses();
+            return Task.WhenAll(Array.ConvertAll(this.Impls, p => p.Update(apps)));
         }
 
         /// <summary>
-        /// 全プロセスの UI Automation 利用許可状態を設定する。
+        /// 全VOICEROIDプロセスの UI Automation 利用許可状態を設定する。
         /// </summary>
         /// <param name="enabled">許可するならば true 。そうでなければ false 。</param>
         /// <remarks>
@@ -68,16 +64,20 @@ namespace RucheHome.Voiceroid
         }
 
         /// <summary>
-        /// VOICEROIDプロセスを検索する。
+        /// 検索対象プロセス名列挙を取得する。
         /// </summary>
-        /// <returns>VOICEROIDプロセス配列。</returns>
-        private static Process[] FindProcesses()
-        {
-            return Process.GetProcessesByName(@"VOICEROID");
-        }
+        private static IEnumerable<string> SearchProcessNames { get; } =
+            new[] { @"VOICEROID", @"OtomachiUnaTalkEx" };
 
         /// <summary>
-        /// プロセス実装配列を取得する。
+        /// プロセスを検索する。
+        /// </summary>
+        /// <returns>VOICEROIDプロセス列挙。</returns>
+        private static IEnumerable<Process> FindProcesses() =>
+            SearchProcessNames.SelectMany(name => Process.GetProcessesByName(name));
+
+        /// <summary>
+        /// VOICEROIDプロセス実装配列を取得する。
         /// </summary>
         private ProcessImpl[] Impls { get; } =
             Array.ConvertAll(

@@ -70,6 +70,12 @@ namespace RucheHome.Voiceroid
         /// </summary>
         [EnumMember]
         KouEx,
+
+        /// <summary>
+        /// 音街ウナTalk Ex
+        /// </summary>
+        [EnumMember]
+        UnaTalkEx,
     }
 
     /// <summary>
@@ -133,6 +139,10 @@ namespace RucheHome.Voiceroid
                     VoiceroidId.KouEx,
                     @"水奈瀬コウ",
                     @"VOICEROID＋ 水奈瀬コウ EX"),
+                new VoiceroidInfo(
+                    VoiceroidId.UnaTalkEx,
+                    @"音街ウナ",
+                    @"音街ウナTalk Ex"),
             }
             .ToDictionary(info => info.Id);
     }
