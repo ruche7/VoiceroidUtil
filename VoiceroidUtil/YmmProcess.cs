@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
@@ -26,6 +27,19 @@ namespace VoiceroidUtil
         public bool IsRunning => (this.MainWindowHandle != IntPtr.Zero);
 
         /// <summary>
+        /// タイムラインウィンドウが存在するか否かを取得する。
+        /// </summary>
+        public bool IsTimelineExists =>
+            (this.SpeechEditElement != null) &&
+            (this.CharaComboElement != null) &&
+            (this.AddButtonElement != null);
+
+        /// <summary>
+        /// 『ゆっくりMovieMaker』プロセス名。
+        /// </summary>
+        private const string ProcessName = @"YukkuriMovieMaker_v3";
+
+        /// <summary>
         /// 状態を更新する。
         /// </summary>
         /// <returns>
@@ -42,30 +56,26 @@ namespace VoiceroidUtil
             }
 
             // 入力待機状態待ち
-            if (!(await this.WaitForInputHandle()))
+            if (!(await this.WhenForInputHandle()))
             {
                 ThreadDebug.WriteLine(@"YMM : WaitForInputIdle() == false");
                 this.Reset();
                 return false;
             }
 
-            // メインウィンドウハンドル取得
-            var handle = this.Process.MainWindowHandle;
-            if (handle == IntPtr.Zero)
+            // メインウィンドウハンドル確認
+            this.Process.Refresh();
+            if (this.MainWindowHandle == IntPtr.Zero)
             {
                 ThreadDebug.WriteLine(@"YMM : process.MainWindowHandle == IntPtr.Zero");
                 this.Reset();
                 return false;
             }
 
-            // メインウィンドウハンドルが変わった？
-            if (handle != this.MainWindowHandle)
+            // AutomationElement 群更新
+            if (!this.UpdateElements())
             {
-                // メインウィンドウハンドル更新
-                this.MainWindowHandle = handle;
-
-                // AutomationElement キャッシュをリセット
-                this.ResetElementCache();
+                this.ResetElements();
             }
 
             return true;
@@ -77,8 +87,7 @@ namespace VoiceroidUtil
         public void Reset()
         {
             this.Process = null;
-            this.MainWindowHandle = IntPtr.Zero;
-            this.ResetElementCache();
+            this.ResetElements();
         }
 
         /// <summary>
@@ -88,15 +97,14 @@ namespace VoiceroidUtil
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> SetTimelineSpeechEditValue(string text)
         {
-            var elem = await this.GetSpeechEditElement();
-            if (elem == null)
+            if (!this.IsTimelineExists)
             {
-                ThreadDebug.WriteLine(@"YMM : GetSpeechEditElement() == null");
                 return false;
             }
 
             // ValuePattern 取得
-            var edit = GetPattern<ValuePattern>(elem, ValuePattern.Pattern);
+            var edit =
+                GetPattern<ValuePattern>(this.SpeechEditElement, ValuePattern.Pattern);
             if (edit == null || edit.Current.IsReadOnly)
             {
                 ThreadDebug.WriteLine(
@@ -107,7 +115,7 @@ namespace VoiceroidUtil
             // テキスト設定
             try
             {
-                await this.WaitForInputHandle();
+                await this.WhenForInputHandle();
                 edit.SetValue(text);
             }
             catch (Exception ex)
@@ -130,37 +138,43 @@ namespace VoiceroidUtil
         /// </returns>
         public async Task<bool?> SelectTimelineCharaComboBoxItem(string name)
         {
-            var elem = await this.GetCharaComboElement();
-            if (elem == null)
+            if (!this.IsTimelineExists)
             {
-                ThreadDebug.WriteLine(@"YMM : GetCharaComboElement() == null");
                 return false;
             }
 
-            // すべてのアイテムを有効化させるためにコンボボックスを開く
+            // すべてのアイテムを有効化させるためにコンボボックスを開閉する
             var expand =
-                GetPattern<ExpandCollapsePattern>(elem, ExpandCollapsePattern.Pattern);
+                GetPattern<ExpandCollapsePattern>(
+                    this.CharaComboElement,
+                    ExpandCollapsePattern.Pattern);
             if (expand == null)
             {
                 ThreadDebug.WriteLine(
                     @"YMM : CharaComboElement から ExpandCollapsePattern を取得できない。");
                 return false;
             }
-            await this.WaitForInputHandle();
-            expand.Expand();
+            try
+            {
+                await this.WhenForInputHandle();
+                expand.Expand();
+                expand.Collapse();
+            }
+            catch (Exception ex)
+            {
+                ThreadDebug.WriteException(ex);
+                return false;
+            }
 
             // Name がキャラ名の子を持つコンボボックスアイテムUIを探す
-            var itemCond =
-                new PropertyCondition(
-                    AutomationElement.ControlTypeProperty,
-                    ControlType.ListItem);
             var nameCond = new PropertyCondition(AutomationElement.NameProperty, name);
             var itemElem =
-                await elem
-                    .FindAll(TreeScope.Children, itemCond)
-                    .OfType<AutomationElement>()
+                await FindAllChildren(
+                    this.CharaComboElement,
+                    AutomationElement.ControlTypeProperty,
+                    ControlType.ListItem)
                     .ToObservable()
-                    .FirstOrDefaultAsync(i => FindDescendant(i, nameCond) != null);
+                    .FirstOrDefaultAsync(i => FindFirstChild(i, nameCond) != null);
             if (itemElem == null)
             {
                 // キャラ名存在せず
@@ -180,7 +194,7 @@ namespace VoiceroidUtil
             // アイテム選択
             try
             {
-                await this.WaitForInputHandle();
+                await this.WhenForInputHandle();
                 item.Select();
             }
             catch (Exception ex)
@@ -198,15 +212,14 @@ namespace VoiceroidUtil
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> ClickTimelineSpeechAddButton()
         {
-            var elem = await this.GetAddButtonElement();
-            if (elem == null)
+            if (!this.IsTimelineExists)
             {
-                ThreadDebug.WriteLine(@"YMM : GetAddButtonElement() == null");
                 return false;
             }
 
             // InvokePattern 取得
-            var button = GetPattern<InvokePattern>(elem, InvokePattern.Pattern);
+            var button =
+                GetPattern<InvokePattern>(this.AddButtonElement, InvokePattern.Pattern);
             if (button == null)
             {
                 ThreadDebug.WriteLine(
@@ -217,7 +230,7 @@ namespace VoiceroidUtil
             // 押下
             try
             {
-                await this.WaitForInputHandle();
+                await this.WhenForInputHandle();
                 button.Invoke();
             }
             catch (Exception ex)
@@ -230,43 +243,98 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス名。
+        /// 特定の条件を満たすすべての子 AutomationElement を検索する。
         /// </summary>
-        private const string ProcessName = @"YukkuriMovieMaker_v3";
-
-        /// <summary>
-        /// タイムラインウィンドウ内セリフエディットのオートメーションID。
-        /// </summary>
-        private const string TimelineSpeechEditAutomationId = @"SerifuTB";
-
-        /// <summary>
-        /// タイムラインウィンドウ内キャラ選択コンボボックスのオートメーションID。
-        /// </summary>
-        private const string TimelineCharaComboBoxAutomationId = @"CharactersCB";
-
-        /// <summary>
-        /// タイムラインウィンドウ内追加ボタンの名前。
-        /// </summary>
-        private const string TimelineSpeechAddButtonName = @"追加";
-
-        /// <summary>
-        /// 子孫の AutomationElement を検索する。
-        /// </summary>
-        /// <param name="root">検索のルート。</param>
-        /// <param name="condition">条件。</param>
-        /// <returns>AutomationElement 。見つからなければ null 。</returns>
-        private static AutomationElement FindDescendant(
-            AutomationElement root,
-            PropertyCondition condition)
+        /// <param name="element">検索元 AutomationElement 。</param>
+        /// <param name="condition">検索条件。 null ならば常に満たす。</param>
+        /// <returns>子 AutomationElement 列挙。</returns>
+        private static IEnumerable<AutomationElement> FindAllChildren(
+            AutomationElement element,
+            Condition condition = null)
         {
-            return root?.FindFirst(TreeScope.Descendants, condition);
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+
+            return
+                element
+                    .FindAll(TreeScope.Children, condition ?? Condition.TrueCondition)
+                    .OfType<AutomationElement>();
+        }
+
+        /// <summary>
+        /// 特定のプロパティ値を持つすべての子 AutomationElement を検索する。
+        /// </summary>
+        /// <param name="element">検索元 AutomationElement 。</param>
+        /// <param name="property">プロパティ種別。</param>
+        /// <param name="propertyValue">プロパティ値。</param>
+        /// <returns>子 AutomationElement 列挙。</returns>
+        private static IEnumerable<AutomationElement> FindAllChildren(
+            AutomationElement element,
+            AutomationProperty property,
+            object propertyValue)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
+            return FindAllChildren(element, new PropertyCondition(property, propertyValue));
+        }
+
+        /// <summary>
+        /// 特定の条件を満たす最初の子 AutomationElement を検索する。
+        /// </summary>
+        /// <param name="element">検索元 AutomationElement 。</param>
+        /// <param name="condition">検索条件。 null ならば常に満たす。</param>
+        /// <returns>子 AutomationElement 。見つからなければ null 。</returns>
+        private static AutomationElement FindFirstChild(
+            AutomationElement element,
+            Condition condition = null)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+
+            return
+                element.FindFirst(TreeScope.Children, condition ?? Condition.TrueCondition);
+        }
+
+        /// <summary>
+        /// 特定のプロパティ値を持つ最初の子 AutomationElement を検索する。
+        /// </summary>
+        /// <param name="element">検索元 AutomationElement 。</param>
+        /// <param name="property">プロパティ種別。</param>
+        /// <param name="propertyValue">プロパティ値。</param>
+        /// <returns>子 AutomationElement 。見つからなければ null 。</returns>
+        private static AutomationElement FindFirstChild(
+            AutomationElement element,
+            AutomationProperty property,
+            object propertyValue)
+        {
+            if (element == null)
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
+            return FindFirstChild(element, new PropertyCondition(property, propertyValue));
         }
 
         /// <summary>
         /// UI操作パターンを取得する。
         /// </summary>
         /// <typeparam name="T">パターンの型。</typeparam>
-        /// <param name="element">取得元。</param>
+        /// <param name="element">取得元 AutomationElement 。</param>
         /// <param name="pattern">取得パターン。</param>
         /// <returns>UI操作パターン。取得できなければ null 。</returns>
         private static T GetPattern<T>(
@@ -286,49 +354,46 @@ namespace VoiceroidUtil
         private Process Process { get; set; } = null;
 
         /// <summary>
-        /// メインウィンドウハンドルを取得または設定する。
+        /// メインウィンドウハンドルを取得する。
         /// </summary>
-        private IntPtr MainWindowHandle { get; set; } = IntPtr.Zero;
+        private IntPtr MainWindowHandle =>
+            (this.Process == null) ? IntPtr.Zero : this.Process.MainWindowHandle;
 
         /// <summary>
-        /// セリフエディットの AutomationElement キャッシュを取得または設定する。
+        /// セリフエディットの AutomationElement を取得または設定する。
         /// </summary>
         /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
-        private AutomationElement SpeechEditElementCache { get; set; } = null;
+        private AutomationElement SpeechEditElement { get; set; } = null;
 
         /// <summary>
-        /// キャラ選択コンボボックスの AutomationElement キャッシュを取得または設定する。
+        /// キャラ選択コンボボックスの AutomationElement を取得または設定する。
         /// </summary>
         /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
-        private AutomationElement CharaComboElementCache { get; set; } = null;
+        private AutomationElement CharaComboElement { get; set; } = null;
 
         /// <summary>
-        /// 追加ボタンの AutomationElement キャッシュを取得または設定する。
+        /// 追加ボタンの AutomationElement を取得または設定する。
         /// </summary>
         /// <remarks>タイムラインウィンドウが開いていない場合は無効。</remarks>
-        private AutomationElement AddButtonElementCache { get; set; } = null;
+        private AutomationElement AddButtonElement { get; set; } = null;
 
         /// <summary>
-        /// WaitForInputHandle メソッドの最大ループ回数。
+        /// 『ゆっくりMovieMaker』プロセスが入力待機状態になるまで非同期で待機する。
         /// </summary>
-        private const int WaitForInputHandleLoopCount = 10;
-
-        /// <summary>
-        /// WaitForInputHandle メソッドのループ間隔ミリ秒数。
-        /// </summary>
-        private const int WaitForInputHandleLoopIntervalMilliseconds = 50;
-
-        /// <summary>
-        /// 『ゆっくりMovieMaker』プロセスが入力可能状態になるまで待機する。
-        /// </summary>
-        /// <returns>入力可能状態になったならば true 。そうでなければ false 。</returns>
-        private async Task<bool> WaitForInputHandle()
+        /// <param name="loopCount">
+        /// 最大ループ回数。 0 ならば状態確認結果を即座に返す。
+        /// </param>
+        /// <param name="loopIntervalMilliseconds">ループ間隔ミリ秒数。</param>
+        /// <returns>入力待機状態になったならば true 。そうでなければ false 。</returns>
+        private async Task<bool> WhenForInputHandle(
+            int loopCount = 25,
+            int loopIntervalMilliseconds = 20)
         {
             bool? result = this.Process?.WaitForInputIdle(0);
 
-            for (int i = 0; result == false && i < WaitForInputHandleLoopCount; ++i)
+            for (int i = 0; result == false && i < loopCount; ++i)
             {
-                await Task.Delay(WaitForInputHandleLoopIntervalMilliseconds);
+                await Task.Delay(loopIntervalMilliseconds);
                 result = this.Process?.WaitForInputIdle(0);
             }
 
@@ -336,93 +401,83 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// タイムラインウィンドウ以下の AutomationElement を検索する。
+        /// AutomationElement 群を更新する。
         /// </summary>
-        /// <param name="condition">検索条件。</param>
-        /// <returns>AutomationElement 。利用できない場合は null 。</returns>
-        private async Task<AutomationElement> FindUIElement(
-            PropertyCondition condition)
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        private bool UpdateElements()
         {
-            if (!(await this.WaitForInputHandle()))
+            if (this.MainWindowHandle == IntPtr.Zero)
             {
-                return null;
+                return false;
             }
 
-            var handle = this.MainWindowHandle;
-            if (handle == IntPtr.Zero)
+            var root = AutomationElement.FromHandle(this.MainWindowHandle);
+
+            // タイムラインウィンドウ検索
+            var tlWin =
+                FindAllChildren(
+                    root,
+                    AutomationElement.ControlTypeProperty,
+                    ControlType.Window)
+                    .FirstOrDefault(e => e.Current.Name.StartsWith(@"タイムライン"));
+            if (tlWin == null)
             {
-                return null;
+                return false;
             }
 
-            // AutomationElement 作成
-            // YMM上にアイテムが多いと時間が掛かるので非同期で
-            return
-                await Task.Run(
-                    () => FindDescendant(AutomationElement.FromHandle(handle), condition));
+            // タイムラインコントロール検索
+            var tlCtrl =
+                FindFirstChild(
+                    tlWin,
+                    AutomationElement.ClassNameProperty,
+                    @"TimelineControl");
+            if (tlCtrl == null)
+            {
+                return false;
+            }
+
+            // セリフエディット検索
+            var speechEdit =
+                FindFirstChild(tlCtrl, AutomationElement.AutomationIdProperty, @"SerifuTB");
+            if (speechEdit == null)
+            {
+                return false;
+            }
+
+            // キャラ選択コンボボックス検索
+            var charaCombo =
+                FindFirstChild(
+                    tlCtrl,
+                    AutomationElement.AutomationIdProperty,
+                    @"CharactersCB");
+            if (charaCombo == null)
+            {
+                return false;
+            }
+
+            // 追加ボタン検索
+            var addButton = FindFirstChild(tlCtrl, AutomationElement.NameProperty, @"追加");
+            if (addButton == null)
+            {
+                return false;
+            }
+
+            // 更新
+            this.SpeechEditElement = speechEdit;
+            this.CharaComboElement = charaCombo;
+            this.AddButtonElement = addButton;
+
+            return true;
         }
 
         /// <summary>
-        /// セリフエディットの AutomationElement を取得する。
+        /// AutomationElement 群をリセットする。
         /// </summary>
-        /// <returns>AutomationElement 。利用できない場合は null 。</returns>
-        private async Task<AutomationElement> GetSpeechEditElement()
+        private void ResetElements()
         {
-            if (this.SpeechEditElementCache == null)
-            {
-                this.SpeechEditElementCache =
-                    await this.FindUIElement(
-                        new PropertyCondition(
-                            AutomationElement.AutomationIdProperty,
-                            TimelineSpeechEditAutomationId));
-            }
-
-            return this.SpeechEditElementCache;
-        }
-
-        /// <summary>
-        /// キャラ選択コンボボックスの AutomationElement を取得する。
-        /// </summary>
-        /// <returns>AutomationElement 。利用できない場合は null 。</returns>
-        private async Task<AutomationElement> GetCharaComboElement()
-        {
-            if (this.CharaComboElementCache == null)
-            {
-                this.CharaComboElementCache =
-                    await this.FindUIElement(
-                        new PropertyCondition(
-                            AutomationElement.AutomationIdProperty,
-                            TimelineCharaComboBoxAutomationId));
-            }
-
-            return this.CharaComboElementCache;
-        }
-
-        /// <summary>
-        /// 追加ボタンの AutomationElement を取得する。
-        /// </summary>
-        /// <returns>AutomationElement 。利用できない場合は null 。</returns>
-        private async Task<AutomationElement> GetAddButtonElement()
-        {
-            if (this.AddButtonElementCache == null)
-            {
-                this.AddButtonElementCache =
-                    await this.FindUIElement(
-                        new PropertyCondition(
-                            AutomationElement.NameProperty,
-                            TimelineSpeechAddButtonName));
-            }
-
-            return this.AddButtonElementCache;
-        }
-
-        /// <summary>
-        /// AutomationElement キャッシュをリセットする。
-        /// </summary>
-        private void ResetElementCache()
-        {
-            this.SpeechEditElementCache = null;
-            this.CharaComboElementCache = null;
-            this.AddButtonElementCache = null;
+            this.SpeechEditElement = null;
+            this.CharaComboElement = null;
+            this.AddButtonElement = null;
         }
     }
 }
