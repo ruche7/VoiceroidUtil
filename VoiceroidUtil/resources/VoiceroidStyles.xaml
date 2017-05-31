@@ -58,6 +58,11 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/kou_ok.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="UnaTalkEx">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/una_ok.png" />
+            </DataTrigger>
         </Style.Triggers>
     </Style>
     
@@ -246,6 +251,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/kou_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="UnaTalkEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/una_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="UnaTalkEx" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/una_ok.png" />
             </MultiDataTrigger>
         </Style.Triggers>
     </Style>
