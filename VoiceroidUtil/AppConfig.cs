@@ -163,6 +163,17 @@ namespace VoiceroidUtil
         private bool textClearing = false;
 
         /// <summary>
+        /// 音声保存時に UI Automation の利用を許可するか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsUIAutomationEnabledOnSave
+        {
+            get => this.uiAutomationEnabledOnSave;
+            set => this.SetProperty(ref this.uiAutomationEnabledOnSave, value);
+        }
+        private bool uiAutomationEnabledOnSave = true;
+
+        /// <summary>
         /// 保存したファイルのパスを『ゆっくりMovieMaker』に設定するか否かを
         /// 取得または設定する。
         /// </summary>

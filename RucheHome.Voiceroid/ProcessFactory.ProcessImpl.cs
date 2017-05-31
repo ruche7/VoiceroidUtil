@@ -47,6 +47,11 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// UI Automation によるUI操作を許可するか否かを取得または設定する。
+            /// </summary>
+            public bool IsUIAutomationEnabled { get; set; } = true;
+
+            /// <summary>
             /// 状態を更新する。
             /// </summary>
             public Task Update()
@@ -682,6 +687,9 @@ namespace RucheHome.Voiceroid
                 /// <summary>
                 /// コンストラクタ。
                 /// </summary>
+                /// <param name="uiAutomationEnabled">
+                /// UI Automation の利用を許可するならば true 。
+                /// </param>
                 /// <param name="fileNameEditElement">
                 /// ファイル名エディット AutomationElement 。
                 /// </param>
@@ -690,14 +698,21 @@ namespace RucheHome.Voiceroid
                 /// ファイル名エディットコントロール。
                 /// </param>
                 public SaveDialogItemSet(
+                    bool uiAutomationEnabled,
                     AutomationElement fileNameEditElement,
                     AutomationElement okButtonElement,
                     Win32Window fileNameEditControl)
                 {
+                    this.IsUIAutomationEnabled = uiAutomationEnabled;
                     this.FileNameEditElement = fileNameEditElement;
                     this.OkButtonElement = okButtonElement;
                     this.FileNameEditControl = fileNameEditControl;
                 }
+
+                /// <summary>
+                /// UI Automation によるUI操作を許可するか否かを取得する。
+                /// </summary>
+                public bool IsUIAutomationEnabled { get; }
 
                 /// <summary>
                 /// ファイル名エディット AutomationElement を取得する。
@@ -718,11 +733,15 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// 保存ダイアログアイテムセットを検索する処理を行う。
             /// </summary>
+            /// <param name="uiAutomationEnabled">
+            /// UI Automation の利用を許可するならば true 。
+            /// </param>
             /// <returns>
             /// 保存ダイアログアイテムセット。
             /// ファイル名エディットが見つからなければ null 。
             /// </returns>
-            private async Task<SaveDialogItemSet> DoFindSaveDialogItemSetTask()
+            private async Task<SaveDialogItemSet> DoFindSaveDialogItemSetTask(
+                bool uiAutomationEnabled)
             {
                 // いずれかのダイアログが出るまで待つ
                 var dialogs =
@@ -748,42 +767,53 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                var dialogElem = AutomationElement.FromHandle(dialog.Handle);
+                AutomationElement okButtonElem = null;
+                AutomationElement editElem = null;
 
-                // OKボタン AutomationElement 検索
-                var okButtonElem =
-                    await RepeatUntil(
-                        () =>
-                            dialogElem.FindFirst(
-                                TreeScope.Children,
-                                new PropertyCondition(
-                                    AutomationElement.AutomationIdProperty,
-                                    @"1")),
-                        elem => elem != null,
-                        50);
+                if (uiAutomationEnabled)
+                {
+                    var dialogElem = AutomationElement.FromHandle(dialog.Handle);
 
-                // ファイル名エディット AutomationElement 検索
-                AutomationElement editElem =
-                    (okButtonElem == null) ?
-                        null :
+                    // OKボタン AutomationElement 検索
+                    okButtonElem =
                         await RepeatUntil(
                             () =>
-                            {
-                                var combo =
+                                dialogElem.FindFirst(
+                                    TreeScope.Children,
+                                    new PropertyCondition(
+                                        AutomationElement.AutomationIdProperty,
+                                        @"1")),
+                            elem => elem != null,
+                            50);
+
+                    // ファイル名エディット AutomationElement 検索
+                    if (okButtonElem != null)
+                    {
+                        var hostElem =
+                            await RepeatUntil(
+                                () =>
                                     dialogElem.FindFirst(
                                         TreeScope.Descendants,
                                         new PropertyCondition(
                                             AutomationElement.AutomationIdProperty,
-                                            @"FileNameControlHost"));
-                                return
-                                    combo?.FindFirst(
-                                        TreeScope.Children,
-                                        new PropertyCondition(
-                                            AutomationElement.ClassNameProperty,
-                                            @"Edit"));
-                            },
-                            elem => elem != null,
-                            50);
+                                            @"FileNameControlHost")),
+                                elem => elem != null,
+                                50);
+                        if (hostElem != null)
+                        {
+                            editElem =
+                                await RepeatUntil(
+                                    () =>
+                                        hostElem.FindFirst(
+                                            TreeScope.Children,
+                                            new PropertyCondition(
+                                                AutomationElement.ClassNameProperty,
+                                                @"Edit")),
+                                    elem => elem != null,
+                                    50);
+                        }
+                    }
+                }
 
                 // ファイル名エディットコントロール検索
                 var editControl =
@@ -794,7 +824,7 @@ namespace RucheHome.Voiceroid
 
                 if (editControl == null)
                 {
-                    if (okButtonElem == null)
+                    if (uiAutomationEnabled && okButtonElem == null)
                     {
                         ThreadTrace.WriteLine(@"OKボタンが見つかりません。");
                         return null;
@@ -806,7 +836,12 @@ namespace RucheHome.Voiceroid
                     }
                 }
 
-                return new SaveDialogItemSet(editElem, okButtonElem, editControl);
+                return
+                    new SaveDialogItemSet(
+                        uiAutomationEnabled,
+                        editElem,
+                        okButtonElem,
+                        editControl);
             }
 
             /// <summary>
@@ -824,26 +859,38 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                try
-                {
-                    // まず UI Automation を試す
-                    await this.DoSetFilePathToEditTaskByAutomation(itemSet, filePath);
-                    return true;
-                }
-                catch (Exception exAuto)
+                // まず UI Automation を試す
+                Exception exAuto = null;
+                if (itemSet.IsUIAutomationEnabled)
                 {
                     try
                     {
-                        // コントロール操作を試す
-                        await this.DoSetFilePathToEditTaskByControl(itemSet, filePath);
-                        ThreadDebug.WriteException(exAuto);
+                        await this.DoSetFilePathToEditTaskByAutomation(itemSet, filePath);
                         return true;
                     }
-                    catch (Exception exCtrl)
+                    catch (Exception ex)
+                    {
+                        exAuto = ex;
+                    }
+                }
+
+                // コントロール操作を試す
+                try
+                {
+                    await this.DoSetFilePathToEditTaskByControl(itemSet, filePath);
+                    if (exAuto != null)
+                    {
+                        ThreadDebug.WriteException(exAuto);
+                    }
+                    return true;
+                }
+                catch (Exception exCtrl)
+                {
+                    if (exAuto != null)
                     {
                         ThreadTrace.WriteException(exAuto);
-                        ThreadTrace.WriteException(exCtrl);
                     }
+                    ThreadTrace.WriteException(exCtrl);
                 }
 
                 return false;
@@ -866,7 +913,10 @@ namespace RucheHome.Voiceroid
                 }
 
                 var edit = itemSet?.FileNameEditElement;
-                if (edit == null || itemSet?.OkButtonElement == null)
+                if (
+                    edit == null ||
+                    itemSet?.OkButtonElement == null ||
+                    itemSet?.IsUIAutomationEnabled != true)
                 {
                     throw new ArgumentException(
                         @"UI Automation 用パラメータを取得できていません。",
@@ -999,26 +1049,38 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                try
-                {
-                    // まず UI Automation を試す
-                    await this.DoDecideFilePathTaskByAutomation(itemSet);
-                    return true;
-                }
-                catch (Exception exAuto)
+                // まず UI Automation を試す
+                Exception exAuto = null;
+                if (itemSet.IsUIAutomationEnabled)
                 {
                     try
                     {
-                        // コントロール操作を試す
-                        await this.DoDecideFilePathTaskByControl(itemSet);
-                        ThreadDebug.WriteException(exAuto);
+                        await this.DoDecideFilePathTaskByAutomation(itemSet);
                         return true;
                     }
-                    catch (Exception exCtrl)
+                    catch (Exception ex)
+                    {
+                        exAuto = ex;
+                    }
+                }
+
+                // コントロール操作を試す
+                try
+                {
+                    await this.DoDecideFilePathTaskByControl(itemSet);
+                    if (exAuto != null)
+                    {
+                        ThreadDebug.WriteException(exAuto);
+                    }
+                    return true;
+                }
+                catch (Exception exCtrl)
+                {
+                    if (exAuto != null)
                     {
                         ThreadTrace.WriteException(exAuto);
-                        ThreadTrace.WriteException(exCtrl);
                     }
+                    ThreadTrace.WriteException(exCtrl);
                 }
 
                 return false;
@@ -1031,7 +1093,7 @@ namespace RucheHome.Voiceroid
             private async Task DoDecideFilePathTaskByAutomation(SaveDialogItemSet itemSet)
             {
                 var okButton = itemSet?.OkButtonElement;
-                if (okButton == null)
+                if (okButton == null || itemSet?.IsUIAutomationEnabled != true)
                 {
                     throw new ArgumentException(
                         @"UI Automation 用パラメータを取得できていません。",
@@ -1509,7 +1571,8 @@ namespace RucheHome.Voiceroid
                     }
 
                     // 保存ダイアログアイテムセットを非同期で探す
-                    var itemSet = await this.DoFindSaveDialogItemSetTask();
+                    var itemSet =
+                        await this.DoFindSaveDialogItemSetTask(this.IsUIAutomationEnabled);
                     if (itemSet == null)
                     {
                         var msg =
