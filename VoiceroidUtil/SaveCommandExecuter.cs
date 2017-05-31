@@ -577,10 +577,16 @@ namespace VoiceroidUtil
                     return null;
                 }
 
+                // タイムラインウィンドウが開いていなければ即失敗
+                if (!YmmProcess.IsTimelineExists)
+                {
+                    return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
+                }
+
                 // ファイルパス設定
                 if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
                 {
-                    warnText = @"ゆっくりMovieMakerのタイムラインが見つかりません。";
+                    warnText = @"ゆっくりMovieMakerへのファイルパス設定に失敗しました。";
                     continue;
                 }
 
