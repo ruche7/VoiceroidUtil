@@ -17,6 +17,7 @@ using Reactive.Bindings.Extensions;
 using RucheHome.Net;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Mvvm.Commands;
+using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
 using VoiceroidUtil.View;
 using VoiceroidUtil.ViewModel;
@@ -202,6 +203,12 @@ namespace VoiceroidUtil
                 .Subscribe(_ => this.ProcessFactory.Update())
                 .AddTo(this.CompositeDisposable);
             processUpdateTimer.Start();
+
+            // UI Automation 利用可能設定が更新されたら ProcessFactory に設定
+            this.ConfigManager.AppConfig
+                .ObserveInnerProperty(c => c.IsUIAutomationEnabledOnSave)
+                .Subscribe(enabled => this.ProcessFactory.SetUIAutomationEnabled(enabled))
+                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>

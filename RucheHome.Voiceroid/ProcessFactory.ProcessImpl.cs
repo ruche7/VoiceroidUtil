@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 using RucheHome.Threading;
 using RucheHome.Util;
 using RucheHome.Windows.WinApi;
@@ -44,6 +45,11 @@ namespace RucheHome.Voiceroid
             {
                 this.Dispose(false);
             }
+
+            /// <summary>
+            /// UI Automation によるUI操作を許可するか否かを取得または設定する。
+            /// </summary>
+            public bool IsUIAutomationEnabled { get; set; } = true;
 
             /// <summary>
             /// 状態を更新する。
@@ -418,10 +424,7 @@ namespace RucheHome.Voiceroid
                 if (process.MainWindowTitle == "")
                 {
                     // 実行中でないなら起動中と判断
-                    if (!this.IsRunning)
-                    {
-                        this.IsStartup = true;
-                    }
+                    this.IsStartup |= !this.IsRunning;
                     return;
                 }
 
@@ -434,13 +437,25 @@ namespace RucheHome.Voiceroid
                 // 念のため待機
                 using (var saveLock = await this.SaveLock.WaitAsync())
                 {
+                    this.Process = process;
+                    process.Refresh();
+
+                    // 入力待機状態になっていない？
+                    if (
+                        !(await this.WhenForInputHandle(0)) ||
+                        process.MainWindowHandle == IntPtr.Zero)
+                    {
+                        // 実行中でないなら起動中と判断
+                        this.IsStartup |= !this.IsRunning;
+                        return;
+                    }
+
                     // 現在と同じウィンドウが取得できた場合はスキップ
                     if (
                         !this.IsRunning ||
                         this.MainWindow.Handle != process.MainWindowHandle)
                     {
                         // プロパティ群更新
-                        this.Process = process;
                         this.MainWindow = new Win32Window(process.MainWindowHandle);
                         if (!(await Task.Run(() => this.UpdateControls())))
                         {
@@ -463,6 +478,29 @@ namespace RucheHome.Voiceroid
                         this.IsPlaying = !this.SaveButton.IsEnabled;
                     }
                 }
+            }
+
+            /// <summary>
+            /// プロセスが入力待機状態になるまで非同期で待機する。
+            /// </summary>
+            /// <param name="loopCount">
+            /// 最大ループ回数。 0 ならば状態確認結果を即座に返す。
+            /// </param>
+            /// <param name="loopIntervalMilliseconds">ループ間隔ミリ秒数。</param>
+            /// <returns>入力待機状態になったならば true 。そうでなければ false 。</returns>
+            private async Task<bool> WhenForInputHandle(
+                int loopCount = 25,
+                int loopIntervalMilliseconds = 20)
+            {
+                bool? result = this.Process?.WaitForInputIdle(0);
+
+                for (int i = 0; result == false && i < loopCount; ++i)
+                {
+                    await Task.Delay(loopIntervalMilliseconds);
+                    result = this.Process?.WaitForInputIdle(0);
+                }
+
+                return (result == true);
             }
 
             /// <summary>
@@ -642,12 +680,68 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// 保存ダイアログのファイル名エディットコントロールを検索する処理を行う。
+            /// 保存ダイアログアイテムセットクラス。
             /// </summary>
+            private class SaveDialogItemSet
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="uiAutomationEnabled">
+                /// UI Automation の利用を許可するならば true 。
+                /// </param>
+                /// <param name="fileNameEditElement">
+                /// ファイル名エディット AutomationElement 。
+                /// </param>
+                /// <param name="okButtonElement">OKボタン AutomationElement 。</param>
+                /// <param name="fileNameEditControl">
+                /// ファイル名エディットコントロール。
+                /// </param>
+                public SaveDialogItemSet(
+                    bool uiAutomationEnabled,
+                    AutomationElement fileNameEditElement,
+                    AutomationElement okButtonElement,
+                    Win32Window fileNameEditControl)
+                {
+                    this.IsUIAutomationEnabled = uiAutomationEnabled;
+                    this.FileNameEditElement = fileNameEditElement;
+                    this.OkButtonElement = okButtonElement;
+                    this.FileNameEditControl = fileNameEditControl;
+                }
+
+                /// <summary>
+                /// UI Automation によるUI操作を許可するか否かを取得する。
+                /// </summary>
+                public bool IsUIAutomationEnabled { get; }
+
+                /// <summary>
+                /// ファイル名エディット AutomationElement を取得する。
+                /// </summary>
+                public AutomationElement FileNameEditElement { get; }
+
+                /// <summary>
+                /// OKボタン AutomationElement を取得する。
+                /// </summary>
+                public AutomationElement OkButtonElement { get; }
+
+                /// <summary>
+                /// ファイル名エディットコントロールを取得する。
+                /// </summary>
+                public Win32Window FileNameEditControl { get; }
+            }
+
+            /// <summary>
+            /// 保存ダイアログアイテムセットを検索する処理を行う。
+            /// </summary>
+            /// <param name="uiAutomationEnabled">
+            /// UI Automation の利用を許可するならば true 。
+            /// </param>
             /// <returns>
-            /// ファイル名エディットコントロール。見つからなければ null 。
+            /// 保存ダイアログアイテムセット。
+            /// ファイル名エディットが見つからなければ null 。
             /// </returns>
-            private async Task<Win32Window> DoFindFileNameEditTask()
+            private async Task<SaveDialogItemSet> DoFindSaveDialogItemSetTask(
+                bool uiAutomationEnabled)
             {
                 // いずれかのダイアログが出るまで待つ
                 var dialogs =
@@ -666,34 +760,208 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                // ファイルパス設定先のエディットコントロール取得
-                var fileNameEdit =
+                // 入力可能状態まで待機
+                if (!(await this.WhenForInputHandle()))
+                {
+                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
+                    return null;
+                }
+
+                AutomationElement okButtonElem = null;
+                AutomationElement editElem = null;
+
+                if (uiAutomationEnabled)
+                {
+                    var dialogElem = AutomationElement.FromHandle(dialog.Handle);
+
+                    // OKボタン AutomationElement 検索
+                    okButtonElem =
+                        await RepeatUntil(
+                            () =>
+                                dialogElem.FindFirst(
+                                    TreeScope.Children,
+                                    new PropertyCondition(
+                                        AutomationElement.AutomationIdProperty,
+                                        @"1")),
+                            elem => elem != null,
+                            50);
+
+                    // ファイル名エディット AutomationElement 検索
+                    if (okButtonElem != null)
+                    {
+                        var hostElem =
+                            await RepeatUntil(
+                                () =>
+                                    dialogElem.FindFirst(
+                                        TreeScope.Descendants,
+                                        new PropertyCondition(
+                                            AutomationElement.AutomationIdProperty,
+                                            @"FileNameControlHost")),
+                                elem => elem != null,
+                                50);
+                        if (hostElem != null)
+                        {
+                            editElem =
+                                await RepeatUntil(
+                                    () =>
+                                        hostElem.FindFirst(
+                                            TreeScope.Children,
+                                            new PropertyCondition(
+                                                AutomationElement.ClassNameProperty,
+                                                @"Edit")),
+                                    elem => elem != null,
+                                    50);
+                        }
+                    }
+                }
+
+                // ファイル名エディットコントロール検索
+                var editControl =
                     await RepeatUntil(
                         () => FindFileDialogFileNameEdit(dialog),
                         (Win32Window c) => c != null,
                         50);
-                if (fileNameEdit == null)
+
+                if (editControl == null)
                 {
-                    ThreadTrace.WriteLine(@"ファイル名入力欄が見つかりません。");
-                    return null;
+                    if (uiAutomationEnabled && okButtonElem == null)
+                    {
+                        ThreadTrace.WriteLine(@"OKボタンが見つかりません。");
+                        return null;
+                    }
+                    if (editElem == null)
+                    {
+                        ThreadTrace.WriteLine(@"ファイル名入力欄が見つかりません。");
+                        return null;
+                    }
                 }
 
-                return fileNameEdit;
+                return
+                    new SaveDialogItemSet(
+                        uiAutomationEnabled,
+                        editElem,
+                        okButtonElem,
+                        editControl);
             }
 
             /// <summary>
-            /// WAVEファイルパスをファイル名エディットコントロールへ設定する処理を行う。
+            /// WAVEファイルパスをファイル名エディットへ設定する処理を行う。
             /// </summary>
-            /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
             /// <param name="filePath">WAVEファイルパス。</param>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             private async Task<bool> DoSetFilePathToEditTask(
-                Win32Window fileNameEdit,
+                SaveDialogItemSet itemSet,
                 string filePath)
             {
-                if (fileNameEdit == null || string.IsNullOrWhiteSpace(filePath))
+                if (itemSet == null || string.IsNullOrWhiteSpace(filePath))
                 {
                     return false;
+                }
+
+                // まず UI Automation を試す
+                Exception exAuto = null;
+                if (itemSet.IsUIAutomationEnabled)
+                {
+                    try
+                    {
+                        await this.DoSetFilePathToEditTaskByAutomation(itemSet, filePath);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        exAuto = ex;
+                    }
+                }
+
+                // コントロール操作を試す
+                try
+                {
+                    await this.DoSetFilePathToEditTaskByControl(itemSet, filePath);
+                    if (exAuto != null)
+                    {
+                        ThreadDebug.WriteException(exAuto);
+                    }
+                    return true;
+                }
+                catch (Exception exCtrl)
+                {
+                    if (exAuto != null)
+                    {
+                        ThreadTrace.WriteException(exAuto);
+                    }
+                    ThreadTrace.WriteException(exCtrl);
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// WAVEファイルパスをファイル名エディットへ設定する処理を行う。
+            /// </summary>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
+            /// <param name="filePath">WAVEファイルパス。</param>
+            private async Task DoSetFilePathToEditTaskByAutomation(
+                SaveDialogItemSet itemSet,
+                string filePath)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    throw new ArgumentException(
+                        @"不正なファイルパスです。",
+                        nameof(filePath));
+                }
+
+                var edit = itemSet?.FileNameEditElement;
+                if (
+                    edit == null ||
+                    itemSet?.OkButtonElement == null ||
+                    itemSet?.IsUIAutomationEnabled != true)
+                {
+                    throw new ArgumentException(
+                        @"UI Automation 用パラメータを取得できていません。",
+                        nameof(itemSet));
+                }
+
+                // 入力可能状態まで待機
+                if (!(await this.WhenForInputHandle()))
+                {
+                    throw new InvalidOperationException(@"入力可能状態になりません。");
+                }
+                edit.SetFocus();
+
+                // ファイルパス設定
+                object pattern = null;
+                if (!edit.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
+                {
+                    throw new InvalidOperationException(
+                        @"ファイルパス設定パターンを取得できません。");
+                }
+                ((ValuePattern)pattern).SetValue(filePath);
+            }
+
+            /// <summary>
+            /// WAVEファイルパスをファイル名エディットへ設定する処理を行う。
+            /// </summary>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
+            /// <param name="filePath">WAVEファイルパス。</param>
+            private async Task DoSetFilePathToEditTaskByControl(
+                SaveDialogItemSet itemSet,
+                string filePath)
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    throw new ArgumentException(
+                        @"不正なファイルパスです。",
+                        nameof(filePath));
+                }
+
+                var edit = itemSet?.FileNameEditControl;
+                if (edit == null)
+                {
+                    throw new ArgumentException(
+                        @"コントロール操作用パラメータを取得できていません。",
+                        nameof(itemSet));
                 }
 
                 for (var sw = Stopwatch.StartNew(); ; await Task.Delay(10))
@@ -701,49 +969,29 @@ namespace RucheHome.Voiceroid
                     // ファイルパス設定
                     var timeout =
                         Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
-                    try
+                    var ok = await Task.Run(() => edit.SetText(filePath, timeout));
+                    if (!ok)
                     {
-                        var ok =
-                            await Task.Run(() => fileNameEdit.SetText(filePath, timeout));
-                        if (!ok)
-                        {
-                            ThreadTrace.WriteLine(
-                                @"ファイルパス設定処理がタイムアウトしました。 " +
-                                nameof(filePath) + @".Length=" + filePath.Length);
-                            return false;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadTrace.WriteException(ex);
-                        return false;
+                        throw new InvalidOperationException(
+                            @"ファイルパス設定処理がタイムアウトしました。 " +
+                            nameof(filePath) + @".Length=" + filePath.Length);
                     }
 
                     // パス設定できていない場合があるので、設定されていることを確認する
                     timeout =
                         Math.Max((int)(UIControlTimeout - sw.ElapsedMilliseconds), 100);
-                    try
+                    var text = await Task.Run(() => edit.GetText(timeout));
+                    if (text == filePath)
                     {
-                        var text = await Task.Run(() => fileNameEdit.GetText(timeout));
-                        if (text == filePath)
-                        {
-                            break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadTrace.WriteException(ex);
-                        return false;
+                        break;
                     }
 
                     if (sw.ElapsedMilliseconds >= UIControlTimeout)
                     {
-                        ThreadTrace.WriteLine(@"ファイルパスを設定できませんでした。");
-                        return false;
+                        throw new InvalidOperationException(
+                            @"ファイルパスを設定できませんでした。");
                     }
                 }
-
-                return true;
             }
 
             /// <summary>
@@ -792,40 +1040,81 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// ファイル名エディットコントロールの入力内容確定処理を行う。
             /// </summary>
-            /// <param name="fileNameEdit">ファイル名エディットコントロール。</param>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private async Task<bool> DoDecideFilePathTask(Win32Window fileNameEdit)
+            private async Task<bool> DoDecideFilePathTask(SaveDialogItemSet itemSet)
             {
-                if (fileNameEdit == null)
+                if (itemSet == null)
                 {
                     return false;
                 }
 
-                // ENTERキー押下
+                // まず UI Automation を試す
+                Exception exAuto = null;
+                if (itemSet.IsUIAutomationEnabled)
+                {
+                    try
+                    {
+                        await this.DoDecideFilePathTaskByAutomation(itemSet);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        exAuto = ex;
+                    }
+                }
+
+                // コントロール操作を試す
                 try
                 {
-                    fileNameEdit.PostMessage(
-                        WM_KEYDOWN,
-                        new IntPtr(VK_RETURN),
-                        new IntPtr(0x00000001));
+                    await this.DoDecideFilePathTaskByControl(itemSet);
+                    if (exAuto != null)
+                    {
+                        ThreadDebug.WriteException(exAuto);
+                    }
+                    return true;
                 }
-                catch (Exception ex)
+                catch (Exception exCtrl)
                 {
-                    ThreadTrace.WriteException(ex);
-                    return false;
+                    if (exAuto != null)
+                    {
+                        ThreadTrace.WriteException(exAuto);
+                    }
+                    ThreadTrace.WriteException(exCtrl);
                 }
-                try
+
+                return false;
+            }
+
+            /// <summary>
+            /// ファイル名エディットコントロールの入力内容確定処理を行う。
+            /// </summary>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
+            private async Task DoDecideFilePathTaskByAutomation(SaveDialogItemSet itemSet)
+            {
+                var okButton = itemSet?.OkButtonElement;
+                if (okButton == null || itemSet?.IsUIAutomationEnabled != true)
                 {
-                    fileNameEdit.PostMessage(
-                        WM_KEYUP,
-                        new IntPtr(VK_RETURN),
-                        new IntPtr(unchecked((int)0xC0000001)));
+                    throw new ArgumentException(
+                        @"UI Automation 用パラメータを取得できていません。",
+                        nameof(itemSet));
                 }
-                catch (Exception ex)
+
+                // 入力可能状態まで待機
+                if (!(await this.WhenForInputHandle()))
                 {
-                    ThreadTrace.WriteException(ex);
-                    return false;
+                    throw new InvalidOperationException(@"入力可能状態になりません。");
                 }
+                okButton.SetFocus();
+
+                // OKボタン押下
+                object pattern = null;
+                if (!okButton.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
+                {
+                    throw new InvalidOperationException(
+                        @"OKボタン押下パターンを取得できません。");
+                }
+                ((InvokePattern)pattern).Invoke();
 
                 // 保存ダイアログが閉じるまで待つ
                 var dialog =
@@ -833,7 +1122,48 @@ namespace RucheHome.Voiceroid
                         () => this.FindDialog(DialogType.Save),
                         (Win32Window d) => d == null,
                         150);
-                return (dialog == null);
+                if (dialog != null)
+                {
+                    throw new InvalidOperationException(
+                        @"保存ダイアログの終了を確認できません。");
+                }
+            }
+
+            /// <summary>
+            /// ファイル名エディットコントロールの入力内容確定処理を行う。
+            /// </summary>
+            /// <param name="itemSet">保存ダイアログアイテムセット。</param>
+            private async Task DoDecideFilePathTaskByControl(SaveDialogItemSet itemSet)
+            {
+                var edit = itemSet?.FileNameEditControl;
+                if (edit == null)
+                {
+                    throw new ArgumentException(
+                        @"コントロール操作用パラメータを取得できていません。",
+                        nameof(itemSet));
+                }
+
+                // ENTERキー押下
+                edit.PostMessage(
+                    WM_KEYDOWN,
+                    new IntPtr(VK_RETURN),
+                    new IntPtr(0x00000001));
+                edit.PostMessage(
+                    WM_KEYUP,
+                    new IntPtr(VK_RETURN),
+                    new IntPtr(unchecked((int)0xC0000001)));
+
+                // 保存ダイアログが閉じるまで待つ
+                var dialog =
+                    await RepeatUntil(
+                        () => this.FindDialog(DialogType.Save),
+                        (Win32Window d) => d == null,
+                        150);
+                if (dialog != null)
+                {
+                    throw new InvalidOperationException(
+                        @"保存ダイアログの終了を確認できません。");
+                }
             }
 
             /// <summary>
@@ -1240,9 +1570,10 @@ namespace RucheHome.Voiceroid
                             error: @"音声保存ボタンを押下できませんでした。");
                     }
 
-                    // ファイル名エディットコントロールを非同期で探す
-                    var fileNameEdit = await this.DoFindFileNameEditTask();
-                    if (fileNameEdit == null)
+                    // 保存ダイアログアイテムセットを非同期で探す
+                    var itemSet =
+                        await this.DoFindSaveDialogItemSetTask(this.IsUIAutomationEnabled);
+                    if (itemSet == null)
                     {
                         var msg =
                             (await this.UpdateDialogShowing()) ?
@@ -1254,7 +1585,7 @@ namespace RucheHome.Voiceroid
                     string extraMsg = null;
 
                     // ファイル保存
-                    if (!(await this.DoSetFilePathToEditTask(fileNameEdit, path)))
+                    if (!(await this.DoSetFilePathToEditTask(itemSet, path)))
                     {
                         extraMsg = @"ファイル名を設定できませんでした。";
                     }
@@ -1262,7 +1593,7 @@ namespace RucheHome.Voiceroid
                     {
                         extraMsg = @"既存ファイルの削除に失敗しました。";
                     }
-                    else if (!(await this.DoDecideFilePathTask(fileNameEdit)))
+                    else if (!(await this.DoDecideFilePathTask(itemSet)))
                     {
                         extraMsg = @"ファイル名の確定操作に失敗しました。";
                     }

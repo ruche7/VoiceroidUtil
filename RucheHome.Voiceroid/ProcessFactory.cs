@@ -56,6 +56,18 @@ namespace RucheHome.Voiceroid
         }
 
         /// <summary>
+        /// 全プロセスの UI Automation 利用許可状態を設定する。
+        /// </summary>
+        /// <param name="enabled">許可するならば true 。そうでなければ false 。</param>
+        /// <remarks>
+        /// 音声ファイル保存ダイアログ操作に UI Automation を利用するか否かに関わる。
+        /// </remarks>
+        public void SetUIAutomationEnabled(bool enabled)
+        {
+            Array.ForEach(this.Impls, p => p.IsUIAutomationEnabled = enabled);
+        }
+
+        /// <summary>
         /// VOICEROIDプロセスを検索する。
         /// </summary>
         /// <returns>VOICEROIDプロセス配列。</returns>
