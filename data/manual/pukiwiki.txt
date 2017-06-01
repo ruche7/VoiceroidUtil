@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.7.0
+-VoiceroidUtil version 1.8.0
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -18,6 +18,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 月読ショウタ EX>http://www.ah-soft.com/voiceroid/shota/]] version 1.7.3
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] version 1.7.4
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] version 1.7.3
+-[[音街ウナTalk Ex>http://otomachiuna.jp/talk]] version 1.0.0
 -[[ゆっくりMovieMaker3>http://manjubox.net/YukkuriMovieMaker.php]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.00
 --[[拡張編集Plugin>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
@@ -31,7 +32,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 *ツール概要 [#about-tool]
 
-『VoiceroidUtil』は、VOICEROID+シリーズソフトウェアに対して下記のような操作を行うツールです。
+『VoiceroidUtil』は、VOICEROID+シリーズソフトウェア等に対して下記のような操作を行うツールです。
 
 :起動と終了|
 --一度手動でVOICEROID本体を起動することで、以降はボタンクリックで起動と終了が可能になります。
@@ -45,7 +46,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 --『ゆっくりMovieMaker』のタイムラインに保存した音声ファイルを自動登録します。
 --『ゆっくりMovieMaker』にキャラクターを登録しておけば、それを自動選択させることもできます。
 
-下記のVOICEROID+シリーズソフトウェアに対応しています。
+下記の文章読み上げソフトウェアに対応しています。
 
 -[[VOICEROID+ 結月ゆかり EX>http://www.ah-soft.com/voiceroid/yukari/]]
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]]
@@ -56,6 +57,10 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 月読ショウタ EX>http://www.ah-soft.com/voiceroid/shota/]] （version 1.7.0 より）
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] （version 1.1.0 より）
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] （version 1.6.0 より）
+-[[音街ウナTalk Ex>http://otomachiuna.jp/talk]] （version 1.8.0 より）
+
+一部のソフトウェアはVOICEROIDではありませんが、当ツールでは便宜上同列に扱います。~
+以降の説明文中で「VOICEROID」と書かれている場合はそれらのソフトウェアも含みます。
 
 ツールを利用して制作した動画をニコニコ動画に投稿する際は、下記動画を親作品に登録してくれると嬉しいです。（必須ではありません）
 
@@ -214,6 +219,9 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 ---音声ファイルの絶対パスが含まれているため、音声ファイルを別の場所へ移動すると正常に読み取れなくなります。
 :&#9319;「保存成功時に入力文をクリア」チェックボックス|
 --チェックを入れると、音声保存に成功した時に[[操作画面>#explain-main]]の入力文テキストボックス内容をクリアします。
+:&#9320;「保存ファイル名設定操作を厳密に行う」チェックボックス|
+--チェックを入れると、一部の環境で起きる、音声保存に高確率で失敗する不具合を回避します。
+--不具合を回避できる代わりに音声保存処理が多少遅くなるため、元々問題のない環境ではこのチェックを外すことで従来の高速な処理に戻すことができます。
 
 ***YMM連携タブ [#explain-config-ymm]
 
@@ -362,6 +370,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 --作者まで具体的な症状とPC環境（マシン名、Windowsのバージョン等）を[[ご連絡>Home#about]]頂ければ改善できるかもしれません。（保証はできません）
 :「再生」ボタンは正常動作するが、「音声保存」ボタンの処理に失敗する。|
 --『VoiceroidUtil』を最新版に更新してください。
+---version 1.7.0 以前は、以降の内容をすべて確認した上でなお音声保存に失敗する環境が存在していました。
 --VOICEROID本体を最新版に更新してください。
 ---[[株式会社AHS>https://www.ah-soft.com/]]の公式サイトにて製品登録を行うことでアップデータの入手が可能です。
 --保存先フォルダに書き込み権限があることをご確認ください。
@@ -370,8 +379,6 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 ---保存先フォルダをデスクトップなど確実に書き込みできるフォルダに変更してみてください。
 --「音声ファイルの保存」ダイアログが表示された状態で「ファイル保存ダイアログが見つかりませんでした。」とエラー表示される場合、PCのスペックが極端に低い可能性があります。
 --作者まで具体的な症状とPC環境（製品名、Windowsのバージョン等）を[[ご連絡>Home#about]]頂ければ改善できるかもしれません。（保証はできません）
---''上記をすべてチェックした上でなお音声保存に失敗する環境が確認されています。''
----現状、情報が少なく解決に至っていません。音声保存に失敗する方は具体的な症状を沿えて作者まで[[ご連絡>Home#about]]ください。
 :作成されたAviUtl拡張編集ファイルの内容がおかしい。|
 --不具合である可能性が高いため、具体的な症状を添えて作者まで[[ご連絡>Home#about]]ください。
 :VOICEROIDが上手にしゃべってくれない。|
@@ -400,6 +407,12 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 *更新履歴 [#history]
 
+:2017-06-02|
+--version 1.8.0 に対応。
+---『音街ウナTalk Ex』追加。VOICEROIDではないため、追加に伴い一部説明文を変更。
+---[[画面説明>#explain]]/[[設定画面>#explain-config]]/[[音声保存タブ>#explain-config-save]]に、厳密な保存処理の項目を追加。
+--[[Q＆A>#qa]]を更新。
+---音声保存がうまくいかない環境に対処したため、文言を変更。
 :2017-05-02|
 --[[Q＆A>#qa]]を更新。
 ---『RivaTuner』が競合する環境が確認されていることを追記。
