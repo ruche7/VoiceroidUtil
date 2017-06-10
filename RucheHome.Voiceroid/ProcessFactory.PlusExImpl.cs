@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Automation;
-using RucheHome.Threading;
 using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 
@@ -19,59 +16,20 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// VOICEROID+ EX シリーズ互換アプリ用の IProcess インタフェース実装クラス。
         /// </summary>
-        private sealed class PlusExImpl : BindableBase, IProcess, IDisposable
+        private sealed class PlusExImpl : ImplBase
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
-            public PlusExImpl(VoiceroidId id)
+            public PlusExImpl(VoiceroidId id) : base(id)
             {
-                if (!Enum.IsDefined(id.GetType(), id))
-                {
-                    throw new InvalidEnumArgumentException(
-                        nameof(id),
-                        (int)id,
-                        id.GetType());
-                }
-
-                this.Id = id;
-            }
-
-            /// <summary>
-            /// デストラクタ。
-            /// </summary>
-            ~PlusExImpl()
-            {
-                this.Dispose(false);
             }
 
             /// <summary>
             /// UI Automation によるUI操作を許可するか否かを取得または設定する。
             /// </summary>
             public bool IsUIAutomationEnabled { get; set; } = true;
-
-            /// <summary>
-            /// プロセス列挙を基に状態を更新する。
-            /// </summary>
-            /// <param name="apps">プロセス列挙。</param>
-            public async Task Update(IEnumerable<Process> apps)
-            {
-                using (var updateLock = await this.UpdateLock.WaitAsync())
-                {
-                    // 対象プロセスを検索
-                    var app = apps?.FirstOrDefault(p => this.IsOwnProcess(p));
-                    if (app == null)
-                    {
-                        this.IsStartup = false;
-                        this.SetupDeadState();
-                        return;
-                    }
-
-                    // 状態更新
-                    await this.UpdateState(app);
-                }
-            }
 
             /// <summary>
             /// ダイアログ種別列挙。
@@ -100,11 +58,6 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// UI操作のタイムアウトミリ秒数。
-            /// </summary>
-            private const int UIControlTimeout = 1500;
-
-            /// <summary>
             /// ダイアログ種別ごとのタイトル文字列のディクショナリ。
             /// </summary>
             private static readonly Dictionary<DialogType, string> DialogTitles =
@@ -115,33 +68,6 @@ namespace RucheHome.Voiceroid
                     { DialogType.Error, @"エラー" },
                     { DialogType.Caution, @"注意" },
                 };
-
-            /// <summary>
-            /// WAVEファイルパスを作成する。
-            /// </summary>
-            /// <param name="filePath">基となるファイルパス。</param>
-            /// <returns>WAVEファイルパス。作成できなかった場合は null 。</returns>
-            private static string MakeWaveFilePath(string filePath)
-            {
-                if (filePath == null)
-                {
-                    throw new ArgumentNullException(nameof(filePath));
-                }
-
-                try
-                {
-                    var path = Path.GetFullPath(filePath);
-                    if (Path.GetExtension(path)?.ToLower() != @".wav")
-                    {
-                        path += @".wav";
-                    }
-
-                    return path;
-                }
-                catch { }
-
-                return null;
-            }
 
             /// <summary>
             /// WAVEファイルまたはテキストファイルが存在するか否かを取得する。
@@ -159,76 +85,6 @@ namespace RucheHome.Voiceroid
                 var txt = Path.ChangeExtension(filePath, @".txt");
 
                 return (File.Exists(wav) || File.Exists(txt));
-            }
-
-            /// <summary>
-            /// ディレクトリを作成する。
-            /// </summary>
-            /// <param name="dirPath">ディレクトリパス。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private static bool MakeDirectory(string dirPath)
-            {
-                if (dirPath == null)
-                {
-                    throw new ArgumentNullException(nameof(dirPath));
-                }
-
-                if (!Directory.Exists(dirPath))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(dirPath);
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            /// <summary>
-            /// ディレクトリへの書き込み権限があるか否かを調べる。
-            /// </summary>
-            /// <param name="dirPath">ディレクトリパス。</param>
-            /// <returns>
-            /// 書き込み権限があるならば true 。そうでなければ false 。
-            /// </returns>
-            private static bool CheckDirectoryWritable(string dirPath)
-            {
-                if (dirPath == null)
-                {
-                    throw new ArgumentNullException(nameof(dirPath));
-                }
-
-                // 一時ファイルパス作成
-                string tempPath;
-                do
-                {
-                    tempPath = Path.Combine(dirPath, Path.GetRandomFileName());
-                }
-                while (File.Exists(tempPath));
-
-                // 実際に書き出してみて調べる
-                try
-                {
-                    File.WriteAllBytes(tempPath, new byte[] { 0 });
-                }
-                catch
-                {
-                    return false;
-                }
-                finally
-                {
-                    try
-                    {
-                        File.Delete(tempPath);
-                    }
-                    catch { }
-                }
-
-                return true;
             }
 
             /// <summary>
@@ -264,93 +120,6 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// 戻り値が条件を満たさない間、デリゲートを呼び出し続ける。
-            /// </summary>
-            /// <typeparam name="T">戻り値の型。</typeparam>
-            /// <param name="func">デリゲート。</param>
-            /// <param name="condition">終了条件デリゲート。</param>
-            /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
-            /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
-            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
-            private static Task<T> RepeatUntil<T>(
-                Func<T> func,
-                Func<T, bool> condition,
-                int loopCount = -1,
-                int intervalMilliseconds = 20)
-            {
-                return
-                    RepeatUntil(
-                        () => Task.Run(func),
-                        condition,
-                        loopCount,
-                        intervalMilliseconds);
-            }
-
-            /// <summary>
-            /// 戻り値が条件を満たさない間、非同期デリゲートを呼び出し続ける。
-            /// </summary>
-            /// <typeparam name="T">戻り値の型。</typeparam>
-            /// <param name="funcAsync">非同期デリゲート。</param>
-            /// <param name="condition">終了条件デリゲート。</param>
-            /// <param name="loopCount">ループ回数。負数ならば制限無し。</param>
-            /// <param name="intervalMilliseconds">ループ間隔ミリ秒数。</param>
-            /// <returns>条件を満たした時、もしくはループ終了時の戻り値。</returns>
-            private static async Task<T> RepeatUntil<T>(
-                Func<Task<T>> funcAsync,
-                Func<T, bool> condition,
-                int loopCount = -1,
-                int intervalMilliseconds = 20)
-            {
-                T value = await funcAsync();
-
-                for (int i = 0; !condition(value) && (loopCount < 0 || i < loopCount); ++i)
-                {
-                    await Task.Delay(intervalMilliseconds);
-                    value = await funcAsync();
-                }
-
-                return value;
-            }
-
-            /// <summary>
-            /// 更新処理の排他制御を行うオブジェクトを取得する。
-            /// </summary>
-            private SemaphoreSlimLock UpdateLock { get; } = new SemaphoreSlimLock(1);
-
-            /// <summary>
-            /// 保存処理の排他制御を行うオブジェクトを取得する。
-            /// </summary>
-            private SemaphoreSlimLock SaveLock { get; } = new SemaphoreSlimLock(1);
-
-            /// <summary>
-            /// プロセスを取得または設定する。
-            /// </summary>
-            private Process AppProcess
-            {
-                get => this.appProcess;
-                set
-                {
-                    this.appProcess = value;
-                    this.ExecutablePath = value?.MainModule.FileName;
-                }
-            }
-            private Process appProcess = null;
-
-            /// <summary>
-            /// メインウィンドウを取得または設定する。
-            /// </summary>
-            private Win32Window MainWindow
-            {
-                get => this.mainWindow;
-                set
-                {
-                    this.mainWindow = value;
-                    this.MainWindowHandle = (value == null) ? IntPtr.Zero : value.Handle;
-                }
-            }
-            private Win32Window mainWindow = null;
-
-            /// <summary>
             /// トークテキストエディットコントロールを取得または設定する。
             /// </summary>
             private Win32Window TalkEdit { get; set; } = null;
@@ -371,126 +140,6 @@ namespace RucheHome.Voiceroid
             private Win32Window SaveButton { get; set; } = null;
 
             /// <summary>
-            /// 対象プロセスであるか否かを取得する。
-            /// </summary>
-            /// <param name="process">調べるプロセス。</param>
-            /// <returns>対象プロセスであるならば true 。そうでなければ false 。</returns>
-            private bool IsOwnProcess(Process process)
-            {
-                try
-                {
-                    return (
-                        process != null &&
-                        !process.HasExited &&
-                        process.MainModule.FileVersionInfo.ProductName == this.Product);
-                }
-                catch (Win32Exception ex)
-                {
-                    // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
-                    // 複数回発生する場合がある
-                    // 起動しきっていない時にアクセスしようとしているせい？
-                    ThreadDebug.WriteException(ex);
-                }
-
-                return false;
-            }
-
-            /// <summary>
-            /// プロセス情報から状態を更新する。
-            /// </summary>
-            /// <param name="process">プロセス。</param>
-            private async Task UpdateState(Process process)
-            {
-                if (process == null)
-                {
-                    throw new ArgumentNullException(nameof(process));
-                }
-
-                // メインウィンドウタイトルが空文字列なら
-                // スプラッシュウィンドウやメニューウィンドウがメインウィンドウになっている
-                if (process.MainWindowTitle == "")
-                {
-                    // 実行中でないなら起動中と判断
-                    this.IsStartup |= !this.IsRunning;
-                    return;
-                }
-
-                // 保存タスク処理中なら更新しない
-                if (this.IsRunning && this.SaveLock.CurrentCount <= 0)
-                {
-                    return;
-                }
-
-                // 念のため待機
-                using (var saveLock = await this.SaveLock.WaitAsync())
-                {
-                    this.AppProcess = process;
-                    process.Refresh();
-
-                    // 入力待機状態になっていない？
-                    if (
-                        !(await this.WhenForInputHandle(0)) ||
-                        process.MainWindowHandle == IntPtr.Zero)
-                    {
-                        // 実行中でないなら起動中と判断
-                        this.IsStartup |= !this.IsRunning;
-                        return;
-                    }
-
-                    // 現在と同じウィンドウが取得できた場合はスキップ
-                    if (
-                        !this.IsRunning ||
-                        this.MainWindow.Handle != process.MainWindowHandle)
-                    {
-                        // プロパティ群更新
-                        this.MainWindow = new Win32Window(process.MainWindowHandle);
-                        if (!(await Task.Run(() => this.UpdateControls())))
-                        {
-                            this.SetupDeadState();
-                            return;
-                        }
-                    }
-
-                    this.IsRunning = true;
-
-                    // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                    // ついでに FindDialogs 内で IsDialogShowing プロパティも更新される
-                    this.IsSaving =
-                        (await this.FindDialogs()).Keys
-                            .Any(t => t == DialogType.Save || t == DialogType.SaveProgress);
-
-                    if (!this.IsSaving)
-                    {
-                        // 保存ボタンが押せない状態＝再生中と判定
-                        this.IsPlaying = !this.SaveButton.IsEnabled;
-                    }
-                }
-            }
-
-            /// <summary>
-            /// プロセスが入力待機状態になるまで非同期で待機する。
-            /// </summary>
-            /// <param name="loopCount">
-            /// 最大ループ回数。 0 ならば状態確認結果を即座に返す。
-            /// </param>
-            /// <param name="loopIntervalMilliseconds">ループ間隔ミリ秒数。</param>
-            /// <returns>入力待機状態になったならば true 。そうでなければ false 。</returns>
-            private async Task<bool> WhenForInputHandle(
-                int loopCount = 25,
-                int loopIntervalMilliseconds = 20)
-            {
-                bool? result = this.AppProcess?.WaitForInputIdle(0);
-
-                for (int i = 0; result == false && i < loopCount; ++i)
-                {
-                    await Task.Delay(loopIntervalMilliseconds);
-                    result = this.AppProcess?.WaitForInputIdle(0);
-                }
-
-                return (result == true);
-            }
-
-            /// <summary>
             /// メインウィンドウのコントロール群を更新する。
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
@@ -503,7 +152,8 @@ namespace RucheHome.Voiceroid
                 // 子コントロール群取得
                 try
                 {
-                    controls = this.MainWindow.FindDescendants();
+                    var mainWin = new Win32Window(this.MainWindowHandle);
+                    controls = mainWin.FindDescendants();
                 }
                 catch (Exception ex)
                 {
@@ -561,8 +211,8 @@ namespace RucheHome.Voiceroid
             /// <returns>ダイアログ。見つからなければ null 。</returns>
             private async Task<Win32Window> FindDialog(DialogType type)
             {
-                var mainWin = this.MainWindow;
-                if (mainWin == null)
+                var mainHandle = this.MainWindowHandle;
+                if (mainHandle == IntPtr.Zero)
                 {
                     return null;
                 }
@@ -577,7 +227,7 @@ namespace RucheHome.Voiceroid
                     await Win32Window.Desktop
                         .FindChildren(text: title)
                         .ToObservable()
-                        .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainWin.Handle);
+                        .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainHandle);
             }
 
             /// <summary>
@@ -600,36 +250,6 @@ namespace RucheHome.Voiceroid
                 this.IsDialogShowing = (result.Count > 0);
 
                 return result;
-            }
-
-            /// <summary>
-            /// プロセス実行中ではない場合の状態セットアップを行う。
-            /// </summary>
-            private void SetupDeadState()
-            {
-                this.AppProcess = null;
-                this.MainWindow = null;
-                this.TalkEdit = null;
-                this.PlayButton = null;
-                this.StopButton = null;
-                this.SaveButton = null;
-
-                this.IsRunning = false;
-                this.IsPlaying = false;
-                this.IsSaving = false;
-                this.IsDialogShowing = false;
-            }
-
-            /// <summary>
-            /// IsDialogShowing プロパティ値を更新する。
-            /// </summary>
-            /// <returns>更新した値。</returns>
-            private async Task<bool> UpdateDialogShowing()
-            {
-                // FindDialogs 内で更新される
-                await this.FindDialogs();
-
-                return this.IsDialogShowing;
             }
 
             /// <summary>
@@ -1206,122 +826,75 @@ namespace RucheHome.Voiceroid
                 return true;
             }
 
-            #region IProcess の実装
+            #region ImplBase のオーバライド
 
             /// <summary>
-            /// VOICEROID識別IDを取得する。
+            /// アプリプロセス実行中ではない場合の状態セットアップを行う。
             /// </summary>
-            public VoiceroidId Id { get; }
+            protected override void SetupDeadState()
+            {
+                base.SetupDeadState();
+
+                this.TalkEdit = null;
+                this.PlayButton = null;
+                this.StopButton = null;
+                this.SaveButton = null;
+            }
 
             /// <summary>
-            /// VOICEROID名を取得する。
+            /// メインウィンドウ変更時の更新処理を行う。
             /// </summary>
-            public string Name => this.Id.GetInfo().Name;
+            /// <returns>更新できたならば true 。そうでなければ false 。</returns>
+            protected override async Task<bool> UpdateOnMainWindowChanged()
+            {
+                return await Task.Run(() => this.UpdateControls());
+            }
 
             /// <summary>
-            /// プロダクト名を取得する。
+            /// IsDialogShowing プロパティ値を更新する。
             /// </summary>
-            public string Product => this.Id.GetInfo().Product;
+            /// <returns>更新した値。</returns>
+            protected override async Task<bool> UpdateDialogShowing()
+            {
+                // FindDialogs 内で IsDialogShowing が更新される
+                await this.FindDialogs();
+
+                return this.IsDialogShowing;
+            }
 
             /// <summary>
-            /// 表示プロダクト名を取得する。
+            /// 現在WAVEファイル保存処理中であるか否か調べる。
             /// </summary>
-            public string DisplayProduct => this.Id.GetInfo().DisplayProduct;
-
-            /// <summary>
-            /// 実行ファイルのパスを取得する。
-            /// </summary>
+            /// <returns>保存処理中ならば true 。そうでなければ false 。</returns>
             /// <remarks>
-            /// プロセスが見つかっていない場合は null を返す。
-            /// 値の設定は Process プロパティで行われる。
+            /// 直接本体側を操作して保存処理を行っている場合にも true を返すこと。
             /// </remarks>
-            public string ExecutablePath
+            protected override async Task<bool> CheckSaving()
             {
-                get => this.executablePath;
-                private set => this.SetProperty(ref this.executablePath, value);
+                // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
+                return
+                    (await this.FindDialogs()).Keys
+                        .Any(t => t == DialogType.Save || t == DialogType.SaveProgress);
             }
-            private string executablePath = null;
 
             /// <summary>
-            /// メインウィンドウハンドルを取得する。
+            /// 現在再生中であるか否か調べる。
             /// </summary>
+            /// <returns>再生中ならば true 。そうでなければ false 。</returns>
             /// <remarks>
-            /// メインウィンドウが見つかっていない場合は IntPtr.Zero を返す。
-            /// 値の設定は MainWindow プロパティで行われる。
+            /// 直接本体側を操作して再生処理を行っている場合にも true を返すこと。
             /// </remarks>
-            public IntPtr MainWindowHandle
+            protected override async Task<bool> CheckPlaying()
             {
-                get => this.mainWindowHandle;
-                private set => this.SetProperty(ref this.mainWindowHandle, value);
+                // 保存ボタンが押せない状態＝再生中と判定
+                return await Task.FromResult(this.SaveButton?.IsEnabled == false);
             }
-            private IntPtr mainWindowHandle = IntPtr.Zero;
 
             /// <summary>
-            /// プロセスが起動中であるか否かを取得する。
+            /// トークテキスト取得の実処理を行う。
             /// </summary>
-            /// <remarks>
-            /// IsRunning プロパティの値が変化すると false になる。
-            /// SetupDeadState メソッドでは値設定されない。
-            /// </remarks>
-            public bool IsStartup
-            {
-                get => this.startup;
-                private set => this.SetProperty(ref this.startup, value);
-            }
-            private bool startup = false;
-
-            /// <summary>
-            /// プロセスが実行中であるか否かを取得する。
-            /// </summary>
-            public bool IsRunning
-            {
-                get => this.running;
-                private set
-                {
-                    if (value != this.running)
-                    {
-                        this.SetProperty(ref this.running, value);
-                        this.IsStartup = false;
-                    }
-                }
-            }
-            private bool running = false;
-
-            /// <summary>
-            /// トークテキストを再生中であるか否かを取得する。
-            /// </summary>
-            public bool IsPlaying
-            {
-                get => this.playing;
-                private set => this.SetProperty(ref this.playing, value);
-            }
-            private bool playing = false;
-
-            /// <summary>
-            /// トークテキストをWAVEファイル保存中であるか否かを取得する。
-            /// </summary>
-            public bool IsSaving
-            {
-                get => this.saving;
-                private set => this.SetProperty(ref this.saving, value);
-            }
-            private bool saving = false;
-
-            /// <summary>
-            /// いずれかのダイアログが表示中であるか否かを取得する。
-            /// </summary>
-            public bool IsDialogShowing
-            {
-                get => this.dialogShowing;
-                private set => this.SetProperty(ref this.dialogShowing, value);
-            }
-            private bool dialogShowing = false;
-
-            /// <summary>
-            /// トークテキストを取得する。
-            /// </summary>
-            /// <returns>トークテキスト。取得できなかったならば null 。</returns>
-            public async Task<string> GetTalkText()
+            /// <returns>トークテキスト。取得できなかった場合は null 。</returns>
+            protected override async Task<string> DoGetTalkText()
             {
                 var edit = this.TalkEdit;
                 if (edit == null)
@@ -1342,17 +915,14 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// トークテキストを設定する。
+            /// トークテキスト設定の実処理を行う。
             /// </summary>
-            /// <param name="text">トークテキスト。</param>
+            /// <param name="text">設定するトークテキスト。</param>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            /// <remarks>
-            /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
-            /// </remarks>
-            public async Task<bool> SetTalkText(string text)
+            protected override async Task<bool> DoSetTalkText(string text)
             {
                 var edit = this.TalkEdit;
-                if (edit == null || this.IsSaving || !(await this.Stop()))
+                if (edit == null)
                 {
                     return false;
                 }
@@ -1380,26 +950,12 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// トークテキストの再生を開始する。
+            /// トークテキスト再生の実処理を行う。
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            /// <remarks>
-            /// 再生中の場合は何もせず true を返す。
-            /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
-            /// </remarks>
-            public async Task<bool> Play()
+            protected override async Task<bool> DoPlay()
             {
-                if (this.IsPlaying)
-                {
-                    return true;
-                }
-
-                if (
-                    this.PlayButton == null ||
-                    this.IsSaving ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
-                    (await this.UpdateDialogShowing()) ||
-                    !(await this.SetTalkTextCursorToHead()))
+                if (this.PlayButton == null || !(await this.SetTalkTextCursorToHead()))
                 {
                     return false;
                 }
@@ -1422,34 +978,15 @@ namespace RucheHome.Voiceroid
                         (await this.UpdateDialogShowing()),
                     f => f,
                     25);
-                if (this.IsDialogShowing)
-                {
-                    return false;
-                }
-
-                // Update を待たずにフラグ更新しておく
-                this.IsPlaying = true;
-                return true;
+                return !this.IsDialogShowing;
             }
 
             /// <summary>
-            /// トークテキストの再生を停止する。
+            /// トークテキスト再生停止の実処理を行う。
             /// </summary>
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            /// <remarks>
-            /// WAVEファイル保存中である場合は失敗する。
-            /// </remarks>
-            public async Task<bool> Stop()
+            protected override async Task<bool> DoStop()
             {
-                if (this.StopButton == null || this.IsSaving)
-                {
-                    return false;
-                }
-                if (!this.IsPlaying)
-                {
-                    return true;
-                }
-
                 try
                 {
                     this.StopButton.PostMessage(BM_CLICK);
@@ -1466,282 +1003,87 @@ namespace RucheHome.Voiceroid
                         () => this.SaveButton?.IsEnabled,
                         e => e != false,
                         25);
-                if (enabled != true)
-                {
-                    return false;
-                }
-
-                // Update を待たずにフラグ更新しておく
-                this.IsPlaying = false;
-                return true;
+                return (enabled == true);
             }
 
             /// <summary>
-            /// トークテキストをWAVEファイル保存する。
+            /// WAVEファイル保存処理を行える状態であるか否か調べる。
+            /// </summary>
+            /// <returns>行える状態ならば true 。そうでなければ false 。</returns>
+            protected override async Task<bool> CanSave()
+            {
+                return
+                    this.SaveButton != null &&
+                    !this.IsSaving &&
+                    !string.IsNullOrWhiteSpace(await this.GetTalkText()) &&
+                    !(await this.UpdateDialogShowing());
+            }
+
+            /// <summary>
+            /// WAVEファイル保存の実処理を行う。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
             /// <returns>保存処理結果。</returns>
-            /// <remarks>
-            /// 再生中の場合は停止させる。
-            /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
-            /// 
-            /// 既に同じ名前のWAVEファイルが存在する場合は上書きする。
-            /// 
-            /// VOICEROIDの設定次第ではテキストファイルも同時に保存される。
-            /// </remarks>
-            public async Task<FileSaveResult> Save(string filePath)
+            protected override async Task<FileSaveResult> DoSave(string filePath)
             {
-                if (filePath == null)
+                // 保存ボタン押下
+                try
                 {
-                    throw new ArgumentNullException(nameof(filePath));
+                    this.SaveButton.PostMessage(BM_CLICK);
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return new FileSaveResult(
+                        false,
+                        error: @"音声保存ボタンを押下できませんでした。");
                 }
 
-                if (
-                    this.SaveButton == null ||
-                    this.IsSaving ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
-                    (await this.UpdateDialogShowing()))
+                // 保存ダイアログアイテムセットを非同期で探す
+                var itemSet =
+                    await this.DoFindSaveDialogItemSetTask(this.IsUIAutomationEnabled);
+                if (itemSet == null)
+                {
+                    var msg =
+                        (await this.UpdateDialogShowing()) ?
+                            @"ファイル保存を開始できませんでした。" :
+                            @"ファイル保存ダイアログが見つかりませんでした。";
+                    return new FileSaveResult(false, error: msg);
+                }
+
+                string extraMsg = null;
+
+                // ファイル保存
+                if (!(await this.DoSetFilePathToEditTask(itemSet, filePath)))
+                {
+                    extraMsg = @"ファイル名を設定できませんでした。";
+                }
+                else if (!(await this.DoEraseOldFileTask(filePath)))
+                {
+                    extraMsg = @"既存ファイルの削除に失敗しました。";
+                }
+                else if (!(await this.DoDecideFilePathTask(itemSet)))
+                {
+                    extraMsg = @"ファイル名の確定操作に失敗しました。";
+                }
+                else if (!(await this.DoCheckFileSavedTask(filePath)))
+                {
+                    extraMsg =
+                        ((await this.FindDialog(DialogType.Error)) == null) ?
+                            @"ファイル保存を確認できませんでした。" :
+                            @"文章が無音である可能性があります。";
+                }
+
+                // 追加情報が設定されていたら保存失敗
+                if (extraMsg != null)
                 {
                     return new FileSaveResult(
                         false,
-                        error: @"ファイル保存を開始できませんでした。");
+                        error: @"ファイル保存処理に失敗しました。",
+                        extraMessage: extraMsg);
                 }
 
-                if (!(await this.Stop()))
-                {
-                    return new FileSaveResult(
-                        false,
-                        error: @"再生中の音声を停止できませんでした。");
-                }
-
-                string path = null;
-                using (var saveLock = await this.SaveLock.WaitAsync())
-                {
-                    this.IsSaving = true;
-
-                    // ファイルパス作成
-                    path = MakeWaveFilePath(filePath);
-                    if (path == null)
-                    {
-                        return new FileSaveResult(
-                            false,
-                            error: @"ファイル名を作成できませんでした。");
-                    }
-
-                    // 保存先ディレクトリ作成
-                    if (!MakeDirectory(Path.GetDirectoryName(path)))
-                    {
-                        return new FileSaveResult(
-                            false,
-                            error: @"保存先フォルダーを作成できませんでした。");
-                    }
-
-                    // 保存先ディレクトリの書き込み権限確認
-                    if (!CheckDirectoryWritable(Path.GetDirectoryName(path)))
-                    {
-                        return new FileSaveResult(
-                            false,
-                            error: @"保存先フォルダーへの書き込み権限がありません。");
-                    }
-
-                    // 保存ボタン押下
-                    try
-                    {
-                        this.SaveButton.PostMessage(BM_CLICK);
-                    }
-                    catch (Exception ex)
-                    {
-                        ThreadTrace.WriteException(ex);
-                        return new FileSaveResult(
-                            false,
-                            error: @"音声保存ボタンを押下できませんでした。");
-                    }
-
-                    // 保存ダイアログアイテムセットを非同期で探す
-                    var itemSet =
-                        await this.DoFindSaveDialogItemSetTask(this.IsUIAutomationEnabled);
-                    if (itemSet == null)
-                    {
-                        var msg =
-                            (await this.UpdateDialogShowing()) ?
-                                @"ファイル保存を開始できませんでした。" :
-                                @"ファイル保存ダイアログが見つかりませんでした。";
-                        return new FileSaveResult(false, error: msg);
-                    }
-
-                    string extraMsg = null;
-
-                    // ファイル保存
-                    if (!(await this.DoSetFilePathToEditTask(itemSet, path)))
-                    {
-                        extraMsg = @"ファイル名を設定できませんでした。";
-                    }
-                    else if (!(await this.DoEraseOldFileTask(path)))
-                    {
-                        extraMsg = @"既存ファイルの削除に失敗しました。";
-                    }
-                    else if (!(await this.DoDecideFilePathTask(itemSet)))
-                    {
-                        extraMsg = @"ファイル名の確定操作に失敗しました。";
-                    }
-                    else if (!(await this.DoCheckFileSavedTask(path)))
-                    {
-                        extraMsg =
-                            ((await this.FindDialog(DialogType.Error)) == null) ?
-                                @"ファイル保存を確認できませんでした。" :
-                                @"文章が無音である可能性があります。";
-                    }
-
-                    // 追加情報が設定されていたら保存失敗
-                    if (extraMsg != null)
-                    {
-                        return new FileSaveResult(
-                            false,
-                            error: @"ファイル保存処理に失敗しました。",
-                            extraMessage: extraMsg);
-                    }
-                }
-
-                return new FileSaveResult(true, path);
-            }
-
-            /// <summary>
-            /// 指定した実行ファイルをVOICEROIDプロセスとして実行する。
-            /// </summary>
-            /// <param name="executablePath">実行ファイルパス。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            public async Task<bool> Run(string executablePath)
-            {
-                if (executablePath == null)
-                {
-                    throw new ArgumentNullException(nameof(executablePath));
-                }
-                if (!File.Exists(executablePath))
-                {
-                    throw new FileNotFoundException(nameof(executablePath));
-                }
-
-                if (this.AppProcess != null)
-                {
-                    return false;
-                }
-
-                using (var updateLock = await this.UpdateLock.WaitAsync())
-                {
-                    if (this.AppProcess != null)
-                    {
-                        return false;
-                    }
-
-                    // プロセス実行
-                    bool ok =
-                        await Task.Run(
-                            () =>
-                            {
-                                var app = Process.Start(executablePath);
-                                app.WaitForInputIdle(UIControlTimeout);
-
-                                if (!this.IsOwnProcess(app))
-                                {
-                                    if (!app.CloseMainWindow())
-                                    {
-                                        app.Kill();
-                                    }
-                                    app.Close();
-                                    return false;
-                                }
-
-                                return true;
-                            });
-                    if (!ok)
-                    {
-                        return false;
-                    }
-                }
-
-                // スタートアップ状態になるまで少し待つ
-                return
-                    await RepeatUntil(() => this.IsStartup || this.IsRunning, f => f, 25);
-            }
-
-            /// <summary>
-            /// VOICEROIDプロセスを終了させる。
-            /// </summary>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            public async Task<bool> Exit()
-            {
-                if (this.AppProcess == null)
-                {
-                    return false;
-                }
-
-                using (var updateLock = await this.UpdateLock.WaitAsync())
-                {
-                    if (this.AppProcess == null)
-                    {
-                        return false;
-                    }
-
-                    // プロセス終了
-                    bool ok =
-                        await Task.Run(
-                            () =>
-                            {
-                                if (!this.AppProcess.CloseMainWindow())
-                                {
-                                    return false;
-                                }
-                                if (!this.AppProcess.WaitForExit(1000))
-                                {
-                                    return false;
-                                }
-                                return true;
-                            });
-                    if (!ok)
-                    {
-                        await this.UpdateDialogShowing();
-                        return false;
-                    }
-
-                    this.SetupDeadState();
-                }
-
-                return true;
-            }
-
-            /// <summary>
-            /// ボイスプリセット名を取得する。
-            /// </summary>
-            /// <returns>ボイスプリセット名。</returns>
-            public async Task<string> GetVoicePresetName()
-            {
-                // 単に Name の値を返す
-                return await Task.FromResult(this.Name);
-            }
-
-            #endregion
-
-            #region IDisposable の実装
-
-            /// <summary>
-            /// リソースを破棄する。
-            /// </summary>
-            public void Dispose()
-            {
-                this.Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            /// <summary>
-            /// リソース破棄の実処理を行う。
-            /// </summary>
-            /// <param name="disposing">
-            /// Dispose メソッドから呼び出された場合は true 。
-            /// </param>
-            private void Dispose(bool disposing)
-            {
-                this.UpdateLock.Dispose();
-                this.SaveLock.Dispose();
+                return new FileSaveResult(true, filePath);
             }
 
             #endregion

@@ -18,6 +18,7 @@ namespace RucheHome.Voiceroid
         /// <param name="keywords">
         /// VOICEROIDを識別するためのキーワード列挙。キーワード不要ならば null 。
         /// </param>
+        /// <param name="appProcessName">アプリプロセス名。</param>
         /// <param name="product">プロダクト名。</param>
         /// <param name="displayProduct">
         /// 表示プロダクト名。プロダクト名と同一ならば null を指定してよい。
@@ -26,6 +27,7 @@ namespace RucheHome.Voiceroid
             VoiceroidId id,
             string name,
             IEnumerable<string> keywords,
+            string appProcessName,
             string product,
             string displayProduct = null)
         {
@@ -33,6 +35,8 @@ namespace RucheHome.Voiceroid
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.Keywords =
                 new ReadOnlyCollection<string>((keywords ?? new string[0]).ToList());
+            this.AppProcessName =
+                appProcessName ?? throw new ArgumentNullException(nameof(appProcessName));
             this.Product = product ?? throw new ArgumentNullException(nameof(product));
             this.DisplayProduct = displayProduct ?? product;
         }
@@ -51,6 +55,11 @@ namespace RucheHome.Voiceroid
         /// VOICEROIDを識別するためのキーワードコレクションを取得する。
         /// </summary>
         public ReadOnlyCollection<string> Keywords { get; }
+
+        /// <summary>
+        /// アプリプロセス名を取得する。
+        /// </summary>
+        public string AppProcessName { get; }
 
         /// <summary>
         /// プロダクト名を取得する。

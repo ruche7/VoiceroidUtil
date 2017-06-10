@@ -158,16 +158,6 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// IsDialogShowing プロパティ値を更新する。
-            /// </summary>
-            /// <returns>更新した値。</returns>
-            protected async Task<bool> UpdateDialogShowing()
-            {
-                this.IsDialogShowing = await this.CheckDialogShowing();
-                return this.IsDialogShowing;
-            }
-
-            /// <summary>
             /// アプリプロセス実行中ではない場合の状態セットアップを行う。
             /// </summary>
             protected virtual void SetupDeadState()
@@ -185,6 +175,12 @@ namespace RucheHome.Voiceroid
             /// </summary>
             /// <returns>更新できたならば true 。そうでなければ false 。</returns>
             protected abstract Task<bool> UpdateOnMainWindowChanged();
+
+            /// <summary>
+            /// IsDialogShowing プロパティ値を更新する。
+            /// </summary>
+            /// <returns>更新した値。</returns>
+            protected abstract Task<bool> UpdateDialogShowing();
 
             /// <summary>
             /// 現在WAVEファイル保存処理中であるか否か調べる。
@@ -205,13 +201,29 @@ namespace RucheHome.Voiceroid
             protected abstract Task<bool> CheckPlaying();
 
             /// <summary>
-            /// 現在ダイアログ表示中であるか否か調べる。
+            /// トークテキスト取得の実処理を行う。
             /// </summary>
-            /// <returns>ダイアログ表示中ならば true 。そうでなければ false 。</returns>
-            /// <remarks>
-            /// 直接本体側を操作してダイアログ表示を行っている場合にも true を返すこと。
-            /// </remarks>
-            protected abstract Task<bool> CheckDialogShowing();
+            /// <returns>トークテキスト。取得できなかった場合は null 。</returns>
+            protected abstract Task<string> DoGetTalkText();
+
+            /// <summary>
+            /// トークテキスト設定の実処理を行う。
+            /// </summary>
+            /// <param name="text">設定するトークテキスト。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            protected abstract Task<bool> DoSetTalkText(string text);
+
+            /// <summary>
+            /// トークテキスト再生の実処理を行う。
+            /// </summary>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            protected abstract Task<bool> DoPlay();
+
+            /// <summary>
+            /// トークテキスト再生停止の実処理を行う。
+            /// </summary>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            protected abstract Task<bool> DoStop();
 
             /// <summary>
             /// WAVEファイル保存処理を行える状態であるか否か調べる。
@@ -527,7 +539,10 @@ namespace RucheHome.Voiceroid
             /// トークテキストを取得する。
             /// </summary>
             /// <returns>トークテキスト。取得できなかったならば null 。</returns>
-            public abstract Task<string> GetTalkText();
+            public async Task<string> GetTalkText()
+            {
+                return this.IsRunning ? (await this.DoGetTalkText()) : null;
+            }
 
             /// <summary>
             /// トークテキストを設定する。
@@ -537,7 +552,22 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// 再生中の場合は停止させる。WAVEファイル保存中である場合は失敗する。
             /// </remarks>
-            public abstract Task<bool> SetTalkText(string text);
+            public async Task<bool> SetTalkText(string text)
+            {
+                if (text == null)
+                {
+                    throw new ArgumentNullException(nameof(text));
+                }
+                if (
+                    !this.IsRunning ||
+                    this.IsSaving ||
+                    !(await this.Stop()))
+                {
+                    return false;
+                }
+
+                return await this.DoSetTalkText(text);
+            }
 
             /// <summary>
             /// トークテキストの再生を開始する。
@@ -547,7 +577,30 @@ namespace RucheHome.Voiceroid
             /// 再生中の場合は何もせず true を返す。
             /// WAVEファイル保存中である場合やトークテキストが空白である場合は失敗する。
             /// </remarks>
-            public abstract Task<bool> Play();
+            public async Task<bool> Play()
+            {
+                if (
+                    !this.IsRunning ||
+                    this.IsSaving ||
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    (await this.UpdateDialogShowing()))
+                {
+                    return false;
+                }
+                if (this.IsPlaying)
+                {
+                    return true;
+                }
+
+                if (!(await this.DoPlay()))
+                {
+                    return false;
+                }
+
+                // Update を待たずにフラグ更新しておく
+                this.IsPlaying = true;
+                return true;
+            }
 
             /// <summary>
             /// トークテキストの再生を停止する。
@@ -556,7 +609,26 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// WAVEファイル保存中である場合は失敗する。
             /// </remarks>
-            public abstract Task<bool> Stop();
+            public async Task<bool> Stop()
+            {
+                if (!this.IsRunning || this.IsSaving)
+                {
+                    return false;
+                }
+                if (!this.IsPlaying)
+                {
+                    return true;
+                }
+
+                if (!(await this.DoStop()))
+                {
+                    return false;
+                }
+
+                // Update を待たずにフラグ更新しておく
+                this.IsPlaying = false;
+                return true;
+            }
 
             /// <summary>
             /// トークテキストをWAVEファイル保存する。
