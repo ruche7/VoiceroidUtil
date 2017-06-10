@@ -79,10 +79,10 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// VOICEROIDプロセス実装配列を取得する。
         /// </summary>
-        private ProcessImpl[] Impls { get; } =
+        private PlusExImpl[] Impls { get; } =
             Array.ConvertAll(
                 (VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)),
-                id => new ProcessImpl(id));
+                id => new PlusExImpl(id));
 
         #region IDisposable インタフェース実装
 

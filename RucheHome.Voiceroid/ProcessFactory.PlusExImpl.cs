@@ -17,15 +17,15 @@ namespace RucheHome.Voiceroid
     partial class ProcessFactory
     {
         /// <summary>
-        /// IProcess インタフェース実装クラス。
+        /// VOICEROID+ EX シリーズ互換アプリ用の IProcess インタフェース実装クラス。
         /// </summary>
-        private sealed class ProcessImpl : BindableBase, IProcess, IDisposable
+        private sealed class PlusExImpl : BindableBase, IProcess, IDisposable
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
-            public ProcessImpl(VoiceroidId id)
+            public PlusExImpl(VoiceroidId id)
             {
                 if (!Enum.IsDefined(id.GetType(), id))
                 {
@@ -41,7 +41,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// デストラクタ。
             /// </summary>
-            ~ProcessImpl()
+            ~PlusExImpl()
             {
                 this.Dispose(false);
             }
@@ -115,11 +115,6 @@ namespace RucheHome.Voiceroid
                     { DialogType.Error, @"エラー" },
                     { DialogType.Caution, @"注意" },
                 };
-
-            /// <summary>
-            /// WAVEファイル名末尾の角カッコ数値文字列にマッチする正規表現。
-            /// </summary>
-            private static readonly Regex RegexWaveFileDigit = new Regex(@"\[\d+\]$");
 
             /// <summary>
             /// WAVEファイルパスを作成する。
@@ -330,16 +325,16 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// プロセスを取得または設定する。
             /// </summary>
-            private Process Process
+            private Process AppProcess
             {
-                get => this.process;
+                get => this.appProcess;
                 set
                 {
-                    this.process = value;
+                    this.appProcess = value;
                     this.ExecutablePath = value?.MainModule.FileName;
                 }
             }
-            private Process process = null;
+            private Process appProcess = null;
 
             /// <summary>
             /// メインウィンドウを取得または設定する。
@@ -429,7 +424,7 @@ namespace RucheHome.Voiceroid
                 // 念のため待機
                 using (var saveLock = await this.SaveLock.WaitAsync())
                 {
-                    this.Process = process;
+                    this.AppProcess = process;
                     process.Refresh();
 
                     // 入力待機状態になっていない？
@@ -484,12 +479,12 @@ namespace RucheHome.Voiceroid
                 int loopCount = 25,
                 int loopIntervalMilliseconds = 20)
             {
-                bool? result = this.Process?.WaitForInputIdle(0);
+                bool? result = this.AppProcess?.WaitForInputIdle(0);
 
                 for (int i = 0; result == false && i < loopCount; ++i)
                 {
                     await Task.Delay(loopIntervalMilliseconds);
-                    result = this.Process?.WaitForInputIdle(0);
+                    result = this.AppProcess?.WaitForInputIdle(0);
                 }
 
                 return (result == true);
@@ -612,7 +607,7 @@ namespace RucheHome.Voiceroid
             /// </summary>
             private void SetupDeadState()
             {
-                this.Process = null;
+                this.AppProcess = null;
                 this.MainWindow = null;
                 this.TalkEdit = null;
                 this.PlayButton = null;
@@ -1626,14 +1621,14 @@ namespace RucheHome.Voiceroid
                     throw new FileNotFoundException(nameof(executablePath));
                 }
 
-                if (this.Process != null)
+                if (this.AppProcess != null)
                 {
                     return false;
                 }
 
                 using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
-                    if (this.Process != null)
+                    if (this.AppProcess != null)
                     {
                         return false;
                     }
@@ -1675,14 +1670,14 @@ namespace RucheHome.Voiceroid
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             public async Task<bool> Exit()
             {
-                if (this.Process == null)
+                if (this.AppProcess == null)
                 {
                     return false;
                 }
 
                 using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
-                    if (this.Process == null)
+                    if (this.AppProcess == null)
                     {
                         return false;
                     }
@@ -1692,11 +1687,11 @@ namespace RucheHome.Voiceroid
                         await Task.Run(
                             () =>
                             {
-                                if (!this.Process.CloseMainWindow())
+                                if (!this.AppProcess.CloseMainWindow())
                                 {
                                     return false;
                                 }
-                                if (!this.Process.WaitForExit(1000))
+                                if (!this.AppProcess.WaitForExit(1000))
                                 {
                                     return false;
                                 }
@@ -1712,6 +1707,16 @@ namespace RucheHome.Voiceroid
                 }
 
                 return true;
+            }
+
+            /// <summary>
+            /// ボイスプリセット名を取得する。
+            /// </summary>
+            /// <returns>ボイスプリセット名。</returns>
+            public async Task<string> GetVoicePresetName()
+            {
+                // 単に Name の値を返す
+                return await Task.FromResult(this.Name);
             }
 
             #endregion

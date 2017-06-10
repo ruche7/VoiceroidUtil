@@ -76,6 +76,12 @@ namespace RucheHome.Voiceroid
         /// </summary>
         [EnumMember]
         UnaTalkEx,
+
+        /// <summary>
+        /// VOICEROID2
+        /// </summary>
+        [EnumMember]
+        Voiceroid2,
     }
 
     /// <summary>
@@ -100,49 +106,66 @@ namespace RucheHome.Voiceroid
                 new VoiceroidInfo(
                     VoiceroidId.YukariEx,
                     @"結月ゆかり",
+                    new[]{ @"結月", @"ゆかり", @"ユカリ", @"yukari" },
                     @"VOICEROID＋ 結月ゆかり EX"),
                 new VoiceroidInfo(
                     VoiceroidId.MakiEx,
                     @"弦巻マキ",
+                    new[]{ @"弦巻", @"マキ", @"民安", @"ともえ", @"トモエ", @"maki" },
                     @"VOICEROID＋ 民安ともえ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.ZunkoEx,
                     @"東北ずん子",
+                    new[]{ @"ずん子", @"ずんこ", @"ズンコ", @"zunko" },
                     @"VOICEROID＋ 東北ずん子 EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KiritanEx,
                     @"東北きりたん",
+                    new[]{ @"きりたん", @"キリタン", @"kiritan" },
                     @"VOICEROID＋ 東北きりたん",
                     @"VOICEROID＋ 東北きりたん EX"),
                 new VoiceroidInfo(
                     VoiceroidId.Akane,
                     @"琴葉茜",
+                    new[]{ @"茜", @"あかね", @"アカネ", @"akane" },
                     @"VOICEROID＋ 琴葉茜"),
                 new VoiceroidInfo(
                     VoiceroidId.Aoi,
                     @"琴葉葵",
+                    new[]{ @"葵", @"あおい", @"アオイ", @"aoi" },
                     @"VOICEROID＋ 琴葉葵"),
                 new VoiceroidInfo(
                     VoiceroidId.AiEx,
                     @"月読アイ",
+                    new[]{ @"アイ", @"ai" },
                     @"VOICEROID＋ 月読アイ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.ShoutaEx,
                     @"月読ショウタ",
+                    new[]{ @"ショウタ", @"shouta" },
                     @"VOICEROID＋ 月読ショウタ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.SeikaEx,
                     @"京町セイカ",
+                    new[]{ @"京町", @"セイカ", @"seika" },
                     @"VOICEROID＋ 京町セイカ",
                     @"VOICEROID＋ 京町セイカ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KouEx,
                     @"水奈瀬コウ",
+                    new[]{ @"水奈瀬", @"コウ", @"kou" },
                     @"VOICEROID＋ 水奈瀬コウ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.UnaTalkEx,
                     @"音街ウナ",
+                    new[]{ @"音街", @"ウナ", @"una" },
                     @"音街ウナTalk Ex"),
+                new VoiceroidInfo(
+                    VoiceroidId.Voiceroid2,
+                    @"VOICEROID2",
+                    null,
+                    @"VOICEROID2 Editor",
+                    string.Empty),
             }
             .ToDictionary(info => info.Id);
     }
