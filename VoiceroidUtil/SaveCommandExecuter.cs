@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -576,26 +577,19 @@ namespace VoiceroidUtil
             if (voiceroidId == VoiceroidId.Voiceroid2)
             {
                 // VOICEROID2ならボイスプリセット名から選択対象VOICEROIDを決める
-                // ボイスプリセット名に含まれるキーワードの中から最も前方に現れるものを検索
+
+                // voiceroid2Preset の中で最も手前に含まれているキーワードを検索する関数
+                int? minIndexOf(IEnumerable<string> keywords) =>
+                    keywords?
+                        .Select(k => voiceroid2Preset.IndexOf(k))
+                        .Where(i => i >= 0)
+                        .Min(i => (int?)i);
+
+                // 全VOICEROIDの中から最も手前にキーワードが含まれているものを検索
                 var target =
                     ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
                         .Where(id => id != VoiceroidId.Voiceroid2)
-                        .Select(
-                            id =>
-                                new
-                                {
-                                    id,
-                                    index =
-                                        id.GetInfo().Keywords
-                                            .Select(
-                                                kwd =>
-                                                    voiceroid2Preset.IndexOf(
-                                                        kwd,
-                                                        StringComparison.InvariantCultureIgnoreCase))
-                                            .Where(i => i >= 0)
-                                            .Cast<int?>()
-                                            .Min(),
-                                })
+                        .Select(id => new { id, index = minIndexOf(id.GetInfo().Keywords) })
                         .Where(v => v.index != null)
                         .OrderBy(v => (int)v.index)
                         .FirstOrDefault();
