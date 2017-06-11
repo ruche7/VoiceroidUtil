@@ -78,6 +78,17 @@ namespace VoiceroidUtil
         private VoiceroidVisibilitySet voiceroidVisibilities = null;
 
         /// <summary>
+        /// 音声保存時に本体側のテキストを用いるか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsSavingWithTargetText
+        {
+            get => this.savingWithTargetText;
+            set => this.SetProperty(ref this.savingWithTargetText, value);
+        }
+        private bool savingWithTargetText = false;
+
+        /// <summary>
         /// 保存先ディレクトリパスを取得または設定する。
         /// </summary>
         [DataMember]

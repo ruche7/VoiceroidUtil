@@ -121,21 +121,21 @@ namespace VoiceroidUtil
         /// ファイル名フォーマット種別に従いファイル名を作成する。
         /// </summary>
         /// <param name="format">ファイル名フォーマット種別。</param>
-        /// <param name="id">VOICEROID識別ID。</param>
+        /// <param name="charaName">キャラ名。</param>
         /// <param name="talkText">トークテキスト。</param>
         /// <returns>ファイル名。拡張子なし。</returns>
         public static string MakeFileName(
             FileNameFormat format,
-            VoiceroidId id,
+            string charaName,
             string talkText)
         {
-            var info = id.GetInfo();
-            if (info == null)
+            if (charaName == null)
             {
-                throw new InvalidEnumArgumentException(nameof(id), (int)id, id.GetType());
+                throw new ArgumentNullException(nameof(charaName));
             }
 
-            var text = MakeFileNamePartFromText(talkText);
+            var chara = MakeFileNamePart(charaName, MaxFileNamePartFromCharaNameLength);
+            var text = MakeFileNamePart(talkText, MaxFileNamePartFromTextLength);
             var time = DateTime.Now.ToString("yyMMdd_HHmmss");
 
             string name;
@@ -148,16 +148,16 @@ namespace VoiceroidUtil
                 name = string.Join("_", time, text);
                 break;
             case FileNameFormat.NameText:
-                name = string.Join("_", info.Name, text);
+                name = string.Join("_", chara, text);
                 break;
             case FileNameFormat.DateTimeNameText:
-                name = string.Join("_", time, info.Name, text);
+                name = string.Join("_", time, chara, text);
                 break;
             case FileNameFormat.TextInNameDirectory:
-                name = Path.Combine(info.Name, text);
+                name = Path.Combine(chara, text);
                 break;
             case FileNameFormat.DateTimeTextInNameDirectory:
-                name = Path.Combine(info.Name, string.Join("_", time, text));
+                name = Path.Combine(chara, string.Join("_", time, text));
                 break;
             default:
                 throw new InvalidEnumArgumentException(
@@ -170,6 +170,11 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// キャラ名から作成されるファイル名の一部の最大文字数。
+        /// </summary>
+        private const int MaxFileNamePartFromCharaNameLength = 16;
+
+        /// <summary>
         /// テキストから作成されるファイル名の一部の最大文字数。
         /// </summary>
         private const int MaxFileNamePartFromTextLength = 13;
@@ -179,8 +184,7 @@ namespace VoiceroidUtil
         /// </summary>
         private static readonly int MaxFileNameLength =
             @"20010101_000000_".Length +
-            ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
-                .Max(id => id.GetInfo().Name.Length) +
+            MaxFileNamePartFromCharaNameLength +
             @"_".Length +
             MaxFileNamePartFromTextLength +
             @".wav".Length;
@@ -212,25 +216,32 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// テキストからファイル名の一部を作成する。
+        /// 文字列からファイル名の一部を作成する。
         /// </summary>
-        /// <param name="text">テキスト。</param>
+        /// <param name="src">文字列。</param>
+        /// <param name="maxLength">最大文字数。 3 以上にすること。</param>
         /// <returns>作成した文字列。</returns>
         /// <remarks>
-        /// テキストの文字数が MaxFileNamePartFromTextLength を超える場合、
-        /// 末尾に "+残り文字数" が付与され、それと合わせて文字数が
-        /// MaxFileNamePartFromTextLength となるようにテキストが削られる。
+        /// テキストの文字数が maxLength を超える場合、末尾に "+残り文字数" が付与され、
+        /// それと合わせて文字数が maxLength となるようにテキストが削られる。
         /// "+残り文字数" を入れる余裕がない場合は代わりに "-" が付与される。
         /// </remarks>
-        private static string MakeFileNamePartFromText(string text)
+        private static string MakeFileNamePart(string src, int maxLength)
         {
-            if (text == null)
+            if (src == null)
             {
-                throw new ArgumentNullException(nameof(text));
+                throw new ArgumentNullException(nameof(src));
+            }
+            if (maxLength < 3)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(maxLength),
+                    maxLength,
+                    nameof(maxLength) + @" is less than 3.");
             }
 
             // CP932で表せない文字はVOICEROIDで扱えないため変換
-            var dest = ToCodePage932String(text);
+            var dest = ToCodePage932String(src);
 
             // 空白文字をアンダーバー1文字に短縮
             // ファイル名に使えない文字を 'x' に置換
@@ -241,24 +252,24 @@ namespace VoiceroidUtil
                     from c in RegexBlank.Replace(dest, "_")
                     select (Array.IndexOf(invalidChars, c) < 0) ? c : 'x');
 
-            if (dest.Length <= MaxFileNamePartFromTextLength)
+            if (dest.Length <= maxLength)
             {
                 // 無いはずだが、空文字列になってしまったらアンダーバー1文字とする
                 return (dest.Length > 0) ? dest : "_";
             }
 
             // "+残り文字数" 付与を試みる
-            for (int len = MaxFileNamePartFromTextLength - 2; len > 0; --len)
+            for (int len = maxLength - 2; len > 0; --len)
             {
                 var tail = @"+" + (dest.Length - len);
-                if (len + tail.Length <= MaxFileNamePartFromTextLength)
+                if (len + tail.Length <= maxLength)
                 {
                     return dest.Substring(0, len) + tail;
                 }
             }
 
             // "-" を付与して返す
-            return dest.Substring(0, MaxFileNamePartFromTextLength - 1) + @"-";
+            return dest.Substring(0, maxLength - 1) + @"-";
         }
     }
 }

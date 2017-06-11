@@ -132,5 +132,15 @@ namespace RucheHome.Voiceroid
         /// </summary>
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         Task<bool> Exit();
+
+        /// <summary>
+        /// ボイスプリセット名を取得する。
+        /// </summary>
+        /// <returns>ボイスプリセット名。</returns>
+        /// <remarks>
+        /// VOICEROID2かつ実行中の場合はボイスプリセット名を取得して返す。
+        /// それ以外では Name の値をそのまま返す。
+        /// </remarks>
+        Task<string> GetVoicePresetName();
     }
 }

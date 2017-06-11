@@ -154,6 +154,13 @@ namespace VoiceroidUtil.ViewModel
             this.IsTalkTextTabAccepted =
                 this.MakeInnerPropertyOf(appConfig, c => c.IsTabAccepted);
 
+            // 音声保存時の使用テキスト切替
+            this.IsSavingWithTargetText =
+                this.MakeInnerPropertyOf(
+                    appConfig,
+                    c => c.IsSavingWithTargetText,
+                    canModifyNotifier);
+
             // 非同期実行コマンドヘルパー
             var playStopCommandExecuter =
                 new PlayStopCommandExecuter(
@@ -257,7 +264,12 @@ namespace VoiceroidUtil.ViewModel
                     this.IsProcessRunning,
                     processSaving.Inverse(),
                     processDialogShowing.Inverse(),
-                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                    new[]
+                    {
+                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                        this.IsSavingWithTargetText,
+                    }
+                    .CombineLatest(flags => flags.Any(f => f)),
                     dropTalkTextFileCommandExecuter.IsExecutable);
 
             // トークテキスト用ファイルドラッグオーバーコマンド
@@ -347,6 +359,11 @@ namespace VoiceroidUtil.ViewModel
         /// トークテキストを編集可能な状態であるか否かを取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<bool> IsTalkTextEditable { get; }
+
+        /// <summary>
+        /// 音声保存時に本体側のテキストを用いるか否かを取得する。
+        /// </summary>
+        public IReactiveProperty<bool> IsSavingWithTargetText { get; }
 
         /// <summary>
         /// アイドル状態であるか否かを取得する。

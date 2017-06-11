@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -169,25 +171,24 @@ namespace VoiceroidUtil
         /// WAVEファイルパスを作成する。
         /// </summary>
         /// <param name="config">アプリ設定。</param>
-        /// <param name="process">VOICEROIDプロセス。</param>
+        /// <param name="charaName">キャラ名。</param>
         /// <param name="talkText">トークテキスト。</param>
         /// <returns>WAVEファイルパス。作成できないならば null 。</returns>
         private static async Task<string> MakeWaveFilePath(
             AppConfig config,
-            IProcess process,
+            string charaName,
             string talkText)
         {
             if (
                 config == null ||
                 string.IsNullOrWhiteSpace(config.SaveDirectoryPath) ||
-                process == null ||
+                charaName == null ||
                 string.IsNullOrWhiteSpace(talkText))
             {
                 return null;
             }
 
-            var name =
-                FilePathUtil.MakeFileName(config.FileNameFormat, process.Id, talkText);
+            var name = FilePathUtil.MakeFileName(config.FileNameFormat, charaName, talkText);
             var basePath = Path.Combine(config.SaveDirectoryPath, name);
 
             // 同名ファイルがあるならば名前の末尾に "[数字]" を付ける
@@ -295,23 +296,52 @@ namespace VoiceroidUtil
                 return;
             }
 
-            // テキスト作成
+            // 本体側のテキストを使う設定ならそちらから取得
+            if (appConfig.IsSavingWithTargetText)
+            {
+                text = await process.GetTalkText();
+                if (text == null)
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"本体側の文章を取得できませんでした。");
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"本体側の文章が空白です。",
+                        subStatusText: @"空白文を音声保存することはできません。");
+                    return;
+                }
+            }
+
+            // 音声用テキスト作成
+            // 本体側のテキストを使う設定なら置換は行わない
             var voiceText =
-                talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+                appConfig.IsSavingWithTargetText ?
+                    text :
+                    (talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text);
             if (string.IsNullOrWhiteSpace(voiceText))
             {
                 await this.NotifyResult(
                     parameter,
                     AppStatusType.Fail,
-                    @"文章の音声用置換結果が空文字列になります。",
-                    subStatusText: @"空文字列を再生することはできません。");
+                    @"文章の音声用置換結果が空白になります。",
+                    subStatusText: @"空白文を音声保存することはできません。");
                 return;
             }
+
+            // 字幕用テキスト作成
             var fileText =
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // WAVEファイルパス決定
-            var filePath = await MakeWaveFilePath(appConfig, process, text);
+            var charaName = await process.GetVoicePresetName();
+            var filePath = await MakeWaveFilePath(appConfig, charaName, text);
             if (filePath == null)
             {
                 await this.NotifyResult(
@@ -351,9 +381,28 @@ namespace VoiceroidUtil
                 return;
             }
 
+            var requiredFilePath = filePath;
             filePath = result.FilePath;
 
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
+
+            // VOICEROID2かつファイル名が異なる
+            // → 連番保存されているので以降の処理は行わない
+            if (
+                process.Id == VoiceroidId.Voiceroid2 &&
+                !string.Equals(
+                    Path.GetFileNameWithoutExtension(requiredFilePath),
+                    Path.GetFileNameWithoutExtension(filePath),
+                    StringComparison.InvariantCultureIgnoreCase))
+            {
+                await this.NotifyResult(
+                    parameter,
+                    AppStatusType.Success,
+                    statusText,
+                    AppStatusType.Warning,
+                    @"ファイル分割時は音声ファイル保存のみ行います。");
+                return;
+            }
 
             // テキストファイル保存
             if (appConfig.IsTextFileForceMaking)
@@ -395,7 +444,7 @@ namespace VoiceroidUtil
             }
 
             // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, process.Id, appConfig);
+            var warnText = await DoOperateYmm(filePath, process.Id, appConfig, charaName);
 
             await this.NotifyResult(
                 parameter,
@@ -538,15 +587,50 @@ namespace VoiceroidUtil
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="config">アプリ設定。</param>
+        /// <param name="voiceroid2Preset">VOICEROID2ボイスプリセット名。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
         private async Task<string> DoOperateYmm(
             string filePath,
             VoiceroidId voiceroidId,
-            AppConfig config)
+            AppConfig config,
+            string voiceroid2Preset)
         {
             if (!config.IsSavedFileToYmm)
             {
                 return null;
+            }
+
+            // YMMキャラ名決定
+            string charaName = null;
+            if (voiceroidId == VoiceroidId.Voiceroid2)
+            {
+                // VOICEROID2ならボイスプリセット名から選択対象VOICEROIDを決める
+
+                // voiceroid2Preset の中で最も手前に含まれているキーワードを検索する関数
+                int? minIndexOf(IEnumerable<string> keywords) =>
+                    keywords?
+                        .Select(k => voiceroid2Preset.IndexOf(k))
+                        .Where(i => i >= 0)
+                        .Min(i => (int?)i);
+
+                // 全VOICEROIDの中から最も手前にキーワードが含まれているものを検索
+                var target =
+                    ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
+                        .Where(id => id != VoiceroidId.Voiceroid2)
+                        .Select(id => new { id, index = minIndexOf(id.GetInfo().Keywords) })
+                        .Where(v => v.index != null)
+                        .OrderBy(v => (int)v.index)
+                        .FirstOrDefault();
+
+                // 見つからなかった場合はボイスプリセット名をそのまま使う
+                charaName =
+                    (target == null) ?
+                        voiceroid2Preset :
+                        config.YmmCharaRelations[target.id].YmmCharaName;
+            }
+            else
+            {
+                charaName = config.YmmCharaRelations[voiceroidId].YmmCharaName;
             }
 
             string warnText = null;
@@ -594,10 +678,9 @@ namespace VoiceroidUtil
                 // そもそもキャラ名が存在しない場合は何もしない
                 if (config.IsYmmCharaSelecting)
                 {
-                    var name = config.YmmCharaRelations[voiceroidId].YmmCharaName;
                     if (
-                        !string.IsNullOrEmpty(name) &&
-                        (await YmmProcess.SelectTimelineCharaComboBoxItem(name)) == false)
+                        !string.IsNullOrEmpty(charaName) &&
+                        (await YmmProcess.SelectTimelineCharaComboBoxItem(charaName)) == false)
                     {
                         warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
                         continue;

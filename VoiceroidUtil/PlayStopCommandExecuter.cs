@@ -190,8 +190,8 @@ namespace VoiceroidUtil
                 await this.NotifyResult(
                     parameter,
                     AppStatusType.Fail,
-                    @"文章の音声用置換結果が空文字列になります。",
-                    subStatusText: @"空文字列を再生することはできません。");
+                    @"文章の音声用置換結果が空白になります。",
+                    subStatusText: @"空白文を再生することはできません。");
                 return;
             }
 

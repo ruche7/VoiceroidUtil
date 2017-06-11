@@ -47,11 +47,28 @@ namespace VoiceroidUtil
         /// <returns>列挙子。</returns>
         public IEnumerator<TItem> GetEnumerator()
         {
-            foreach (VoiceroidId id in Enum.GetValues(typeof(VoiceroidId)))
+            foreach (var id in this.VoiceroidIds)
             {
                 yield return this.GetItem(id);
             }
         }
+
+        /// <summary>
+        /// 全VOICEROID識別IDの列挙を取得する。
+        /// </summary>
+        protected static IEnumerable<VoiceroidId> AllVoiceroidIds { get; } =
+            (VoiceroidId[])Enum.GetValues(typeof(VoiceroidId));
+
+        /// <summary>
+        /// アイテムセットとして保持するVOICEROID識別ID列挙を取得する。
+        /// </summary>
+        /// <remarks>
+        /// 既定では AllVoiceroidIds を返す。
+        /// 特定の識別IDを除外する場合は派生クラスでオーバライドすること。
+        /// その際、 DataContract のデシリアライズに対応するため、
+        /// 非 static なフィールドを生成しないように注意すること。
+        /// </remarks>
+        protected virtual IEnumerable<VoiceroidId> VoiceroidIds => AllVoiceroidIds;
 
         /// <summary>
         /// VOICEROID識別IDに対応する TItem インスタンスを取得する。
@@ -60,15 +77,14 @@ namespace VoiceroidUtil
         /// <returns>TItem インスタンス。</returns>
         protected TItem GetItem(VoiceroidId id)
         {
-            TItem item;
+            var item = default(TItem);
 
             int index = this.Table.IndexOf(id);
 
             if (index < 0)
             {
                 // 有効なIDか？
-                var name = id.GetInfo()?.Name;
-                if (name == null)
+                if (!this.VoiceroidIds.Contains(id))
                 {
                     throw new InvalidEnumArgumentException(
                         nameof(id),
@@ -111,11 +127,10 @@ namespace VoiceroidUtil
             if (index < 0)
             {
                 // 有効なIDか？
-                var name = id.GetInfo()?.Name;
-                if (name == null)
+                if (!this.VoiceroidIds.Contains(id))
                 {
                     throw new InvalidEnumArgumentException(
-                        nameof(item) + "." + nameof(VoiceroidId),
+                        nameof(item) + @"." + nameof(VoiceroidId),
                         (int)id,
                         id.GetType());
                 }
@@ -214,17 +229,24 @@ namespace VoiceroidUtil
 
                 if (value != this.table)
                 {
-                    if (this.table != null)
+                    // コンストラクタ呼び出しか？
+                    bool construct = (this.table == null);
+
+                    if (!construct)
                     {
                         this.table.CollectionChanged -= this.OnTableCollectionChanged;
                         this.table.ItemPropertyChanged -= this.OnTableItemPropertyChanged;
                     }
+
                     this.table = value;
                     this.table.CollectionChanged += this.OnTableCollectionChanged;
                     this.table.ItemPropertyChanged += this.OnTableItemPropertyChanged;
 
-                    // インデクサ変更通知
-                    this.RaiseIndexerPropertyChanged();
+                    // コンストラクタ呼び出しでなければインデクサ変更通知
+                    if (!construct)
+                    {
+                        this.RaiseIndexerPropertyChanged();
+                    }
                 }
             }
         }
