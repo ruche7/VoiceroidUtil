@@ -264,7 +264,12 @@ namespace VoiceroidUtil.ViewModel
                     this.IsProcessRunning,
                     processSaving.Inverse(),
                     processDialogShowing.Inverse(),
-                    this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                    new[]
+                    {
+                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                        this.IsSavingWithTargetText,
+                    }
+                    .CombineLatest(flags => flags.Any(f => f)),
                     dropTalkTextFileCommandExecuter.IsExecutable);
 
             // トークテキスト用ファイルドラッグオーバーコマンド
