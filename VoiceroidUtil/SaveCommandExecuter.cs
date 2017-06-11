@@ -296,18 +296,46 @@ namespace VoiceroidUtil
                 return;
             }
 
-            // テキスト作成
+            // 本体側のテキストを使う設定ならそちらから取得
+            if (appConfig.IsSavingWithTargetText)
+            {
+                text = await process.GetTalkText();
+                if (text == null)
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"本体側の文章を取得できませんでした。");
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(text))
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"本体側の文章が空白です。",
+                        subStatusText: @"空白文を音声保存することはできません。");
+                    return;
+                }
+            }
+
+            // 音声用テキスト作成
+            // 本体側のテキストを使う設定なら置換は行わない
             var voiceText =
-                talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+                appConfig.IsSavingWithTargetText ?
+                    text :
+                    (talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text);
             if (string.IsNullOrWhiteSpace(voiceText))
             {
                 await this.NotifyResult(
                     parameter,
                     AppStatusType.Fail,
-                    @"文章の音声用置換結果が空文字列になります。",
-                    subStatusText: @"空文字列を再生することはできません。");
+                    @"文章の音声用置換結果が空白になります。",
+                    subStatusText: @"空白文を音声保存することはできません。");
                 return;
             }
+
+            // 字幕用テキスト作成
             var fileText =
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 

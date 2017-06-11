@@ -145,6 +145,10 @@
                     <AccessText Text="音声保存(_S)" Margin="2,0,0,0" />
                 </StackPanel>
             </Button>
+            <CheckBox
+                Content="文章を上書きせず保存(_K)"
+                IsChecked="{Binding IsSavingWithTargetText.Value}"
+                Margin="8,0,0,0" />
         </StackPanel>
     </Grid>
 </UserControl>
