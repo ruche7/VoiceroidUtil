@@ -70,24 +70,6 @@ namespace RucheHome.Voiceroid
                 };
 
             /// <summary>
-            /// WAVEファイルまたはテキストファイルが存在するか否かを取得する。
-            /// </summary>
-            /// <param name="filePath">ファイルパス。拡張子は無視される。</param>
-            /// <returns>存在するならば true 。そうでなければ false 。</returns>
-            private static bool IsWaveOrTextFileExists(string filePath)
-            {
-                if (filePath == null)
-                {
-                    throw new ArgumentNullException(nameof(filePath));
-                }
-
-                var wav = Path.ChangeExtension(filePath, @".wav");
-                var txt = Path.ChangeExtension(filePath, @".txt");
-
-                return (File.Exists(wav) || File.Exists(txt));
-            }
-
-            /// <summary>
             /// ファイルダイアログからファイル名エディットコントロールを検索する。
             /// </summary>
             /// <param name="dialog">ファイルダイアログ。</param>
@@ -367,58 +349,17 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
-                {
-                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
-                    return null;
-                }
-
+                // AutomationElement 検索
                 AutomationElement okButtonElem = null;
                 AutomationElement editElem = null;
-
                 if (uiAutomationEnabled)
                 {
                     var dialogElem = AutomationElement.FromHandle(dialog.Handle);
-
-                    // OKボタン AutomationElement 検索
-                    okButtonElem =
-                        await RepeatUntil(
-                            () =>
-                                dialogElem.FindFirst(
-                                    TreeScope.Children,
-                                    new PropertyCondition(
-                                        AutomationElement.AutomationIdProperty,
-                                        @"1")),
-                            elem => elem != null,
-                            50);
-
-                    // ファイル名エディット AutomationElement 検索
-                    if (okButtonElem != null)
+                    var elems = await this.DoFindFileDialogElements(dialogElem);
+                    if (elems != null)
                     {
-                        var hostElem =
-                            await RepeatUntil(
-                                () =>
-                                    dialogElem.FindFirst(
-                                        TreeScope.Descendants,
-                                        new PropertyCondition(
-                                            AutomationElement.AutomationIdProperty,
-                                            @"FileNameControlHost")),
-                                elem => elem != null,
-                                50);
-                        if (hostElem != null)
-                        {
-                            editElem =
-                                await RepeatUntil(
-                                    () =>
-                                        hostElem.FindFirst(
-                                            TreeScope.Children,
-                                            new PropertyCondition(
-                                                AutomationElement.ClassNameProperty,
-                                                @"Edit")),
-                                    elem => elem != null,
-                                    50);
-                        }
+                        okButtonElem = elems.Item1;
+                        editElem = elems.Item2;
                     }
                 }
 
@@ -535,16 +476,15 @@ namespace RucheHome.Voiceroid
                 {
                     throw new InvalidOperationException(@"入力可能状態になりません。");
                 }
+
+                // フォーカス
                 edit.SetFocus();
 
                 // ファイルパス設定
-                object pattern = null;
-                if (!edit.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
+                if (!SetElementValue(edit, filePath))
                 {
-                    throw new InvalidOperationException(
-                        @"ファイルパス設定パターンを取得できません。");
+                    throw new InvalidOperationException(@"ファイルパスを設定できません。");
                 }
-                ((ValuePattern)pattern).SetValue(filePath);
             }
 
             /// <summary>
@@ -715,13 +655,10 @@ namespace RucheHome.Voiceroid
                 okButton.SetFocus();
 
                 // OKボタン押下
-                object pattern = null;
-                if (!okButton.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
+                if (!InvokeElement(okButton))
                 {
-                    throw new InvalidOperationException(
-                        @"OKボタン押下パターンを取得できません。");
+                    throw new InvalidOperationException(@"OKボタンを押下できません。");
                 }
-                ((InvokePattern)pattern).Invoke();
 
                 // 保存ダイアログが閉じるまで待つ
                 var dialog =
@@ -842,6 +779,23 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// メインウィンドウタイトルであるか否かを取得する。
+            /// </summary>
+            /// <param name="title">タイトル。</param>
+            /// <returns>
+            /// メインウィンドウタイトルならば true 。そうでなければ false 。
+            /// </returns>
+            /// <remarks>
+            /// スプラッシュウィンドウ等の判別用に用いる。
+            /// </remarks>
+            protected override bool IsMainWindowTitle(string title)
+            {
+                return
+                    (title?.Contains(@"VOICEROID") == true) ||
+                    (title?.Contains(@"Talk") == true);
+            }
+
+            /// <summary>
             /// メインウィンドウ変更時の更新処理を行う。
             /// </summary>
             /// <returns>更新できたならば true 。そうでなければ false 。</returns>
@@ -955,7 +909,10 @@ namespace RucheHome.Voiceroid
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             protected override async Task<bool> DoPlay()
             {
-                if (this.PlayButton == null || !(await this.SetTalkTextCursorToHead()))
+                if (
+                    this.PlayButton == null ||
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
+                    !(await this.SetTalkTextCursorToHead()))
                 {
                     return false;
                 }
@@ -1014,9 +971,7 @@ namespace RucheHome.Voiceroid
             {
                 return
                     this.SaveButton != null &&
-                    !this.IsSaving &&
-                    !string.IsNullOrWhiteSpace(await this.GetTalkText()) &&
-                    !(await this.UpdateDialogShowing());
+                    !string.IsNullOrWhiteSpace(await this.GetTalkText());
             }
 
             /// <summary>

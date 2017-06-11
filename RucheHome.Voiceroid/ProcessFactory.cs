@@ -79,7 +79,8 @@ namespace RucheHome.Voiceroid
             {
                 if (id == VoiceroidId.Voiceroid2)
                 {
-                    // TODO: VOICEROID2プロセス作成
+                    // VOICEROID2プロセス作成
+                    processes.Add(new Voiceroid2Impl());
                 }
                 else
                 {

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Automation;
 using RucheHome.Threading;
 using RucheHome.Util;
 
@@ -117,6 +118,187 @@ namespace RucheHome.Voiceroid
                 return value;
             }
 
+            #region AutomationElement 関連便利メソッド群
+
+            /// <summary>
+            /// AutomationElement の子を検索する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <param name="condition">検索条件。 null ならば常にマッチする。</param>
+            /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
+            protected static AutomationElement FindFirstChild(
+                AutomationElement element,
+                Condition condition)
+            {
+                try
+                {
+                    return
+                        element?.FindFirst(
+                            TreeScope.Children,
+                            condition ?? Condition.TrueCondition);
+                }
+                catch { }
+                return null;
+            }
+
+            /// <summary>
+            /// AutomationElement の子を検索する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <param name="property">検索条件プロパティ種別。</param>
+            /// <param name="propertyValue">検索条件プロパティ名。</param>
+            /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
+            protected static AutomationElement FindFirstChild(
+                AutomationElement element,
+                AutomationProperty property,
+                object propertyValue)
+            {
+                return
+                    (element == null || property == null) ?
+                        null :
+                        FindFirstChild(
+                            element,
+                            new PropertyCondition(property, propertyValue));
+            }
+
+            /// <summary>
+            /// AutomationElement の子をコントロール種別で検索する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <param name="controlType">検索条件コントロール種別。</param>
+            /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
+            protected static AutomationElement FindFirstChildByControlType(
+                AutomationElement element,
+                ControlType controlType)
+            {
+                return
+                    FindFirstChild(
+                        element,
+                        AutomationElement.ControlTypeProperty,
+                        controlType);
+            }
+
+            /// <summary>
+            /// AutomationElement の子をオートメーションIDで検索する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <param name="automationId">検索条件オートメーションID。</param>
+            /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
+            protected static AutomationElement FindFirstChildByAutomationId(
+                AutomationElement element,
+                string automationId)
+            {
+                return
+                    FindFirstChild(
+                        element,
+                        AutomationElement.AutomationIdProperty,
+                        automationId);
+            }
+
+            /// <summary>
+            /// AutomationElement の子ウィンドウを列挙する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <permission cref="name">
+            /// 検索対象 Name プロパティ値。限定しないならば null 。
+            /// </permission>
+            /// <returns>子ウィンドウ列挙。</returns>
+            protected static IEnumerable<AutomationElement> FindChildWindows(
+                AutomationElement element,
+                string name = null)
+            {
+                if (element == null)
+                {
+                    throw new ArgumentNullException(nameof(element));
+                }
+
+                try
+                {
+                    Condition cond =
+                        new PropertyCondition(
+                            AutomationElement.ControlTypeProperty,
+                            ControlType.Window);
+                    if (name != null)
+                    {
+                        cond =
+                            new AndCondition(
+                                cond,
+                                new PropertyCondition(AutomationElement.NameProperty, name));
+                    }
+
+                    return
+                        element
+                            .FindAll(TreeScope.Children, cond)
+                            .OfType<AutomationElement>();
+                }
+                catch { }
+                return Enumerable.Empty<AutomationElement>();
+            }
+
+            /// <summary>
+            /// AutomationElement の ValuePattern に文字列値を設定する。
+            /// </summary>
+            /// <param name="element">設定対象の AutomationElement 。</param>
+            /// <param name="value">設定する文字列値。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            protected static bool SetElementValue(AutomationElement element, string value)
+            {
+                if (element == null)
+                {
+                    throw new ArgumentNullException(nameof(element));
+                }
+
+                try
+                {
+                    if (element.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern))
+                    {
+                        ((ValuePattern)pattern).SetValue(value);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
+
+                return true;
+            }
+
+            /// <summary>
+            /// AutomationElement の Invoke 操作を行う。
+            /// </summary>
+            /// <param name="element">操作対象の AutomationElement 。</param>
+            /// <returns>成功したならば true 。そうでなければ false 。</returns>
+            protected static bool InvokeElement(AutomationElement element)
+            {
+                if (element == null)
+                {
+                    throw new ArgumentNullException(nameof(element));
+                }
+
+                try
+                {
+                    if (!element.Current.IsEnabled)
+                    {
+                        return false;
+                    }
+
+                    if (element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
+                    {
+                        ((InvokePattern)pattern).Invoke();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                    return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
             /// <summary>
             /// アプリプロセスを取得または設定する。
             /// </summary>
@@ -157,6 +339,73 @@ namespace RucheHome.Voiceroid
                 return (result == true);
             }
 
+            #region 音声保存処理補助
+
+            /// <summary>
+            /// ファイルダイアログからOKボタンとファイル名エディットの
+            /// AutomationElement を検索する処理を行う。
+            /// </summary>
+            /// <param name="fileDialog">ファイルダイアログ。</param>
+            /// <returns>
+            /// OKボタンとファイル名エディットの Tuple 。見つからなければ null 。
+            /// </returns>
+            protected async Task<Tuple<AutomationElement, AutomationElement>>
+            DoFindFileDialogElements(AutomationElement fileDialog)
+            {
+                // 入力可能状態まで待機
+                if (!(await this.WhenForInputHandle()))
+                {
+                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
+                    return null;
+                }
+
+                // OKボタン AutomationElement 検索
+                var okButton =
+                    await RepeatUntil(
+                        () => FindFirstChildByAutomationId(fileDialog, @"1"),
+                        elem => elem != null,
+                        50);
+                if (okButton == null)
+                {
+                    return null;
+                }
+
+                // ファイル名エディットホスト AutomationElement 検索
+                var editHost =
+                    await RepeatUntil(
+                        () =>
+                            fileDialog.FindFirst(
+                                TreeScope.Descendants,
+                                new PropertyCondition(
+                                    AutomationElement.AutomationIdProperty,
+                                    @"FileNameControlHost")),
+                        elem => elem != null,
+                        50);
+                if (editHost == null)
+                {
+                    return null;
+                }
+
+                // ファイル名エディット AutomationElement 検索
+                var edit =
+                    await RepeatUntil(
+                        () =>
+                            FindFirstChild(
+                                editHost,
+                                AutomationElement.ClassNameProperty,
+                                @"Edit"),
+                        elem => elem != null,
+                        50);
+                if (edit == null)
+                {
+                    return null;
+                }
+
+                return Tuple.Create(okButton, edit);
+            }
+
+            #endregion
+
             /// <summary>
             /// アプリプロセス実行中ではない場合の状態セットアップを行う。
             /// </summary>
@@ -169,6 +418,18 @@ namespace RucheHome.Voiceroid
                 this.IsSaving = false;
                 this.IsDialogShowing = false;
             }
+
+            /// <summary>
+            /// メインウィンドウタイトルであるか否かを取得する。
+            /// </summary>
+            /// <param name="title">タイトル。</param>
+            /// <returns>
+            /// メインウィンドウタイトルならば true 。そうでなければ false 。
+            /// </returns>
+            /// <remarks>
+            /// スプラッシュウィンドウ等の判別用に用いる。
+            /// </remarks>
+            protected abstract bool IsMainWindowTitle(string title);
 
             /// <summary>
             /// メインウィンドウ変更時の更新処理を行う。
@@ -383,15 +644,14 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(appProcess));
                 }
 
-                // メインウィンドウタイトルが空文字列なら
-                // スプラッシュウィンドウやメニューウィンドウがメインウィンドウになっている
-                if (appProcess.MainWindowTitle == "")
+                // メインウィンドウタイトルか？
+                // スプラッシュウィンドウ等を弾くため
+                if (!this.IsMainWindowTitle(appProcess.MainWindowTitle))
                 {
                     // 実行中でないなら起動中と判断
                     this.IsStartup |= !this.IsRunning;
                     return;
                 }
-
 
                 // 保存タスク処理中なら更新しない
                 if (this.IsRunning && this.SaveLock.CurrentCount <= 0)
@@ -579,11 +839,7 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public async Task<bool> Play()
             {
-                if (
-                    !this.IsRunning ||
-                    this.IsSaving ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
-                    (await this.UpdateDialogShowing()))
+                if (!this.IsRunning || this.IsSaving || (await this.UpdateDialogShowing()))
                 {
                     return false;
                 }
@@ -651,7 +907,11 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(filePath));
                 }
 
-                if (!(await this.CanSave()))
+                if (
+                    !this.IsRunning ||
+                    this.IsSaving ||
+                    (await this.UpdateDialogShowing()) ||
+                    !(await this.CanSave()))
                 {
                     return new FileSaveResult(
                         false,
