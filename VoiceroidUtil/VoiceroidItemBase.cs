@@ -34,7 +34,7 @@ namespace VoiceroidUtil
                         value : VoiceroidId.YukariEx);
 
                 // 名前も更新
-                this.VoiceroidName = this.VoiceroidId.GetInfo().Name;
+                this.VoiceroidName = MakeVoiceroidName(this.VoiceroidId);
             }
         }
         private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
@@ -60,5 +60,20 @@ namespace VoiceroidUtil
             private set => this.SetProperty(ref this.voiceroidName, value ?? "");
         }
         private string voiceroidName = "";
+
+        /// <summary>
+        /// VOICEROID識別IDに対応するVOICEROIDの名前を作成する。
+        /// </summary>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
+        /// <returns>VOICEROIDの名前。</returns>
+        /// <remarks>
+        /// コンストラクタおよびデシリアライズによって
+        /// VoiceroidId プロパティ値が設定される時に呼び出される。
+        /// 既定では voiceroidId.GetInfo().Name を返す。
+        /// </remarks>
+        protected virtual string MakeVoiceroidName(VoiceroidId voiceroidId)
+        {
+            return voiceroidId.GetInfo().Name;
+        }
     }
 }
