@@ -183,7 +183,7 @@ namespace VoiceroidUtil
                 config == null ||
                 string.IsNullOrWhiteSpace(config.SaveDirectoryPath) ||
                 charaName == null ||
-                string.IsNullOrWhiteSpace(talkText))
+                talkText == null)
             {
                 return null;
             }
@@ -276,9 +276,8 @@ namespace VoiceroidUtil
             var talkTextReplaceConfig = parameter?.TalkTextReplaceConfig;
             var exoConfig = parameter?.ExoConfig;
             var appConfig = parameter?.AppConfig;
-            var text = parameter?.TalkText;
 
-            if (process == null || exoConfig == null || appConfig == null || text == null)
+            if (process == null || exoConfig == null || appConfig == null)
             {
                 await this.NotifyResult(
                     parameter,
@@ -296,10 +295,12 @@ namespace VoiceroidUtil
                 return;
             }
 
-            // 本体側のテキストを使う設定ならそちらから取得
-            if (appConfig.IsSavingWithTargetText)
+            // 基テキスト、音声用テキスト作成
+            string text, voiceText;
+            if (appConfig.UseTargetText)
             {
-                text = await process.GetTalkText();
+                // 本体側のテキストを使う設定ならそちらから取得
+                voiceText = text = await process.GetTalkText();
                 if (text == null)
                 {
                     await this.NotifyResult(
@@ -308,31 +309,40 @@ namespace VoiceroidUtil
                         @"本体側の文章を取得できませんでした。");
                     return;
                 }
-                if (string.IsNullOrWhiteSpace(text))
+                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
                 {
                     await this.NotifyResult(
                         parameter,
                         AppStatusType.Fail,
-                        @"本体側の文章が空白です。",
+                        @"本体側の文章が空白文です。",
                         subStatusText: @"空白文を音声保存することはできません。");
                     return;
                 }
             }
-
-            // 音声用テキスト作成
-            // 本体側のテキストを使う設定なら置換は行わない
-            var voiceText =
-                appConfig.IsSavingWithTargetText ?
-                    text :
-                    (talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text);
-            if (string.IsNullOrWhiteSpace(voiceText))
+            else
             {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"文章の音声用置換結果が空白になります。",
-                    subStatusText: @"空白文を音声保存することはできません。");
-                return;
+                // 基テキスト取得
+                text = parameter?.TalkText;
+                if (text == null)
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"ファイル保存を開始できませんでした。");
+                    return;
+                }
+
+                // 音声用テキスト作成
+                voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"文章の音声用置換結果が空白になります。",
+                        subStatusText: @"空白文を音声保存することはできません。");
+                    return;
+                }
             }
 
             // 字幕用テキスト作成
@@ -360,7 +370,7 @@ namespace VoiceroidUtil
             }
 
             // トークテキスト設定
-            if (!(await process.SetTalkText(voiceText)))
+            if (!appConfig.UseTargetText && !(await process.SetTalkText(voiceText)))
             {
                 await this.NotifyResult(
                     parameter,

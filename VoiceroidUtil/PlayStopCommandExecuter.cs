@@ -24,14 +24,17 @@ namespace VoiceroidUtil
             /// 音声文字列置換アイテムコレクション。
             /// </param>
             /// <param name="talkText">トークテキスト。</param>
+            /// <param name="useTargetText">本体側のテキストを使うならば true 。</param>
             public Parameter(
                 IProcess process,
                 TalkTextReplaceItemCollection voiceReplaceItems,
-                string talkText)
+                string talkText,
+                bool useTargetText)
             {
                 this.Process = process;
                 this.VoiceReplaceItems = voiceReplaceItems;
                 this.TalkText = talkText;
+                this.UseTargetText = useTargetText;
 
                 var playing = process?.IsPlaying;
                 this.IsPlayAction = (playing == false);
@@ -54,6 +57,11 @@ namespace VoiceroidUtil
             public string TalkText { get; }
 
             /// <summary>
+            /// 本体側のテキストを使うか否かを取得する。
+            /// </summary>
+            public bool UseTargetText { get; }
+
+            /// <summary>
             /// 再生処理を行うか否かを取得する。
             /// </summary>
             public bool IsPlayAction { get; }
@@ -72,11 +80,15 @@ namespace VoiceroidUtil
         /// 音声文字列置換アイテムコレクション取得デリゲート。
         /// </param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
+        /// <param name="useTargetTextGetter">
+        /// 本体側のテキストを使うか否かの取得デリゲート。
+        /// </param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public PlayStopCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceItemCollection> voiceReplaceItemsGetter,
             Func<string> talkTextGetter,
+            Func<bool> useTargetTextGetter,
             Func<IAppStatus, Parameter, Task> resultNotifier)
             : base()
         {
@@ -92,10 +104,13 @@ namespace VoiceroidUtil
             {
                 throw new ArgumentNullException(nameof(talkTextGetter));
             }
-            if (resultNotifier == null)
+            if (useTargetTextGetter == null)
             {
-                throw new ArgumentNullException(nameof(resultNotifier));
+                throw new ArgumentNullException(nameof(useTargetTextGetter));
             }
+
+            this.ResultNotifier =
+                resultNotifier ?? throw new ArgumentNullException(nameof(resultNotifier));
 
             this.AsyncFunc = this.ExecuteAsync;
             this.ParameterConverter =
@@ -103,9 +118,8 @@ namespace VoiceroidUtil
                     new Parameter(
                         processGetter(),
                         voiceReplaceItemsGetter(),
-                        talkTextGetter());
-
-            this.ResultNotifier = resultNotifier;
+                        talkTextGetter(),
+                        useTargetTextGetter());
         }
 
         /// <summary>
@@ -116,17 +130,22 @@ namespace VoiceroidUtil
         /// 音声文字列置換アイテムコレクション取得デリゲート。
         /// </param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
+        /// <param name="useTargetTextGetter">
+        /// 本体側のテキストを使うか否かの取得デリゲート。
+        /// </param>
         /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
         public PlayStopCommandExecuter(
             Func<IProcess> processGetter,
             Func<TalkTextReplaceItemCollection> voiceReplaceItemsGetter,
             Func<string> talkTextGetter,
+            Func<bool> useTargetTextGetter,
             Action<IAppStatus, Parameter> resultNotifier)
             :
             this(
                 processGetter,
                 voiceReplaceItemsGetter,
                 talkTextGetter,
+                useTargetTextGetter,
                 (resultNotifier == null) ?
                     (Func<IAppStatus, Parameter, Task>)null :
                     async (r, p) =>
@@ -173,36 +192,32 @@ namespace VoiceroidUtil
         {
             var process = parameter.Process;
 
-            var text = parameter.TalkText;
-            if (text == null)
+            // 本体側のテキストを使わない場合のみテキスト設定を行う
+            if (!parameter.UseTargetText)
             {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"処理を開始できませんでした。");
-                return;
-            }
+                // テキスト取得
+                var text = parameter.TalkText;
+                if (text == null)
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"再生処理を開始できませんでした。");
+                    return;
+                }
 
-            // テキスト置換
-            text = parameter.VoiceReplaceItems?.Replace(text) ?? text;
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"文章の音声用置換結果が空白になります。",
-                    subStatusText: @"空白文を再生することはできません。");
-                return;
-            }
+                // テキスト置換
+                text = parameter.VoiceReplaceItems?.Replace(text) ?? text;
 
-            // テキスト設定
-            if (!(await process.SetTalkText(text)))
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"文章の設定に失敗しました。");
-                return;
+                // テキスト設定
+                if (!(await process.SetTalkText(text)))
+                {
+                    await this.NotifyResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"文章の設定に失敗しました。");
+                    return;
+                }
             }
 
             // 再生

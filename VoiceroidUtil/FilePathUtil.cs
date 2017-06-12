@@ -248,14 +248,14 @@ namespace VoiceroidUtil
             var invalidChars = Path.GetInvalidFileNameChars();
             dest =
                 string.Join(
-                    "",
-                    from c in RegexBlank.Replace(dest, "_")
+                    @"",
+                    from c in RegexBlank.Replace(dest, @"_")
                     select (Array.IndexOf(invalidChars, c) < 0) ? c : 'x');
 
             if (dest.Length <= maxLength)
             {
-                // 無いはずだが、空文字列になってしまったらアンダーバー1文字とする
-                return (dest.Length > 0) ? dest : "_";
+                // 空文字列の場合は 'x' 1文字とする
+                return (dest.Length > 0) ? dest : @"x";
             }
 
             // "+残り文字数" 付与を試みる
