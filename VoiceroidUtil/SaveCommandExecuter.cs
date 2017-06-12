@@ -387,7 +387,7 @@ namespace VoiceroidUtil
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 
             // VOICEROID2かつファイル名が異なる
-            // → 連番保存されているので以降の処理は行わない
+            // → ファイル分割されているので以降の処理は行わない
             if (
                 process.Id == VoiceroidId.Voiceroid2 &&
                 !string.Equals(
