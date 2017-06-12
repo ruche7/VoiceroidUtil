@@ -262,6 +262,38 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
+        /// 文字列内にキーワードが含まれているVOICEROID識別IDを取得する。
+        /// </summary>
+        /// <param name="src">文字列。</param>
+        /// <returns>VOICEROID識別ID。見つからなければ null 。</returns>
+        /// <remarks>
+        /// 複数のキーワードが見つかった場合はより前方にあるものが優先される。
+        /// </remarks>
+        private static VoiceroidId? FindKeywordContainedVoiceroidId(string src)
+        {
+            if (src == null)
+            {
+                return null;
+            }
+
+            // src の中で最も手前に含まれているキーワードを検索する関数
+            int? minIndexOf(IEnumerable<string> keywords) =>
+                keywords?
+                    .Select(k => src.IndexOf(k))
+                    .Where(i => i >= 0)
+                    .Min(i => (int?)i);
+
+            // 全VOICEROIDの中から最も手前にキーワードが含まれているものを検索
+            return
+                ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
+                    .Select(id => new { id, index = minIndexOf(id.GetInfo().Keywords) })
+                    .Where(v => v.index != null)
+                    .OrderBy(v => (int)v.index)
+                    .FirstOrDefault()?
+                    .id;
+        }
+
+        /// <summary>
         /// 処理結果のアプリ状態通知デリゲートを取得する。
         /// </summary>
         private Func<IAppStatus, Parameter, Task> ResultNotifier { get; }
@@ -430,6 +462,15 @@ namespace VoiceroidUtil
                 }
             }
 
+            // 以降の処理の対象となるキャラ
+            var voiceroidId = process.Id;
+            if (voiceroidId == VoiceroidId.Voiceroid2)
+            {
+                // VOICEROID2ならボイスプリセット名からキャラ選別
+                voiceroidId =
+                    FindKeywordContainedVoiceroidId(charaName) ?? VoiceroidId.Voiceroid2;
+            }
+
             // .exo ファイル保存
             if (appConfig.IsExoFileMaking)
             {
@@ -438,7 +479,7 @@ namespace VoiceroidUtil
                     await this.DoWriteExoFile(
                         exoPath,
                         exoConfig,
-                        process.Id,
+                        voiceroidId,
                         filePath,
                         fileText);
                 if (!ok)
@@ -454,7 +495,7 @@ namespace VoiceroidUtil
             }
 
             // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, process.Id, appConfig, charaName);
+            var warnText = await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
 
             await this.NotifyResult(
                 parameter,
@@ -596,14 +637,14 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
+        /// <param name="voiceroid2CharaName">VOICEROID2の場合に用いるキャラ名。</param>
         /// <param name="config">アプリ設定。</param>
-        /// <param name="voiceroid2Preset">VOICEROID2ボイスプリセット名。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
         private async Task<string> DoOperateYmm(
             string filePath,
             VoiceroidId voiceroidId,
-            AppConfig config,
-            string voiceroid2Preset)
+            string voiceroid2CharaName,
+            AppConfig config)
         {
             if (!config.IsSavedFileToYmm)
             {
@@ -611,37 +652,9 @@ namespace VoiceroidUtil
             }
 
             // YMMキャラ名決定
-            string charaName = null;
-            if (voiceroidId == VoiceroidId.Voiceroid2)
-            {
-                // VOICEROID2ならボイスプリセット名から選択対象VOICEROIDを決める
-
-                // voiceroid2Preset の中で最も手前に含まれているキーワードを検索する関数
-                int? minIndexOf(IEnumerable<string> keywords) =>
-                    keywords?
-                        .Select(k => voiceroid2Preset.IndexOf(k))
-                        .Where(i => i >= 0)
-                        .Min(i => (int?)i);
-
-                // 全VOICEROIDの中から最も手前にキーワードが含まれているものを検索
-                var target =
-                    ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
-                        .Where(id => id != VoiceroidId.Voiceroid2)
-                        .Select(id => new { id, index = minIndexOf(id.GetInfo().Keywords) })
-                        .Where(v => v.index != null)
-                        .OrderBy(v => (int)v.index)
-                        .FirstOrDefault();
-
-                // 見つからなかった場合はボイスプリセット名をそのまま使う
-                charaName =
-                    (target == null) ?
-                        voiceroid2Preset :
-                        config.YmmCharaRelations[target.id].YmmCharaName;
-            }
-            else
-            {
-                charaName = config.YmmCharaRelations[voiceroidId].YmmCharaName;
-            }
+            string charaName =
+                (voiceroidId == VoiceroidId.Voiceroid2) ?
+                    voiceroid2CharaName : config.YmmCharaRelations[voiceroidId].YmmCharaName;
 
             string warnText = null;
 
@@ -686,15 +699,13 @@ namespace VoiceroidUtil
 
                 // キャラ選択
                 // そもそもキャラ名が存在しない場合は何もしない
-                if (config.IsYmmCharaSelecting)
+                if (
+                    config.IsYmmCharaSelecting &&
+                    !string.IsNullOrEmpty(charaName) &&
+                    (await YmmProcess.SelectTimelineCharaComboBoxItem(charaName)) == false)
                 {
-                    if (
-                        !string.IsNullOrEmpty(charaName) &&
-                        (await YmmProcess.SelectTimelineCharaComboBoxItem(charaName)) == false)
-                    {
-                        warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
-                        continue;
-                    }
+                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
+                    continue;
                 }
 
                 // ボタン押下
