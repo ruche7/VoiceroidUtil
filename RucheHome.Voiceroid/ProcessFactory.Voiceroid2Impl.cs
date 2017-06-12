@@ -18,7 +18,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2)
+            public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2, true)
             {
             }
 
@@ -232,36 +232,6 @@ namespace RucheHome.Voiceroid
             }
 
             #region 音声保存処理
-
-            /// <summary>
-            /// 音声保存ボタンを押下する処理を行う。
-            /// </summary>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private async Task<bool> DoPushSaveButtonTask()
-            {
-                var save = (await this.FindButtons(ButtonType.Save))?[0];
-                if (save == null)
-                {
-                    ThreadTrace.WriteLine(@"保存ボタンが見つかりません。");
-                    return false;
-                }
-
-                try
-                {
-                    if (!(await Task.Run(() => InvokeElement(save))))
-                    {
-                        ThreadTrace.WriteLine(@"保存ボタンを押下できません。");
-                        return false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ThreadTrace.WriteException(ex);
-                    return false;
-                }
-
-                return true;
-            }
 
             /// <summary>
             /// 音声保存ダイアログを検索する処理を行う。
@@ -808,14 +778,13 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    // 保存ボタンが無効になるかダイアログが出るまで待つ
+                    // 保存ボタンが無効になるかダイアログが出るまで少し待つ
                     // ダイアログが出ない限りは失敗にしない
                     await RepeatUntil(
                         async () =>
-                            !save.Current.IsEnabled ||
-                            (await this.UpdateDialogShowing()),
+                            !save.Current.IsEnabled || (await this.UpdateDialogShowing()),
                         f => f,
-                        25);
+                        15);
                 }
                 catch (Exception ex)
                 {
@@ -866,15 +835,6 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// WAVEファイル保存処理を行える状態であるか否か調べる。
-            /// </summary>
-            /// <returns>行える状態ならば true 。そうでなければ false 。</returns>
-            protected override async Task<bool> CanSave()
-            {
-                return ((await this.FindButtons(ButtonType.Save)) != null);
-            }
-
-            /// <summary>
             /// WAVEファイル保存の実処理を行う。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
@@ -882,7 +842,14 @@ namespace RucheHome.Voiceroid
             protected override async Task<FileSaveResult> DoSave(string filePath)
             {
                 // 保存ボタン押下
-                if (!(await this.DoPushSaveButtonTask()))
+                var saveButton = (await this.FindButtons(ButtonType.Save))?[0];
+                if (saveButton == null)
+                {
+                    return new FileSaveResult(
+                        false,
+                        error: @"音声保存ボタンが見つかりませんでした。");
+                }
+                if (!(await Task.Run(() => InvokeElement(saveButton))))
                 {
                     return new FileSaveResult(
                         false,

@@ -30,6 +30,11 @@ namespace RucheHome.Voiceroid
         string DisplayProduct { get; }
 
         /// <summary>
+        /// 空白文の音声保存を行えるか否かを取得する。
+        /// </summary>
+        bool CanSaveBlankText { get; }
+
+        /// <summary>
         /// 実行ファイルのパスを取得する。
         /// </summary>
         /// <remarks>

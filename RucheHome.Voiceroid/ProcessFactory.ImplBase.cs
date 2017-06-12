@@ -22,7 +22,8 @@ namespace RucheHome.Voiceroid
             /// コンストラクタ＞
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
-            public ImplBase(VoiceroidId id)
+            /// <param name="canSaveBlankText">空白文の音声保存を行えるならば true 。</param>
+            public ImplBase(VoiceroidId id, bool canSaveBlankText)
             {
                 if (!Enum.IsDefined(id.GetType(), id))
                 {
@@ -33,6 +34,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 this.Id = id;
+                this.CanSaveBlankText = canSaveBlankText;
             }
 
             /// <summary>
@@ -487,12 +489,6 @@ namespace RucheHome.Voiceroid
             protected abstract Task<bool> DoStop();
 
             /// <summary>
-            /// WAVEファイル保存処理を行える状態であるか否か調べる。
-            /// </summary>
-            /// <returns>行える状態ならば true 。そうでなければ false 。</returns>
-            protected abstract Task<bool> CanSave();
-
-            /// <summary>
             /// WAVEファイル保存の実処理を行う。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
@@ -720,6 +716,11 @@ namespace RucheHome.Voiceroid
             public string DisplayProduct => this.Id.GetInfo().DisplayProduct;
 
             /// <summary>
+            /// 空白文の音声保存を行えるか否かを取得する。
+            /// </summary>
+            public bool CanSaveBlankText { get; }
+
+            /// <summary>
             /// 実行ファイルのパスを取得する。
             /// </summary>
             /// <remarks>
@@ -907,15 +908,19 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(filePath));
                 }
 
-                if (
-                    !this.IsRunning ||
-                    this.IsSaving ||
-                    (await this.UpdateDialogShowing()) ||
-                    !(await this.CanSave()))
+                if (!this.IsRunning || this.IsSaving || (await this.UpdateDialogShowing()))
                 {
                     return new FileSaveResult(
                         false,
                         error: @"ファイル保存を開始できませんでした。");
+                }
+                if (
+                    !this.CanSaveBlankText &&
+                    string.IsNullOrWhiteSpace(await this.GetTalkText()))
+                {
+                    return new FileSaveResult(
+                        false,
+                        error: @"空白文を音声保存することはできません。");
                 }
 
                 FileSaveResult result;

@@ -22,7 +22,7 @@ namespace RucheHome.Voiceroid
             /// コンストラクタ。
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
-            public PlusExImpl(VoiceroidId id) : base(id)
+            public PlusExImpl(VoiceroidId id) : base(id, false)
             {
             }
 
@@ -909,10 +909,7 @@ namespace RucheHome.Voiceroid
             /// <returns>成功したならば true 。そうでなければ false 。</returns>
             protected override async Task<bool> DoPlay()
             {
-                if (
-                    this.PlayButton == null ||
-                    string.IsNullOrWhiteSpace(await this.GetTalkText()) ||
-                    !(await this.SetTalkTextCursorToHead()))
+                if (this.PlayButton == null || !(await this.SetTalkTextCursorToHead()))
                 {
                     return false;
                 }
@@ -927,14 +924,14 @@ namespace RucheHome.Voiceroid
                     return false;
                 }
 
-                // 保存ボタンが無効になるかダイアログが出るまで待つ
+                // 保存ボタンが無効になるかダイアログが出るまで少し待つ
                 // ダイアログが出ない限りは失敗にしない
                 await RepeatUntil(
                     async () =>
                         this.SaveButton?.IsEnabled != true ||
                         (await this.UpdateDialogShowing()),
                     f => f,
-                    25);
+                    15);
                 return !this.IsDialogShowing;
             }
 
@@ -964,17 +961,6 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// WAVEファイル保存処理を行える状態であるか否か調べる。
-            /// </summary>
-            /// <returns>行える状態ならば true 。そうでなければ false 。</returns>
-            protected override async Task<bool> CanSave()
-            {
-                return
-                    this.SaveButton != null &&
-                    !string.IsNullOrWhiteSpace(await this.GetTalkText());
-            }
-
-            /// <summary>
             /// WAVEファイル保存の実処理を行う。
             /// </summary>
             /// <param name="filePath">保存希望WAVEファイルパス。</param>
@@ -982,6 +968,12 @@ namespace RucheHome.Voiceroid
             protected override async Task<FileSaveResult> DoSave(string filePath)
             {
                 // 保存ボタン押下
+                if (this.SaveButton == null)
+                {
+                    return new FileSaveResult(
+                        false,
+                        error: @"音声保存ボタンが見つかりませんでした。");
+                }
                 try
                 {
                     this.SaveButton.PostMessage(BM_CLICK);
@@ -1001,7 +993,7 @@ namespace RucheHome.Voiceroid
                 {
                     var msg =
                         (await this.UpdateDialogShowing()) ?
-                            @"ファイル保存を開始できませんでした。" :
+                            @"音声保存を開始できませんでした。" :
                             @"ファイル保存ダイアログが見つかりませんでした。";
                     return new FileSaveResult(false, error: msg);
                 }

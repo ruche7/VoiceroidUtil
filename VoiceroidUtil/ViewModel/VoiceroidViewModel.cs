@@ -154,19 +154,13 @@ namespace VoiceroidUtil.ViewModel
             this.IsTalkTextTabAccepted =
                 this.MakeInnerPropertyOf(appConfig, c => c.IsTabAccepted);
 
-            // 音声保存時の使用テキスト切替
-            this.IsSavingWithTargetText =
-                this.MakeInnerPropertyOf(
-                    appConfig,
-                    c => c.IsSavingWithTargetText,
-                    canModifyNotifier);
-
             // 非同期実行コマンドヘルパー
             var playStopCommandExecuter =
                 new PlayStopCommandExecuter(
                     () => this.SelectedProcess.Value,
                     () => talkTextReplaceConfig.Value.VoiceReplaceItems,
                     () => this.TalkText.Value,
+                    () => appConfig.Value.UseTargetText,
                     this.OnPlayStopCommandExecuted);
             var saveCommandExecuter =
                 new SaveCommandExecuter(
@@ -194,14 +188,25 @@ namespace VoiceroidUtil.ViewModel
             // アイドル状態なら設定変更可能とする
             this.IsIdle.Subscribe(f => canModifyNotifier.Value = f);
 
-            // 音声保存しており、保存成功時クリア設定が有効ならトークテキスト編集不可
+            // 本体側のテキストを使う設定
+            this.UseTargetText =
+                this.MakeInnerPropertyOf(
+                    appConfig,
+                    c => c.UseTargetText,
+                    new[] { canUseConfig, this.IsIdle }.CombineLatestValuesAreAllTrue());
+
+            // - 本体側のテキストを使う設定が有効
+            // または
+            // - 音声保存処理中かつ保存成功時クリア設定が有効
+            // ならばトークテキスト編集不可
             this.IsTalkTextEditable =
                 new[]
                 {
-                    saveCommandExecuter.IsExecutable.Inverse(),
-                    this.IsTextClearing,
+                    this.UseTargetText,
+                    new[] { saveCommandExecuter.IsExecutable.Inverse(), this.IsTextClearing }
+                        .CombineLatestValuesAreAllTrue(),
                 }
-                .CombineLatestValuesAreAllTrue()
+                .CombineLatest(flags => flags.Any(f => f))
                 .Inverse()
                 .ToReadOnlyReactiveProperty()
                 .AddTo(this.CompositeDisposable);
@@ -247,12 +252,6 @@ namespace VoiceroidUtil.ViewModel
                     this.IsProcessRunning,
                     processSaving.Inverse(),
                     processDialogShowing.Inverse(),
-                    new[]
-                    {
-                        this.IsProcessPlaying,
-                        this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                    }
-                    .CombineLatest(flags => flags.Any(f => f)),
                     dropTalkTextFileCommandExecuter.IsExecutable);
 
             // 保存コマンド
@@ -267,7 +266,13 @@ namespace VoiceroidUtil.ViewModel
                     new[]
                     {
                         this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
-                        this.IsSavingWithTargetText,
+                        this.UseTargetText,
+
+                        // 敢えて空白文を保存したいことはまず無いと思われるので、
+                        // 誤クリック抑止の意味も込めて空白文は送信不可とする。
+                        // ただし本体側の文章を使う場合は空白文でも保存可能とする。
+                        // ↓のコメントを外すとVOICEROID2で空白文送信保存可能になる。
+                        //this.ObserveSelectedProcessProperty(p => p.CanSaveBlankText),
                     }
                     .CombineLatest(flags => flags.Any(f => f)),
                     dropTalkTextFileCommandExecuter.IsExecutable);
@@ -361,9 +366,9 @@ namespace VoiceroidUtil.ViewModel
         public IReadOnlyReactiveProperty<bool> IsTalkTextEditable { get; }
 
         /// <summary>
-        /// 音声保存時に本体側のテキストを用いるか否かを取得する。
+        /// 再生や音声保存に本体側のテキストを用いるか否かを取得する。
         /// </summary>
-        public IReactiveProperty<bool> IsSavingWithTargetText { get; }
+        public IReactiveProperty<bool> UseTargetText { get; }
 
         /// <summary>
         /// アイドル状態であるか否かを取得する。
