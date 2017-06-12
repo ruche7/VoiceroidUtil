@@ -541,87 +541,85 @@ namespace RucheHome.Voiceroid
             /// WAVEファイルの保存確認処理を行う。
             /// </summary>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <param name="fileDialogParent">ファイルダイアログの親。</param>
+            /// <param name="optionShown">オプションウィンドウ表示フラグ。</param>
+            /// <param name="progressWindowParent">保存進捗ウィンドウの親。</param>
             /// <returns>保存確認したファイルパス。確認できなければ null 。</returns>
             private async Task<string> DoCheckFileSavedTask(
                 string filePath,
-                AutomationElement fileDialogParent)
+                bool optionShown,
+                AutomationElement progressWindowParent)
             {
-                if (string.IsNullOrWhiteSpace(filePath) || fileDialogParent == null)
+                if (string.IsNullOrWhiteSpace(filePath) || progressWindowParent == null)
                 {
                     return null;
                 }
 
-                // VOICEROID2機能でファイル分割される場合があるのでそちらも存在チェックする
-                var splitFilePath =
-                    Path.Combine(
-                        Path.GetDirectoryName(filePath),
-                        Path.GetFileNameWithoutExtension(filePath) + @"-0" +
-                        Path.GetExtension(filePath));
-
-                try
+                // 保存進捗ウィンドウ表示を待つ
+                var progressWin =
+                    await RepeatUntil(
+                        () =>
+                            FindChildWindows(progressWindowParent, SaveProgressDialogName)
+                                .FirstOrDefault(),
+                        d => d != null,
+                        100);
+                if (progressWin == null)
                 {
-                    // ファイル保存完了 or ダイアログ表示 を待つ
-                    // ファイル保存完了なら null を返す
-                    var dialogs =
-                        await RepeatUntil(
-                            () =>
-                                (File.Exists(filePath) || File.Exists(splitFilePath)) ?
-                                    null :
-                                    FindChildWindows(fileDialogParent)
-                                        .Where(d => d.Current.Name.Length > 0)
-                                        .ToArray(),
-                            dlgs => (dlgs == null || dlgs.Length > 0),
-                            150);
-                    if (dialogs != null)
+                    return null;
+                }
+
+                // オプションウィンドウを表示しているか否かで保存完了ダイアログの親が違う
+                var completeDialogParent = optionShown ? progressWindowParent : progressWin;
+
+                // 保存完了ダイアログ表示か保存進捗ウィンドウ非表示を待つ
+                AutomationElement completeDialog = null;
+                await RepeatUntil(
+                    () =>
                     {
-                        var names = Array.ConvertAll(dialogs, d => d.Current.Name);
-
-                        // 保存進捗、保存完了以外のダイアログが出ていたら失敗
-                        if (
-                            names.Any(
-                                name =>
-                                    name != SaveProgressDialogName &&
-                                    name != SaveCompleteDialogName))
+                        // 保存完了ダイアログ表示確認
+                        completeDialog =
+                            FindChildWindows(completeDialogParent, SaveCompleteDialogName)
+                                .FirstOrDefault();
+                        if (completeDialog != null)
                         {
-                            ThreadTrace.WriteLine(
-                                @"保存関連以外のダイアログが開いています。 dialogs=" +
-                                string.Join(@",", names));
-                            return null;
+                            return true;
                         }
 
-                        // 保存進捗ダイアログが閉じるまで待つ
-                        if (names.Any(name => name == SaveProgressDialogName))
-                        {
-                            await RepeatUntil(
-                                () =>
-                                    !FindChildWindows(
-                                        fileDialogParent,
-                                        SaveProgressDialogName)
-                                        .Any(),
-                                f => f);
-                        }
+                        // 保存進捗ウィンドウ非表示確認
+                        return
+                            !FindChildWindows(progressWindowParent, SaveProgressDialogName)
+                                .Any();
+                    },
+                    f => f);
 
-                        // 改めてファイル保存完了チェック
-                        bool saved =
-                            await RepeatUntil(
-                                () => File.Exists(filePath) || File.Exists(splitFilePath),
-                                f => f,
-                                25);
-                        if (!saved)
-                        {
-                            return null;
-                        }
+                if (completeDialog != null)
+                {
+                    // OKボタンを探して押す
+                    // 失敗しても先へ進む
+                    var okButton =
+                        FindFirstChildByControlType(completeDialog, ControlType.Button);
+                    if (okButton != null)
+                    {
+                        InvokeElement(okButton);
                     }
                 }
-                catch (Exception ex)
-                {
-                    ThreadTrace.WriteException(ex);
-                    return null;
-                }
 
-                // 保存確認したファイルパス
-                var resultPath = File.Exists(filePath) ? filePath : splitFilePath;
+                // ファイル保存確認
+                var resultPath = filePath;
+                if (!File.Exists(resultPath))
+                {
+                    // VOICEROID2機能でファイル分割される場合があるのでそちらも存在チェック
+                    // この場合キャンセルによる未完了は判別できない
+                    resultPath =
+                        Path.Combine(
+                            Path.GetDirectoryName(filePath),
+                            Path.GetFileNameWithoutExtension(filePath) + @"-0" +
+                            Path.GetExtension(filePath));
+                    if (!File.Exists(resultPath))
+                    {
+                        // ファイル非分割かつキャンセルした場合はここに来るはず
+                        return null;
+                    }
+                }
 
                 // 同時にテキストファイルが保存される場合があるため少し待つ
                 // 保存されていなくても失敗にはしない
@@ -629,62 +627,6 @@ namespace RucheHome.Voiceroid
                 await RepeatUntil(() => File.Exists(txtPath), f => f, 10);
 
                 return resultPath;
-            }
-
-            /// <summary>
-            /// 保存完了ダイアログを閉じる処理を行う。
-            /// </summary>
-            /// <remarks>
-            /// 失敗しても構わない。
-            /// </remarks>
-            private async Task DoCloseFileSaveCompleteDialog()
-            {
-                // オプションウィンドウを表示する設定でもしない設定でも、
-                //   メインウィンドウ -> "音声保存" ウィンドウ -> 保存完了ウィンドウ
-                // というツリー構造になっている。
-
-                try
-                {
-                    var root = AutomationElement.FromHandle(this.MainWindowHandle);
-
-                    // "音声保存" ウィンドウを探す
-                    var saveWindow =
-                        await RepeatUntil(
-                            () => FindChildWindows(root, @"音声保存").FirstOrDefault(),
-                            d => d != null,
-                            25);
-                    if (saveWindow == null)
-                    {
-                        return;
-                    }
-
-                    // 保存完了ダイアログを探す
-                    var dialog =
-                        await RepeatUntil(
-                            () =>
-                                FindChildWindows(saveWindow, SaveCompleteDialogName)
-                                    .FirstOrDefault(),
-                            d => d != null,
-                            50);
-                    if (dialog == null)
-                    {
-                        return;
-                    }
-
-                    // OKボタンを探す
-                    var okButton = FindFirstChildByControlType(dialog, ControlType.Button);
-                    if (okButton == null)
-                    {
-                        return;
-                    }
-
-                    // OKボタンを押す
-                    InvokeElement(okButton);
-                }
-                catch (Exception ex)
-                {
-                    ThreadTrace.WriteException(ex);
-                }
             }
 
             #endregion
@@ -1009,15 +951,14 @@ namespace RucheHome.Voiceroid
                 }
                 else
                 {
-                    filePath = await this.DoCheckFileSavedTask(filePath, fileDialogParent);
+                    filePath =
+                        await this.DoCheckFileSavedTask(
+                            filePath,
+                            optionShown,
+                            fileDialogParent);
                     if (filePath == null)
                     {
                         extraMsg = @"ファイル保存を確認できませんでした。";
-                    }
-                    else
-                    {
-                        // 保存完了ダイアログを閉じる
-                        await this.DoCloseFileSaveCompleteDialog();
                     }
                 }
 
