@@ -197,6 +197,9 @@
     <Compile Include="View\TalkTextReplaceItemsView.xaml.cs">
       <DependentUpon>TalkTextReplaceItemsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\VoiceroidKeywordsView.xaml.cs">
+      <DependentUpon>VoiceroidKeywordsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\VoiceroidView.xaml.cs">
       <DependentUpon>VoiceroidView.xaml</DependentUpon>
     </Compile>
@@ -270,6 +273,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\TalkTextReplaceItemsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\VoiceroidKeywordsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
