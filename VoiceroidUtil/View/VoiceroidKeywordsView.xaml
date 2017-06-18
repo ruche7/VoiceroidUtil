@@ -1,0 +1,66 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    x:Class="VoiceroidUtil.View.VoiceroidKeywordsView"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <ItemsControl
+        ItemsSource="{Binding
+            Path=VoiceroidKeywords,
+            Mode=OneTime,
+            RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}">
+        <ItemsControl.Template>
+            <ControlTemplate TargetType="ItemsControl">
+                <StackPanel Orientation="Vertical">
+                    <DockPanel Margin="0,0,0,2">
+                        <Label
+                            Content="{Binding
+                                Path=VoiceroidNameHeader,
+                                Mode=OneWay,
+                                RelativeSource={RelativeSource
+                                    Mode=FindAncestor,
+                                    AncestorType={x:Type UserControl}}}"
+                            FontSize="11"
+                            FontWeight="Bold"
+                            Width="92"
+                            DockPanel.Dock="Left" />
+                        <Label FontSize="11">
+                            <TextBlock>
+                                <Run Text="キーワード" FontWeight="Bold" />
+                                <Run Text="  ※カンマ区切り" />
+                            </TextBlock>
+                        </Label>
+                    </DockPanel>
+                    <StackPanel IsItemsHost="True" Orientation="Vertical" />
+                </StackPanel>
+            </ControlTemplate>
+        </ItemsControl.Template>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <DockPanel Margin="0,1,0,0">
+                    <Label
+                        Content="{Binding Key, Mode=OneTime}"
+                        Width="76"
+                        DockPanel.Dock="Left" />
+                    <Image
+                        Source="/VoiceroidUtil;component/resources/icon/arrow_right.png"
+                        Width="16"
+                        DockPanel.Dock="Left" />
+                    <TextBox
+                        Text="{Binding Value, Mode=OneTime}"
+                        Style="{StaticResource fixedTextBox}" />
+                </DockPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</UserControl>
