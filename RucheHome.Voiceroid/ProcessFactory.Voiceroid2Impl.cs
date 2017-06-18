@@ -176,23 +176,26 @@ namespace RucheHome.Voiceroid
                 }
 
                 var root = AutomationElement.FromHandle(mainHandle);
+                var dialogs =
+                    await Task.Run(
+                        () =>
+                            FindChildWindows(root)
+                                .Where(
+                                    e =>
+                                    {
+                                        try
+                                        {
+                                            return (e.Current.Name.Length > 0);
+                                        }
+                                        catch { }
+                                        return false;
+                                    })
+                                .ToArray());
 
-                try
-                {
-                    var dialogs =
-                        await Task.Run(
-                            () =>
-                                FindChildWindows(root)
-                                    .Where(e => e.Current.Name.Length > 0)
-                                    .ToArray());
+                // ダイアログ表示中フラグを更新
+                this.IsDialogShowing = (dialogs.Length > 0);
 
-                    // ダイアログ表示中フラグを更新
-                    this.IsDialogShowing = (dialogs.Length > 0);
-
-                    return dialogs;
-                }
-                catch { }
-                return new AutomationElement[0];
+                return dialogs;
             }
 
             /// <summary>
@@ -244,16 +247,17 @@ namespace RucheHome.Voiceroid
             {
                 try
                 {
-                    return
+                    var dialogs =
                         await RepeatUntil(
-                            async () =>
-                                (await this.FindDialogs())
-                                    .FirstOrDefault(
-                                        d =>
-                                            d.Current.Name == SaveOptionDialogName ||
-                                            d.Current.Name == SaveFileDialogName),
-                            (AutomationElement d) => d != null,
+                            async () => await this.FindDialogs(),
+                            dlgs => dlgs.Any(),
                             150);
+                    return
+                        dialogs
+                            .FirstOrDefault(
+                                d =>
+                                    d.Current.Name == SaveOptionDialogName ||
+                                    d.Current.Name == SaveFileDialogName);
                 }
                 catch (Exception ex)
                 {
