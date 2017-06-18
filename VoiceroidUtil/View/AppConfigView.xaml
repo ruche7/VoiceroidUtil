@@ -229,12 +229,30 @@
                             Content="キャラクターを自動選択(_N)"
                             IsChecked="{Binding Config.Value.IsYmmCharaSelecting}" />
                         <StackPanel
+                            Orientation="Vertical"
                             IsEnabled="{Binding
                                 Path=Config.Value.IsYmmCharaSelecting,
                                 Mode=OneWay}"
                             Margin="24,2,0,0">
                             <v:YmmCharaRelationsControl
                                 DataContext="{Binding VisibleYmmCharaRelations.Value}" />
+                            <Expander
+                                Header="VOICEROID2のキャラクター選択について"
+                                IsExpanded="False"
+                                Margin="0,2,0,0">
+                                <Border Style="{StaticResource solidBorder}"  Padding="4">
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock TextWrapping="Wrap">
+                                            VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDの自動選択設定を利用します。
+                                        </TextBlock>
+                                        <v:VoiceroidKeywordsView Margin="8,4,0,4" />
+                                        <TextBlock TextWrapping="Wrap">
+                                            いずれのキーワードも含まれていない場合、ボイスプリセット名自体をキャラクター名として利用します。<LineBreak />
+                                            ゆっくりMovieMakerにキャラクター名が登録されていない場合は何も行いません。
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </Expander>
                         </StackPanel>
                         <CheckBox
                             Content="追加ボタンを自動クリック(_B)"
