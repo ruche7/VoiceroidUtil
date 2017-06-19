@@ -108,7 +108,7 @@ namespace RucheHome.Voiceroid
                     throw new ArgumentNullException(nameof(types));
                 }
 
-                var root = AutomationElement.FromHandle(this.MainWindowHandle);
+                var root = MakeElementFromHandle(this.MainWindowHandle);
                 var buttonsRoot = FindFirstChildByAutomationId(root, @"c");
                 if (buttonsRoot == null)
                 {
@@ -136,6 +136,7 @@ namespace RucheHome.Voiceroid
                                 var buttonText =
                                     FindFirstChildByControlType(button, ControlType.Text);
                                 if (
+                                    buttonText != null &&
                                     NamedButtonTypes.TryGetValue(
                                         buttonText.Current.Name,
                                         out var type))
@@ -175,7 +176,12 @@ namespace RucheHome.Voiceroid
                     return new AutomationElement[0];
                 }
 
-                var root = AutomationElement.FromHandle(mainHandle);
+                var root = MakeElementFromHandle(mainHandle);
+                if (root == null)
+                {
+                    return new AutomationElement[0];
+                }
+
                 var dialogs =
                     await Task.Run(
                         () =>
@@ -210,7 +216,7 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                var root = AutomationElement.FromHandle(mainHandle);
+                var root = MakeElementFromHandle(mainHandle);
                 var editRoot = FindFirstChildByAutomationId(root, @"c");
 
                 return FindFirstChildByControlType(editRoot, ControlType.Edit);
@@ -228,7 +234,7 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                var root = AutomationElement.FromHandle(mainHandle);
+                var root = MakeElementFromHandle(mainHandle);
                 var textRoot = FindFirstChildByAutomationId(root, @"d");
 
                 return FindFirstChildByControlType(textRoot, ControlType.Text);
@@ -910,8 +916,11 @@ namespace RucheHome.Voiceroid
                 // オプションウィンドウが表示されているならそれが親
                 // 表示されていないならメインウィンドウが親
                 var fileDialogParent =
-                    optionShown ?
-                        rootDialog : AutomationElement.FromHandle(this.MainWindowHandle);
+                    optionShown ? rootDialog : MakeElementFromHandle(this.MainWindowHandle);
+                if (fileDialogParent == null)
+                {
+                    return new FileSaveResult(false, error: @"ウィンドウが閉じられました。");
+                }
 
                 // OKボタンとファイル名エディットを検索
                 var fileDialogElems = await this.DoFindFileDialogElements(fileDialog);
