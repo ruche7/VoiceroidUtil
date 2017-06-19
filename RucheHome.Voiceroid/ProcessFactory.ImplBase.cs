@@ -252,10 +252,13 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    if (element.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern))
+                    object pattern = null;
+                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
                     {
-                        ((ValuePattern)pattern).SetValue(value);
+                        return false;
                     }
+
+                    ((ValuePattern)pattern).SetValue(value);
                 }
                 catch (Exception ex)
                 {
@@ -285,10 +288,13 @@ namespace RucheHome.Voiceroid
                         return false;
                     }
 
-                    if (element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
+                    object pattern = null;
+                    if (!element.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
                     {
-                        ((InvokePattern)pattern).Invoke();
+                        return false;
                     }
+
+                    ((InvokePattern)pattern).Invoke();
                 }
                 catch (Exception ex)
                 {
