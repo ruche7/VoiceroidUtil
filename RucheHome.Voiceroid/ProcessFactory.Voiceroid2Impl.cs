@@ -558,6 +558,27 @@ namespace RucheHome.Voiceroid
                             return true;
                         }
 
+                        // たまにデスクトップが親になる場合があるのでそちらも探す
+                        completeDialog =
+                            AutomationElement.RootElement.FindFirst(
+                                TreeScope.Children,
+                                new AndCondition(
+                                    new PropertyCondition(
+                                        AutomationElement.ControlTypeProperty,
+                                        ControlType.Window),
+                                    new PropertyCondition(
+                                        AutomationElement.ProcessIdProperty,
+                                        completeDialogParent.Current.ProcessId),
+                                    new PropertyCondition(
+                                        AutomationElement.NameProperty,
+                                        SaveCompleteDialogName)));
+                        if (completeDialog != null)
+                        {
+                            ThreadTrace.WriteLine(
+                                @"SaveCompleteDialog is found on the desktop.");
+                            return true;
+                        }
+
                         // 保存進捗ウィンドウ非表示確認
                         return
                             !FindChildWindows(progressWindowParent, SaveProgressDialogName)
