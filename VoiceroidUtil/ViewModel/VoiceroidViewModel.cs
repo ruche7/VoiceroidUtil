@@ -13,6 +13,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Text;
+using RucheHome.Util;
 using RucheHome.Util.Extensions.String;
 using RucheHome.Voiceroid;
 using VoiceroidUtil.Extensions;
@@ -665,7 +666,7 @@ namespace VoiceroidUtil.ViewModel
                     this.SetLastStatus(
                         process.IsDialogShowing ?
                             AppStatusType.Warning : AppStatusType.Fail,
-                        @"VOICEROIDを終了できませんでした。",
+                        @"終了処理に失敗しました。",
                         subStatusText:
                             process.IsDialogShowing ?
                                 @"ダイアログが表示されたため中止しました。" : @"");
@@ -689,7 +690,7 @@ namespace VoiceroidUtil.ViewModel
                 {
                     this.SetLastStatus(
                         AppStatusType.Warning,
-                        @"VOICEROID情報が未登録のため起動できません。",
+                        @"情報が未登録のため起動できません。",
                         subStatusText: @"一度手動で起動することで登録されます。");
                     return;
                 }
@@ -699,7 +700,7 @@ namespace VoiceroidUtil.ViewModel
                 {
                     this.SetLastStatus(
                         AppStatusType.Warning,
-                        @"VOICEROIDの実行ファイルが見つかりません。",
+                        @"実行ファイルが見つかりません。",
                         subStatusText: @"一度手動で起動し直してください。");
                     return;
                 }
@@ -709,9 +710,7 @@ namespace VoiceroidUtil.ViewModel
                 {
                     if (!(await process.Run(info.Path)))
                     {
-                        this.SetLastStatus(
-                            AppStatusType.Fail,
-                            @"VOICEROIDを起動できませんでした。");
+                        this.SetLastStatus(AppStatusType.Fail, @"起動処理に失敗しました。");
                         return;
                     }
 
@@ -722,9 +721,10 @@ namespace VoiceroidUtil.ViewModel
                 }
                 catch (Exception ex)
                 {
+                    ThreadTrace.WriteException(ex);
                     this.SetLastStatus(
                         AppStatusType.Fail,
-                        @"VOICEROIDを起動できませんでした。",
+                        @"起動処理に失敗しました。",
                         subStatusText: @"内部情報: " + ex.GetType().Name);
                     return;
                 }

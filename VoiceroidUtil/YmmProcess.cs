@@ -411,7 +411,15 @@ namespace VoiceroidUtil
                 return false;
             }
 
-            var root = AutomationElement.FromHandle(this.MainWindowHandle);
+            AutomationElement root = null;
+            try
+            {
+                root = AutomationElement.FromHandle(this.MainWindowHandle);
+            }
+            catch
+            {
+                return false;
+            }
 
             // タイムラインウィンドウ検索
             var tlWin =
