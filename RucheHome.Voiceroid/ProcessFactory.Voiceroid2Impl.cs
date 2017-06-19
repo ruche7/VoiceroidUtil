@@ -574,8 +574,6 @@ namespace RucheHome.Voiceroid
                                         SaveCompleteDialogName)));
                         if (completeDialog != null)
                         {
-                            ThreadTrace.WriteLine(
-                                @"SaveCompleteDialog is found on the desktop.");
                             return true;
                         }
 
