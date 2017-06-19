@@ -354,12 +354,15 @@ namespace RucheHome.Voiceroid
                 AutomationElement editElem = null;
                 if (uiAutomationEnabled)
                 {
-                    var dialogElem = AutomationElement.FromHandle(dialog.Handle);
-                    var elems = await this.DoFindFileDialogElements(dialogElem);
-                    if (elems != null)
+                    var dialogElem = MakeElementFromHandle(dialog.Handle);
+                    if (dialogElem != null)
                     {
-                        okButtonElem = elems.Item1;
-                        editElem = elems.Item2;
+                        var elems = await this.DoFindFileDialogElements(dialogElem);
+                        if (elems != null)
+                        {
+                            okButtonElem = elems.Item1;
+                            editElem = elems.Item2;
+                        }
                     }
                 }
 

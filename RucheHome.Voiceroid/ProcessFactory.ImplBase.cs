@@ -123,6 +123,21 @@ namespace RucheHome.Voiceroid
             #region AutomationElement 関連便利メソッド群
 
             /// <summary>
+            /// ウィンドウハンドルから AutomationElement を作成する。
+            /// </summary>
+            /// <param name="handle">ウィンドウハンドル。</param>
+            /// <returns>AutomationElement 。作成できなかった場合は null 。</returns>
+            protected static AutomationElement MakeElementFromHandle(IntPtr handle)
+            {
+                try
+                {
+                    return AutomationElement.FromHandle(handle);
+                }
+                catch { }
+                return null;
+            }
+
+            /// <summary>
             /// AutomationElement の子を検索する。
             /// </summary>
             /// <param name="element">検索対象 AutomationElement 。</param>
@@ -252,10 +267,13 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    if (element.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern))
+                    object pattern = null;
+                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
                     {
-                        ((ValuePattern)pattern).SetValue(value);
+                        return false;
                     }
+
+                    ((ValuePattern)pattern).SetValue(value);
                 }
                 catch (Exception ex)
                 {
@@ -285,10 +303,13 @@ namespace RucheHome.Voiceroid
                         return false;
                     }
 
-                    if (element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
+                    object pattern = null;
+                    if (!element.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
                     {
-                        ((InvokePattern)pattern).Invoke();
+                        return false;
                     }
+
+                    ((InvokePattern)pattern).Invoke();
                 }
                 catch (Exception ex)
                 {
@@ -1042,12 +1063,20 @@ namespace RucheHome.Voiceroid
                         await Task.Run(
                             () =>
                             {
-                                if (!this.AppProcess.CloseMainWindow())
+                                try
                                 {
-                                    return false;
+                                    if (!this.AppProcess.CloseMainWindow())
+                                    {
+                                        return false;
+                                    }
+                                    if (!this.AppProcess.WaitForExit(UIControlTimeout))
+                                    {
+                                        return false;
+                                    }
                                 }
-                                if (!this.AppProcess.WaitForExit(UIControlTimeout))
+                                catch (Exception ex)
                                 {
+                                    ThreadTrace.WriteException(ex);
                                     return false;
                                 }
                                 return true;
