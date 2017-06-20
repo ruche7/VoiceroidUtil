@@ -177,7 +177,7 @@ namespace RucheHome.Voiceroid
                     null,
                     @"VoiceroidEditor",
                     @"VOICEROID2 Editor",
-                    string.Empty),
+                    @"VOICEROID2"),
             }
             .ToDictionary(info => info.Id);
     }

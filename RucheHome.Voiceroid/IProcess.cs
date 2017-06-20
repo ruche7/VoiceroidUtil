@@ -129,8 +129,8 @@ namespace RucheHome.Voiceroid
         /// 指定した実行ファイルをVOICEROIDプロセスとして実行する。
         /// </summary>
         /// <param name="executablePath">実行ファイルパス。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        Task<bool> Run(string executablePath);
+        /// <returns>成功したならば null 。そうでなければ失敗理由メッセージ。</returns>
+        Task<string> Run(string executablePath);
 
         /// <summary>
         /// VOICEROIDプロセスを終了させる。
