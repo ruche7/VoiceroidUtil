@@ -263,6 +263,36 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
+            /// AutomationElement の ValuePattern から文字列値を取得する。
+            /// </summary>
+            /// <param name="element">取得対象の AutomationElement 。</param>
+            /// <returns>文字列値。取得できなかったならば null 。</returns>
+            protected static string GetElementValue(AutomationElement element)
+            {
+                if (element == null)
+                {
+                    throw new ArgumentNullException(nameof(element));
+                }
+
+                try
+                {
+                    object pattern = null;
+                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
+                    {
+                        return null;
+                    }
+
+                    return ((ValuePattern)pattern).Current.Value;
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
+
+                return null;
+            }
+
+            /// <summary>
             /// AutomationElement の ValuePattern に文字列値を設定する。
             /// </summary>
             /// <param name="element">設定対象の AutomationElement 。</param>

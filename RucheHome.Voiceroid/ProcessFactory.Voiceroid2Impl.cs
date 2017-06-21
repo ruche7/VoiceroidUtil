@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Automation;
 using RucheHome.Util;
+using RucheHome.Windows.WinApi;
 
 namespace RucheHome.Voiceroid
 {
@@ -375,6 +376,25 @@ namespace RucheHome.Voiceroid
                     ThreadTrace.WriteException(ex);
                     return false;
                 }
+
+                // VOICEROID2では、Windowsのフォルダーオプションで拡張子を表示しない
+                // 設定にしていると、 ValuePattern.SetValue によるファイルパス設定が
+                // 無視され、元々入力されている前回保存時の名前が参照されてしまう。
+                // 一旦キー入力を行うことで回避できるようなので、適当な文字を送ってみる。
+
+                // 適当な文字をファイル名エディットへ送信
+                // 失敗しても先へ進む
+                try
+                {
+                    var editWin =
+                        new Win32Window(new IntPtr(fileNameEdit.Current.NativeWindowHandle));
+                    editWin.SendMessage(
+                        WM_CHAR,
+                        new IntPtr('x'),
+                        IntPtr.Zero,
+                        UIControlTimeout);
+                }
+                catch { }
 
                 // ファイルパス設定
                 if (!SetElementValue(fileNameEdit, filePath))
@@ -749,19 +769,7 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                try
-                {
-                    if (edit.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern))
-                    {
-                        return await Task.Run(() => ((ValuePattern)pattern).Current.Value);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ThreadTrace.WriteException(ex);
-                }
-
-                return null;
+                return await Task.Run(() => GetElementValue(edit));
             }
 
             /// <summary>
@@ -977,6 +985,12 @@ namespace RucheHome.Voiceroid
 
                 return new FileSaveResult(true, filePath);
             }
+
+            #endregion
+
+            #region Win32 API 定義
+
+            private const uint WM_CHAR = 0x0102;
 
             #endregion
         }
