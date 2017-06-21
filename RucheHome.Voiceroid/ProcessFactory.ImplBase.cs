@@ -54,7 +54,17 @@ namespace RucheHome.Voiceroid
                 using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
                     // 対象プロセスを検索
-                    var app = appProcesses?.FirstOrDefault(p => this.IsOwnProcess(p));
+                    var app =
+                        appProcesses?.FirstOrDefault(
+                            p =>
+                            {
+                                try
+                                {
+                                    return this.IsOwnProcess(p);
+                                }
+                                catch { }
+                                return false;
+                            });
                     if (app == null)
                     {
                         this.SetupDeadState();
@@ -662,22 +672,10 @@ namespace RucheHome.Voiceroid
             /// </returns>
             private bool IsOwnProcess(Process appProcess)
             {
-                try
-                {
-                    return (
-                        appProcess != null &&
-                        !appProcess.HasExited &&
-                        appProcess.MainModule.FileVersionInfo.ProductName == this.Product);
-                }
-                catch (Win32Exception ex)
-                {
-                    // VOICEROID起動時に Process.MainModule プロパティへのアクセスで
-                    // 複数回発生する場合がある
-                    // 起動しきっていない時にアクセスしようとしているせい？
-                    ThreadDebug.WriteException(ex);
-                }
-
-                return false;
+                return (
+                    appProcess != null &&
+                    !appProcess.HasExited &&
+                    appProcess.MainModule.FileVersionInfo.ProductName == this.Product);
             }
 
             /// <summary>
@@ -1015,59 +1013,113 @@ namespace RucheHome.Voiceroid
             /// 指定した実行ファイルをVOICEROIDプロセスとして実行する。
             /// </summary>
             /// <param name="executablePath">実行ファイルパス。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            public async Task<bool> Run(string executablePath)
+            /// <returns>成功したならば null 。そうでなければ失敗理由メッセージ。</returns>
+            public async Task<string> Run(string executablePath)
             {
                 if (executablePath == null)
                 {
                     throw new ArgumentNullException(nameof(executablePath));
                 }
+
                 if (!File.Exists(executablePath))
                 {
-                    throw new FileNotFoundException(nameof(executablePath));
+                    return @"実行ファイルが存在しません。";
                 }
-
                 if (this.AppProcess != null)
                 {
-                    return false;
+                    return @"既に起動しています。";
                 }
 
                 using (var updateLock = await this.UpdateLock.WaitAsync())
                 {
                     if (this.AppProcess != null)
                     {
-                        return false;
+                        return @"既に起動しています。";
                     }
 
                     // プロセス実行
-                    bool ok =
+                    var message =
                         await Task.Run(
                             () =>
                             {
-                                var app = Process.Start(executablePath);
-                                app.WaitForInputIdle(UIControlTimeout);
+                                // 起動
+                                Process app = null;
+                                try
+                                {
+                                    app = Process.Start(executablePath);
+                                    if (app == null)
+                                    {
+                                        return @"起動させることができませんでした。";
+                                    }
+                                }
+                                catch (Win32Exception ex)
+                                {
+                                    ThreadTrace.WriteException(ex);
+                                    return
+                                        ex.Message ??
+                                        (ex.GetType().Name + @" 例外が発生しました。");
+                                }
+                                catch (Exception ex)
+                                {
+                                    ThreadTrace.WriteException(ex);
+                                    return
+                                        ex.GetType().Name +
+                                        ((ex.Message == null) ?
+                                            @" 例外が発生しました。" : (@" : " + ex.Message));
+                                }
 
-                                if (!this.IsOwnProcess(app))
+                                // 入力待機
+                                try
+                                {
+                                    app.WaitForInputIdle(UIControlTimeout);
+                                }
+                                catch (Exception ex)
+                                {
+                                    ThreadTrace.WriteException(ex);
+                                    return @"管理者権限で起動済みの可能性があります。";
+                                }
+
+                                // 目的のプロセスかチェック
+                                bool own = false;
+                                try
+                                {
+                                    own = this.IsOwnProcess(app);
+                                }
+                                catch (Win32Exception ex)
+                                {
+                                    ThreadTrace.WriteException(ex);
+                                    return @"管理者権限で起動した可能性があります。";
+                                }
+                                catch (Exception ex)
+                                {
+                                    ThreadTrace.WriteException(ex);
+                                    return ex.GetType().Name + @" : " + ex.Message;
+                                }
+                                if (!own)
                                 {
                                     if (!app.CloseMainWindow())
                                     {
                                         app.Kill();
                                     }
                                     app.Close();
-                                    return false;
+                                    return @"目的のソフトウェアではありませんでした。";
                                 }
 
-                                return true;
+                                return null;
                             });
-                    if (!ok)
+                    if (message != null)
                     {
-                        return false;
+                        return message;
                     }
                 }
 
                 // スタートアップ状態になるまで少し待つ
-                return
-                    await RepeatUntil(() => this.IsStartup || this.IsRunning, f => f, 25);
+                if (!(await RepeatUntil(() => this.IsStartup || this.IsRunning, f => f, 25)))
+                {
+                    return @"管理者権限で起動済みの可能性があります。";
+                }
+
+                return null;
             }
 
             /// <summary>

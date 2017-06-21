@@ -79,6 +79,20 @@
                                         FontSize="11"
                                         VerticalAlignment="Bottom"
                                         Margin="6,0,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <!-- VOICEROID2 は製品名非表示 -->
+                                                    <DataTrigger
+                                                        Binding="{Binding Id}"
+                                                        Value="Voiceroid2">
+                                                        <Setter
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
                                         <TextBlock.LayoutTransform>
                                             <ScaleTransform ScaleX="0.85" />
                                         </TextBlock.LayoutTransform>

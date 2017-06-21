@@ -672,6 +672,10 @@ namespace VoiceroidUtil.ViewModel
                                 @"ダイアログが表示されたため中止しました。" : @"");
                     return;
                 }
+
+                this.SetLastStatus(
+                    AppStatusType.Success,
+                    @"終了 : " + process.DisplayProduct);
             }
             else
             {
@@ -708,9 +712,13 @@ namespace VoiceroidUtil.ViewModel
                 // プロセス起動
                 try
                 {
-                    if (!(await process.Run(info.Path)))
+                    var errorMsg = await process.Run(info.Path);
+                    if (errorMsg != null)
                     {
-                        this.SetLastStatus(AppStatusType.Fail, @"起動処理に失敗しました。");
+                        this.SetLastStatus(
+                            AppStatusType.Fail,
+                            @"起動処理に失敗しました。",
+                            subStatusText: errorMsg);
                         return;
                     }
 
@@ -725,9 +733,13 @@ namespace VoiceroidUtil.ViewModel
                     this.SetLastStatus(
                         AppStatusType.Fail,
                         @"起動処理に失敗しました。",
-                        subStatusText: @"内部情報: " + ex.GetType().Name);
+                        subStatusText: ex.GetType().Name + @" 例外が発生しました。");
                     return;
                 }
+
+                this.SetLastStatus(
+                    AppStatusType.Success,
+                    @"起動 : " + process.DisplayProduct);
             }
         }
 

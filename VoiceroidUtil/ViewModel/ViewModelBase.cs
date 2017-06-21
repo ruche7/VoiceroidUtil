@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.Util;
 using VoiceroidUtil.Extensions;
 
 namespace VoiceroidUtil.ViewModel
@@ -296,7 +297,14 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         public virtual void Dispose()
         {
-            this.CompositeDisposable.Dispose();
+            try
+            {
+                this.CompositeDisposable.Dispose();
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+            }
         }
 
         #endregion
