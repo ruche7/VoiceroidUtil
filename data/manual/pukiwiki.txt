@@ -474,9 +474,8 @@ VOICEROID2‚©‚Â–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡AÝ’è“à—e‚ÉŠÖ‚í‚ç‚¸AAviU
 :VOICEROID–{‘Ì‚ª”FŽ¯‚³‚ê‚È‚¢B|
 --‘Î‰ž‚µ‚Ä‚¢‚éƒ\ƒtƒgƒEƒFƒA‚Å‚ ‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
 ---Œ‹ŒŽ‚ä‚©‚èA–¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL)A“Œ–k‚¸‚ñŽqAŒŽ“ÇƒAƒCAŒŽ“ÇƒVƒ‡ƒEƒ^‚Ì”ñEX”Å‚É‚Í‘Î‰ž‚µ‚Ä‚¢‚Ü‚¹‚ñB
---‹N“®ƒ{ƒ^ƒ“‚©‚ç–{‘Ì‚ð‹N“®‚µ‚æ‚¤‚Æ‚·‚é‚ÆuŠÇ—ŽÒŒ ŒÀ‚Å‹N“®‚µ‚½‰Â”\«‚ª‚ ‚è‚Ü‚·Bv‚È‚ÇƒGƒ‰[•\Ž¦‚³‚ê‚éê‡AVOICEROID–{‘Ì‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
----’ÊíAVOICEROID–{‘Ì‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚é‚±‚Æ‚Í‚È‚¢‚Í‚¸‚Å‚·‚ªA‰½‚ç‚©‚Ì——R‚É‚æ‚èŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚·‚é‚æ‚¤‚ÉÝ’è‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éê‡‚ª‚ ‚è‚Ü‚·B~
-VOICEROID–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒBv‚ð‘I‘ð‚µAuŒÝŠ·«vƒ^ƒu‚ÌuŠÇ—ŽÒ‚Æ‚µ‚Ä‚±‚ÌƒvƒƒOƒ‰ƒ€‚ðŽÀs‚·‚év‚Æ‚¢‚¤€–Ú‚Éƒ`ƒFƒbƒN‚ª“ü‚Á‚Ä‚¢‚éê‡‚ÍŠO‚µ‚Ä‚­‚¾‚³‚¢B
+--‹N“®ƒ{ƒ^ƒ“‚©‚ç–{‘Ì‚ð‹N“®‚µ‚æ‚¤‚Æ‚·‚é‚ÆuŠÇ—ŽÒŒ ŒÀ‚Å‹N“®‚µ‚½‰Â”\«‚ª‚ ‚è‚Ü‚·Bv‚È‚Ç‚ÆƒGƒ‰[•\Ž¦‚³‚ê‚éê‡AVOICEROID–{‘Ì‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
+---’ÊíAVOICEROID–{‘Ì‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚é‚±‚Æ‚Í‚È‚¢‚Í‚¸‚Å‚·‚ªA‰½‚ç‚©‚Ì——R‚É‚æ‚èŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚·‚é‚æ‚¤‚ÉÝ’è‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éê‡‚ª‚ ‚è‚Ü‚·BVOICEROID–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒBv‚ð‘I‘ð‚µAuŒÝŠ·«vƒ^ƒu‚ÌuŠÇ—ŽÒ‚Æ‚µ‚Ä‚±‚ÌƒvƒƒOƒ‰ƒ€‚ðŽÀs‚·‚év‚Æ‚¢‚¤€–Ú‚Éƒ`ƒFƒbƒN‚ª“ü‚Á‚Ä‚¢‚éê‡‚ÍŠO‚µ‚Ä‚­‚¾‚³‚¢B
 :uÄ¶vƒ{ƒ^ƒ“‚âu‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚·‚é‚ÆVOICEROID–{‘Ì‘¤‚Åu’ˆÓvƒ_ƒCƒAƒƒO‚ªo‚Ä‚µ‚Ü‚¢A‘€ì‚ªŠ®—¹‚µ‚È‚¢B|
 --—á‚¦‚ÎVOICEROID–{‘Ì‘¤‚Å‚ÌƒtƒŒ[ƒY•ÒW“r’†‚ÉÄ¶‚â‰¹º•Û‘¶‚ðŽwŽ¦‚·‚é‚Æ‚±‚Ìó‘Ô‚É‚È‚è‚Ü‚·B
 --ƒtƒŒ[ƒY•ÒW‚ðŠ®—¹‚³‚¹‚é“™‚µ‚ÄAVOICEROID–{‘Ì‘¤‚ðƒjƒ…[ƒgƒ‰ƒ‹‚Èó‘Ô‚É‚µ‚Ä‚­‚¾‚³‚¢B
@@ -514,8 +513,7 @@ VOICEROID–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒB
 --w‚ä‚Á‚­‚èMovieMakerx‚ª‹N“®‚µ‚Ä‚¨‚èAƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚ª•\Ž¦‚³‚ê‚Ä‚¢‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
 ---ƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚ª•\Ž¦‚³‚ê‚Ä‚¢‚È‚¢ê‡AƒvƒŒƒrƒ…[ƒEƒBƒ“ƒhƒE‚Ìu•\Ž¦vƒƒjƒ…[‚©‚çuƒ^ƒCƒ€ƒ‰ƒCƒ“v‚ð‘I‚ñ‚Å•\Ž¦‚³‚¹‚Ä‚­‚¾‚³‚¢B
 --w‚ä‚Á‚­‚èMovieMakerx‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
----’ÊíAw‚ä‚Á‚­‚èMovieMakerx‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚é‚±‚Æ‚Í‚È‚¢‚Í‚¸‚Å‚·‚ªA‰½‚ç‚©‚Ì——R‚É‚æ‚èŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚·‚é‚æ‚¤‚ÉÝ’è‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éê‡‚ª‚ ‚è‚Ü‚·B~
-w‚ä‚Á‚­‚èMovieMakerx–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒBv‚ð‘I‘ð‚µAuŒÝŠ·«vƒ^ƒu‚ÌuŠÇ—ŽÒ‚Æ‚µ‚Ä‚±‚ÌƒvƒƒOƒ‰ƒ€‚ðŽÀs‚·‚év‚Æ‚¢‚¤€–Ú‚Éƒ`ƒFƒbƒN‚ª“ü‚Á‚Ä‚¢‚éê‡‚ÍŠO‚µ‚Ä‚­‚¾‚³‚¢B
+---’ÊíAw‚ä‚Á‚­‚èMovieMakerx‚ªŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚³‚ê‚é‚±‚Æ‚Í‚È‚¢‚Í‚¸‚Å‚·‚ªA‰½‚ç‚©‚Ì——R‚É‚æ‚èŠÇ—ŽÒŒ ŒÀ‚ÅŽÀs‚·‚é‚æ‚¤‚ÉÝ’è‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éê‡‚ª‚ ‚è‚Ü‚·Bw‚ä‚Á‚­‚èMovieMakerx–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒBv‚ð‘I‘ð‚µAuŒÝŠ·«vƒ^ƒu‚ÌuŠÇ—ŽÒ‚Æ‚µ‚Ä‚±‚ÌƒvƒƒOƒ‰ƒ€‚ðŽÀs‚·‚év‚Æ‚¢‚¤€–Ú‚Éƒ`ƒFƒbƒN‚ª“ü‚Á‚Ä‚¢‚éê‡‚ÍŠO‚µ‚Ä‚­‚¾‚³‚¢B
 --‘¼‚ÌƒEƒBƒ“ƒhƒE‘€ìŒnƒc[ƒ‹‚ð“®ì‚³‚¹‚Ä‚¢‚éê‡Aˆ—‚ª‹£‡‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
 --Windows 7 Home ‚©‚ÂwƒJƒXƒyƒ‹ƒXƒL[ 2016x‚âwƒJƒXƒyƒ‹ƒXƒL[ ƒZƒLƒ…ƒŠƒeƒB 2017x‚ð“±“ü‚µ‚½ŠÂ‹«‚É‚¨‚¢‚ÄA˜AŒg‚ÉŽ¸”s‚·‚é‚±‚Æ‚ªŠm”F‚³‚ê‚Ä‚¢‚Ü‚·B
 ---version 1.6.2 ‚Å‘Îˆ‚µ‚Ü‚µ‚½‚ªAª–{‰ðŒˆ‚Å‚«‚Ä‚¢‚é‚©”Û‚©‚Í•s–¾‚Å‚·B
