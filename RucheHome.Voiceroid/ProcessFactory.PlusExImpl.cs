@@ -89,7 +89,7 @@ namespace RucheHome.Voiceroid
                 {
                     return
                         dialog
-                            .FindDescendants(@"Edit")
+                            .FindDescendants(@"Edit")?
                             .FirstOrDefault(
                                 c => c.GetAncestor(5)?.Handle == dialog.Handle);
                 }
@@ -140,6 +140,11 @@ namespace RucheHome.Voiceroid
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
+                    return false;
+                }
+                if (controls == null)
+                {
+                    // ちょうどアプリ終了したタイミング等で null になりうる
                     return false;
                 }
 
