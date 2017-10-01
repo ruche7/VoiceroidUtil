@@ -313,7 +313,13 @@ namespace RucheHome.Voiceroid
                         return false;
                     }
 
-                    ((ValuePattern)pattern).SetValue(value);
+                    var vp = (ValuePattern)pattern;
+                    if (vp.Current.IsReadOnly)
+                    {
+                        ThreadDebug.WriteLine(@"The element is readonly.");
+                        return false;
+                    }
+                    vp.SetValue(value);
                 }
                 catch (Exception ex)
                 {

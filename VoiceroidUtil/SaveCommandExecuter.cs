@@ -450,10 +450,15 @@ namespace VoiceroidUtil
             // トークテキスト設定
             if (!appConfig.UseTargetText && !(await process.SetTalkText(voiceText)))
             {
+                // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
+                // 再生時と違い、メッセージを返すのみでリカバリはしない。
+
                 await this.NotifyResult(
                     parameter,
                     AppStatusType.Fail,
-                    @"文章の設定に失敗しました。");
+                    @"文章の設定に失敗しました。",
+                    AppStatusType.Information,
+                    voiceroid2 ? @"一度再生を行ってみてください。" : null);
                 return;
             }
 
