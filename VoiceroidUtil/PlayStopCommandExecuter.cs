@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using RucheHome.Util;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -210,7 +211,30 @@ namespace VoiceroidUtil
                 text = parameter.VoiceReplaceItems?.Replace(text) ?? text;
 
                 // テキスト設定
-                if (!(await process.SetTalkText(text)))
+                bool setOk = await process.SetTalkText(text);
+                if (!setOk && process.Id == VoiceroidId.Voiceroid2)
+                {
+                    // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
+                    // 一旦 再生→停止 の操作を行うことで解除を試みる
+
+                    if (!(await process.Play()))
+                    {
+                        ThreadTrace.WriteLine(@"VOICEROID2文章入力欄の復旧(再生)に失敗");
+
+                        await this.NotifyResult(
+                            parameter,
+                            AppStatusType.Fail,
+                            @"再生処理に失敗しました。");
+                        return;
+                    }
+
+                    setOk = (await process.Stop()) && (await process.SetTalkText(text));
+                    if (!setOk)
+                    {
+                        ThreadTrace.WriteLine(@"VOICEROID2文章入力欄の復旧に失敗");
+                    }
+                }
+                if (!setOk)
                 {
                     await this.NotifyResult(
                         parameter,
