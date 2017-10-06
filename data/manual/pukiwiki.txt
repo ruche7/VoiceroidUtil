@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.9.1
+-VoiceroidUtil version 1.9.2
 -VOICEROID+ 結月ゆかり EX version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -19,8 +19,8 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] version 1.7.4
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] version 1.7.3
 -[[音街ウナTalk Ex>http://otomachiuna.jp/talk]] version 1.0.0
--[[VOICEROID2 結月ゆかり>http://www.ah-soft.com/voiceroid/yukari/]] version 2.0.0
--[[VOICEROID2 琴葉 茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]] version 2.0.0
+-[[VOICEROID2 結月ゆかり>http://www.ah-soft.com/voiceroid/yukari/]] version 2.0.1.0
+-[[VOICEROID2 琴葉 茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]] version 2.0.1.0
 -[[ゆっくりMovieMaker3>http://manjubox.net/YukkuriMovieMaker.php]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.00
 --[[拡張編集Plugin>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
@@ -524,6 +524,8 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、設定内容に関わらず、AviU
 
 *更新履歴 [#history]
 
+:2017-10-07|
+--version 1.9.2 に対応。
 :2017-06-21|
 --version 1.9.1 に対応。
 --[[Q＆A>#qa]]を更新。
