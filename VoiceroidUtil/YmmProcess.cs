@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Automation;
 using RucheHome.Util;
+using RucheHome.Windows.WinApi;
 
 namespace VoiceroidUtil
 {
@@ -27,9 +28,14 @@ namespace VoiceroidUtil
         public bool IsRunning => (this.MainWindowHandle != IntPtr.Zero);
 
         /// <summary>
-        /// タイムラインウィンドウが存在するか否かを取得する。
+        /// タイムラインウィンドウが見つかったか否かを取得する。
         /// </summary>
-        public bool IsTimelineExists =>
+        public bool IsTimelineWindowFound { get; private set; } = false;
+
+        /// <summary>
+        /// タイムラインウィンドウ上のコントロール群が見つかったか否かを取得する。
+        /// </summary>
+        public bool IsTimelineElementFound =>
             (this.SpeechEditElement != null) &&
             (this.CharaComboElement != null) &&
             (this.AddButtonElement != null);
@@ -38,6 +44,11 @@ namespace VoiceroidUtil
         /// 『ゆっくりMovieMaker』プロセス名。
         /// </summary>
         private const string ProcessName = @"YukkuriMovieMaker_v3";
+
+        /// <summary>
+        /// タイムラインウィンドウタイトルプレフィクス。
+        /// </summary>
+        private const string TimelineWindowTitlePrefix = @"タイムライン";
 
         /// <summary>
         /// 状態を更新する。
@@ -72,8 +83,14 @@ namespace VoiceroidUtil
                 return false;
             }
 
+            // メインウィンドウが見つかったのでこれ以降は true を返す
+
+            // タイムラインウィンドウ検索
+            var tlWin = await this.FindTimelineWindow();
+            this.IsTimelineWindowFound = (tlWin != null);
+
             // AutomationElement 群更新
-            if (!this.UpdateElements())
+            if (!this.IsTimelineWindowFound || !this.UpdateElements(tlWin))
             {
                 this.ResetElements();
             }
@@ -87,6 +104,7 @@ namespace VoiceroidUtil
         public void Reset()
         {
             this.Process = null;
+            this.IsTimelineWindowFound = false;
             this.ResetElements();
         }
 
@@ -97,7 +115,7 @@ namespace VoiceroidUtil
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> SetTimelineSpeechEditValue(string text)
         {
-            if (!this.IsTimelineExists)
+            if (!this.IsTimelineElementFound)
             {
                 return false;
             }
@@ -138,7 +156,7 @@ namespace VoiceroidUtil
         /// </returns>
         public async Task<bool?> SelectTimelineCharaComboBoxItem(string name)
         {
-            if (!this.IsTimelineExists)
+            if (!this.IsTimelineElementFound)
             {
                 return false;
             }
@@ -212,7 +230,7 @@ namespace VoiceroidUtil
         /// <returns>成功したならば true 。そうでなければ false 。</returns>
         public async Task<bool> ClickTimelineSpeechAddButton()
         {
-            if (!this.IsTimelineExists)
+            if (!this.IsTimelineElementFound)
             {
                 return false;
             }
@@ -401,14 +419,14 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// AutomationElement 群を更新する。
+        /// タイムラインウィンドウ AutomatinElement を検索する。
         /// </summary>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        private bool UpdateElements()
+        /// <returns>AutomatinElement 。見つからなければ null 。</returns>
+        private async Task<AutomationElement> FindTimelineWindow()
         {
             if (this.MainWindowHandle == IntPtr.Zero)
             {
-                return false;
+                return null;
             }
 
             AutomationElement root = null;
@@ -416,9 +434,10 @@ namespace VoiceroidUtil
             {
                 root = AutomationElement.FromHandle(this.MainWindowHandle);
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                ThreadDebug.WriteException(ex);
+                return null;
             }
 
             // タイムラインウィンドウ検索
@@ -427,20 +446,62 @@ namespace VoiceroidUtil
                     root,
                     AutomationElement.ControlTypeProperty,
                     ControlType.Window)
-                    .FirstOrDefault(e => e.Current.Name.StartsWith(@"タイムライン"));
+                    .FirstOrDefault(
+                        e => e.Current.Name.StartsWith(TimelineWindowTitlePrefix));
             if (tlWin == null)
             {
-                return false;
+                // 念のため Win32Window を使って検索してみる
+                var processId = this.Process.Id;
+                var win =
+                    await Win32Window.FromDesktop()
+                        .FindChildren()
+                        .ToObservable()
+                        .FirstOrDefaultAsync(
+                            w =>
+                                w.ProcessId == processId &&
+                                w.GetText(100)?.StartsWith(TimelineWindowTitlePrefix) == true);
+                if (win == null)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    tlWin = AutomationElement.FromHandle(win.Handle);
+                    ThreadDebug.WriteLine(
+                        @"The timeline window is found by using Win32Window.");
+                }
+                catch (Exception ex)
+                {
+                    ThreadDebug.WriteException(ex);
+                    return null;
+                }
+            }
+
+            return tlWin;
+        }
+
+        /// <summary>
+        /// AutomationElement 群を更新する。
+        /// </summary>
+        /// <param name="timelineWindow">タイムラインウィンドウ AutomationElement 。</param>
+        /// <returns>成功したならば true 。そうでなければ false 。</returns>
+        private bool UpdateElements(AutomationElement timelineWindow)
+        {
+            if (timelineWindow == null)
+            {
+                throw new ArgumentNullException(nameof(timelineWindow));
             }
 
             // タイムラインコントロール検索
             var tlCtrl =
                 FindFirstChild(
-                    tlWin,
+                    timelineWindow,
                     AutomationElement.ClassNameProperty,
                     @"TimelineControl");
             if (tlCtrl == null)
             {
+                ThreadDebug.WriteLine(@"The timeline control is not found.");
                 return false;
             }
 
@@ -449,6 +510,7 @@ namespace VoiceroidUtil
                 FindFirstChild(tlCtrl, AutomationElement.AutomationIdProperty, @"SerifuTB");
             if (speechEdit == null)
             {
+                ThreadDebug.WriteLine(@"The speech edit is not found.");
                 return false;
             }
 
@@ -460,6 +522,7 @@ namespace VoiceroidUtil
                     @"CharactersCB");
             if (charaCombo == null)
             {
+                ThreadDebug.WriteLine(@"The character combo-box is not found.");
                 return false;
             }
 
@@ -467,6 +530,7 @@ namespace VoiceroidUtil
             var addButton = FindFirstChild(tlCtrl, AutomationElement.NameProperty, @"追加");
             if (addButton == null)
             {
+                ThreadDebug.WriteLine(@"The add button is not found.");
                 return false;
             }
 

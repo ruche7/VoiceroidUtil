@@ -211,7 +211,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 return
-                    await Win32Window.Desktop
+                    await Win32Window.FromDesktop()
                         .FindChildren(text: title)
                         .ToObservable()
                         .FirstOrDefaultAsync(w => w.GetOwner()?.Handle == mainHandle);
