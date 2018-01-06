@@ -287,7 +287,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     ThreadTrace.WriteLine(@"入力可能状態になりません。");
                     return null;
@@ -360,7 +360,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     ThreadTrace.WriteLine(@"入力可能状態になりません。");
                     return false;
@@ -486,7 +486,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     ThreadTrace.WriteLine(@"入力可能状態になりません。");
                     return false;

@@ -393,7 +393,7 @@ namespace RucheHome.Voiceroid
             /// </param>
             /// <param name="loopIntervalMilliseconds">ループ間隔ミリ秒数。</param>
             /// <returns>入力待機状態になったならば true 。そうでなければ false 。</returns>
-            protected async Task<bool> WhenForInputHandle(
+            protected async Task<bool> WhenForInputIdle(
                 int loopCount = 25,
                 int loopIntervalMilliseconds = 20)
             {
@@ -422,7 +422,7 @@ namespace RucheHome.Voiceroid
             DoFindFileDialogElements(AutomationElement fileDialog)
             {
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     ThreadTrace.WriteLine(@"入力可能状態になりません。");
                     return null;
@@ -718,7 +718,7 @@ namespace RucheHome.Voiceroid
 
                     // 入力待機状態になっていない？
                     if (
-                        !(await this.WhenForInputHandle(0)) ||
+                        !(await this.WhenForInputIdle(0)) ||
                         appProcess.MainWindowHandle == IntPtr.Zero)
                     {
                         // 実行中でないなら起動中と判断

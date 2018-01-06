@@ -67,7 +67,7 @@ namespace VoiceroidUtil
             }
 
             // 入力待機状態待ち
-            if (!(await this.WhenForInputHandle()))
+            if (!(await this.WhenForInputIdle()))
             {
                 ThreadDebug.WriteLine(@"YMM : WaitForInputIdle() == false");
                 this.Reset();
@@ -133,7 +133,7 @@ namespace VoiceroidUtil
             // テキスト設定
             try
             {
-                await this.WhenForInputHandle();
+                await this.WhenForInputIdle();
                 edit.SetValue(text);
             }
             catch (Exception ex)
@@ -174,7 +174,7 @@ namespace VoiceroidUtil
             }
             try
             {
-                await this.WhenForInputHandle();
+                await this.WhenForInputIdle();
                 expand.Expand();
                 expand.Collapse();
             }
@@ -212,7 +212,7 @@ namespace VoiceroidUtil
             // アイテム選択
             try
             {
-                await this.WhenForInputHandle();
+                await this.WhenForInputIdle();
                 item.Select();
             }
             catch (Exception ex)
@@ -248,7 +248,7 @@ namespace VoiceroidUtil
             // 押下
             try
             {
-                await this.WhenForInputHandle();
+                await this.WhenForInputIdle();
                 button.Invoke();
             }
             catch (Exception ex)
@@ -403,7 +403,7 @@ namespace VoiceroidUtil
         /// </param>
         /// <param name="loopIntervalMilliseconds">ループ間隔ミリ秒数。</param>
         /// <returns>入力待機状態になったならば true 。そうでなければ false 。</returns>
-        private async Task<bool> WhenForInputHandle(
+        private async Task<bool> WhenForInputIdle(
             int loopCount = 25,
             int loopIntervalMilliseconds = 20)
         {

@@ -480,7 +480,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     throw new InvalidOperationException(@"入力可能状態になりません。");
                 }
@@ -656,7 +656,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 入力可能状態まで待機
-                if (!(await this.WhenForInputHandle()))
+                if (!(await this.WhenForInputIdle()))
                 {
                     throw new InvalidOperationException(@"入力可能状態になりません。");
                 }
