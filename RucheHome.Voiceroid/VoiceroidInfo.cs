@@ -14,6 +14,7 @@ namespace RucheHome.Voiceroid
         /// コンストラクタ。
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>
+        /// <param name="controllable">操作対象として選択可能ならば true 。</param>
         /// <param name="name">VOICEROID名。</param>
         /// <param name="keywords">
         /// VOICEROIDを識別するためのキーワード列挙。キーワード不要ならば null 。
@@ -25,6 +26,7 @@ namespace RucheHome.Voiceroid
         /// </param>
         internal VoiceroidInfo(
             VoiceroidId id,
+            bool controllable,
             string name,
             IEnumerable<string> keywords,
             string appProcessName,
@@ -32,6 +34,7 @@ namespace RucheHome.Voiceroid
             string displayProduct = null)
         {
             this.Id = id;
+            this.IsControllable = controllable;
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
             this.Keywords =
                 new ReadOnlyCollection<string>((keywords ?? new string[0]).ToList());
@@ -45,6 +48,11 @@ namespace RucheHome.Voiceroid
         /// VOICEROID識別IDを取得する。
         /// </summary>
         public VoiceroidId Id { get; }
+
+        /// <summary>
+        /// 操作対象として選択可能であるか否かを取得する。
+        /// </summary>
+        public bool IsControllable { get; }
 
         /// <summary>
         /// VOICEROID名を取得する。

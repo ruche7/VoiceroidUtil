@@ -78,6 +78,12 @@ namespace RucheHome.Voiceroid
         UnaTalkEx,
 
         /// <summary>
+        /// 紲星あかり(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2Akari,
+
+        /// <summary>
         /// VOICEROID2
         /// </summary>
         [EnumMember]
@@ -105,24 +111,28 @@ namespace RucheHome.Voiceroid
             {
                 new VoiceroidInfo(
                     VoiceroidId.YukariEx,
+                    true,
                     @"結月ゆかり",
                     new[]{ @"結月", @"ゆかり" },
                     @"VOICEROID",
                     @"VOICEROID＋ 結月ゆかり EX"),
                 new VoiceroidInfo(
                     VoiceroidId.MakiEx,
+                    true,
                     @"弦巻マキ",
                     new[]{ @"弦巻", @"マキ", @"民安", @"ともえ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 民安ともえ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.ZunkoEx,
+                    true,
                     @"東北ずん子",
                     new[]{ @"ずん子" },
                     @"VOICEROID",
                     @"VOICEROID＋ 東北ずん子 EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KiritanEx,
+                    true,
                     @"東北きりたん",
                     new[]{ @"きりたん" },
                     @"VOICEROID",
@@ -130,30 +140,35 @@ namespace RucheHome.Voiceroid
                     @"VOICEROID＋ 東北きりたん EX"),
                 new VoiceroidInfo(
                     VoiceroidId.Akane,
+                    true,
                     @"琴葉茜",
                     new[]{ @"茜" },
                     @"VOICEROID",
                     @"VOICEROID＋ 琴葉茜"),
                 new VoiceroidInfo(
                     VoiceroidId.Aoi,
+                    true,
                     @"琴葉葵",
                     new[]{ @"葵" },
                     @"VOICEROID",
                     @"VOICEROID＋ 琴葉葵"),
                 new VoiceroidInfo(
                     VoiceroidId.AiEx,
+                    true,
                     @"月読アイ",
                     new[]{ @"アイ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 月読アイ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.ShoutaEx,
+                    true,
                     @"月読ショウタ",
                     new[]{ @"ショウタ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 月読ショウタ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.SeikaEx,
+                    true,
                     @"京町セイカ",
                     new[]{ @"京町", @"セイカ" },
                     @"VOICEROID",
@@ -161,18 +176,28 @@ namespace RucheHome.Voiceroid
                     @"VOICEROID＋ 京町セイカ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KouEx,
+                    true,
                     @"水奈瀬コウ",
                     new[]{ @"水奈瀬", @"コウ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 水奈瀬コウ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.UnaTalkEx,
+                    true,
                     @"音街ウナ",
                     new[]{ @"音街", @"ウナ" },
                     @"OtomachiUnaTalkEx",
                     @"音街ウナTalk Ex"),
                 new VoiceroidInfo(
+                    VoiceroidId.V2Akari,
+                    false,
+                    @"紲星あかり",
+                    new[]{ @"紲星", @"あかり" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 紲星あかり"),
+                new VoiceroidInfo(
                     VoiceroidId.Voiceroid2,
+                    true,
                     @"VOICEROID2",
                     null,
                     @"VoiceroidEditor",
