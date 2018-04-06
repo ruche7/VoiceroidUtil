@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.9.3
+-VoiceroidUtil version 1.10.0
 -VOICEROID+ 結月ゆかり EX version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -19,8 +19,10 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[VOICEROID+ 京町セイカ EX>http://www.ah-soft.com/voiceroid/seika/]] version 1.7.4
 -[[VOICEROID+ 水奈瀬コウ EX>http://www.ah-soft.com/voiceroid/kou/]] version 1.7.3
 -[[音街ウナTalk Ex>http://otomachiuna.jp/talk]] version 1.0.0
--[[VOICEROID2 結月ゆかり>http://www.ah-soft.com/voiceroid/yukari/]] version 2.0.1.0
--[[VOICEROID2 琴葉 茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]] version 2.0.1.0
+-VOICEROID2 Editor version 2.0.4.0
+--[[VOICEROID2 結月ゆかり>http://www.ah-soft.com/voiceroid/yukari/]]
+--[[VOICEROID2 琴葉 茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]]
+--[[VOICEROID2 紲星あかり>http://www.ah-soft.com/voiceroid/akari/]]
 -[[ゆっくりMovieMaker3>http://manjubox.net/YukkuriMovieMaker.php]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.00
 --[[拡張編集Plugin>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
@@ -63,6 +65,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -VOICEROID2 （version 1.9.0 より）
 --[[VOICEROID2 結月ゆかり>http://www.ah-soft.com/voiceroid/yukari/]]
 --[[VOICEROID2 琴葉 茜・葵>http://www.ah-soft.com/voiceroid/kotonoha/]]
+--[[VOICEROID2 紲星あかり>http://www.ah-soft.com/voiceroid/akari/]] （version 1.10.0 よりキャラクター対応）
 --他、インポートしたVOICEROID+シリーズ等
 
 一部のソフトウェアはVOICEROIDではありませんが、当ツールでは便宜上同列に扱います。~
@@ -93,16 +96,17 @@ VOICEROID2に関しては他のソフトウェアとはいくつか扱いの異なる点があります。~
 #ref(使い方5_VOICEROID選択.png,left,nolink,VOICEROIDを選択しているところ);
 +~入力文の欄にしゃべらせたい文章を入力します。
 #ref(使い方6_入力文.png,left,nolink,入力文を編集しているところ);
-+~再生したい場合は「再生」ボタンをクリックします。
---再生を行うとVOICEROID本体に文章が設定されるため、そこから必要に応じてフレーズ編集等を行うとよいでしょう。
----フレーズ編集を行った場合は、VOICEROID本体側で「登録」ボタンもしくは入力欄側の「再生」ボタンをクリックする等して、編集を完了させてください。
----単語編集を行った場合は、VOICEROID本体側で「登録」ボタンもしくは「クリア」ボタンをクリックする等して、編集を完了させてください。
+--「本体側の文章を使う」にチェックを入れることで、VOICEROID本体側で文章入力することもできます。
++~「再生」ボタンをクリックして、音声を確認します。
 --VOICEROID2の場合、本体側で選択中のボイスプリセットを用いて再生が行われます。
++~再生された音声が気に入らなければ、本体側でフレーズ編集等を行います。
+--フレーズ編集を行った場合は、VOICEROID本体側で「登録」ボタンをクリックする等して、編集を完了させてください。
+--単語編集を行った場合は、VOICEROID本体側で「登録」ボタンや「クリア」ボタンをクリックする等して、編集を完了させてください。
 +~「音声保存」ボタンをクリックして、音声ファイルを保存します。
 --音声ファイルの保存先は[[設定画面>#explain-config]]/[[音声保存タブ>#explain-config-save]]の設定内容に従って自動決定されます。
 --[[設定画面>#explain-config]]/[[YMM連携タブ>#explain-config-ymm]]にて『ゆっくりMovieMaker』と連携する設定を行っていれば、音声保存時に自動的に連携します。
 --VOICEROID2の場合、本体側で選択中のボイスプリセットを用いて音声保存が行われます。
-+~手順 5 ～ 8 を繰り返して、必要な音声ファイルを作成していきます。
++~手順 5 ～ 9 を繰り返して、必要な音声ファイルを作成していきます。
 
 *画面説明 [#explain]
 
@@ -138,6 +142,7 @@ VOICEROID2に関しては他のソフトウェアとはいくつか扱いの異なる点があります。~
 --再生中の場合は「停止」ボタンに変化し、VOICEROID本体に再生停止を指示します。
 --VOICEROID本体とは異なり、入力文テキストボックスのカーソル位置に依らず常に全文再生となります。
 --@kbd{F5}; または @kbd{Ctrl+Q}; のショートカット入力を行うことでもボタンをクリックできます。
+--VOICEROID2の場合、本体側で選択中のボイスプリセットを用いて再生が行われます。
 :&#9316;「音声保存」ボタン|
 --VOICEROID本体に入力文の音声保存を指示します。
 ---実際に音声保存される文章は、入力文に対して[[置換画面>#explain-replace]]の設定内容による置換を行ったものになります。
@@ -261,6 +266,7 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、''このタブの設定はすべて
 --『ゆっくりMovieMaker』に対象キャラクターが存在しない場合は何も行いません。
 :&#9314;キャラクター自動選択設定テキストボックス群|
 --''「キャラクターを自動選択」チェックボックス'' にチェックが入っている場合、この設定に従って『ゆっくりMovieMaker』のキャラクターを選択します。
+---VOICEROID2専用キャラクターにも対応しています。
 --空欄にした場合はキャラクターを自動選択しません。
 :&#9315;「VOICEROID2のキャラクター選択について」開閉ボックス|
 --VOICEROID2において『ゆっくりMovieMaker』のキャラクター自動選択がどのように行われるか、動作の説明文が記載されています。
@@ -338,6 +344,7 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、設定内容に関わらず、AviU
 
 :&#9312;VOICEROID選択コンボボックス|
 --設定を行うVOICEROIDキャラクターを選択します。
+---VOICEROID2専用キャラクターにも対応しています。
 --以降の設定は、ここで選択したVOICEROIDを用いて音声保存＆AviUtl拡張編集ファイル作成を行う際に利用されるものとなります。
 ---ただし選択項目「VOICEROID2 (キャラ不確定時)」だけは利用ケースが異なります。詳しくは[[VOICEROID2における動作>#voiceroid2]]/[[AviUtl拡張編集ファイル作成>#voiceroid2-exo]]の項を参照してください。
 --設定はVOICEROIDキャラクターごとに保存されており、このコンボボックスの操作によって消えたり上書きされたりすることはありません。
@@ -425,6 +432,8 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、設定内容に関わらず、AviU
 |~京町セイカ|京町, セイカ|
 |~水奈瀬コウ|水奈瀬, コウ|
 |~音街ウナ|音街, ウナ|
+|~紲星あかり|紲星, あかり|
+
 -『音街ウナTalk Ex』はVOICEROID2にインポートできませんが、音街ウナもキーワード検索対象に含まれます。
 -[[設定画面>#explain-config]]/[[一般タブ>#explain-config-general]]の ''「VOICEROID表示切替」チェックボックス群'' による表示設定に関係なく、常にすべてのキーワードが検索対象となります。
 -複数のキーワードが含まれている場合、より先頭に近いキーワードが優先されます。
@@ -526,6 +535,13 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、設定内容に関わらず、AviU
 
 *更新履歴 [#history]
 
+:2018-04-07|
+--version 1.10.0 に対応。
+---『VOICEROID2 紲星あかり』追加。
+---[[画面説明>#explain]]/[[設定画面>#explain-config]]/[[YMM連携タブ>#explain-config-ymm]]に、VOICEROID2専用キャラクターに対応している旨を追記。
+---[[画面説明>#explain]]/[[.exo画面>#explain-exo]]/[[キャラクター別タブ>#explain-exo-chara]]に、VOICEROID2専用キャラクターに対応している旨を追記。
+--[[基本的な使い方>#basic]]の内容を一部変更。
+---本体側でフレーズ編集等を行うフローを強調。
 :2018-01-07|
 --version 1.9.3 に対応。
 :2017-12-17|
