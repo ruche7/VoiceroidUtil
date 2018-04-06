@@ -77,15 +77,18 @@ namespace RucheHome.Voiceroid
 
             foreach (VoiceroidId id in Enum.GetValues(typeof(VoiceroidId)))
             {
-                if (id == VoiceroidId.Voiceroid2)
+                if (id.GetInfo().IsControllable)
                 {
-                    // VOICEROID2プロセス作成
-                    processes.Add(new Voiceroid2Impl());
-                }
-                else
-                {
-                    // VOICEROID+ EX 互換プロセス作成
-                    processes.Add(new PlusExImpl(id));
+                    if (id == VoiceroidId.Voiceroid2)
+                    {
+                        // VOICEROID2プロセス作成
+                        processes.Add(new Voiceroid2Impl());
+                    }
+                    else
+                    {
+                        // VOICEROID+ EX 互換プロセス作成
+                        processes.Add(new PlusExImpl(id));
+                    }
                 }
             }
 
@@ -112,8 +115,7 @@ namespace RucheHome.Voiceroid
             {
                 var appProcessName = impl.Id.GetInfo().AppProcessName;
 
-                Process[] appProcesses = null;
-                if (!namedProcesses.TryGetValue(appProcessName, out appProcesses))
+                if (!namedProcesses.TryGetValue(appProcessName, out var appProcesses))
                 {
                     // アプリプロセス群を検索してキャッシュ
                     appProcesses = Process.GetProcessesByName(appProcessName);
