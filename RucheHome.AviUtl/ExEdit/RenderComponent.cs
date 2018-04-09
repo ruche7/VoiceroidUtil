@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using RucheHome.Text;
 
@@ -113,10 +117,7 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> X
         {
             get => this.x;
-            set =>
-                this.SetPropertyWithPropertyChangedChain(
-                    ref this.x,
-                    value ?? new MovableValue<CoordConst>());
+            set => this.SetCoordProperty(ref this.x, value);
         }
         private MovableValue<CoordConst> x = null;
 
@@ -128,10 +129,7 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> Y
         {
             get => this.y;
-            set =>
-                this.SetPropertyWithPropertyChangedChain(
-                    ref this.y,
-                    value ?? new MovableValue<CoordConst>());
+            set => this.SetCoordProperty(ref this.y, value);
         }
         private MovableValue<CoordConst> y = null;
 
@@ -143,10 +141,7 @@ namespace RucheHome.AviUtl.ExEdit
         public MovableValue<CoordConst> Z
         {
             get => this.z;
-            set =>
-                this.SetPropertyWithPropertyChangedChain(
-                    ref this.z,
-                    value ?? new MovableValue<CoordConst>());
+            set => this.SetCoordProperty(ref this.z, value);
         }
         private MovableValue<CoordConst> z = null;
 
@@ -226,6 +221,100 @@ namespace RucheHome.AviUtl.ExEdit
         /// </summary>
         /// <returns>クローン。</returns>
         public RenderComponent Clone() => new RenderComponent(this);
+
+        /// <summary>
+        /// X, Y, Z で同期するプロパティ名と同期用関数のディクショナリ。
+        /// </summary>
+        private static readonly ReadOnlyDictionary<
+            string,
+            Action<MovableValue<CoordConst>, MovableValue<CoordConst>>>
+        CoordSyncProperties =
+            new ReadOnlyDictionary<
+                string,
+                Action<MovableValue<CoordConst>, MovableValue<CoordConst>>>(
+                new Dictionary<
+                    string,
+                    Action<MovableValue<CoordConst>, MovableValue<CoordConst>>>
+                {
+                    {
+                        nameof(IMovableValue.MoveMode),
+                        (src, dest) => dest.MoveMode = src.MoveMode
+                    },
+                    {
+                        nameof(IMovableValue.IsAccelerating),
+                        (src, dest) => dest.IsAccelerating = src.IsAccelerating
+                    },
+                    {
+                        nameof(IMovableValue.IsDecelerating),
+                        (src, dest) => dest.IsDecelerating = src.IsDecelerating
+                    },
+                    {
+                        nameof(IMovableValue.Interval),
+                        (src, dest) => dest.Interval = src.Interval
+                    },
+                });
+
+        /// <summary>
+        /// X, Y, Z プロパティ値を設定する。
+        /// </summary>
+        /// <param name="field">設定先フィールド。</param>
+        /// <param name="value">設定値。</param>
+        /// <param name="propertyName">
+        /// プロパティ名。 CallerMemberNameAttribute により自動設定される。
+        /// </param>
+        private void SetCoordProperty(
+            ref MovableValue<CoordConst> field,
+            MovableValue<CoordConst> value,
+            [CallerMemberName] string propertyName = null)
+        {
+            if (field == value)
+            {
+                return;
+            }
+
+            if (field != null)
+            {
+                field.PropertyChanged -= this.OnCoordPropertyChanged;
+            }
+
+            // プロパティ値設定の実処理
+            this.SetPropertyWithPropertyChangedChain(
+                ref field,
+                value ?? new MovableValue<CoordConst>());
+
+            field.PropertyChanged += this.OnCoordPropertyChanged;
+
+            // 全プロパティが変更されたものとして処理
+            foreach (var name in CoordSyncProperties.Keys)
+            {
+                this.OnCoordPropertyChanged(field, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        /// <summary>
+        /// X, Y, Z のプロパティ変更時に呼び出される。
+        /// </summary>
+        /// <param name="sender">呼び出し元。</param>
+        /// <param name="e">イベントデータ。</param>
+        private void OnCoordPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // プロパティ名に対応する同期用関数を取得
+            if (
+                !(sender is MovableValue<CoordConst> src) ||
+                !CoordSyncProperties.TryGetValue(e.PropertyName, out var syncFunc))
+            {
+                return;
+            }
+
+            // 同期処理
+            foreach (var dest in new[] { this.X, this.Y, this.Z })
+            {
+                if (dest != null && dest != src)
+                {
+                    syncFunc(src, dest);
+                }
+            }
+        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

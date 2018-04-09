@@ -50,13 +50,20 @@ namespace VoiceroidUtil.ViewModel
             // 共通設定
             this.Common = this.MakeConfigProperty(c => c.Common);
 
+            // キャラ別スタイル設定コレクション
+            var charaStyles =
+                this
+                    .ObserveConfigProperty(c => c.CharaStyles)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 表示状態のキャラ別スタイル設定コレクション
             this.VisibleCharaStyles =
                 Observable
                     .CombineLatest(
-                        this.ObserveConfigProperty(c => c.CharaStyles),
                         appConfig.ObserveInnerProperty(c => c.VoiceroidVisibilities),
-                        (cs, vv) => vv.SelectVisibleOf(cs))
+                        charaStyles.Select(s => s.Count()).DistinctUntilChanged(),
+                        (vv, _) => vv.SelectVisibleOf(charaStyles.Value))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
@@ -232,8 +239,7 @@ namespace VoiceroidUtil.ViewModel
                 .CombineLatest(
                     this.VisibleCharaStyles,
                     uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
-                    (vcs, id) =>
-                        vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
+                    (vcs, id) => vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
                 .Subscribe(s => this.SelectedCharaStyle.Value = s)
                 .AddTo(this.CompositeDisposable);
 

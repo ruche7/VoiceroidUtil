@@ -63,18 +63,6 @@ namespace VoiceroidUtil.ViewModel
             this.CanAccelerate =
                 this.MakeMoveModeRelatingProperty(v => v.CanAccelerate());
             this.HasInterval = this.MakeMoveModeRelatingProperty(v => v.HasInterval());
-
-            // MoveMode 変更時処理
-            this.MoveMode
-                .Subscribe(
-                    mode =>
-                    {
-                        // 既定値で上書き
-                        this.IsAccelerating.Value = mode.IsDefaultAccelerating();
-                        this.IsDecelerating.Value = mode.IsDefaultDecelerating();
-                        this.Interval.Value = mode.GetDefaultInterval();
-                    })
-                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>

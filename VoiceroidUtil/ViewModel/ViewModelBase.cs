@@ -57,15 +57,19 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
             IReactiveProperty<T> owner,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null)
+            IObservable<bool> canModifyNotifier = null,
+            bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
             owner
-                .MakeInnerReactiveProperty(selector, canModifyNotifier)
+                .MakeInnerReactiveProperty(selector, canModifyNotifier, notifyOnSameValue)
                 .AddTo(this.CompositeDisposable);
 
         /// <summary>
@@ -81,15 +85,19 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
             IReadOnlyReactiveProperty<T> owner,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null)
+            IObservable<bool> canModifyNotifier = null,
+            bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
             owner
-                .MakeInnerReactiveProperty(selector, canModifyNotifier)
+                .MakeInnerReactiveProperty(selector, canModifyNotifier, notifyOnSameValue)
                 .AddTo(this.CompositeDisposable);
 
         /// <summary>

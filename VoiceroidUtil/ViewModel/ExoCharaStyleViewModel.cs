@@ -408,12 +408,6 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeMovableValueViewModel(this.Render, r => r.Transparency);
             this.Rotation = this.MakeMovableValueViewModel(this.Render, r => r.Rotation);
 
-            // X, Y, Z の移動モード関連値は共通なので直近の設定値で上書き
-            this.SynchronizeXYZProperty(c => c.MoveMode);
-            this.SynchronizeXYZProperty(c => c.IsAccelerating);
-            this.SynchronizeXYZProperty(c => c.IsDecelerating);
-            this.SynchronizeXYZProperty(c => c.Interval);
-
             this.FontSize = this.MakeMovableValueViewModel(this.Text, t => t.FontSize);
             this.TextSpeed = this.MakeMovableValueViewModel(this.Text, t => t.TextSpeed);
 
@@ -464,36 +458,6 @@ namespace VoiceroidUtil.ViewModel
             return
                 new MovableValueViewModel(this.CanModify, value, name)
                     .AddTo(this.CompositeDisposable);
-        }
-
-        /// <summary>
-        /// X, Y, Z のプロパティ値を同期させるための設定を行う。
-        /// </summary>
-        /// <typeparam name="T">プロパティ型。</typeparam>
-        /// <param name="propertyGetter">プロパティ取得デリゲート。</param>
-        private void SynchronizeXYZProperty<T>(
-            Func<MovableValueViewModel, IReactiveProperty<T>> propertyGetter)
-        {
-            Debug.Assert(propertyGetter != null);
-
-            var props = (new[] { this.X, this.Y, this.Z }).Select(c => propertyGetter(c));
-
-            // いずれかの値が設定されるたびに各プロパティへ上書きする
-            props
-                .Merge()
-                .Subscribe(
-                    v =>
-                    {
-                        foreach (var p in props)
-                        {
-                            // 念のため同値チェックしておく
-                            if (!EqualityComparer<T>.Default.Equals(p.Value, v))
-                            {
-                                p.Value = v;
-                            }
-                        }
-                    })
-                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>

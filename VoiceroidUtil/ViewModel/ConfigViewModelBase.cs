@@ -60,14 +60,19 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="alwaysCanModify">
         /// CanModify プロパティ値に依らず値変更可能ならば true 。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{T} オブジェクト。</returns>
         protected ReactiveProperty<T> MakeConfigProperty<T>(
             Expression<Func<TConfig, T>> selector,
-            bool alwaysCanModify = false)
+            bool alwaysCanModify = false,
+            bool notifyOnSameValue = false)
             =>
             this.MakeInnerPropertyOf(
                 this.BaseConfig,
                 selector,
-                alwaysCanModify ? null : this.CanModify);
+                alwaysCanModify ? null : this.CanModify,
+                notifyOnSameValue);
     }
 }
