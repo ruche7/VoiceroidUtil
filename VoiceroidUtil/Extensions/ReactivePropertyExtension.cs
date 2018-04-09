@@ -25,17 +25,22 @@ namespace VoiceroidUtil.Extensions
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null)
+            IObservable<bool> canModifyNotifier = null,
+            bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
             MakeInnerReactivePropertyCore(
                 self,
                 selector,
                 canModifyNotifier,
+                notifyOnSameValue,
                 (setter, value) => setter(self.Value, value));
 
         /// <summary>
@@ -51,17 +56,22 @@ namespace VoiceroidUtil.Extensions
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReadOnlyReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null)
+            IObservable<bool> canModifyNotifier = null,
+            bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
             MakeInnerReactivePropertyCore(
                 self,
                 selector,
                 canModifyNotifier,
+                notifyOnSameValue,
                 (setter, value) => setter(self.Value, value));
 
         /// <summary>
@@ -76,6 +86,9 @@ namespace VoiceroidUtil.Extensions
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <param name="setterExecuter">setter 処理実施デリゲート。</param>
         /// <returns>ReactiveProperty{TProperty} オブジェクト。</returns>
         private static ReactiveProperty<TProperty>
@@ -83,10 +96,17 @@ namespace VoiceroidUtil.Extensions
             IObservable<T> self,
             Expression<Func<T, TProperty>> selector,
             IObservable<bool> canModifyNotifier,
+            bool notifyOnSameValue,
             Action<Action<T, TProperty>, TProperty> setterExecuter)
             where T : INotifyPropertyChanged
         {
-            var result = self.ObserveInnerProperty(selector).ToReactiveProperty();
+            var mode = ReactivePropertyMode.RaiseLatestValueOnSubscribe;
+            if (!notifyOnSameValue)
+            {
+                mode |= ReactivePropertyMode.DistinctUntilChanged;
+            }
+
+            var result = self.ObserveInnerProperty(selector).ToReactiveProperty(mode: mode);
 
             // selector から setter を作成
             var valueExp = Expression.Parameter(selector.Body.Type);

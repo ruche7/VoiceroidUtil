@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,13 +41,20 @@ namespace VoiceroidUtil.ViewModel
             this.SelectedTabIndex =
                 this.MakeInnerPropertyOf(uiConfig, c => c.AppConfigTabIndex);
 
+            // YmmCharaRelation コレクション
+            var ymmCharaRelations =
+                this
+                    .ObserveConfigProperty(c => c.YmmCharaRelations)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 表示状態の YmmCharaRelation コレクション
             this.VisibleYmmCharaRelations =
                 Observable
                     .CombineLatest(
-                        this.ObserveConfigProperty(c => c.YmmCharaRelations),
                         this.ObserveConfigProperty(c => c.VoiceroidVisibilities),
-                        (r, vv) => vv.SelectVisibleOf(r))
+                        ymmCharaRelations.Select(r => r.Count()).DistinctUntilChanged(),
+                        (vv, _) => vv.SelectVisibleOf(ymmCharaRelations.Value))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 

@@ -199,6 +199,7 @@ namespace VoiceroidUtil
         private static bool EqualsComponent<T>(T c1, T c2)
             where T : ComponentBase
             =>
+            (c1 == c2) ||
             typeof(T)
                 .GetProperties(
                     BindingFlags.Instance |
@@ -213,8 +214,37 @@ namespace VoiceroidUtil
                     {
                         var v1 = prop.GetMethod.Invoke(c1, null);
                         var v2 = prop.GetMethod.Invoke(c2, null);
-                        return (v1?.Equals(v2) == true || (v1 == null && v2 == null));
+                        return
+                            ((v1 is IMovableValue mv1) && (v2 is IMovableValue mv2)) ?
+                                EqualsMovableValue(mv1, mv2) :
+                                ((v1 == v2) || v1?.Equals(v2) == true);
                     });
+
+        /// <summary>
+        /// IMovableValue オブジェクトが等価であるか否かを調べる。
+        /// </summary>
+        /// <param name="v1">調べるオブジェクト1。</param>
+        /// <param name="v2">調べるオブジェクト2。</param>
+        /// <returns>等価ならば true 。そうでなければ false 。</returns>
+        private static bool EqualsMovableValue(IMovableValue v1, IMovableValue v2)
+        {
+            if (v1 == v2)
+            {
+                return true;
+            }
+            if (v1 == null || v2 == null)
+            {
+                return false;
+            }
+
+            return
+                v1.Begin == v2.Begin &&
+                v1.End == v2.End &&
+                v1.MoveMode == v2.MoveMode &&
+                v1.IsAccelerating == v2.IsAccelerating &&
+                v1.IsDecelerating == v2.IsDecelerating &&
+                v1.Interval == v2.Interval;
+        }
 
         /// <summary>
         /// AviUtl拡張編集ファイル用設定で利用されないパラメータが
