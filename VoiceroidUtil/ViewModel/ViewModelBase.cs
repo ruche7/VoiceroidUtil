@@ -9,6 +9,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Util;
 using VoiceroidUtil.Extensions;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -29,20 +30,6 @@ namespace VoiceroidUtil.ViewModel
         /// </summary>
         protected CompositeDisposable CompositeDisposable { get; } =
             new CompositeDisposable();
-
-        /// <summary>
-        /// 引数値の null チェックを行う。
-        /// </summary>
-        /// <typeparam name="T">引数値の型。</typeparam>
-        /// <param name="arg">引数値。</param>
-        /// <param name="argName">引数名。</param>
-        protected void ValidateArgNull<T>(T arg, string argName)
-        {
-            if (arg == null)
-            {
-                throw new ArgumentNullException(argName);
-            }
-        }
 
         /// <summary>
         /// IReactiveProperty{T} オブジェクトの内包オブジェクトのプロパティを対象とする
@@ -103,30 +90,15 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// コマンドを作成する。
         /// </summary>
-        /// <param name="action">処理デリゲート。</param>
+        /// <param name="executer">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>コマンド。</returns>
         protected ICommand MakeCommand(
-            Action action,
+            Action executer,
             params IObservable<bool>[] executables)
             =>
             this.MakeCommandCore(
-                (action == null) ? (Action<object>)null : (_ => action()),
-                executables,
-                e => e.ToReactiveCommand());
-
-        /// <summary>
-        /// コマンドを作成する。
-        /// </summary>
-        /// <param name="action">処理デリゲート。</param>
-        /// <param name="executables">実行可能状態プッシュ通知配列。</param>
-        /// <returns>コマンド。</returns>
-        protected ICommand MakeCommand(
-            Action<object> action,
-            params IObservable<bool>[] executables)
-            =>
-            this.MakeCommandCore(
-                action,
+                (executer == null) ? (Action<object>)null : (_ => executer()),
                 executables,
                 e => e.ToReactiveCommand());
 
@@ -134,126 +106,114 @@ namespace VoiceroidUtil.ViewModel
         /// コマンドを作成する。
         /// </summary>
         /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-        /// <param name="action">処理デリゲート。</param>
+        /// <param name="executer">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>コマンド。</returns>
         protected ICommand MakeCommand<T>(
-            Action<T> action,
+            Action<T> executer,
             params IObservable<bool>[] executables)
             =>
             this.MakeCommandCore(
-                action,
+                executer,
                 executables,
                 e => e.ToReactiveCommand<T>());
 
         /// <summary>
         /// 非同期実行コマンドを作成する。
         /// </summary>
-        /// <param name="asyncFunc">非同期処理デリゲート。</param>
+        /// <param name="executer">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
         protected ICommand MakeAsyncCommand(
-            Func<Task> asyncFunc,
+            Func<Task> executer,
             params IObservable<bool>[] executables)
             =>
             this.MakeAsyncCommandCore(
-                new AsyncCommandExecuter(asyncFunc),
+                (executer == null) ? (Func<object, Task>)null : (_ => executer()),
                 executables,
-                e => e.ToReactiveCommand(false));
-
-        /// <summary>
-        /// 非同期実行コマンドを作成する。
-        /// </summary>
-        /// <param name="asyncFunc">非同期処理デリゲート。</param>
-        /// <param name="executables">実行可能状態プッシュ通知配列。</param>
-        /// <returns>非同期実行コマンド。</returns>
-        protected ICommand MakeAsyncCommand(
-            Func<object, Task> asyncFunc,
-            params IObservable<bool>[] executables)
-            =>
-            this.MakeAsyncCommandCore(
-                new AsyncCommandExecuter(asyncFunc),
-                executables,
-                e => e.ToReactiveCommand(false));
+                e => e.ToAsyncReactiveCommand());
 
         /// <summary>
         /// 非同期実行コマンドを作成する。
         /// </summary>
         /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-        /// <param name="asyncFunc">非同期処理デリゲート。</param>
+        /// <param name="executer">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <returns>非同期実行コマンド。</returns>
         protected ICommand MakeAsyncCommand<T>(
-            Func<T, Task> asyncFunc,
+            Func<T, Task> executer,
             params IObservable<bool>[] executables)
             =>
             this.MakeAsyncCommandCore(
-                new AsyncCommandExecuter<T>(asyncFunc),
+                executer,
                 executables,
-                e => e.ToReactiveCommand<T>(false));
+                e => e.ToAsyncReactiveCommand<T>());
 
         /// <summary>
-        /// 非同期実行コマンドを作成する。
+        /// 実施可能状態を共有する非同期実行コマンドを作成する。
         /// </summary>
-        /// <param name="asyncExecuter">非同期処理ヘルパー。</param>
-        /// <param name="executables">実行可能状態プッシュ通知配列。</param>
+        /// <param name="sharedExecutable">実行可能状態共有オブジェクト。</param>
+        /// <param name="executer">非同期処理デリゲート。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ICommand MakeAsyncCommand(
-            AsyncCommandExecuter asyncExecuter,
-            params IObservable<bool>[] executables)
-            =>
-            this.MakeAsyncCommandCore(
-                asyncExecuter,
-                executables,
-                e => e.ToReactiveCommand(false));
+        protected ICommand MakeSharedAsyncCommand(
+            IReactiveProperty<bool> sharedExecutable,
+            Func<Task> executer)
+        {
+            ValidateArgumentNull(sharedExecutable, nameof(sharedExecutable));
+
+            return
+                this.MakeAsyncCommandCore(
+                    (executer == null) ? (Func<object, Task>)null : (_ => executer()),
+                    null,
+                    _ => sharedExecutable.ToAsyncReactiveCommand());
+        }
 
         /// <summary>
-        /// 非同期実行コマンドを作成する。
+        /// 実施可能状態を共有する非同期実行コマンドを作成する。
         /// </summary>
         /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-        /// <param name="asyncExecuter">非同期処理ヘルパー。</param>
-        /// <param name="executables">実行可能状態プッシュ通知。</param>
+        /// <param name="sharedExecutable">実行可能状態共有オブジェクト。</param>
+        /// <param name="executer">非同期処理デリゲート。</param>
         /// <returns>非同期実行コマンド。</returns>
-        protected ICommand MakeAsyncCommand<T>(
-            AsyncCommandExecuter<T> asyncExecuter,
-            params IObservable<bool>[] executables)
-            =>
-            this.MakeAsyncCommandCore(
-                asyncExecuter,
-                executables,
-                e => e.ToReactiveCommand<T>(false));
+        protected ICommand MakeSharedAsyncCommand<T>(
+            IReactiveProperty<bool> sharedExecutable,
+            Func<T, Task> executer)
+        {
+            ValidateArgumentNull(sharedExecutable, nameof(sharedExecutable));
+
+            return
+                this.MakeAsyncCommandCore(
+                    executer,
+                    null,
+                    _ => sharedExecutable.ToAsyncReactiveCommand<T>());
+        }
 
         /// <summary>
         /// コマンド作成の実処理を行う。
         /// </summary>
         /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-        /// <param name="action">処理デリゲート。</param>
+        /// <param name="executer">処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <param name="commandMaker">コマンド作成デリゲート。</param>
         /// <returns>コマンド。</returns>
         private ICommand MakeCommandCore<T>(
-            Action<T> action,
+            Action<T> executer,
             IObservable<bool>[] executables,
             Func<IObservable<bool>, ReactiveCommand<T>> commandMaker)
         {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-            if (commandMaker == null)
-            {
-                throw new ArgumentNullException(nameof(commandMaker));
-            }
+            ValidateArgumentNull(executer, nameof(executer));
+            ValidateArgumentNull(commandMaker, nameof(commandMaker));
 
             var commandExecutable =
                 (executables == null || executables.Length <= 0) ?
                     Observable.Return(true) :
-                    executables.CombineLatestValuesAreAllTrue();
+                    executables
+                        .CombineLatestValuesAreAllTrue()
+                        .DistinctUntilChanged()
+                        .ObserveOnUIDispatcher();
+            var command = commandMaker(commandExecutable).AddTo(this.CompositeDisposable);
 
-            var command =
-                commandMaker(commandExecutable).AddTo(this.CompositeDisposable);
-
-            command.Subscribe(action).AddTo(this.CompositeDisposable);
+            command.Subscribe(executer).AddTo(this.CompositeDisposable);
 
             return command;
         }
@@ -262,38 +222,28 @@ namespace VoiceroidUtil.ViewModel
         /// 非同期実行コマンド作成の実処理を行う。
         /// </summary>
         /// <typeparam name="T">コマンドパラメータ型。</typeparam>
-        /// <param name="asyncExecuter">非同期実行ヘルパー。</param>
+        /// <param name="executer">非同期処理デリゲート。</param>
         /// <param name="executables">実行可能状態プッシュ通知配列。</param>
         /// <param name="commandMaker">コマンド作成デリゲート。</param>
-        /// <returns>非同期実行コマンド。</returns>
+        /// <returns>コマンド。</returns>
         private ICommand MakeAsyncCommandCore<T>(
-            AsyncCommandExecuter<T> asyncExecuter,
+            Func<T, Task> executer,
             IObservable<bool>[] executables,
-            Func<IObservable<bool>, ReactiveCommand<T>> commandMaker)
+            Func<IObservable<bool>, AsyncReactiveCommand<T>> commandMaker)
         {
-            if (asyncExecuter == null)
-            {
-                throw new ArgumentNullException(nameof(asyncExecuter));
-            }
-            if (commandMaker == null)
-            {
-                throw new ArgumentNullException(nameof(commandMaker));
-            }
+            ValidateArgumentNull(executer, nameof(executer));
+            ValidateArgumentNull(commandMaker, nameof(commandMaker));
 
             var commandExecutable =
                 (executables == null || executables.Length <= 0) ?
-                    asyncExecuter.IsExecutable :
-                    new[]
-                    {
-                        asyncExecuter.IsExecutable,
-                        executables.CombineLatestValuesAreAllTrue(),
-                    }
-                    .CombineLatestValuesAreAllTrue();
+                    Observable.Return(true) :
+                    executables
+                        .CombineLatestValuesAreAllTrue()
+                        .DistinctUntilChanged()
+                        .ObserveOnUIDispatcher();
+            var command = commandMaker(commandExecutable).AddTo(this.CompositeDisposable);
 
-            var command =
-                commandMaker(commandExecutable).AddTo(this.CompositeDisposable);
-
-            command.Subscribe(asyncExecuter.Execute).AddTo(this.CompositeDisposable);
+            command.Subscribe(executer).AddTo(this.CompositeDisposable);
 
             return command;
         }

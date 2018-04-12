@@ -3,6 +3,7 @@ using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using VoiceroidUtil.Extensions;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -30,9 +31,9 @@ namespace VoiceroidUtil.ViewModel
             IReactiveProperty<IAppStatus> lastStatus)
             : base(canModify, config)
         {
-            this.ValidateArgNull(appConfig, nameof(appConfig));
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(appConfig, nameof(appConfig));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
 
             this.AppConfig = appConfig;
             this.LastStatus = lastStatus;

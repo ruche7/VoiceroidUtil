@@ -11,6 +11,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Windows.Mvvm.Commands;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -30,9 +31,9 @@ namespace VoiceroidUtil.ViewModel
             IOpenFileDialogService openFileDialogService)
             : base(canModify, config)
         {
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
 
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;

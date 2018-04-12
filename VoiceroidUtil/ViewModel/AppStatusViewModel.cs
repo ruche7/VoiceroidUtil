@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Windows.Mvvm.Commands;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -17,7 +18,7 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="statusObservable">アプリ状態値のプッシュ通知。</param>
         public AppStatusViewModel(IObservable<IAppStatus> statusObservable)
         {
-            this.ValidateArgNull(statusObservable, nameof(statusObservable));
+            ValidateArgumentNull(statusObservable, nameof(statusObservable));
 
             this.Status =
                 statusObservable
