@@ -5,6 +5,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using ExEdit = RucheHome.AviUtl.ExEdit;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -27,7 +28,7 @@ namespace VoiceroidUtil.ViewModel
             string name)
             : base(canModify, value)
         {
-            this.ValidateArgNull(name, nameof(name));
+            ValidateArgumentNull(name, nameof(name));
 
             this.Name = name;
 

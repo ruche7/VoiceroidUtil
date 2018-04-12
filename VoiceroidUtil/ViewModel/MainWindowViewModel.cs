@@ -4,6 +4,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Voiceroid;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -39,16 +40,16 @@ namespace VoiceroidUtil.ViewModel
             IWindowActivateService windowActivateService,
             IVoiceroidActionService voiceroidActionService)
         {
-            this.ValidateArgNull(processes, nameof(processes));
-            this.ValidateArgNull(canUseConfig, nameof(canUseConfig));
-            this.ValidateArgNull(talkTextReplaceConfig, nameof(talkTextReplaceConfig));
-            this.ValidateArgNull(exoConfig, nameof(exoConfig));
-            this.ValidateArgNull(appConfig, nameof(appConfig));
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
-            this.ValidateArgNull(windowActivateService, nameof(windowActivateService));
-            this.ValidateArgNull(voiceroidActionService, nameof(voiceroidActionService));
+            ValidateArgumentNull(processes, nameof(processes));
+            ValidateArgumentNull(canUseConfig, nameof(canUseConfig));
+            ValidateArgumentNull(talkTextReplaceConfig, nameof(talkTextReplaceConfig));
+            ValidateArgumentNull(exoConfig, nameof(exoConfig));
+            ValidateArgumentNull(appConfig, nameof(appConfig));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(windowActivateService, nameof(windowActivateService));
+            ValidateArgumentNull(voiceroidActionService, nameof(voiceroidActionService));
 
             this.IsTopmost = this.MakeInnerPropertyOf(appConfig, c => c.IsTopmost);
 

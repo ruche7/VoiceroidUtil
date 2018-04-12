@@ -5,12 +5,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -160,17 +160,16 @@ namespace VoiceroidUtil
         {
             // 設定ロード完了時にアプリ更新チェック設定が有効ならチェック開始
             this.ConfigManager.IsLoaded
-                .Where(f => f)
-                .Take(1)
+                .FirstAsync(f => f)
                 .Where(_ => this.ConfigManager.AppConfig.Value.IsUpdateCheckingOnStartup)
-                .Subscribe(_ => Task.Run(() => this.UpdateChecker.Run()))
+                .ObserveOn(ThreadPoolScheduler.Instance)
+                .Subscribe(async _ => await this.UpdateChecker.Run())
                 .AddTo(this.CompositeDisposable);
 
             // アプリ更新があるなら通知
             this.UpdateChecker
                 .ObserveProperty(c => c.CanUpdate)
-                .Where(f => f)
-                .Take(1)
+                .FirstAsync(f => f)
                 .Subscribe(
                     _ =>
                         this.LastStatus.Value =
@@ -220,6 +219,9 @@ namespace VoiceroidUtil
 #endif // WAIT_ON_CONFIG_LOADED
         void OnStartup(object sender, StartupEventArgs e)
         {
+            // ObserveOnUIDispatcher でUIスレッドを使うために初期化
+            UIDispatcherScheduler.Initialize();
+
             this.SetupTraceListener();
             this.SetupUpdateChecker();
             this.SetupVoiceroidProcess();

@@ -7,6 +7,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -35,10 +36,10 @@ namespace VoiceroidUtil.ViewModel
             IOpenFileDialogService openFileDialogService)
             : base(canModify, config)
         {
-            this.ValidateArgNull(appConfig, nameof(appConfig));
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(appConfig, nameof(appConfig));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
 
             this.AppConfig = appConfig;
             this.LastStatus = lastStatus;
@@ -240,18 +241,18 @@ namespace VoiceroidUtil.ViewModel
                     this.VisibleCharaStyles,
                     uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
                     (vcs, id) => vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
+                .DistinctUntilChanged()
                 .Subscribe(s => this.SelectedCharaStyle.Value = s)
                 .AddTo(this.CompositeDisposable);
 
             // 選択中キャラ別スタイル変更時処理
-            // 上書きは即座に行うとうまくいかないので少し待ちを入れる
             this.SelectedCharaStyle
                 .Where(s => s != null)
                 .Subscribe(s => uiConfig.Value.ExoCharaVoiceroidId = s.VoiceroidId)
                 .AddTo(this.CompositeDisposable);
             this.SelectedCharaStyle
-                .Throttle(TimeSpan.FromMilliseconds(10))
                 .Where(s => s == null)
+                .ObserveOnUIDispatcher()
                 .Subscribe(
                     _ =>
                         this.SelectedCharaStyle.Value =

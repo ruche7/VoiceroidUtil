@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.Windows.Input;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace VoiceroidUtil.Extensions
 {
@@ -135,5 +137,47 @@ namespace VoiceroidUtil.Extensions
 
             return result;
         }
+
+        /// <summary>
+        /// ReactiveCommand{T} オブジェクトの CanExecute メソッドの戻り値を通知する
+        /// ReadOnlyReactiveProperty{bool} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">コマンドパラメータ型。</typeparam>
+        /// <param name="self">ReactiveCommand{T} オブジェクト。</param>
+        /// <returns>ReadOnlyReactiveProperty{bool} オブジェクト。</returns>
+        public static ReadOnlyReactiveProperty<bool> CanExecuteToReadOnlyReactiveProperty<T>(
+            this ReactiveCommand<T> self)
+            =>
+            CanExecuteToReadOnlyReactivePropertyCore(self, self.CanExecute);
+
+        /// <summary>
+        /// AsyncReactiveCommand{T} オブジェクトの CanExecute メソッドの戻り値を通知する
+        /// ReadOnlyReactiveProperty{bool} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">コマンドパラメータ型。</typeparam>
+        /// <param name="self">ReactiveCommand{T} オブジェクト。</param>
+        /// <returns>ReadOnlyReactiveProperty{bool} オブジェクト。</returns>
+        public static ReadOnlyReactiveProperty<bool> CanExecuteToReadOnlyReactiveProperty<T>(
+            this AsyncReactiveCommand<T> self)
+            =>
+            CanExecuteToReadOnlyReactivePropertyCore(self, self.CanExecute);
+
+        /// <summary>
+        /// CanExecuteToReadOnlyReactiveProperty 拡張メソッドの実処理を行う。
+        /// </summary>
+        /// <param name="self">コマンドオブジェクト。</param>
+        /// <param name="canExecuteGetter">
+        /// CanExecute メソッドの戻り値を取得するデリゲート。
+        /// </param>
+        /// <returns>ReadOnlyReactiveProperty{bool} オブジェクト。</returns>
+        private static ReadOnlyReactiveProperty<bool>
+        CanExecuteToReadOnlyReactivePropertyCore(
+            ICommand self,
+            Func<bool> canExecuteGetter)
+            =>
+            self
+                .CanExecuteChangedAsObservable()
+                .Select(_ => canExecuteGetter())
+                .ToReadOnlyReactiveProperty(canExecuteGetter());
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using Reactive.Bindings;
 using VoiceroidUtil.Extensions;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -24,8 +25,8 @@ namespace VoiceroidUtil.ViewModel
             IReadOnlyReactiveProperty<bool> canModify,
             IReadOnlyReactiveProperty<TConfig> config)
         {
-            this.ValidateArgNull(canModify, nameof(canModify));
-            this.ValidateArgNull(config, nameof(config));
+            ValidateArgumentNull(canModify, nameof(canModify));
+            ValidateArgumentNull(config, nameof(config));
 
             this.CanModify = canModify;
             this.BaseConfig = config;

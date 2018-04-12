@@ -10,18 +10,23 @@ using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Mvvm.Commands;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil
 {
     /// <summary>
     /// ReactiveCommand でWAVEファイル保存処理の非同期実行を行うためのクラス。
     /// </summary>
-    public class SaveCommandExecuter : AsyncCommandExecuter<SaveCommandExecuter.Parameter>
+    public class AsyncSaveCommandHolder
+        :
+        AsyncCommandHolderBase<
+            AsyncSaveCommandHolder.CommandParameter,
+            AsyncSaveCommandHolder.CommandResult>
     {
         /// <summary>
         /// コマンドパラメータクラス。
         /// </summary>
-        public class Parameter
+        public class CommandParameter
         {
             /// <summary>
             /// コンストラクタ。
@@ -31,7 +36,7 @@ namespace VoiceroidUtil
             /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
             /// <param name="appConfig">アプリ設定。</param>
             /// <param name="talkText">トークテキスト。</param>
-            public Parameter(
+            public CommandParameter(
                 IProcess process,
                 TalkTextReplaceConfig talkTextReplaceConfig,
                 ExoConfig exoConfig,
@@ -72,68 +77,36 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// コンストラクタ。
+        /// コマンド戻り値クラス。
         /// </summary>
-        /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
-        /// <param name="talkTextReplaceConfigGetter">
-        /// トークテキスト置換設定取得デリゲート。
-        /// </param>
-        /// <param name="exoConfigGetter">
-        /// AviUtl拡張編集ファイル用設定取得デリゲート。
-        /// </param>
-        /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
-        /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
-        /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
-        public SaveCommandExecuter(
-            Func<IProcess> processGetter,
-            Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
-            Func<ExoConfig> exoConfigGetter,
-            Func<AppConfig> appConfigGetter,
-            Func<string> talkTextGetter,
-            Func<IAppStatus, Parameter, Task> resultNotifier)
-            : base()
+        public class CommandResult
         {
-            if (processGetter == null)
+            /// <summary>
+            /// コンストラクタ。
+            /// </summary>
+            /// <param name="appStatus">アプリ状態値。</param>
+            /// <param name="parameter">コマンド実施時に作成されたパラメータ。</param>
+            public CommandResult(IAppStatus appStatus, CommandParameter parameter)
             {
-                throw new ArgumentNullException(nameof(processGetter));
-            }
-            if (talkTextReplaceConfigGetter == null)
-            {
-                throw new ArgumentNullException(nameof(talkTextReplaceConfigGetter));
-            }
-            if (exoConfigGetter == null)
-            {
-                throw new ArgumentNullException(nameof(exoConfigGetter));
-            }
-            if (appConfigGetter == null)
-            {
-                throw new ArgumentNullException(nameof(appConfigGetter));
-            }
-            if (talkTextGetter == null)
-            {
-                throw new ArgumentNullException(nameof(talkTextGetter));
-            }
-            if (resultNotifier == null)
-            {
-                throw new ArgumentNullException(nameof(resultNotifier));
+                this.AppStatus = appStatus;
+                this.Parameter = parameter;
             }
 
-            this.AsyncFunc = this.ExecuteAsync;
-            this.ParameterConverter =
-                _ =>
-                    new Parameter(
-                        processGetter(),
-                        talkTextReplaceConfigGetter(),
-                        exoConfigGetter(),
-                        appConfigGetter(),
-                        talkTextGetter());
+            /// <summary>
+            /// アプリ状態値を取得する。
+            /// </summary>
+            public IAppStatus AppStatus { get; }
 
-            this.ResultNotifier = resultNotifier;
+            /// <summary>
+            /// コマンド実施時に作成されたパラメータを取得する。
+            /// </summary>
+            public CommandParameter Parameter { get; }
         }
 
         /// <summary>
         /// コンストラクタ。
         /// </summary>
+        /// <param name="canExecuteSource">コマンド実施可否状態のプッシュ通知。</param>
         /// <param name="processGetter">VOICEROIDプロセス取得デリゲート。</param>
         /// <param name="talkTextReplaceConfigGetter">
         /// トークテキスト置換設定取得デリゲート。
@@ -143,29 +116,31 @@ namespace VoiceroidUtil
         /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
-        /// <param name="resultNotifier">処理結果のアプリ状態通知デリゲート。</param>
-        public SaveCommandExecuter(
+        public AsyncSaveCommandHolder(
+            IObservable<bool> canExecuteSource,
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
             Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
-            Func<string> talkTextGetter,
-            Action<IAppStatus, Parameter> resultNotifier)
-            :
-            this(
-                processGetter,
-                talkTextReplaceConfigGetter,
-                exoConfigGetter,
-                appConfigGetter,
-                talkTextGetter,
-                (resultNotifier == null) ?
-                    (Func<IAppStatus, Parameter, Task>)null :
-                    async (r, p) =>
-                    {
-                        resultNotifier(r, p);
-                        await Task.FromResult(0);
-                    })
+            Func<string> talkTextGetter)
+            : base(canExecuteSource)
         {
+            ValidateArgumentNull(processGetter, nameof(processGetter));
+            ValidateArgumentNull(
+                talkTextReplaceConfigGetter,
+                nameof(talkTextReplaceConfigGetter));
+            ValidateArgumentNull(exoConfigGetter, nameof(exoConfigGetter));
+            ValidateArgumentNull(appConfigGetter, nameof(appConfigGetter));
+            ValidateArgumentNull(talkTextGetter, nameof(talkTextGetter));
+
+            this.ParameterMaker =
+                () =>
+                    new CommandParameter(
+                        processGetter(),
+                        talkTextReplaceConfigGetter(),
+                        exoConfigGetter(),
+                        appConfigGetter(),
+                        talkTextGetter());
         }
 
         /// <summary>
@@ -321,241 +296,44 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 処理結果のアプリ状態通知デリゲートを取得する。
-        /// </summary>
-        private Func<IAppStatus, Parameter, Task> ResultNotifier { get; }
-
-        /// <summary>
-        /// 非同期の実処理を行う。
+        /// 処理結果のアプリ状態を通知する。
         /// </summary>
         /// <param name="parameter">コマンドパラメータ。</param>
-        private async Task ExecuteAsync(Parameter parameter)
-        {
-            var process = parameter?.Process;
-            var talkTextReplaceConfig = parameter?.TalkTextReplaceConfig;
-            var exoConfig = parameter?.ExoConfig;
-            var appConfig = parameter?.AppConfig;
-
-            if (process == null || exoConfig == null || appConfig == null)
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"ファイル保存を開始できませんでした。");
-                return;
-            }
-
-            if (!process.IsRunning || process.IsSaving || process.IsDialogShowing)
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"ファイル保存を開始できませんでした。");
-                return;
-            }
-
-            // VOICEROID2フラグ
-            bool voiceroid2 = (process.Id == VoiceroidId.Voiceroid2);
-
-            // 基テキスト、音声用テキスト作成
-            string text, voiceText;
-            if (appConfig.UseTargetText)
-            {
-                // 本体側のテキストを使う設定ならそちらから取得
-                voiceText = text = await process.GetTalkText();
-                if (text == null)
+        /// <param name="statusType">状態種別。</param>
+        /// <param name="statusText">状態テキスト。</param>
+        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
+        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
+        /// <param name="subStatusCommandTip">
+        /// オプショナルなサブ状態コマンドのチップテキスト。
+        /// </param>
+        private static CommandResult MakeResult(
+            CommandParameter parameter,
+            AppStatusType statusType = AppStatusType.None,
+            string statusText = "",
+            AppStatusType subStatusType = AppStatusType.None,
+            string subStatusText = "",
+            ICommand subStatusCommand = null,
+            string subStatusCommandTip = "")
+            =>
+            new CommandResult(
+                new AppStatus
                 {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Fail,
-                        @"本体側の文章を取得できませんでした。");
-                    return;
-                }
-                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
-                {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Fail,
-                        @"本体側の文章が空白文です。",
-                        subStatusText: @"空白文を音声保存することはできません。");
-                    return;
-                }
-            }
-            else
-            {
-                // 基テキスト取得
-                text = parameter?.TalkText;
-                if (text == null)
-                {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Fail,
-                        @"ファイル保存を開始できませんでした。");
-                    return;
-                }
+                    StatusType = statusType,
+                    StatusText = statusText ?? "",
+                    SubStatusType = subStatusType,
+                    SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand,
+                    SubStatusCommandTip =
+                        string.IsNullOrEmpty(subStatusCommandTip) ?
+                            null : subStatusCommandTip,
+                },
+                parameter);
 
-                // 音声用テキスト作成
-                voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
-                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
-                {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Fail,
-                        @"文章の音声用置換結果が空白になります。",
-                        subStatusText: @"空白文を音声保存することはできません。");
-                    return;
-                }
-            }
-
-            // 字幕用テキスト作成
-            var fileText =
-                talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
-
-            // キャラクター名取得
-            // VOICEROID2ならばボイスプリセット名を使う
-            var charaName = voiceroid2 ? (await process.GetVoicePresetName()) : process.Name;
-
-            // WAVEファイルパス決定
-            string filePath = null;
-            try
-            {
-                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2);
-            }
-            catch (Exception ex)
-            {
-                ThreadTrace.WriteException(ex);
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"ファイル名の決定に失敗しました。");
-                return;
-            }
-            if (filePath == null)
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"ファイル保存を開始できませんでした。");
-                return;
-            }
-
-            // パスが正常かチェック
-            var pathStatus = FilePathUtil.CheckPathStatus(filePath, pathIsFile: true);
-            if (pathStatus.StatusType != AppStatusType.None)
-            {
-                await this.ResultNotifier(pathStatus, parameter);
-                return;
-            }
-
-            // トークテキスト設定
-            if (!appConfig.UseTargetText && !(await process.SetTalkText(voiceText)))
-            {
-                // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
-                // 再生時と違い、メッセージを返すのみでリカバリはしない。
-
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    @"文章の設定に失敗しました。",
-                    AppStatusType.Information,
-                    voiceroid2 ? @"一度再生を行ってみてください。" : null);
-                return;
-            }
-
-            // WAVEファイル保存
-            var result = await process.Save(filePath);
-            if (!result.IsSucceeded)
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Fail,
-                    result.Error,
-                    subStatusText: result.ExtraMessage);
-                return;
-            }
-
-            var requiredFilePath = filePath;
-            filePath = result.FilePath;
-
-            var statusText = Path.GetFileName(filePath) + @" を保存しました。";
-
-            // VOICEROID2かつファイル名が異なる
-            // → ファイル分割されているので以降の処理は行わない
-            if (
-                voiceroid2 &&
-                !string.Equals(
-                    Path.GetFileNameWithoutExtension(requiredFilePath),
-                    Path.GetFileNameWithoutExtension(filePath),
-                    StringComparison.InvariantCultureIgnoreCase))
-            {
-                await this.NotifyResult(
-                    parameter,
-                    AppStatusType.Success,
-                    statusText,
-                    AppStatusType.Warning,
-                    @"ファイル分割時は音声ファイル保存のみ行います。");
-                return;
-            }
-
-            // テキストファイル保存
-            if (appConfig.IsTextFileForceMaking)
-            {
-                var txtPath = Path.ChangeExtension(filePath, @".txt");
-                if (!(await WriteTextFile(txtPath, fileText, appConfig.IsTextFileUtf8)))
-                {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Success,
-                        statusText,
-                        AppStatusType.Fail,
-                        @"テキストファイルを保存できませんでした。");
-                    return;
-                }
-            }
-
-            // 以降の処理の対象となるキャラ
-            // VOICEROID2ならボイスプリセット名からキャラ選別
-            var voiceroidId =
-                (voiceroid2 ? FindKeywordContainedVoiceroidId(charaName) : null) ??
-                process.Id;
-
-            // .exo ファイル保存
-            if (appConfig.IsExoFileMaking)
-            {
-                var exoPath = Path.ChangeExtension(filePath, @".exo");
-                var ok =
-                    await this.DoWriteExoFile(
-                        exoPath,
-                        exoConfig,
-                        voiceroidId,
-                        filePath,
-                        fileText);
-                if (!ok)
-                {
-                    await this.NotifyResult(
-                        parameter,
-                        AppStatusType.Success,
-                        statusText,
-                        AppStatusType.Fail,
-                        @".exo ファイルを保存できませんでした。");
-                    return;
-                }
-            }
-
-            // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
-
-            await this.NotifyResult(
-                parameter,
-                AppStatusType.Success,
-                statusText,
-                (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
-                warnText ?? @"保存先フォルダーを開く",
-                (warnText == null) ?
-                    new ProcessStartCommand(@"explorer.exe", $@"/select,""{filePath}""") :
-                    null,
-                (warnText == null) ? Path.GetDirectoryName(filePath) : null);
-        }
+        /// <summary>
+        /// コマンドパラメータ作成デリゲートを取得する。
+        /// </summary>
+        private Func<CommandParameter> ParameterMaker { get; }
 
         /// <summary>
         /// 設定を基にAviUtl拡張編集ファイル書き出しを行う。
@@ -788,39 +566,252 @@ namespace VoiceroidUtil
             return warnText;
         }
 
+        #region AsyncCommandHolderBase<TParameter, TResult> のオーバライド
+
         /// <summary>
-        /// 処理結果のアプリ状態を通知する。
+        /// コマンドパラメータを変換する。
+        /// </summary>
+        /// <param name="parameter">元のコマンドパラメータ。無視される。</param>
+        /// <returns>変換されたコマンドパラメータ。</returns>
+        protected override sealed CommandParameter ConvertParameter(
+            CommandParameter parameter)
+            =>
+            this.ParameterMaker();
+
+        /// <summary>
+        /// コマンド処理を行う。
         /// </summary>
         /// <param name="parameter">コマンドパラメータ。</param>
-        /// <param name="statusType">状態種別。</param>
-        /// <param name="statusText">状態テキスト。</param>
-        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
-        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
-        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
-        /// <param name="subStatusCommandTip">
-        /// オプショナルなサブ状態コマンドのチップテキスト。
-        /// </param>
-        private Task NotifyResult(
-            Parameter parameter,
-            AppStatusType statusType = AppStatusType.None,
-            string statusText = "",
-            AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = "",
-            ICommand subStatusCommand = null,
-            string subStatusCommandTip = "")
-            =>
-            this.ResultNotifier(
-                new AppStatus
+        /// <returns>コマンドの戻り値。</returns>
+        protected override sealed async Task<CommandResult> Execute(
+            CommandParameter parameter)
+        {
+            var process = parameter?.Process;
+            var talkTextReplaceConfig = parameter?.TalkTextReplaceConfig;
+            var exoConfig = parameter?.ExoConfig;
+            var appConfig = parameter?.AppConfig;
+
+            if (process == null || exoConfig == null || appConfig == null)
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"ファイル保存を開始できませんでした。");
+            }
+
+            if (!process.IsRunning || process.IsSaving || process.IsDialogShowing)
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"ファイル保存を開始できませんでした。");
+            }
+
+            // VOICEROID2フラグ
+            bool voiceroid2 = (process.Id == VoiceroidId.Voiceroid2);
+
+            // 基テキスト、音声用テキスト作成
+            string text, voiceText;
+            if (appConfig.UseTargetText)
+            {
+                // 本体側のテキストを使う設定ならそちらから取得
+                voiceText = text = await process.GetTalkText();
+                if (text == null)
                 {
-                    StatusType = statusType,
-                    StatusText = statusText ?? "",
-                    SubStatusType = subStatusType,
-                    SubStatusText = subStatusText ?? "",
-                    SubStatusCommand = subStatusCommand,
-                    SubStatusCommandTip =
-                        string.IsNullOrEmpty(subStatusCommandTip) ?
-                            null : subStatusCommandTip,
-                },
-                parameter);
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Fail,
+                            @"本体側の文章を取得できませんでした。");
+                }
+                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
+                {
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Fail,
+                            @"本体側の文章が空白文です。",
+                            subStatusText: @"空白文を音声保存することはできません。");
+                }
+            }
+            else
+            {
+                // 基テキスト取得
+                text = parameter?.TalkText;
+                if (text == null)
+                {
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Fail,
+                            @"ファイル保存を開始できませんでした。");
+                }
+
+                // 音声用テキスト作成
+                voiceText = talkTextReplaceConfig?.VoiceReplaceItems.Replace(text) ?? text;
+                if (!process.CanSaveBlankText && string.IsNullOrWhiteSpace(voiceText))
+                {
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Fail,
+                            @"文章の音声用置換結果が空白になります。",
+                            subStatusText: @"空白文を音声保存することはできません。");
+                }
+            }
+
+            // 字幕用テキスト作成
+            var fileText =
+                talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
+
+            // キャラクター名取得
+            // VOICEROID2ならばボイスプリセット名を使う
+            var charaName = voiceroid2 ? (await process.GetVoicePresetName()) : process.Name;
+
+            // WAVEファイルパス決定
+            string filePath = null;
+            try
+            {
+                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"ファイル名の決定に失敗しました。");
+            }
+            if (filePath == null)
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"ファイル保存を開始できませんでした。");
+            }
+
+            // パスが正常かチェック
+            var pathStatus = FilePathUtil.CheckPathStatus(filePath, pathIsFile: true);
+            if (pathStatus.StatusType != AppStatusType.None)
+            {
+                return new CommandResult(pathStatus, parameter);
+            }
+
+            // トークテキスト設定
+            if (!appConfig.UseTargetText && !(await process.SetTalkText(voiceText)))
+            {
+                // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
+                // 再生時と違い、メッセージを返すのみでリカバリはしない。
+
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        @"文章の設定に失敗しました。",
+                        AppStatusType.Information,
+                        voiceroid2 ? @"一度再生を行ってみてください。" : null);
+            }
+
+            // WAVEファイル保存
+            var result = await process.Save(filePath);
+            if (!result.IsSucceeded)
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Fail,
+                        result.Error,
+                        subStatusText: result.ExtraMessage);
+            }
+
+            var requiredFilePath = filePath;
+            filePath = result.FilePath;
+
+            var statusText = Path.GetFileName(filePath) + @" を保存しました。";
+
+            // VOICEROID2かつファイル名が異なる
+            // → ファイル分割されているので以降の処理は行わない
+            if (
+                voiceroid2 &&
+                !string.Equals(
+                    Path.GetFileNameWithoutExtension(requiredFilePath),
+                    Path.GetFileNameWithoutExtension(filePath),
+                    StringComparison.InvariantCultureIgnoreCase))
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Success,
+                        statusText,
+                        AppStatusType.Warning,
+                        @"ファイル分割時は音声ファイル保存のみ行います。");
+            }
+
+            // テキストファイル保存
+            if (appConfig.IsTextFileForceMaking)
+            {
+                var txtPath = Path.ChangeExtension(filePath, @".txt");
+                if (!(await WriteTextFile(txtPath, fileText, appConfig.IsTextFileUtf8)))
+                {
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Success,
+                            statusText,
+                            AppStatusType.Fail,
+                            @"テキストファイルを保存できませんでした。");
+                }
+            }
+
+            // 以降の処理の対象となるキャラ
+            // VOICEROID2ならボイスプリセット名からキャラ選別
+            var voiceroidId =
+                (voiceroid2 ? FindKeywordContainedVoiceroidId(charaName) : null) ??
+                process.Id;
+
+            // .exo ファイル保存
+            if (appConfig.IsExoFileMaking)
+            {
+                var exoPath = Path.ChangeExtension(filePath, @".exo");
+                var ok =
+                    await this.DoWriteExoFile(
+                        exoPath,
+                        exoConfig,
+                        voiceroidId,
+                        filePath,
+                        fileText);
+                if (!ok)
+                {
+                    return
+                        MakeResult(
+                            parameter,
+                            AppStatusType.Success,
+                            statusText,
+                            AppStatusType.Fail,
+                            @".exo ファイルを保存できませんでした。");
+                }
+            }
+
+            // ゆっくりMovieMaker処理
+            var warnText = await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
+
+            return
+                MakeResult(
+                    parameter,
+                    AppStatusType.Success,
+                    statusText,
+                    (warnText == null) ? AppStatusType.None : AppStatusType.Warning,
+                    warnText ?? @"保存先フォルダーを開く",
+                    (warnText == null) ?
+                        new ProcessStartCommand(@"explorer.exe", $@"/select,""{filePath}""") :
+                        null,
+                    (warnText == null) ? Path.GetDirectoryName(filePath) : null);
+        }
+
+        #endregion
     }
 }
