@@ -53,10 +53,9 @@ namespace VoiceroidUtil.ViewModel
 
             // キャラ別スタイル設定コレクション
             var charaStyles =
-                this
-                    .ObserveConfigProperty(c => c.CharaStyles)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+                this.MakeReadOnlyConfigProperty(
+                    c => c.CharaStyles,
+                    notifyOnSameValue: true);
 
             // 表示状態のキャラ別スタイル設定コレクション
             this.VisibleCharaStyles =
@@ -103,10 +102,7 @@ namespace VoiceroidUtil.ViewModel
 
             // ファイル作成設定有効化コマンド表示状態
             this.IsFileMakingCommandInvisible =
-                this.AppConfig
-                    .ObserveInnerProperty(c => c.IsExoFileMaking)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerReadOnlyPropertyOf(this.AppConfig, c => c.IsExoFileMaking);
             this.IsFileMakingCommandVisible =
                 this.IsFileMakingCommandInvisible
                     .Inverse()
@@ -129,8 +125,9 @@ namespace VoiceroidUtil.ViewModel
                                 this.MakeCommand(
                                     () => this.ExecuteSelectCharaStyleCommand(index),
                                     this.IsSelectCharaStyleCommandExecutable,
-                                    this.VisibleCharaStyles.Select(
-                                        vcs => index < vcs.Count)))
+                                    this.VisibleCharaStyles
+                                        .Select(vcs => index < vcs.Count)
+                                        .DistinctUntilChanged()))
                         .ToArray());
 
             // 前方/後方キャラ別スタイル設定選択コマンド
@@ -239,7 +236,9 @@ namespace VoiceroidUtil.ViewModel
             Observable
                 .CombineLatest(
                     this.VisibleCharaStyles,
-                    uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
+                    uiConfig
+                        .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
+                        .DistinctUntilChanged(),
                     (vcs, id) => vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
                 .DistinctUntilChanged()
                 .Subscribe(s => this.SelectedCharaStyle.Value = s)

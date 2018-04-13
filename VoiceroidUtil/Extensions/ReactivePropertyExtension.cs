@@ -34,7 +34,7 @@ namespace VoiceroidUtil.Extensions
         public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null,
+            IReadOnlyReactiveProperty<bool> canModifyNotifier = null,
             bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
@@ -65,7 +65,7 @@ namespace VoiceroidUtil.Extensions
         public static ReactiveProperty<TProperty> MakeInnerReactiveProperty<T, TProperty>(
             this IReadOnlyReactiveProperty<T> self,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null,
+            IReadOnlyReactiveProperty<bool> canModifyNotifier = null,
             bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
@@ -83,7 +83,7 @@ namespace VoiceroidUtil.Extensions
         /// 内包オブジェクト。 INotifyPropertyChanged を実装している必要がある。
         /// </typeparam>
         /// <typeparam name="TProperty">内包オブジェクト内プロパティの型。</typeparam>
-        /// <param name="self">IReactiveProperty{T} オブジェクト。</param>
+        /// <param name="self">IObservable{T} オブジェクト。</param>
         /// <param name="selector">内包オブジェクト内プロパティセレクタ。</param>
         /// <param name="canModifyNotifier">
         /// 値変更可能状態プッシュ通知。 null を指定すると常に可能となる。
@@ -97,7 +97,7 @@ namespace VoiceroidUtil.Extensions
         MakeInnerReactivePropertyCore<T, TProperty>(
             IObservable<T> self,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier,
+            IReadOnlyReactiveProperty<bool> canModifyNotifier,
             bool notifyOnSameValue,
             Action<Action<T, TProperty>, TProperty> setterExecuter)
             where T : INotifyPropertyChanged
@@ -125,14 +125,15 @@ namespace VoiceroidUtil.Extensions
             }
             else
             {
-                // canModifyNotifier が true を通知したタイミングで値を反映する
-                Observable
-                    .CombineLatest(
-                        result,
-                        canModifyNotifier,
-                        (value, canModify) => new { value, canModify })
-                    .Where(v => v.canModify)
-                    .Subscribe(v => setterExecuter(setter, v.value));
+                // canModifyNotifier が true の時のみ値を反映する
+                result.Subscribe(
+                    value =>
+                    {
+                        if (canModifyNotifier.Value)
+                        {
+                            setterExecuter(setter, value);
+                        }
+                    });
             }
 
             return result;

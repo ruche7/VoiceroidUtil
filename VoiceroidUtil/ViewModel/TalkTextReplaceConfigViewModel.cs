@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -49,8 +50,12 @@ namespace VoiceroidUtil.ViewModel
             this.IsFileMakingCommandVisible =
                 new[]
                 {
-                    appConfig.ObserveInnerProperty(c => c.IsTextFileForceMaking),
-                    appConfig.ObserveInnerProperty(c => c.IsExoFileMaking),
+                    appConfig
+                        .ObserveInnerProperty(c => c.IsTextFileForceMaking)
+                        .DistinctUntilChanged(),
+                    appConfig
+                        .ObserveInnerProperty(c => c.IsExoFileMaking)
+                        .DistinctUntilChanged(),
                 }
                 .CombineLatestValuesAreAllFalse()
                 .ToReadOnlyReactiveProperty()

@@ -74,7 +74,10 @@ namespace VoiceroidUtil.ViewModel
             this.IsTextClearing =
                 this.MakeInnerPropertyOf(appConfig, c => c.IsTextClearing);
             this.VoiceroidExecutablePathes =
-                this.MakeInnerPropertyOf(uiConfig, c => c.VoiceroidExecutablePathes);
+                this.MakeInnerPropertyOf(
+                    uiConfig,
+                    c => c.VoiceroidExecutablePathes,
+                    notifyOnSameValue: true);
 
             // 表示状態のVOICEROIDプロセスコレクション
             this.VisibleProcesses =
@@ -143,9 +146,14 @@ namespace VoiceroidUtil.ViewModel
                         })
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
-            var processSaving = this.ObserveSelectedProcessProperty(p => p.IsSaving);
+            var processSaving =
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsSaving)
+                    .DistinctUntilChanged();
             var processDialogShowing =
-                this.ObserveSelectedProcessProperty(p => p.IsDialogShowing);
+                this
+                    .ObserveSelectedProcessProperty(p => p.IsDialogShowing)
+                    .DistinctUntilChanged();
 
             // トークテキスト
             this.TalkText =
@@ -173,7 +181,10 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeInnerPropertyOf(
                     appConfig,
                     c => c.UseTargetText,
-                    new[] { canUseConfig, this.IsIdle }.CombineLatestValuesAreAllTrue());
+                    new[] { canUseConfig, this.IsIdle }
+                        .CombineLatestValuesAreAllTrue()
+                        .ToReadOnlyReactiveProperty()
+                        .AddTo(this.CompositeDisposable));
 
             // - 本体側のテキストを使う設定が有効
             // または
@@ -184,7 +195,8 @@ namespace VoiceroidUtil.ViewModel
                 {
                     this.UseTargetText,
                     new[] { saveCommandBusy, this.IsTextClearing }
-                        .CombineLatestValuesAreAllTrue(),
+                        .CombineLatestValuesAreAllTrue()
+                        .DistinctUntilChanged(),
                 }
                 .CombineLatest(flags => flags.Any(f => f))
                 .Inverse()
@@ -200,7 +212,9 @@ namespace VoiceroidUtil.ViewModel
                                 this.MakeCommand(
                                     () => this.ExecuteSelectVoiceroidCommand(index),
                                     this.IsSelectVoiceroidCommandExecutable,
-                                    this.VisibleProcesses.Select(vp => index < vp.Count)))
+                                    this.VisibleProcesses
+                                        .Select(vp => index < vp.Count)
+                                        .DistinctUntilChanged()))
                         .ToArray());
 
             // 前方/後方VOICEROID選択コマンド
@@ -236,6 +250,7 @@ namespace VoiceroidUtil.ViewModel
                         dropTalkTextFileCommandBusy.Inverse(),
                     }
                     .CombineLatestValuesAreAllTrue()
+                    .DistinctUntilChanged()
                     .ObserveOnUIDispatcher(),
                     () => this.SelectedProcess.Value,
                     () => talkTextReplaceConfig.Value.VoiceReplaceItems,
@@ -259,19 +274,25 @@ namespace VoiceroidUtil.ViewModel
                         processDialogShowing.Inverse(),
                         new[]
                         {
-                            this.TalkText.Select(t => !string.IsNullOrWhiteSpace(t)),
+                            this.TalkText
+                                .Select(t => !string.IsNullOrWhiteSpace(t))
+                                .DistinctUntilChanged(),
                             this.UseTargetText,
 
                             // 敢えて空白文を保存したいことはまず無いと思われるので、
                             // 誤クリック抑止の意味も込めて空白文は送信不可とする。
                             // ただし本体側の文章を使う場合は空白文でも保存可能とする。
                             // ↓のコメントを外すとVOICEROID2で空白文送信保存可能になる。
-                            //this.ObserveSelectedProcessProperty(p => p.CanSaveBlankText),
+                            //this
+                            //    .ObserveSelectedProcessProperty(p => p.CanSaveBlankText)
+                            //    .DistinctUntilChanged(),
                         }
-                        .CombineLatest(flags => flags.Any(f => f)),
+                        .CombineLatest(flags => flags.Any(f => f))
+                        .DistinctUntilChanged(),
                         dropTalkTextFileCommandBusy.Inverse(),
                     }
                     .CombineLatestValuesAreAllTrue()
+                    .DistinctUntilChanged()
                     .ObserveOnUIDispatcher(),
                     () => this.SelectedProcess.Value,
                     () => talkTextReplaceConfig.Value,
@@ -540,7 +561,9 @@ namespace VoiceroidUtil.ViewModel
             Observable
                 .CombineLatest(
                     this.VisibleProcesses,
-                    uiConfig.ObserveInnerProperty(c => c.VoiceroidId),
+                    uiConfig
+                        .ObserveInnerProperty(c => c.VoiceroidId)
+                        .DistinctUntilChanged(),
                     (vp, id) => vp.FirstOrDefault(p => p.Id == id) ?? vp.First())
                 .DistinctUntilChanged()
                 .Subscribe(p => this.SelectedProcess.Value = p)
