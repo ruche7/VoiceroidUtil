@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -10,6 +11,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.Windows.Mvvm.Commands;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -29,9 +31,9 @@ namespace VoiceroidUtil.ViewModel
             IOpenFileDialogService openFileDialogService)
             : base(canModify, config)
         {
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
 
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;
@@ -40,13 +42,19 @@ namespace VoiceroidUtil.ViewModel
             this.SelectedTabIndex =
                 this.MakeInnerPropertyOf(uiConfig, c => c.AppConfigTabIndex);
 
+            // YmmCharaRelation コレクション
+            var ymmCharaRelations =
+                this.MakeReadOnlyConfigProperty(
+                    c => c.YmmCharaRelations,
+                    notifyOnSameValue: true);
+
             // 表示状態の YmmCharaRelation コレクション
             this.VisibleYmmCharaRelations =
                 Observable
                     .CombineLatest(
-                        this.ObserveConfigProperty(c => c.YmmCharaRelations),
                         this.ObserveConfigProperty(c => c.VoiceroidVisibilities),
-                        (r, vv) => vv.SelectVisibleOf(r))
+                        ymmCharaRelations.Select(r => r.Count()).DistinctUntilChanged(),
+                        (vv, _) => vv.SelectVisibleOf(ymmCharaRelations.Value))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 

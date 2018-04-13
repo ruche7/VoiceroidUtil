@@ -10,9 +10,12 @@ namespace RucheHome.AviUtl.ExEdit
     /// 移動可能な数値を表すジェネリッククラス。
     /// </summary>
     /// <typeparam name="TConstants">定数情報型。</typeparam>
+    /// <remarks>
+    /// このクラスで IEquatable{MovableValue{TConstants}} を実装しないこと。
+    /// 異なるインスタンスが同値判定されると ReactiveProperty との相性が悪くなるため。
+    /// </remarks>
     [DataContract(Namespace = "")]
-    public class MovableValue<TConstants>
-        : BindableBase, IMovableValue, IEquatable<MovableValue<TConstants>>, ICloneable
+    public class MovableValue<TConstants> : BindableBase, IMovableValue, ICloneable
         where TConstants : IMovableValueConstants, new()
     {
         #region 静的定義群
@@ -218,24 +221,30 @@ namespace RucheHome.AviUtl.ExEdit
         /// <param name="begin">開始値。</param>
         /// <param name="end">終端値。</param>
         /// <param name="moveMode">移動モード。</param>
-        /// <param name="accelerating">加速を行うならば true 。</param>
-        /// <param name="decelerating">減速を行うならば true 。</param>
-        /// <param name="interval">移動フレーム間隔。</param>
+        /// <param name="accelerating">
+        /// 加速を行うならば true 。移動モードの既定値にするならば null 。
+        /// </param>
+        /// <param name="decelerating">
+        /// 減速を行うならば true 。移動モードの既定値にするならば null 。
+        /// </param>
+        /// <param name="interval">
+        /// 移動フレーム間隔。移動モードの既定値にするならば null 。
+        /// </param>
         public MovableValue(
             decimal begin,
             decimal end,
             MoveMode moveMode,
-            bool accelerating = false,
-            bool decelerating = false,
-            int interval = 0)
+            bool? accelerating = null,
+            bool? decelerating = null,
+            int? interval = null)
             : base()
         {
             this.Begin = begin;
             this.End = end;
             this.MoveMode = moveMode;
-            this.IsAccelerating = accelerating;
-            this.IsDecelerating = decelerating;
-            this.Interval = interval;
+            this.IsAccelerating = accelerating ?? this.MoveMode.IsDefaultAccelerating();
+            this.IsDecelerating = decelerating ?? this.MoveMode.IsDefaultDecelerating();
+            this.Interval = interval ?? this.MoveMode.GetDefaultInterval();
         }
 
         /// <summary>
@@ -269,7 +278,20 @@ namespace RucheHome.AviUtl.ExEdit
         public decimal Begin
         {
             get => this.begin;
-            set => this.SetProperty(ref this.begin, CorrectValue(value));
+            set
+            {
+                var v = CorrectValue(value);
+                if (v != this.begin)
+                {
+                    this.SetProperty(ref this.begin, v);
+
+                    // 移動モードが MoveMode.None ならば End を揃える
+                    if (this.IsCorrectingOnChanged && this.MoveMode == MoveMode.None)
+                    {
+                        this.End = v;
+                    }
+                }
+            }
         }
         private decimal begin = 0;
 
@@ -283,7 +305,20 @@ namespace RucheHome.AviUtl.ExEdit
         public decimal End
         {
             get => this.end;
-            set => this.SetProperty(ref this.end, CorrectValue(value));
+            set
+            {
+                var v = CorrectValue(value);
+                if (v != this.end)
+                {
+                    this.SetProperty(ref this.end, v);
+
+                    // 移動モードが MoveMode.None ならば Begin を揃える
+                    if (this.IsCorrectingOnChanged && this.MoveMode == MoveMode.None)
+                    {
+                        this.Begin = v;
+                    }
+                }
+            }
         }
         private decimal end = 0;
 
@@ -293,10 +328,28 @@ namespace RucheHome.AviUtl.ExEdit
         public MoveMode MoveMode
         {
             get => this.moveMode;
-            set =>
-                this.SetProperty(
-                    ref this.moveMode,
-                    Enum.IsDefined(value.GetType(), value) ? value : MoveMode.None);
+            set
+            {
+                var v = Enum.IsDefined(value.GetType(), value) ? value : MoveMode.None;
+                if (v != this.moveMode)
+                {
+                    this.SetProperty(ref this.moveMode, v);
+
+                    if (this.IsCorrectingOnChanged)
+                    {
+                        // MoveMode.None ならば End を揃える
+                        if (v == MoveMode.None)
+                        {
+                            this.End = this.Begin;
+                        }
+
+                        // 移動関係の値を既定値にする
+                        this.IsAccelerating = v.IsDefaultAccelerating();
+                        this.IsDecelerating = v.IsDefaultDecelerating();
+                        this.Interval = v.GetDefaultInterval();
+                    }
+                }
+            }
         }
         private MoveMode moveMode = MoveMode.None;
 
@@ -355,29 +408,44 @@ namespace RucheHome.AviUtl.ExEdit
         private int interval = 0;
 
         /// <summary>
+        /// プロパティ値の変更時に他のプロパティ値を補正するか否かを取得または設定する。
+        /// </summary>
+        /// <remarks>
+        /// このプロパティ値はシリアライズされない。
+        /// デシリアライズを行うと必ず true になる。
+        /// </remarks>
+        public bool IsCorrectingOnChanged
+        {
+            get => this.correctingOnChanged;
+            set => this.SetProperty(ref this.correctingOnChanged, value);
+        }
+        private bool correctingOnChanged = true;
+
+        /// <summary>
         /// このオブジェクトのクローンを作成する。
         /// </summary>
         /// <returns>クローン。</returns>
         public MovableValue<TConstants> Clone() => new MovableValue<TConstants>(this);
 
+        /// <summary>
+        /// デシリアライズの直前に呼び出される。
+        /// </summary>
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context)
+        {
+            this.IsCorrectingOnChanged = false;
+        }
+
+        /// <summary>
+        /// デシリアライズの完了時に呼び出される。
+        /// </summary>
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            this.IsCorrectingOnChanged = true;
+        }
+
         #region Object のオーバライド
-
-        /// <summary>
-        /// このオブジェクトと他のオブジェクトが等価であるか否かを調べる。
-        /// </summary>
-        /// <param name="obj">調べるオブジェクト。</param>
-        /// <returns>等価ならば true 。そうでなければ false 。</returns>
-        public override bool Equals(object obj) =>
-            this.Equals(obj as MovableValue<TConstants>);
-
-        /// <summary>
-        /// このオブジェクトのハッシュコード値を取得する。
-        /// </summary>
-        /// <returns>ハッシュコード値。</returns>
-        public override int GetHashCode() =>
-            this.Begin.GetHashCode() ^
-            this.End.GetHashCode() ^
-            this.MoveMode.GetHashCode();
 
         /// <summary>
         /// 拡張編集オブジェクトファイルにおける文字列表現値を取得する。
@@ -416,24 +484,6 @@ namespace RucheHome.AviUtl.ExEdit
 
             return result;
         }
-
-        #endregion
-
-        #region IEquatable<MovableValue<TConstants>> の実装
-
-        /// <summary>
-        /// このオブジェクトと他のオブジェクトが等価であるか否かを調べる。
-        /// </summary>
-        /// <param name="other">調べるオブジェクト。</param>
-        /// <returns>等価ならば true 。そうでなければ false 。</returns>
-        public bool Equals(MovableValue<TConstants> other) =>
-            other != null &&
-            this.Begin == other.Begin &&
-            this.End == other.End &&
-            this.MoveMode == other.MoveMode &&
-            this.IsAccelerating == other.IsAccelerating &&
-            this.IsDecelerating == other.IsDecelerating &&
-            this.Interval == other.Interval;
 
         #endregion
 

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Windows.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using VoiceroidUtil.Extensions;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -30,9 +32,9 @@ namespace VoiceroidUtil.ViewModel
             IReactiveProperty<IAppStatus> lastStatus)
             : base(canModify, config)
         {
-            this.ValidateArgNull(appConfig, nameof(appConfig));
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(appConfig, nameof(appConfig));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
 
             this.AppConfig = appConfig;
             this.LastStatus = lastStatus;
@@ -48,8 +50,12 @@ namespace VoiceroidUtil.ViewModel
             this.IsFileMakingCommandVisible =
                 new[]
                 {
-                    appConfig.ObserveInnerProperty(c => c.IsTextFileForceMaking),
-                    appConfig.ObserveInnerProperty(c => c.IsExoFileMaking),
+                    appConfig
+                        .ObserveInnerProperty(c => c.IsTextFileForceMaking)
+                        .DistinctUntilChanged(),
+                    appConfig
+                        .ObserveInnerProperty(c => c.IsExoFileMaking)
+                        .DistinctUntilChanged(),
                 }
                 .CombineLatestValuesAreAllFalse()
                 .ToReadOnlyReactiveProperty()

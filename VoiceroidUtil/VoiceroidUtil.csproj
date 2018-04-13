@@ -109,6 +109,7 @@
     </ApplicationDefinition>
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
+    <Compile Include="AsyncCommandHolder.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
     <Compile Include="ExoCharaStyle.cs" />
@@ -123,8 +124,8 @@
     <Compile Include="Mvvm\IndexedCommandKeyBindingBehavior.cs" />
     <Compile Include="Mvvm\MainWindowConfigBehavior.cs" />
     <Compile Include="Mvvm\NotifyActiveTabNameBehavior.cs" />
-    <Compile Include="PlayStopCommandExecuter.cs" />
-    <Compile Include="SaveCommandExecuter.cs" />
+    <Compile Include="AsyncPlayStopCommandHolder.cs" />
+    <Compile Include="AsyncSaveCommandHolder.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />
     <Compile Include="Services\IVoiceroidActionService.cs" />
     <Compile Include="Services\IWindowActivateService.cs" />
@@ -154,7 +155,6 @@
     </Compile>
     <Compile Include="AppStatusType.cs" />
     <Compile Include="IAppStatus.cs" />
-    <Compile Include="AsyncCommandExecuter.cs" />
     <Compile Include="FileNameFormat.cs" />
     <Compile Include="FilePathUtil.cs" />
     <Compile Include="MainWindowConfig.cs" />

@@ -19,6 +19,7 @@ using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Media;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -45,9 +46,9 @@ namespace VoiceroidUtil.ViewModel
             IOpenFileDialogService openFileDialogService)
             : base(canModify, charaStyle)
         {
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
 
             this.LastStatus = lastStatus;
             this.OpenFileDialogService = openFileDialogService;
@@ -83,14 +84,16 @@ namespace VoiceroidUtil.ViewModel
                     .AddTo(this.CompositeDisposable);
 
             // コレクションが空でなくなったらアイテム選択
-            // 即座に書き換えるとうまくいかないので少し待ちを入れる
+            var tempIndexNotifier =
+                Observable
+                    .CombineLatest(
+                        this.HasTemplate,
+                        this.SelectedTemplateIndex,
+                        (hasTemp, index) => new { hasTemp, index })
+                    .DistinctUntilChanged();
             Observable
-                .CombineLatest(
-                    this.HasTemplate,
-                    this.SelectedTemplateIndex,
-                    (hasTemp, index) => new { hasTemp, index })
-                .Throttle(TimeSpan.FromMilliseconds(10))
-                .Where(v => v.hasTemp && v.index < 0)
+                .Zip(tempIndexNotifier, tempIndexNotifier.Skip(1))
+                .Where(v => !v[0].hasTemp && v[1].hasTemp && v[1].index < 0)
                 .Subscribe(_ => this.SelectedTemplateIndex.Value = 0)
                 .AddTo(this.CompositeDisposable);
 
@@ -102,21 +105,8 @@ namespace VoiceroidUtil.ViewModel
             this.IsTextImportUIExpanded =
                 this.MakeInnerPropertyOf(uiConfig, c => c.IsExoCharaTextImportExpanded);
 
-            // テキストスタイル雛形用ファイルロード関連の非同期実行コマンドヘルパー作成
-            var selectTemplateFileCommandExecuter =
-                new AsyncCommandExecuter(this.ExecuteSelectTemplateFileCommand);
-            var dropTemplateFileCommandExecuter =
-                new AsyncCommandExecuter<DragEventArgs>(
-                    this.ExecuteDropTemplateFileCommand);
-
-            // どちらも実行可能ならロード可能状態とする
-            var templateLoadable =
-                new[]
-                {
-                    selectTemplateFileCommandExecuter.IsExecutable,
-                    dropTemplateFileCommandExecuter.IsExecutable,
-                }
-                .CombineLatestValuesAreAllTrue();
+            // テキストスタイル雛形用ファイルのロード可能状態
+            var templateLoadable = new ReactiveProperty<bool>(true);
 
             // テキストスタイル雛形ロード中フラグ
             this.IsTemplateLoading =
@@ -126,10 +116,11 @@ namespace VoiceroidUtil.ViewModel
                     .AddTo(this.CompositeDisposable);
 
             // テキストスタイル雛形用ファイル選択コマンド
+            // 実施中はファイルロード不可にする
             this.SelectTemplateFileCommand =
-                this.MakeAsyncCommand(
-                    selectTemplateFileCommandExecuter,
-                    templateLoadable);
+                this.MakeSharedAsyncCommand(
+                    templateLoadable,
+                    this.ExecuteSelectTemplateFileCommand);
 
             // テキストスタイル雛形用ファイルドラッグオーバーコマンド
             this.DragOverTemplateFileCommand =
@@ -138,10 +129,11 @@ namespace VoiceroidUtil.ViewModel
                     templateLoadable);
 
             // テキストスタイル雛形用ファイルドロップコマンド
+            // 実施中はファイルロード不可にする
             this.DropTemplateFileCommand =
-                this.MakeAsyncCommand(
-                    dropTemplateFileCommandExecuter,
-                    templateLoadable);
+                this.MakeSharedAsyncCommand<DragEventArgs>(
+                    templateLoadable,
+                    this.ExecuteDropTemplateFileCommand);
 
             // テキストスタイル雛形適用コマンド
             this.ApplyTemplateCommand =
@@ -408,12 +400,6 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeMovableValueViewModel(this.Render, r => r.Transparency);
             this.Rotation = this.MakeMovableValueViewModel(this.Render, r => r.Rotation);
 
-            // X, Y, Z の移動モード関連値は共通なので直近の設定値で上書き
-            this.SynchronizeXYZProperty(c => c.MoveMode);
-            this.SynchronizeXYZProperty(c => c.IsAccelerating);
-            this.SynchronizeXYZProperty(c => c.IsDecelerating);
-            this.SynchronizeXYZProperty(c => c.Interval);
-
             this.FontSize = this.MakeMovableValueViewModel(this.Text, t => t.FontSize);
             this.TextSpeed = this.MakeMovableValueViewModel(this.Text, t => t.TextSpeed);
 
@@ -464,36 +450,6 @@ namespace VoiceroidUtil.ViewModel
             return
                 new MovableValueViewModel(this.CanModify, value, name)
                     .AddTo(this.CompositeDisposable);
-        }
-
-        /// <summary>
-        /// X, Y, Z のプロパティ値を同期させるための設定を行う。
-        /// </summary>
-        /// <typeparam name="T">プロパティ型。</typeparam>
-        /// <param name="propertyGetter">プロパティ取得デリゲート。</param>
-        private void SynchronizeXYZProperty<T>(
-            Func<MovableValueViewModel, IReactiveProperty<T>> propertyGetter)
-        {
-            Debug.Assert(propertyGetter != null);
-
-            var props = (new[] { this.X, this.Y, this.Z }).Select(c => propertyGetter(c));
-
-            // いずれかの値が設定されるたびに各プロパティへ上書きする
-            props
-                .Merge()
-                .Subscribe(
-                    v =>
-                    {
-                        foreach (var p in props)
-                        {
-                            // 念のため同値チェックしておく
-                            if (!EqualityComparer<T>.Default.Equals(p.Value, v))
-                            {
-                                p.Value = v;
-                            }
-                        }
-                    })
-                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>
@@ -698,7 +654,7 @@ namespace VoiceroidUtil.ViewModel
                 };
         }
 
-        #region デザイン時用定義
+#region デザイン時用定義
 
         /// <summary>
         /// デザイン時用コンストラクタ。
@@ -716,6 +672,6 @@ namespace VoiceroidUtil.ViewModel
         {
         }
 
-        #endregion
+#endregion
     }
 }

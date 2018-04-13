@@ -50,21 +50,22 @@ namespace VoiceroidUtil.ViewModel
 
             // コレクションまたは選択中インデックスの変更通知
             var itemsNotifier =
-                Observable.CombineLatest(
-                    items,
-                    items
-                        .Select(i => i.CollectionChangedAsObservable())
-                        .Switch()
-                        .ToUnit()
-                        .Merge(Observable.Return(Unit.Default)),
-                    this.SelectedIndex,
-                    (i, _, index) => new { count = i.Count, index });
+                Observable
+                    .CombineLatest(
+                        items,
+                        items
+                            .Select(i => i.CollectionChangedAsObservable())
+                            .Switch()
+                            .ToUnit()
+                            .Merge(Observable.Return(Unit.Default)),
+                        this.SelectedIndex,
+                        (i, _, index) => new { count = i.Count, index })
+                    .DistinctUntilChanged();
 
             // コレクションが空でなくなったらアイテム選択
-            // 即座に書き換えるとうまくいかないので少し待ちを入れる
-            itemsNotifier
-                .Throttle(TimeSpan.FromMilliseconds(10))
-                .Where(n => n.count > 0 && n.index < 0)
+            Observable
+                .Zip(itemsNotifier, itemsNotifier.Skip(1))
+                .Where(v => v[0].count <= 0 && v[1].count > 0 && v[1].index < 0)
                 .Subscribe(_ => this.SelectedIndex.Value = 0)
                 .AddTo(this.CompositeDisposable);
 
@@ -73,14 +74,16 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeCommand(
                     this.ExecuteRemoveCommand,
                     canModify,
-                    itemsNotifier.Select(n => n.index >= 0 && n.index < n.count));
+                    itemsNotifier
+                        .Select(n => n.index >= 0 && n.index < n.count)
+                        .DistinctUntilChanged());
 
             // アイテムクリアコマンド
             this.ClearCommand =
                 this.MakeCommand(
                     this.Items.Value.Clear,
                     canModify,
-                    itemsNotifier.Select(n => n.count > 0));
+                    itemsNotifier.Select(n => n.count > 0).DistinctUntilChanged());
 
             // アイテム上移動コマンド
             this.UpCommand =
@@ -90,7 +93,9 @@ namespace VoiceroidUtil.ViewModel
                             this.SelectedIndex.Value,
                             this.SelectedIndex.Value - 1),
                     canModify,
-                    itemsNotifier.Select(n => n.index > 0 && n.index < n.count));
+                    itemsNotifier
+                        .Select(n => n.index > 0 && n.index < n.count)
+                        .DistinctUntilChanged());
 
             // アイテム下移動コマンド
             this.DownCommand =
@@ -100,7 +105,9 @@ namespace VoiceroidUtil.ViewModel
                             this.SelectedIndex.Value,
                             this.SelectedIndex.Value + 1),
                     canModify,
-                    itemsNotifier.Select(n => n.index >= 0 && n.index + 1 < n.count));
+                    itemsNotifier
+                        .Select(n => n.index >= 0 && n.index + 1 < n.count)
+                        .DistinctUntilChanged());
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using RucheHome.AviUtl.ExEdit;
 using ExEdit = RucheHome.AviUtl.ExEdit;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -27,16 +28,12 @@ namespace VoiceroidUtil.ViewModel
             string name)
             : base(canModify, value)
         {
-            this.ValidateArgNull(name, nameof(name));
+            ValidateArgumentNull(name, nameof(name));
 
             this.Name = name;
 
             // ラップ対象値の各プロパティラッパ群
-            this.Constants =
-                this
-                    .ObserveConfigProperty(v => v.Constants)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+            this.Constants = this.MakeReadOnlyConfigProperty(v => v.Constants);
             this.Begin = this.MakeConfigProperty(v => v.Begin);
             this.End = this.MakeConfigProperty(v => v.End);
             this.MoveMode = this.MakeConfigProperty(v => v.MoveMode);
@@ -63,18 +60,6 @@ namespace VoiceroidUtil.ViewModel
             this.CanAccelerate =
                 this.MakeMoveModeRelatingProperty(v => v.CanAccelerate());
             this.HasInterval = this.MakeMoveModeRelatingProperty(v => v.HasInterval());
-
-            // MoveMode 変更時処理
-            this.MoveMode
-                .Subscribe(
-                    mode =>
-                    {
-                        // 既定値で上書き
-                        this.IsAccelerating.Value = mode.IsDefaultAccelerating();
-                        this.IsDecelerating.Value = mode.IsDefaultDecelerating();
-                        this.Interval.Value = mode.GetDefaultInterval();
-                    })
-                .AddTo(this.CompositeDisposable);
         }
 
         /// <summary>

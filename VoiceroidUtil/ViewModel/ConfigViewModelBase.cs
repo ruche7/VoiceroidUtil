@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using Reactive.Bindings;
 using VoiceroidUtil.Extensions;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -24,8 +25,8 @@ namespace VoiceroidUtil.ViewModel
             IReadOnlyReactiveProperty<bool> canModify,
             IReadOnlyReactiveProperty<TConfig> config)
         {
-            this.ValidateArgNull(canModify, nameof(canModify));
-            this.ValidateArgNull(config, nameof(config));
+            ValidateArgumentNull(canModify, nameof(canModify));
+            ValidateArgumentNull(config, nameof(config));
 
             this.CanModify = canModify;
             this.BaseConfig = config;
@@ -60,14 +61,38 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="alwaysCanModify">
         /// CanModify プロパティ値に依らず値変更可能ならば true 。
         /// </param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
         /// <returns>ReactiveProperty{T} オブジェクト。</returns>
         protected ReactiveProperty<T> MakeConfigProperty<T>(
             Expression<Func<TConfig, T>> selector,
-            bool alwaysCanModify = false)
+            bool alwaysCanModify = false,
+            bool notifyOnSameValue = false)
             =>
             this.MakeInnerPropertyOf(
                 this.BaseConfig,
                 selector,
-                alwaysCanModify ? null : this.CanModify);
+                alwaysCanModify ? null : this.CanModify,
+                notifyOnSameValue);
+
+        /// <summary>
+        /// 設定値のプロパティをラップする
+        /// ReadOnlyReactiveProperty{T} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">プロパティ型。</typeparam>
+        /// <param name="selector">プロパティセレクタ。</param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
+        /// <returns>ReadOnlyReactiveProperty{T} オブジェクト。</returns>
+        protected ReadOnlyReactiveProperty<T> MakeReadOnlyConfigProperty<T>(
+            Expression<Func<TConfig, T>> selector,
+            bool notifyOnSameValue = false)
+            =>
+            this.MakeInnerReadOnlyPropertyOf(
+                this.BaseConfig,
+                selector,
+                notifyOnSameValue);
     }
 }

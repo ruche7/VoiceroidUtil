@@ -7,6 +7,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using VoiceroidUtil.Extensions;
 using VoiceroidUtil.Services;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.ViewModel
 {
@@ -35,10 +36,10 @@ namespace VoiceroidUtil.ViewModel
             IOpenFileDialogService openFileDialogService)
             : base(canModify, config)
         {
-            this.ValidateArgNull(appConfig, nameof(appConfig));
-            this.ValidateArgNull(uiConfig, nameof(uiConfig));
-            this.ValidateArgNull(lastStatus, nameof(lastStatus));
-            this.ValidateArgNull(openFileDialogService, nameof(openFileDialogService));
+            ValidateArgumentNull(appConfig, nameof(appConfig));
+            ValidateArgumentNull(uiConfig, nameof(uiConfig));
+            ValidateArgumentNull(lastStatus, nameof(lastStatus));
+            ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
 
             this.AppConfig = appConfig;
             this.LastStatus = lastStatus;
@@ -50,13 +51,19 @@ namespace VoiceroidUtil.ViewModel
             // 共通設定
             this.Common = this.MakeConfigProperty(c => c.Common);
 
+            // キャラ別スタイル設定コレクション
+            var charaStyles =
+                this.MakeReadOnlyConfigProperty(
+                    c => c.CharaStyles,
+                    notifyOnSameValue: true);
+
             // 表示状態のキャラ別スタイル設定コレクション
             this.VisibleCharaStyles =
                 Observable
                     .CombineLatest(
-                        this.ObserveConfigProperty(c => c.CharaStyles),
                         appConfig.ObserveInnerProperty(c => c.VoiceroidVisibilities),
-                        (cs, vv) => vv.SelectVisibleOf(cs))
+                        charaStyles.Select(s => s.Count()).DistinctUntilChanged(),
+                        (vv, _) => vv.SelectVisibleOf(charaStyles.Value))
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
@@ -95,10 +102,7 @@ namespace VoiceroidUtil.ViewModel
 
             // ファイル作成設定有効化コマンド表示状態
             this.IsFileMakingCommandInvisible =
-                this.AppConfig
-                    .ObserveInnerProperty(c => c.IsExoFileMaking)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+                this.MakeInnerReadOnlyPropertyOf(this.AppConfig, c => c.IsExoFileMaking);
             this.IsFileMakingCommandVisible =
                 this.IsFileMakingCommandInvisible
                     .Inverse()
@@ -121,8 +125,9 @@ namespace VoiceroidUtil.ViewModel
                                 this.MakeCommand(
                                     () => this.ExecuteSelectCharaStyleCommand(index),
                                     this.IsSelectCharaStyleCommandExecutable,
-                                    this.VisibleCharaStyles.Select(
-                                        vcs => index < vcs.Count)))
+                                    this.VisibleCharaStyles
+                                        .Select(vcs => index < vcs.Count)
+                                        .DistinctUntilChanged()))
                         .ToArray());
 
             // 前方/後方キャラ別スタイル設定選択コマンド
@@ -231,21 +236,22 @@ namespace VoiceroidUtil.ViewModel
             Observable
                 .CombineLatest(
                     this.VisibleCharaStyles,
-                    uiConfig.ObserveInnerProperty(c => c.ExoCharaVoiceroidId),
-                    (vcs, id) =>
-                        vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
+                    uiConfig
+                        .ObserveInnerProperty(c => c.ExoCharaVoiceroidId)
+                        .DistinctUntilChanged(),
+                    (vcs, id) => vcs.FirstOrDefault(s => s.VoiceroidId == id) ?? vcs.First())
+                .DistinctUntilChanged()
                 .Subscribe(s => this.SelectedCharaStyle.Value = s)
                 .AddTo(this.CompositeDisposable);
 
             // 選択中キャラ別スタイル変更時処理
-            // 上書きは即座に行うとうまくいかないので少し待ちを入れる
             this.SelectedCharaStyle
                 .Where(s => s != null)
                 .Subscribe(s => uiConfig.Value.ExoCharaVoiceroidId = s.VoiceroidId)
                 .AddTo(this.CompositeDisposable);
             this.SelectedCharaStyle
-                .Throttle(TimeSpan.FromMilliseconds(10))
                 .Where(s => s == null)
+                .ObserveOnUIDispatcher()
                 .Subscribe(
                     _ =>
                         this.SelectedCharaStyle.Value =
