@@ -33,11 +33,7 @@ namespace VoiceroidUtil.ViewModel
             this.Name = name;
 
             // ラップ対象値の各プロパティラッパ群
-            this.Constants =
-                this
-                    .ObserveConfigProperty(v => v.Constants)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+            this.Constants = this.MakeReadOnlyConfigProperty(v => v.Constants);
             this.Begin = this.MakeConfigProperty(v => v.Begin);
             this.End = this.MakeConfigProperty(v => v.End);
             this.MoveMode = this.MakeConfigProperty(v => v.MoveMode);

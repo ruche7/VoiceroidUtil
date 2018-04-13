@@ -44,10 +44,9 @@ namespace VoiceroidUtil.ViewModel
 
             // YmmCharaRelation コレクション
             var ymmCharaRelations =
-                this
-                    .ObserveConfigProperty(c => c.YmmCharaRelations)
-                    .ToReadOnlyReactiveProperty()
-                    .AddTo(this.CompositeDisposable);
+                this.MakeReadOnlyConfigProperty(
+                    c => c.YmmCharaRelations,
+                    notifyOnSameValue: true);
 
             // 表示状態の YmmCharaRelation コレクション
             this.VisibleYmmCharaRelations =

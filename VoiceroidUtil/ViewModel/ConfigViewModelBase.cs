@@ -75,5 +75,24 @@ namespace VoiceroidUtil.ViewModel
                 selector,
                 alwaysCanModify ? null : this.CanModify,
                 notifyOnSameValue);
+
+        /// <summary>
+        /// 設定値のプロパティをラップする
+        /// ReadOnlyReactiveProperty{T} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">プロパティ型。</typeparam>
+        /// <param name="selector">プロパティセレクタ。</param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
+        /// <returns>ReadOnlyReactiveProperty{T} オブジェクト。</returns>
+        protected ReadOnlyReactiveProperty<T> MakeReadOnlyConfigProperty<T>(
+            Expression<Func<TConfig, T>> selector,
+            bool notifyOnSameValue = false)
+            =>
+            this.MakeInnerReadOnlyPropertyOf(
+                this.BaseConfig,
+                selector,
+                notifyOnSameValue);
     }
 }

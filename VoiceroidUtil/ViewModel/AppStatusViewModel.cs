@@ -23,7 +23,9 @@ namespace VoiceroidUtil.ViewModel
             this.Status =
                 statusObservable
                     .Where(s => s != null)
-                    .ToReadOnlyReactiveProperty(new AppStatus())
+                    .ToReadOnlyReactiveProperty(
+                        new AppStatus(),
+                        ReactivePropertyMode.RaiseLatestValueOnSubscribe)
                     .AddTo(this.CompositeDisposable);
         }
 

@@ -51,7 +51,7 @@ namespace VoiceroidUtil.ViewModel
         protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
             IReactiveProperty<T> owner,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null,
+            IReadOnlyReactiveProperty<bool> canModifyNotifier = null,
             bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
@@ -79,12 +79,37 @@ namespace VoiceroidUtil.ViewModel
         protected ReactiveProperty<TProperty> MakeInnerPropertyOf<T, TProperty>(
             IReadOnlyReactiveProperty<T> owner,
             Expression<Func<T, TProperty>> selector,
-            IObservable<bool> canModifyNotifier = null,
+            IReadOnlyReactiveProperty<bool> canModifyNotifier = null,
             bool notifyOnSameValue = false)
             where T : INotifyPropertyChanged
             =>
             owner
                 .MakeInnerReactiveProperty(selector, canModifyNotifier, notifyOnSameValue)
+                .AddTo(this.CompositeDisposable);
+
+        /// <summary>
+        /// IObservable{T} オブジェクトの内包オブジェクトのプロパティを対象とする
+        /// ReadOnlyReactiveProperty{TProperty} オブジェクトを作成する。
+        /// </summary>
+        /// <typeparam name="T">
+        /// 内包オブジェクト。 INotifyPropertyChanged を実装している必要がある。
+        /// </typeparam>
+        /// <typeparam name="TProperty">内包オブジェクト内プロパティの型。</typeparam>
+        /// <param name="owner">IObservable{T} オブジェクト。</param>
+        /// <param name="selector">内包オブジェクト内プロパティセレクタ。</param>
+        /// <param name="notifyOnSameValue">
+        /// 同値への変更時にも通知を行うならば true 。
+        /// </param>
+        /// <returns>ReadOnlyReactiveProperty{TProperty} オブジェクト。</returns>
+        protected ReadOnlyReactiveProperty<TProperty>
+        MakeInnerReadOnlyPropertyOf<T, TProperty>(
+            IObservable<T> owner,
+            Expression<Func<T, TProperty>> selector,
+            bool notifyOnSameValue = false)
+            where T : INotifyPropertyChanged
+            =>
+            owner
+                .MakeInnerReadOnlyReactiveProperty(selector, notifyOnSameValue)
                 .AddTo(this.CompositeDisposable);
 
         /// <summary>
