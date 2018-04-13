@@ -5,11 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using RucheHome.AviUtl.ExEdit;
-using RucheHome.AviUtl.ExEdit.GcmzDrops;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Mvvm.Commands;
@@ -436,20 +433,6 @@ namespace VoiceroidUtil
             try
             {
                 await ExoFileReaderWriter.WriteAsync(exoFilePath, exo);
-            }
-            catch (Exception ex)
-            {
-                ThreadTrace.WriteException(ex);
-                return false;
-            }
-
-            // 仮コード: exo ファイルドロップ
-            try
-            {
-                var source =
-                    (HwndSource)HwndSource.FromVisual(Application.Current.MainWindow);
-                var dropRes = FileDrop.Run(source.Handle, exoFilePath, exo.Length);
-                ThreadDebug.WriteLine("exo drop result : " + dropRes);
             }
             catch (Exception ex)
             {
