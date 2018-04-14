@@ -255,7 +255,8 @@ namespace VoiceroidUtil
                     this.LastStatus,
                     new OpenFileDialogService(mainWindow),
                     new WindowActivateService(mainWindow),
-                    new VoiceroidActionService(mainWindow))
+                    new VoiceroidActionService(mainWindow),
+                    new AviUtlFileDropService(mainWindow))
                     .AddTo(this.CompositeDisposable);
 
 #if WAIT_ON_CONFIG_LOADED

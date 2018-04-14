@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using RucheHome.AviUtl.ExEdit.GcmzDrops;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil.Services
@@ -27,13 +28,19 @@ namespace VoiceroidUtil.Services
         public static IWindowActivateService WindowActivate => Impl;
 
         /// <summary>
+        /// IAviUtlFileDropService インタフェースの何も行わない実装を取得する。
+        /// </summary>
+        public static IAviUtlFileDropService AviUtlFileDrop => Impl;
+
+        /// <summary>
         /// 各サービスインタフェースの何も行わない実装を提供するクラス。
         /// </summary>
         private class ServiceImpl
             :
             IOpenFileDialogService,
             IVoiceroidActionService,
-            IWindowActivateService
+            IWindowActivateService,
+            IAviUtlFileDropService
         {
             Task<string> IOpenFileDialogService.Run(
                 string title,
@@ -48,6 +55,22 @@ namespace VoiceroidUtil.Services
 
             Task IWindowActivateService.Run() =>
                 Task.FromResult(0);
+
+            Task<FileDrop.Result> IAviUtlFileDropService.Run(
+                string filePath,
+                int stepFrameCount,
+                int layer,
+                int timeoutMilliseconds)
+                =>
+                Task.FromResult(FileDrop.Result.Success);
+
+            Task<FileDrop.Result> IAviUtlFileDropService.Run(
+                IEnumerable<string> filePath,
+                int stepFrameCount,
+                int layer,
+                int timeoutMilliseconds)
+                =>
+                Task.FromResult(FileDrop.Result.Success);
         }
 
         /// <summary>

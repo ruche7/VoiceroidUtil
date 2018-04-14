@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 using static RucheHome.Util.ArgumentValidater;
 
@@ -24,6 +25,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             Success = 0,
 
             /// <summary>
+            /// 原因不明の失敗。
+            /// </summary>
+            Fail,
+
+            /// <summary>
             /// ファイルマッピングオブジェクト取得に失敗。
             /// </summary>
             FileMappingFail,
@@ -34,14 +40,29 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             MapViewFail,
 
             /// <summary>
-            /// 処理対象ウィンドウが見つからない。
+            /// 処理対象ウィンドウ(拡張編集ウィンドウとは別)が見つからない。
             /// </summary>
-            WindowNotFound,
+            GcmzWindowNotFound,
 
             /// <summary>
             /// 処理対象プロジェクトが見つからない。
             /// </summary>
             ProjectNotFound,
+
+            /// <summary>
+            /// 拡張編集ウィンドウが見つからない。
+            /// </summary>
+            ExEditWindowNotFound,
+
+            /// <summary>
+            /// 拡張編集ウィンドウが閉じられている。
+            /// </summary>
+            ExEditWindowInvisible,
+
+            /// <summary>
+            /// メッセージ送信失敗。
+            /// </summary>
+            MessageFail,
 
             /// <summary>
             /// メッセージ送信タイムアウト。
@@ -79,6 +100,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
+        /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
+        /// </summary>
+        private const string ExEditWindowTitlePrefix = @"拡張編集";
+
+        /// <summary>
         /// ファイルドロップ処理を行う。
         /// </summary>
         /// <param name="ownWindowHandle">送信元ウィンドウハンドル。</param>
@@ -114,11 +140,40 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                 int.MaxValue,
                 nameof(stepFrameCount));
 
-            // 対象ウィンドウハンドル取得
+            // 処理対象ウィンドウ取得
             var result = ReadTargetWindowHandle(out var targetWindowHandle);
             if (result != Result.Success)
             {
                 return result;
+            }
+            var targetWindow = new Win32Window(targetWindowHandle);
+            if (!targetWindow.IsExists)
+            {
+                return Result.GcmzWindowNotFound;
+            }
+
+            // 拡張編集ウィンドウが表示されていないと失敗するので確認
+            var aviUtlWindowHandle = targetWindow.GetOwner()?.Handle;
+            if (!aviUtlWindowHandle.HasValue)
+            {
+                return Result.ExEditWindowNotFound;
+            }
+            var exEditWindow =
+                Win32Window.FromDesktop()
+                    .FindChildren()
+                    .FirstOrDefault(
+                        win =>
+                            win.GetOwner()?.Handle == aviUtlWindowHandle.Value &&
+                            win
+                                .GetText(timeoutMilliseconds)?
+                                .StartsWith(ExEditWindowTitlePrefix) == true);
+            if (exEditWindow == null || !exEditWindow.IsExists)
+            {
+                return Result.ExEditWindowNotFound;
+            }
+            if (!exEditWindow.IsVisible)
+            {
+                return Result.ExEditWindowInvisible;
             }
 
             var dataPtr = IntPtr.Zero;
@@ -141,9 +196,8 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                 Marshal.StructureToPtr(lParam, lParamPtr, false);
 
                 // WM_COPYDATA メッセージ送信
-                var window = new Win32Window(targetWindowHandle);
                 var msgRes =
-                    window.SendMessage(
+                    targetWindow.SendMessage(
                         WM_COPYDATA,
                         ownWindowHandle,
                         lParamPtr,
@@ -152,6 +206,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                 {
                     return Result.MessageTimeout;
                 }
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return Result.MessageFail;
             }
             finally
             {
@@ -220,7 +279,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                     (FileMapData)Marshal.PtrToStructure(dataAddress, typeof(FileMapData));
                 if (data.WindowHandle == 0)
                 {
-                    return Result.WindowNotFound;
+                    return Result.GcmzWindowNotFound;
                 }
                 if (data.Width <= 0 || data.Height <= 0)
                 {

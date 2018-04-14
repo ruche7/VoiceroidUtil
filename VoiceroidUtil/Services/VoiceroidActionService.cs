@@ -5,6 +5,7 @@ using System.Windows.Interop;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.WinApi;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.Services
 {
@@ -16,16 +17,18 @@ namespace VoiceroidUtil.Services
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="window">メインウィンドウ。</param>
-        public VoiceroidActionService(Window window)
+        /// <param name="mainWindow">VoiceroidUtilのメインウィンドウ。</param>
+        public VoiceroidActionService(Window mainWindow)
         {
-            this.Window = window;
+            ValidateArgumentNull(mainWindow, nameof(mainWindow));
+
+            this.MainWindow = mainWindow;
         }
 
         /// <summary>
-        /// メインウィンドウを取得する。
+        /// VoiceroidUtilのメインウィンドウを取得する。
         /// </summary>
-        private Window Window { get; }
+        private Window MainWindow { get; }
 
         /// <summary>
         /// Forward アクション処理を行う。
@@ -35,7 +38,7 @@ namespace VoiceroidUtil.Services
         {
             // VoiceroidUtilのメインウィンドウ作成
             var mainWinHandle =
-                (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
+                (HwndSource.FromVisual(this.MainWindow) as HwndSource)?.Handle;
             if (!mainWinHandle.HasValue)
             {
                 return;
@@ -86,10 +89,8 @@ namespace VoiceroidUtil.Services
 
         public async Task Run(IProcess process, VoiceroidAction action)
         {
-            if (process == null)
-            {
-                throw new ArgumentNullException(nameof(process));
-            }
+            ValidateArgumentNull(process, nameof(process));
+
             if (
                 process.MainWindowHandle == IntPtr.Zero ||
                 action == VoiceroidAction.None)
@@ -117,7 +118,7 @@ namespace VoiceroidUtil.Services
             }
 
             // メソッド実施
-            await this.Window.Dispatcher.InvokeAsync(method);
+            await this.MainWindow.Dispatcher.InvokeAsync(method);
         }
 
         #endregion

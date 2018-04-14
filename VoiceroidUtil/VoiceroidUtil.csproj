@@ -110,6 +110,8 @@
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppStatus.cs" />
     <Compile Include="AsyncCommandHolder.cs" />
+    <Compile Include="AviUtlDropLayer.cs" />
+    <Compile Include="AviUtlDropLayerSet.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="ErrorLogFileTraceListener.cs" />
     <Compile Include="ExoCharaStyle.cs" />
@@ -126,6 +128,8 @@
     <Compile Include="Mvvm\NotifyActiveTabNameBehavior.cs" />
     <Compile Include="AsyncPlayStopCommandHolder.cs" />
     <Compile Include="AsyncSaveCommandHolder.cs" />
+    <Compile Include="Services\AviUtlFileDropService.cs" />
+    <Compile Include="Services\IAviUtlFileDropService.cs" />
     <Compile Include="Services\IOpenFileDialogService.cs" />
     <Compile Include="Services\IVoiceroidActionService.cs" />
     <Compile Include="Services\IWindowActivateService.cs" />
@@ -160,6 +164,9 @@
     <Compile Include="MainWindowConfig.cs" />
     <Compile Include="View\AppConfigView.xaml.cs">
       <DependentUpon>AppConfigView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\AviUtlDropLayersControl.xaml.cs">
+      <DependentUpon>AviUtlDropLayersControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ExoCharaStyleView.xaml.cs">
       <DependentUpon>ExoCharaStyleView.xaml</DependentUpon>
@@ -214,6 +221,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="resources\CommonStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\AviUtlDropLayersControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

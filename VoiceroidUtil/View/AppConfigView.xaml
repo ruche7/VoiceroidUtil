@@ -12,7 +12,7 @@
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppConfigView"
     mc:Ignorable="d"
-    d:DesignWidth="400"
+    d:DesignWidth="368"
     d:DataContext="{d:DesignInstance vm:AppConfigViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
@@ -200,7 +200,7 @@
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/ymm.png" />
-                    <AccessText Text="YMM連携(_Y)" Margin="2,0,0,0" />
+                    <AccessText Text="YMM(_Y)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -240,7 +240,7 @@
                                 Header="VOICEROID2のキャラクター選択について"
                                 IsExpanded="False"
                                 Margin="0,2,0,0">
-                                <Border Style="{StaticResource solidBorder}"  Padding="4">
+                                <Border Style="{StaticResource solidBorder}" Padding="4">
                                     <StackPanel Orientation="Vertical">
                                         <TextBlock TextWrapping="Wrap">
                                             VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDの自動選択設定を利用します。
@@ -259,6 +259,90 @@
                             IsChecked="{Binding Config.Value.IsYmmAddButtonClicking}"
                             Margin="0,4,0,0" />
                     </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </TabItem>
+        <TabItem
+            Style="{StaticResource modernTabItem}"
+            Background="{StaticResource modernTabItemBackgroundMaki}">
+            <TabItem.Header>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/VoiceroidUtil;component/resources/icon/exo.png" />
+                    <AccessText Text="AviUtl(_U)" Margin="2,0,0,0" />
+                </StackPanel>
+            </TabItem.Header>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel
+                    Orientation="Vertical"
+                    IsEnabled="{Binding CanModify.Value, Mode=OneWay}"
+                    Margin="6">
+                    <Label>
+                        <TextBlock>
+                            <Run Text="AviUtl拡張編集" FontWeight="Bold" />
+                            との連携機能を設定します。<LineBreak />
+                            連携には
+                            <Run Text="ごちゃまぜドロップス v0.3 以降" FontWeight="Bold" />
+                            の導入が必要です。
+                        </TextBlock>
+                    </Label>
+                    <DockPanel Margin="0,6,0,0">
+                        <StackPanel
+                            Orientation="Vertical"
+                            Visibility="{Binding
+                                Path=IsExoFileMakingCommandVisible.Value,
+                                Converter={StaticResource boolVisibilityConverter}}">
+                            <Label
+                                Content=".exo ファイル作成設定を有効にする必要があります。"
+                                Foreground="Red"
+                                Margin="0,0,0,4" />
+                            <Button
+                                Content="有効にする(_E)"
+                                Command="{Binding ExoFileMakingCommand}" />
+                        </StackPanel>
+                        <StackPanel
+                            Orientation="Vertical"
+                            Visibility="{Binding
+                                Path=IsExoFileMakingCommandInvisible.Value,
+                                Converter={StaticResource boolVisibilityConverter}}">
+                            <CheckBox
+                                Content="AviUtl拡張編集ファイル(.exo)作成時、タイムラインにドロップ(_D)"
+                                IsChecked="{Binding Config.Value.IsSavedExoFileToAviUtl}" />
+                            <StackPanel
+                                IsEnabled="{Binding
+                                    Path=Config.Value.IsSavedExoFileToAviUtl,
+                                    Mode=OneWay}"
+                                Margin="20,4,0,0">
+                                <Label
+                                    Content="ドロップ先レイヤー番号設定:"
+                                    Margin="0,2,0,0" />
+                                <StackPanel Orientation="Vertical" Margin="12,2,0,0">
+                                    <v:AviUtlDropLayersControl
+                                        DataContext="{Binding
+                                            Path=VisibleAviUtlDropLayers.Value}" />
+                                    <Expander
+                                        Header="VOICEROID2のキャラクター選択について"
+                                        IsExpanded="False"
+                                        Margin="0,2,0,0">
+                                        <Border
+                                            Style="{StaticResource solidBorder}"
+                                            Padding="4">
+                                            <StackPanel Orientation="Vertical">
+                                                <TextBlock TextWrapping="Wrap">
+                                                    VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDのレイヤー番号設定を利用します。
+                                                </TextBlock>
+                                                <v:VoiceroidKeywordsView Margin="8,4,0,4" />
+                                                <TextBlock TextWrapping="Wrap">
+                                                    いずれのキーワードも含まれていない場合のみ、
+                                                    <Run Text="VOICEROID2" FontWeight="Bold" />
+                                                    の設定を利用します。
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Border>
+                                    </Expander>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
                 </StackPanel>
             </ScrollViewer>
         </TabItem>
