@@ -10,7 +10,10 @@ using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Mvvm.Commands;
+using VoiceroidUtil.Services;
+using GcmzDrops = RucheHome.AviUtl.ExEdit.GcmzDrops;
 using static RucheHome.Util.ArgumentValidater;
+using System.Diagnostics;
 
 namespace VoiceroidUtil
 {
@@ -116,13 +119,17 @@ namespace VoiceroidUtil
         /// </param>
         /// <param name="appConfigGetter">アプリ設定取得デリゲート。</param>
         /// <param name="talkTextGetter">トークテキスト取得デリゲート。</param>
+        /// <param name="aviUtlFileDropService">
+        /// AviUtl拡張編集ファイルドロップサービス。
+        /// </param>
         public AsyncSaveCommandHolder(
             IObservable<bool> canExecuteSource,
             Func<IProcess> processGetter,
             Func<TalkTextReplaceConfig> talkTextReplaceConfigGetter,
             Func<ExoConfig> exoConfigGetter,
             Func<AppConfig> appConfigGetter,
-            Func<string> talkTextGetter)
+            Func<string> talkTextGetter,
+            IAviUtlFileDropService aviUtlFileDropService)
             : base(canExecuteSource)
         {
             ValidateArgumentNull(processGetter, nameof(processGetter));
@@ -132,6 +139,7 @@ namespace VoiceroidUtil
             ValidateArgumentNull(exoConfigGetter, nameof(exoConfigGetter));
             ValidateArgumentNull(appConfigGetter, nameof(appConfigGetter));
             ValidateArgumentNull(talkTextGetter, nameof(talkTextGetter));
+            ValidateArgumentNull(aviUtlFileDropService, nameof(aviUtlFileDropService));
 
             this.ParameterMaker =
                 () =>
@@ -141,6 +149,7 @@ namespace VoiceroidUtil
                         exoConfigGetter(),
                         appConfigGetter(),
                         talkTextGetter());
+            this.AviUtlFileDropService = aviUtlFileDropService;
         }
 
         /// <summary>
@@ -296,60 +305,105 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 処理結果のアプリ状態を通知する。
+        /// DoOperateExo メソッドの処理結果を表す列挙。
         /// </summary>
-        /// <param name="parameter">コマンドパラメータ。</param>
-        /// <param name="statusType">状態種別。</param>
-        /// <param name="statusText">状態テキスト。</param>
-        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
-        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
-        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
-        /// <param name="subStatusCommandTip">
-        /// オプショナルなサブ状態コマンドのチップテキスト。
+        private enum ExoOperationResult
+        {
+            /// <summary>
+            /// 成功。
+            /// </summary>
+            Success,
+
+            /// <summary>
+            /// .exo ファイル保存失敗。
+            /// </summary>
+            SaveFail,
+
+            /// <summary>
+            /// .exo ファイルドロップ失敗。
+            /// </summary>
+            DropFail,
+        }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイルドロップ処理タイムアウトミリ秒数。
+        /// </summary>
+        private const int ExoDropTimeoutMilliseconds = 3000;
+
+        /// <summary>
+        /// 設定を基にAviUtl拡張編集ファイル関連の処理を行う。
+        /// </summary>
+        /// <param name="filePath">WAVEファイルパス。</param>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
+        /// <param name="text">テキスト。</param>
+        /// <param name="appConfig">アプリ設定。</param>
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+        /// <param name="aviUtlFileDropService">
+        /// AviUtl拡張編集ファイルドロップサービス。
         /// </param>
-        private static CommandResult MakeResult(
-            CommandParameter parameter,
-            AppStatusType statusType = AppStatusType.None,
-            string statusText = "",
-            AppStatusType subStatusType = AppStatusType.None,
-            string subStatusText = "",
-            ICommand subStatusCommand = null,
-            string subStatusCommandTip = "")
-            =>
-            new CommandResult(
-                new AppStatus
+        /// <returns>処理結果とエラー文字列のタプル。</returns>
+        private static async Task<Tuple<ExoOperationResult, string>> DoOperateExo(
+            string filePath,
+            VoiceroidId voiceroidId,
+            string text,
+            AppConfig appConfig,
+            ExoConfig exoConfig,
+            IAviUtlFileDropService aviUtlFileDropService)
+        {
+            if (appConfig.IsExoFileMaking)
+            {
+                var exoFilePath = Path.ChangeExtension(filePath, @".exo");
+
+                // ファイル保存
+                var exo =
+                    await DoOperateExoSave(
+                        exoFilePath,
+                        filePath,
+                        voiceroidId,
+                        text,
+                        exoConfig);
+                if (exo == null)
                 {
-                    StatusType = statusType,
-                    StatusText = statusText ?? "",
-                    SubStatusType = subStatusType,
-                    SubStatusText = subStatusText ?? "",
-                    SubStatusCommand = subStatusCommand,
-                    SubStatusCommandTip =
-                        string.IsNullOrEmpty(subStatusCommandTip) ?
-                            null : subStatusCommandTip,
-                },
-                parameter);
+                    return
+                        Tuple.Create(
+                            ExoOperationResult.SaveFail,
+                            @".exo ファイルを保存できませんでした。");
+                }
+
+                if (appConfig.IsSavedExoFileToAviUtl)
+                {
+                    // ファイルドロップ
+                    var failMessage =
+                        await DoOperateExoDrop(
+                            exoFilePath,
+                            exo.Length,
+                            appConfig.AviUtlDropLayers[voiceroidId].Layer,
+                            aviUtlFileDropService);
+                    if (failMessage != null)
+                    {
+                        return Tuple.Create(ExoOperationResult.DropFail, failMessage);
+                    }
+                }
+            }
+
+            return Tuple.Create(ExoOperationResult.Success, (string)null);
+        }
 
         /// <summary>
-        /// コマンドパラメータ作成デリゲートを取得する。
-        /// </summary>
-        private Func<CommandParameter> ParameterMaker { get; }
-
-        /// <summary>
-        /// 設定を基にAviUtl拡張編集ファイル書き出しを行う。
+        /// 設定を基にAviUtl拡張編集ファイルの保存処理を行う。
         /// </summary>
         /// <param name="exoFilePath">AviUtl拡張編集ファイルパス。</param>
-        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
-        /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="waveFilePath">WAVEファイルパス。</param>
+        /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="text">テキスト。</param>
-        /// <returns>成功したならば true 。そうでなければ false 。</returns>
-        private async Task<bool> DoWriteExoFile(
+        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+        /// <returns>保存した拡張編集オブジェクト。失敗したならば null 。</returns>
+        private static async Task<ExEditObject> DoOperateExoSave(
             string exoFilePath,
-            ExoConfig exoConfig,
-            VoiceroidId voiceroidId,
             string waveFilePath,
-            string text)
+            VoiceroidId voiceroidId,
+            string text,
+            ExoConfig exoConfig)
         {
             var common = exoConfig.Common;
             var charaStyle = exoConfig.CharaStyles[voiceroidId];
@@ -368,7 +422,7 @@ namespace VoiceroidUtil
             catch (Exception ex)
             {
                 ThreadTrace.WriteException(ex);
-                return false;
+                return null;
             }
 
             var exo =
@@ -437,10 +491,81 @@ namespace VoiceroidUtil
             catch (Exception ex)
             {
                 ThreadTrace.WriteException(ex);
-                return false;
+                return null;
             }
 
-            return true;
+            return exo;
+        }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイルのドロップ処理を行う。
+        /// </summary>
+        /// <param name="exoFilePath">AviUtl拡張編集ファイルパス。</param>
+        /// <param name="exoLength">AviUtl拡張編集オブジェクトのフレーム数。</param>
+        /// <param name="layer">ドロップ先レイヤー番号。</param>
+        /// <param name="aviUtlFileDropService">
+        /// AviUtl拡張編集ファイルドロップサービス。
+        /// </param>
+        /// <returns>警告文字列。成功したならば null 。</returns>
+        private static async Task<string> DoOperateExoDrop(
+            string exoFilePath,
+            int exoLength,
+            int layer,
+            IAviUtlFileDropService aviUtlFileDropService)
+        {
+            var result = GcmzDrops.FileDrop.Result.Fail;
+            try
+            {
+                result =
+                    await aviUtlFileDropService.Run(
+                        exoFilePath,
+                        exoLength,
+                        layer,
+                        ExoDropTimeoutMilliseconds);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                result = GcmzDrops.FileDrop.Result.Fail;
+            }
+
+            switch (result)
+            {
+            case GcmzDrops.FileDrop.Result.Success:
+                break;
+
+            case GcmzDrops.FileDrop.Result.FileMappingFail:
+                // AviUtlが起動していない or ごちゃまぜドロップス未導入
+                // 起動していないなら成功扱い
+                if (Process.GetProcessesByName(@"aviutl").Length > 0)
+                {
+                    return @"ごちゃまぜドロップス情報を取得できません。";
+                }
+                break;
+
+            case GcmzDrops.FileDrop.Result.GcmzWindowNotFound:
+                return @"ごちゃまぜドロップス情報が未初期化です。";
+
+            case GcmzDrops.FileDrop.Result.ProjectNotFound:
+                return @"AviUtl拡張編集プロジェクトが未作成です。";
+
+            case GcmzDrops.FileDrop.Result.ExEditWindowNotFound:
+                return @"AviUtl拡張編集ウィンドウが見つかりません。";
+
+            case GcmzDrops.FileDrop.Result.ExEditWindowInvisible:
+                return @"AviUtl拡張編集ウィンドウが閉じられています。";
+
+            case GcmzDrops.FileDrop.Result.MessageTimeout:
+                return @"AviUtl拡張編集との連携がタイムアウトしました。";
+
+            case GcmzDrops.FileDrop.Result.Fail:
+            case GcmzDrops.FileDrop.Result.MapViewFail:
+            case GcmzDrops.FileDrop.Result.MessageFail:
+                ThreadTrace.WriteLine(@"AviUtl拡張編集 連携失敗 : " + result);
+                return @"AviUtl拡張編集との連携に失敗しました。";
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -466,7 +591,7 @@ namespace VoiceroidUtil
         /// <param name="voiceroid2CharaName">VOICEROID2の場合に用いるキャラ名。</param>
         /// <param name="config">アプリ設定。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
-        private async Task<string> DoOperateYmm(
+        private static async Task<string> DoOperateYmm(
             string filePath,
             VoiceroidId voiceroidId,
             string voiceroid2CharaName,
@@ -565,6 +690,51 @@ namespace VoiceroidUtil
 
             return warnText;
         }
+
+        /// <summary>
+        /// 処理結果のアプリ状態を通知する。
+        /// </summary>
+        /// <param name="parameter">コマンドパラメータ。</param>
+        /// <param name="statusType">状態種別。</param>
+        /// <param name="statusText">状態テキスト。</param>
+        /// <param name="subStatusType">オプショナルなサブ状態種別。</param>
+        /// <param name="subStatusText">オプショナルなサブ状態テキスト。</param>
+        /// <param name="subStatusCommand">オプショナルなサブ状態コマンド。</param>
+        /// <param name="subStatusCommandTip">
+        /// オプショナルなサブ状態コマンドのチップテキスト。
+        /// </param>
+        private static CommandResult MakeResult(
+            CommandParameter parameter,
+            AppStatusType statusType = AppStatusType.None,
+            string statusText = "",
+            AppStatusType subStatusType = AppStatusType.None,
+            string subStatusText = "",
+            ICommand subStatusCommand = null,
+            string subStatusCommandTip = "")
+            =>
+            new CommandResult(
+                new AppStatus
+                {
+                    StatusType = statusType,
+                    StatusText = statusText ?? "",
+                    SubStatusType = subStatusType,
+                    SubStatusText = subStatusText ?? "",
+                    SubStatusCommand = subStatusCommand,
+                    SubStatusCommandTip =
+                        string.IsNullOrEmpty(subStatusCommandTip) ?
+                            null : subStatusCommandTip,
+                },
+                parameter);
+
+        /// <summary>
+        /// コマンドパラメータ作成デリゲートを取得する。
+        /// </summary>
+        private Func<CommandParameter> ParameterMaker { get; }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイルドロップサービスを取得する。
+        /// </summary>
+        private IAviUtlFileDropService AviUtlFileDropService { get; }
 
         #region AsyncCommandHolderBase<TParameter, TResult> のオーバライド
 
@@ -773,32 +943,33 @@ namespace VoiceroidUtil
                 (voiceroid2 ? FindKeywordContainedVoiceroidId(charaName) : null) ??
                 process.Id;
 
-            // .exo ファイル保存
-            if (appConfig.IsExoFileMaking)
+            // .exo ファイル関連処理
+            var exoResult =
+                await DoOperateExo(
+                    filePath,
+                    voiceroidId,
+                    fileText,
+                    appConfig,
+                    exoConfig,
+                    this.AviUtlFileDropService);
+            if (exoResult.Item1 == ExoOperationResult.SaveFail)
             {
-                var exoPath = Path.ChangeExtension(filePath, @".exo");
-                var ok =
-                    await this.DoWriteExoFile(
-                        exoPath,
-                        exoConfig,
-                        voiceroidId,
-                        filePath,
-                        fileText);
-                if (!ok)
-                {
-                    return
-                        MakeResult(
-                            parameter,
-                            AppStatusType.Success,
-                            statusText,
-                            AppStatusType.Fail,
-                            @".exo ファイルを保存できませんでした。");
-                }
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Success,
+                        statusText,
+                        AppStatusType.Fail,
+                        exoResult.Item2);
             }
+            var exoWarnText =
+                (exoResult.Item1 == ExoOperationResult.Success) ? null : exoResult.Item2;
 
             // ゆっくりMovieMaker処理
-            var warnText = await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
+            var ymmWarnText =
+                await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
 
+            var warnText = exoWarnText ?? ymmWarnText;
             return
                 MakeResult(
                     parameter,

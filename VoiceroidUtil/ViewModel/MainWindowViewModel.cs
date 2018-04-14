@@ -28,6 +28,9 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="voiceroidActionService">
         /// VOICEROIDプロセスアクションサービス。
         /// </param>
+        /// <param name="aviUtlFileDropService">
+        /// AviUtl拡張編集ファイルドロップサービス。
+        /// </param>
         public MainWindowViewModel(
             IReadOnlyCollection<IProcess> processes,
             IReadOnlyReactiveProperty<bool> canUseConfig,
@@ -38,7 +41,8 @@ namespace VoiceroidUtil.ViewModel
             IReactiveProperty<IAppStatus> lastStatus,
             IOpenFileDialogService openFileDialogService,
             IWindowActivateService windowActivateService,
-            IVoiceroidActionService voiceroidActionService)
+            IVoiceroidActionService voiceroidActionService,
+            IAviUtlFileDropService aviUtlFileDropService)
         {
             ValidateArgumentNull(processes, nameof(processes));
             ValidateArgumentNull(canUseConfig, nameof(canUseConfig));
@@ -50,6 +54,7 @@ namespace VoiceroidUtil.ViewModel
             ValidateArgumentNull(openFileDialogService, nameof(openFileDialogService));
             ValidateArgumentNull(windowActivateService, nameof(windowActivateService));
             ValidateArgumentNull(voiceroidActionService, nameof(voiceroidActionService));
+            ValidateArgumentNull(aviUtlFileDropService, nameof(aviUtlFileDropService));
 
             this.IsTopmost = this.MakeInnerPropertyOf(appConfig, c => c.IsTopmost);
 
@@ -67,7 +72,8 @@ namespace VoiceroidUtil.ViewModel
                     lastStatus,
                     canModifyNotifier,
                     windowActivateService,
-                    voiceroidActionService)
+                    voiceroidActionService,
+                    aviUtlFileDropService)
                     .AddTo(this.CompositeDisposable);
 
             // 設定変更可能状態
@@ -160,7 +166,8 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<IAppStatus>(new AppStatus()),
                 NullServices.OpenFileDialog,
                 NullServices.WindowActivate,
-                NullServices.VoiceroidAction)
+                NullServices.VoiceroidAction,
+                NullServices.AviUtlFileDrop)
         {
         }
 

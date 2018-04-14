@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.Services
 {
@@ -15,6 +16,8 @@ namespace VoiceroidUtil.Services
         /// <param name="window">対象ウィンドウ。</param>
         public WindowActivateService(Window window)
         {
+            ValidateArgumentNull(window, nameof(window));
+
             this.Window = window;
         }
 

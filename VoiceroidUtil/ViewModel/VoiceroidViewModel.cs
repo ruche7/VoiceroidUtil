@@ -44,6 +44,9 @@ namespace VoiceroidUtil.ViewModel
         /// <param name="voiceroidActionService">
         /// VOICEROIDプロセスアクションサービス。
         /// </param>
+        /// <param name="aviUtlFileDropService">
+        /// AviUtl拡張編集ファイルドロップサービス。
+        /// </param>
         public VoiceroidViewModel(
             IReadOnlyCollection<IProcess> processes,
             IReadOnlyReactiveProperty<bool> canUseConfig,
@@ -54,7 +57,8 @@ namespace VoiceroidUtil.ViewModel
             IReactiveProperty<IAppStatus> lastStatus,
             IReactiveProperty<bool> canModifyNotifier,
             IWindowActivateService windowActivateService,
-            IVoiceroidActionService voiceroidActionService)
+            IVoiceroidActionService voiceroidActionService,
+            IAviUtlFileDropService aviUtlFileDropService)
         {
             ValidateArgumentNull(processes, nameof(processes));
             ValidateArgumentNull(canUseConfig, nameof(canUseConfig));
@@ -66,6 +70,7 @@ namespace VoiceroidUtil.ViewModel
             ValidateArgumentNull(canModifyNotifier, nameof(canModifyNotifier));
             ValidateArgumentNull(windowActivateService, nameof(windowActivateService));
             ValidateArgumentNull(voiceroidActionService, nameof(voiceroidActionService));
+            ValidateArgumentNull(aviUtlFileDropService, nameof(aviUtlFileDropService));
 
             this.LastStatus = lastStatus;
             this.WindowActivateService = windowActivateService;
@@ -298,7 +303,8 @@ namespace VoiceroidUtil.ViewModel
                     () => talkTextReplaceConfig.Value,
                     () => exoConfig.Value,
                     () => appConfig.Value,
-                    () => this.TalkText.Value);
+                    () => this.TalkText.Value,
+                    aviUtlFileDropService);
             this.SaveCommand = saveCommandHolder.Command;
             saveCommandHolder.IsBusy
                 .Subscribe(f => saveCommandBusy.Value = f)
@@ -1011,7 +1017,7 @@ namespace VoiceroidUtil.ViewModel
                 };
         }
 
-#region デザイン時用定義
+        #region デザイン時用定義
 
         /// <summary>
         /// デザイン時用コンストラクタ。
@@ -1029,10 +1035,11 @@ namespace VoiceroidUtil.ViewModel
                 new ReactiveProperty<IAppStatus>(new AppStatus()),
                 new ReactiveProperty<bool>(true),
                 NullServices.WindowActivate,
-                NullServices.VoiceroidAction)
+                NullServices.VoiceroidAction,
+                NullServices.AviUtlFileDrop)
         {
         }
 
-#endregion
+        #endregion
     }
 }

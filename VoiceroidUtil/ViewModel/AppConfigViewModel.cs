@@ -58,6 +58,31 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
+            // AviUtlDropLayer コレクション
+            var aviUtlDropLayers =
+                this.MakeReadOnlyConfigProperty(
+                    c => c.AviUtlDropLayers,
+                    notifyOnSameValue: true);
+
+            // 表示状態の AviUtlDropLayer コレクション
+            this.VisibleAviUtlDropLayers =
+                Observable
+                    .CombineLatest(
+                        this.ObserveConfigProperty(c => c.VoiceroidVisibilities),
+                        aviUtlDropLayers.Select(r => r.Count()).DistinctUntilChanged(),
+                        (vv, _) => vv.SelectVisibleOf(aviUtlDropLayers.Value))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
+            // .exo ファイル作成設定有効化コマンド表示状態
+            this.IsExoFileMakingCommandInvisible =
+                this.MakeReadOnlyConfigProperty(c => c.IsExoFileMaking);
+            this.IsExoFileMakingCommandVisible =
+                this.IsExoFileMakingCommandInvisible
+                    .Inverse()
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 保存先ディレクトリ選択コマンド
             this.SelectSaveDirectoryCommand =
                 this.MakeAsyncCommand(
@@ -79,6 +104,13 @@ namespace VoiceroidUtil.ViewModel
                 this.MakeCommand<DragEventArgs>(
                     this.ExecuteDropSaveDirectoryCommand,
                     this.CanModify);
+
+            // .exo ファイル作成設定有効化コマンド
+            this.ExoFileMakingCommand =
+                this.MakeCommand(
+                    this.ExecuteExoFileMakingCommand,
+                    this.CanModify,
+                    this.IsExoFileMakingCommandVisible);
         }
 
         /// <summary>
@@ -101,6 +133,25 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// 表示状態の AviUtlDropLayer コレクションを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<IReadOnlyCollection<AviUtlDropLayer>>
+        VisibleAviUtlDropLayers
+        {
+            get;
+        }
+
+        /// <summary>
+        /// .exo ファイル作成設定有効化コマンドを表示すべきか否かを取得する。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsExoFileMakingCommandVisible { get; }
+
+        /// <summary>
+        /// .exo ファイル作成設定有効化コマンドを非表示にすべきか否かを取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<bool> IsExoFileMakingCommandInvisible { get; }
+
+        /// <summary>
         /// 保存先ディレクトリ選択コマンドを取得する。
         /// </summary>
         public ICommand SelectSaveDirectoryCommand { get; }
@@ -119,6 +170,11 @@ namespace VoiceroidUtil.ViewModel
         /// 保存先ディレクトリドロップコマンドを取得する。
         /// </summary>
         public ICommand DropSaveDirectoryCommand { get; }
+
+        /// <summary>
+        /// .exo ファイル作成設定有効化コマンドを取得する。
+        /// </summary>
+        public ICommand ExoFileMakingCommand { get; }
 
         /// <summary>
         /// IDataObject オブジェクトから有効なディレクトリパスを検索する。
@@ -290,6 +346,28 @@ namespace VoiceroidUtil.ViewModel
         }
 
         /// <summary>
+        /// ExoFileMakingCommand の実処理を行う。
+        /// </summary>
+        private void ExecuteExoFileMakingCommand()
+        {
+            if (
+                !this.CanModify.Value ||
+                this.Config.Value?.IsExoFileMaking != false)
+            {
+                return;
+            }
+
+            this.Config.Value.IsExoFileMaking = true;
+
+            this.LastStatus.Value =
+                new AppStatus
+                {
+                    StatusType = AppStatusType.Success,
+                    StatusText = @".exo ファイル作成設定を有効にしました。",
+                };
+        }
+
+        /// <summary>
         /// 直近のアプリ状態を設定する。
         /// </summary>
         /// <param name="statusType">状態種別。</param>
@@ -332,7 +410,7 @@ namespace VoiceroidUtil.ViewModel
             :
             this(
                 new ReactiveProperty<bool>(true),
-                new ReactiveProperty<AppConfig>(new AppConfig()),
+                new ReactiveProperty<AppConfig>(new AppConfig { IsExoFileMaking = true }),
                 new ReactiveProperty<UIConfig>(new UIConfig()),
                 new ReactiveProperty<IAppStatus>(new AppStatus()),
                 NullServices.OpenFileDialog)

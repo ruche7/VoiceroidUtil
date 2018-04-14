@@ -57,6 +57,7 @@
     <Compile Include="ExEdit\ExoFileItemsConverter.cs" />
     <Compile Include="ExEdit\ExoFileReaderWriter.cs" />
     <Compile Include="ExEdit\FontDecoration.cs" />
+    <Compile Include="ExEdit\GcmzDrops\FileDrop.cs" />
     <Compile Include="ExEdit\IComponent.cs" />
     <Compile Include="ExEdit\IExoFileValueConverter.cs" />
     <Compile Include="ExEdit\IMovableValue.cs" />

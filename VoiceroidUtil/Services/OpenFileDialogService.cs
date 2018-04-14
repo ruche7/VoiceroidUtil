@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using static RucheHome.Util.ArgumentValidater;
 
 namespace VoiceroidUtil.Services
 {
@@ -17,10 +18,25 @@ namespace VoiceroidUtil.Services
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        /// <param name="window">親となるウィンドウ。</param>
+        /// <param name="window">親ウィンドウ。</param>
         public OpenFileDialogService(Window window)
         {
+            ValidateArgumentNull(window, nameof(window));
+
             this.Window = window;
+            this.UIDispatcher = window.Dispatcher;
+        }
+
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
+        /// <param name="uiDispatcher">UIスレッド実行のための Dispatcher 。</param>
+        public OpenFileDialogService(Dispatcher uiDispatcher)
+        {
+            ValidateArgumentNull(uiDispatcher, nameof(uiDispatcher));
+
+            this.Window = null;
+            this.UIDispatcher = uiDispatcher;
         }
 
         /// <summary>
@@ -51,12 +67,18 @@ namespace VoiceroidUtil.Services
         /// </summary>
         private Window Window { get; }
 
-        #region IOpenFileDialogService の実装
+        /// <summary>
+        /// UIスレッド実行のための Dispatcher を取得する。
+        /// </summary>
+        private Dispatcher UIDispatcher { get; }
 
-        public async Task<string> Run(
+        /// <summary>
+        /// IOpenFileDialogService.Run メソッドの実処理を行う。
+        /// </summary>
+        private string RunImpl(
             string title = null,
             string initialDirectory = null,
-            IEnumerable<CommonFileDialogFilter> filters = null,
+            List<CommonFileDialogFilter> filters = null,
             bool folderPicker = false)
         {
             if (!CommonOpenFileDialog.IsPlatformSupported)
@@ -71,19 +93,17 @@ namespace VoiceroidUtil.Services
                 dialog.IsFolderPicker = folderPicker;
                 dialog.Title = title;
                 dialog.InitialDirectory = MakeInitialDirectoryPath(initialDirectory);
-                filters?.ToList().ForEach(f => dialog.Filters.Add(f));
+                filters.ForEach(f => dialog.Filters.Add(f));
                 dialog.EnsureValidNames = true;
                 dialog.EnsurePathExists = false;
                 dialog.EnsureFileExists = false;
                 dialog.Multiselect = false;
 
                 var handle =
-                    (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
+                    (this.Window == null) ?
+                        null : (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
                 var result =
-                    await this.Window.Dispatcher.InvokeAsync(
-                        () =>
-                            handle.HasValue ?
-                                dialog.ShowDialog(handle.Value) : dialog.ShowDialog());
+                    handle.HasValue ? dialog.ShowDialog(handle.Value) : dialog.ShowDialog();
                 if (result != CommonFileDialogResult.Ok)
                 {
                     return null;
@@ -100,6 +120,22 @@ namespace VoiceroidUtil.Services
             }
 
             return filePath;
+        }
+
+        #region IOpenFileDialogService の実装
+
+        public async Task<string> Run(
+            string title = null,
+            string initialDirectory = null,
+            IEnumerable<CommonFileDialogFilter> filters = null,
+            bool folderPicker = false)
+        {
+            // コピーしておく
+            var filtersClone = new List<CommonFileDialogFilter>(filters);
+
+            return
+                await this.UIDispatcher.InvokeAsync(
+                    () => this.RunImpl(title, initialDirectory, filtersClone, folderPicker));
         }
 
         #endregion

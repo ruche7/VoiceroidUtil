@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Runtime.Serialization;
 using RucheHome.Util;
@@ -28,6 +27,7 @@ namespace VoiceroidUtil
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.VoiceroidVisibilities = new VoiceroidVisibilitySet();
             this.YmmCharaRelations = new YmmCharaRelationSet();
+            this.AviUtlDropLayers = new AviUtlDropLayerSet();
         }
 
         /// <summary>
@@ -231,6 +231,32 @@ namespace VoiceroidUtil
             set => this.SetProperty(ref this.ymmAddButtonClicking, value);
         }
         private bool ymmAddButtonClicking = true;
+
+        /// <summary>
+        /// 保存したAviUtl拡張編集ファイルを
+        /// AviUtl拡張編集タイムラインにドロップするか否かを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public bool IsSavedExoFileToAviUtl
+        {
+            get => this.savedExoFileToAviUtl;
+            set => this.SetProperty(ref this.savedExoFileToAviUtl, value);
+        }
+        private bool savedExoFileToAviUtl = true;
+
+        /// <summary>
+        /// VOICEROIDごとのAviUtl拡張編集ファイルドロップ先レイヤー番号を取得または設定する。
+        /// </summary>
+        [DataMember]
+        public AviUtlDropLayerSet AviUtlDropLayers
+        {
+            get => this.aviUtlDropLayers;
+            set =>
+                this.SetPropertyWithPropertyChangedChain(
+                    ref this.aviUtlDropLayers,
+                    value ?? (new AviUtlDropLayerSet()));
+        }
+        private AviUtlDropLayerSet aviUtlDropLayers = null;
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。
