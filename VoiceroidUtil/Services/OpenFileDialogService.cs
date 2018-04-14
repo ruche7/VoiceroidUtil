@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -81,11 +82,6 @@ namespace VoiceroidUtil.Services
             List<CommonFileDialogFilter> filters = null,
             bool folderPicker = false)
         {
-            if (!CommonOpenFileDialog.IsPlatformSupported)
-            {
-                return null;
-            }
-
             string filePath = null;
 
             using (var dialog = new CommonOpenFileDialog())
@@ -93,7 +89,7 @@ namespace VoiceroidUtil.Services
                 dialog.IsFolderPicker = folderPicker;
                 dialog.Title = title;
                 dialog.InitialDirectory = MakeInitialDirectoryPath(initialDirectory);
-                filters.ForEach(f => dialog.Filters.Add(f));
+                filters?.ForEach(f => dialog.Filters.Add(f));
                 dialog.EnsureValidNames = true;
                 dialog.EnsurePathExists = false;
                 dialog.EnsureFileExists = false;
@@ -130,8 +126,13 @@ namespace VoiceroidUtil.Services
             IEnumerable<CommonFileDialogFilter> filters = null,
             bool folderPicker = false)
         {
+            if (!CommonOpenFileDialog.IsPlatformSupported)
+            {
+                return null;
+            }
+
             // コピーしておく
-            var filtersClone = new List<CommonFileDialogFilter>(filters);
+            var filtersClone = filters?.ToList();
 
             return
                 await this.UIDispatcher.InvokeAsync(

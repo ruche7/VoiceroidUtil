@@ -154,7 +154,7 @@ namespace VoiceroidUtil.ViewModel
             params IObservable<bool>[] executables)
             =>
             this.MakeAsyncCommandCore(
-                (executer == null) ? (Func<object, Task>)null : (_ => executer()),
+                (executer == null) ? (Func<object, Task>)null : (async _ => await executer()),
                 executables,
                 e => e.ToAsyncReactiveCommand());
 
@@ -188,7 +188,8 @@ namespace VoiceroidUtil.ViewModel
 
             return
                 this.MakeAsyncCommandCore(
-                    (executer == null) ? (Func<object, Task>)null : (_ => executer()),
+                    (executer == null) ?
+                        (Func<object, Task>)null : (async _ => await executer()),
                     null,
                     _ => sharedExecutable.ToAsyncReactiveCommand());
         }

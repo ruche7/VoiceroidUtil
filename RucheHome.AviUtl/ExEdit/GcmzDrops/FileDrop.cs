@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using RucheHome.Util;
@@ -88,7 +89,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             int layer = 0,
             int timeoutMilliseconds = -1)
         {
-            ValidateArgumentNullOrEmpty(filePath, nameof(filePath));
+            ValidateFilePath(filePath, nameof(filePath));
 
             return
                 Run(
@@ -98,11 +99,6 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                     layer,
                     timeoutMilliseconds);
         }
-
-        /// <summary>
-        /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
-        /// </summary>
-        private const string ExEditWindowTitlePrefix = @"拡張編集";
 
         /// <summary>
         /// ファイルドロップ処理を行う。
@@ -123,17 +119,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             int timeoutMilliseconds = -1)
         {
             // 引数チェック
-            ValidateArgumentNull(filePathes, nameof(filePathes));
-            if (!filePathes.Any())
-            {
-                throw new ArgumentException(@"The value is empty.", nameof(filePathes));
-            }
-            foreach (var v in filePathes.Select((filePath, i) => new { filePath, i }))
-            {
-                ValidateArgumentNullOrEmpty(
-                    v.filePath,
-                    nameof(filePathes) + '[' + v.i + ']');
-            }
+            ValidateFilePathes(filePathes, nameof(filePathes));
             ValidateArgumentOutOfRange(
                 stepFrameCount,
                 0,
@@ -228,6 +214,58 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
+        /// ファイルパスがファイルドロップ処理対象として妥当であるか検証する。
+        /// </summary>
+        /// <param name="filePath">ファイルパス。</param>
+        /// <param name="argName">引数名。例外メッセージに利用される。</param>
+        /// <remarks>
+        /// 妥当でない場合は例外が送出される。
+        /// </remarks>
+        public static void ValidateFilePath(string filePath, string argName = null)
+        {
+            ValidateArgumentNullOrEmpty(filePath, argName);
+
+            if (!File.Exists(filePath))
+            {
+                var message = $@"The file path ""{filePath}"" is not exists.";
+                throw
+                    (argName == null) ?
+                        new ArgumentException(message) :
+                        new ArgumentException(message, argName);
+            }
+        }
+
+        /// <summary>
+        /// ファイルパス列挙がファイルドロップ処理対象として妥当であるか検証する。
+        /// </summary>
+        /// <param name="filePathes">ファイルパス列挙。</param>
+        /// <param name="argName">引数名。例外メッセージに利用される。</param>
+        /// <remarks>
+        /// 妥当でない場合は例外が送出される。
+        /// </remarks>
+        public static void ValidateFilePathes(
+            IEnumerable<string> filePathes,
+            string argName = null)
+        {
+            ValidateArgumentNull(filePathes, argName);
+
+            if (!filePathes.Any())
+            {
+                throw
+                    (argName == null) ?
+                        new ArgumentException(@"The value is empty.") :
+                        new ArgumentException(@"The value is empty.", argName);
+            }
+
+            foreach (var v in filePathes.Select((filePath, i) => new { filePath, i }))
+            {
+                ValidateFilePath(
+                    v.filePath,
+                    (argName == null) ? null : (argName + '[' + v.i + ']'));
+            }
+        }
+
+        /// <summary>
         /// 『ごちゃまぜドロップス』のファイルマッピングデータ構造体。
         /// </summary>
         [StructLayout(LayoutKind.Sequential)]
@@ -246,6 +284,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         /// 『ごちゃまぜドロップス』のファイルマッピング名。
         /// </summary>
         private const string FileMapName = @"GCMZDrops";
+
+        /// <summary>
+        /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
+        /// </summary>
+        private const string ExEditWindowTitlePrefix = @"拡張編集";
 
         /// <summary>
         /// 『ごちゃまぜドロップス』から対象ウィンドウハンドルを読み取る。

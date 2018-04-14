@@ -37,6 +37,8 @@ namespace VoiceroidUtil.Services
             int layer = 0,
             int timeoutMilliseconds = -1)
         {
+            FileDrop.ValidateFilePath(filePath, nameof(filePath));
+
             return Run(new[] { filePath }, stepFrameCount, layer, timeoutMilliseconds);
         }
 
@@ -46,6 +48,8 @@ namespace VoiceroidUtil.Services
             int layer = 0,
             int timeoutMilliseconds = -1)
         {
+            FileDrop.ValidateFilePathes(filePathes, nameof(filePathes));
+
             // コピーしておく
             var filePathesClone = new List<string>(filePathes);
 
