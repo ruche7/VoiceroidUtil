@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using RucheHome.AviUtl.ExEdit.GcmzDrops;
 using RucheHome.Voiceroid;
 
 namespace VoiceroidUtil
@@ -34,12 +35,12 @@ namespace VoiceroidUtil
         /// <summary>
         /// レイヤー番号の最小許容値。
         /// </summary>
-        public const int MinLayer = 1;
+        public const int MinLayer = FileDrop.MinLayer;
 
         /// <summary>
         /// レイヤー番号の最大許容値。
         /// </summary>
-        public const int MaxLayer = 100;
+        public const int MaxLayer = FileDrop.MaxLayer - 1;
 
         /// <summary>
         /// レイヤー番号を取得または設定する。
