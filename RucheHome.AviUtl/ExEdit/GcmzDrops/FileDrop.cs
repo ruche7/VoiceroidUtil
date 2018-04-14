@@ -72,12 +72,32 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
+        /// レイヤー番号の最小値。
+        /// </summary>
+        public const int MinLayer = 1;
+
+        /// <summary>
+        /// レイヤー番号の最大値。
+        /// </summary>
+        public const int MaxLayer = 100;
+
+        /// <summary>
+        /// 既定のレイヤー位置指定値。
+        /// </summary>
+        public const int DefaultLayerPosition = -MinLayer;
+
+        /// <summary>
         /// ファイルドロップ処理を行う。
         /// </summary>
         /// <param name="ownWindowHandle">送信元ウィンドウハンドル。</param>
         /// <param name="filePath">ファイルパス。</param>
         /// <param name="stepFrameCount">ドロップ後に進めるフレーム数。</param>
-        /// <param name="layer">レイヤー位置指定。既定位置にするならば 0 。</param>
+        /// <param name="layer">
+        /// レイヤー位置指定。
+        /// レイヤー番号で指定するならば MinLayer 以上 MaxLayer 以下。
+        /// 相対位置で指定するならば -MinLayer 以下 -MaxLayer 以上。
+        /// 既定位置にするならば 0 。
+        /// </param>
         /// <param name="timeoutMilliseconds">
         /// タイムアウトミリ秒数。負数ならばタイムアウトしない。
         /// </param>
@@ -125,6 +145,14 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                 0,
                 int.MaxValue,
                 nameof(stepFrameCount));
+            if (layer != 0)
+            {
+                ValidateArgumentOutOfRange(
+                    layer,
+                    (layer < 0) ? -MaxLayer : MinLayer,
+                    (layer < 0) ? -MinLayer : MaxLayer,
+                    nameof(layer));
+            }
 
             // 処理対象ウィンドウ取得
             var result = ReadTargetWindowHandle(out var targetWindowHandle);
@@ -168,7 +196,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             {
                 // 送信文字列作成
                 var data =
-                    ((layer == 0) ? -1 : layer) + "\0" +
+                    ((layer == 0) ? DefaultLayerPosition : layer) + "\0" +
                     stepFrameCount + "\0" +
                     string.Join("\0", filePathes) + "\0";
                 dataPtr = Marshal.StringToHGlobalUni(data);
