@@ -820,9 +820,11 @@ namespace VoiceroidUtil.ViewModel
             if (result?.Parameter?.IsPlayAction == true)
             {
                 // 対象VOICEROIDを前面へ
-                await this.RaiseVoiceroidAction(
-                    result.Parameter.Process,
-                    VoiceroidAction.Forward);
+                var process = result.Parameter.Process;
+                if (process != null)
+                {
+                    await this.RaiseVoiceroidAction(process, VoiceroidAction.Forward);
+                }
 
                 // メインウィンドウを前面へ
                 await this.ActivateMainWindow();
@@ -836,6 +838,8 @@ namespace VoiceroidUtil.ViewModel
         private async Task OnSaveCommandExecuted(
             AsyncSaveCommandHolder.CommandResult result)
         {
+            var process = result?.Parameter?.Process;
+
             if (result?.AppStatus != null)
             {
                 // アプリ状態更新
@@ -846,14 +850,31 @@ namespace VoiceroidUtil.ViewModel
                     this.IsTextClearing.Value &&
                     result.AppStatus.StatusType == AppStatusType.Success)
                 {
-                    this.TalkText.Value = "";
+                    if (!this.UseTargetText.Value)
+                    {
+                        this.TalkText.Value = @"";
+                    }
+                    else if (process != null)
+                    {
+                        // 保存処理直後だとうまくいかないことがあるので何度か試行
+                        for (int i = 0; i < 10; ++i)
+                        {
+                            await process.SetTalkText(@"");
+                            if ((await process.GetTalkText()) == @"")
+                            {
+                                break;
+                            }
+                            await Task.Delay(20);
+                        }
+                    }
                 }
             }
 
             // 対象VOICEROIDのタスクバーボタン点滅を止める
-            await this.RaiseVoiceroidAction(
-                this.SelectedProcess.Value,
-                VoiceroidAction.StopFlash);
+            if (process != null)
+            {
+                await this.RaiseVoiceroidAction(process, VoiceroidAction.StopFlash);
+            }
 
             // メインウィンドウを前面へ
             await this.ActivateMainWindow();
