@@ -312,9 +312,17 @@
                                     Path=Config.Value.IsSavedExoFileToAviUtl,
                                     Mode=OneWay}"
                                 Margin="20,4,0,0">
+                                <CheckBox
+                                    Content="ファイル作成時に拡張編集プロジェクトの情報を使う(_S)"
+                                    IsChecked="{Binding
+                                        Path=Config.Value.IsExoFileParamReplacedByAviUtl}" />
+                                <Label
+                                    Content="※プロジェクトの画像サイズ、フレームレート、音声レートを使います。"
+                                    FontSize="11"
+                                    Margin="20,0,0,0" />
                                 <Label
                                     Content="ドロップ先レイヤー番号設定:"
-                                    Margin="0,2,0,0" />
+                                    Margin="0,4,0,0" />
                                 <StackPanel Orientation="Vertical" Margin="12,2,0,0">
                                     <v:AviUtlDropLayersControl
                                         DataContext="{Binding

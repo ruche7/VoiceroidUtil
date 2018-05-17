@@ -245,6 +245,21 @@ namespace VoiceroidUtil
         private bool savedExoFileToAviUtl = true;
 
         /// <summary>
+        /// AviUtl拡張編集ファイル保存時、現在開いているAviUtl拡張編集プロジェクトの情報で
+        /// 共通設定の一部を上書きするか否かを取得または設定する。
+        /// </summary>
+        /// <remarks>
+        /// <see cref="IsSavedExoFileToAviUtl"/> が false の場合は無視される。
+        /// </remarks>
+        [DataMember]
+        public bool IsExoFileParamReplacedByAviUtl
+        {
+            get => this.exoFileParamReplacedByAviUtl;
+            set => this.SetProperty(ref this.exoFileParamReplacedByAviUtl, value);
+        }
+        private bool exoFileParamReplacedByAviUtl = true;
+
+        /// <summary>
         /// VOICEROIDごとのAviUtl拡張編集ファイルドロップ先レイヤー番号を取得または設定する。
         /// </summary>
         [DataMember]
