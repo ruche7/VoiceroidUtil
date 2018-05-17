@@ -76,6 +76,9 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="4" />
                                 <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="4" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -126,14 +129,15 @@
                                 Content="フレームレート(_F):"
                                 Target="{Binding ElementName=Common_Fps}"
                                 Grid.Row="3" Grid.Column="0" />
-                            <tk:DecimalUpDown
-                                x:Name="Common_Fps"
-                                Value="{Binding Fps, UpdateSourceTrigger=PropertyChanged}"
-                                Minimum="{x:Static local:ExoCommonConfig.MinFps}"
-                                Maximum="{x:Static local:ExoCommonConfig.MaxFps}"
-                                MinWidth="64"
-                                HorizontalAlignment="Left"
-                                Grid.Row="3" Grid.Column="2" />
+                            <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="2">
+                                <tk:DecimalUpDown
+                                    x:Name="Common_Fps"
+                                    Value="{Binding Fps, UpdateSourceTrigger=PropertyChanged}"
+                                    Minimum="{x:Static local:ExoCommonConfig.MinFps}"
+                                    Maximum="{x:Static local:ExoCommonConfig.MaxFps}"
+                                    MinWidth="64" />
+                                <Label Content="fps." Margin="2,0,0,0" />
+                            </StackPanel>
 
                             <!-- Row 4 -->
                             <Label
@@ -143,9 +147,34 @@
 
                             <!-- Row 6 -->
                             <Label
+                                Content="音声レート(_S):"
+                                Target="{Binding ElementName=Common_AudioSampleRate}"
+                                Grid.Row="6" Grid.Column="0" />
+                            <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="2">
+                                <tk:IntegerUpDown
+                                    x:Name="Common_AudioSampleRate"
+                                    Value="{Binding
+                                        Path=AudioSampleRate,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                                    Minimum="{x:Static
+                                        Member=local:ExoCommonConfig.MinAudioSampleRate}"
+                                    Maximum="{x:Static
+                                        Member=local:ExoCommonConfig.MaxAudioSampleRate}"
+                                    MinWidth="64" />
+                                <Label Content="Hz." Margin="2,0,0,0" />
+                            </StackPanel>
+
+                            <!-- Row 7 -->
+                            <Label
+                                Content="※プロジェクトへのインポート時は無視されます。"
+                                FontSize="11"
+                                Grid.Row="7" Grid.Column="2" />
+
+                            <!-- Row 9 -->
+                            <Label
                                 Content="追加フレーム(_E):"
                                 Target="{Binding ElementName=Common_ExtraFrames}"
-                                Grid.Row="6" Grid.Column="0" />
+                                Grid.Row="9" Grid.Column="0" />
                             <tk:IntegerUpDown
                                 x:Name="Common_ExtraFrames"
                                 Value="{Binding
@@ -155,19 +184,19 @@
                                 Maximum="{x:Static local:ExoCommonConfig.MaxExtraFrames}"
                                 MinWidth="64"
                                 HorizontalAlignment="Left"
-                                Grid.Row="6" Grid.Column="2" />
+                                Grid.Row="9" Grid.Column="2" />
 
-                            <!-- Row 7 -->
+                            <!-- Row 10 -->
                             <Label
                                 Content="※テキスト表示の延長フレーム数です。"
                                 FontSize="11"
-                                Grid.Row="7" Grid.Column="2" />
+                                Grid.Row="10" Grid.Column="2" />
 
-                            <!-- Row 9 -->
+                            <!-- Row 12 -->
                             <CheckBox
                                 Content="テキストと音声をグループ化(_G)"
                                 IsChecked="{Binding IsGrouping}"
-                                Grid.Row="9" Grid.ColumnSpan="3" />
+                                Grid.Row="12" Grid.ColumnSpan="3" />
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
