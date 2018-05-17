@@ -89,7 +89,9 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         /// <summary>
         /// ファイルドロップ処理を行う。
         /// </summary>
-        /// <param name="ownWindowHandle">送信元ウィンドウハンドル。</param>
+        /// <param name="ownWindowHandle">
+        /// WM_COPYDATA メッセージ送信元ウィンドウハンドル。
+        /// </param>
         /// <param name="filePath">ファイルパス。</param>
         /// <param name="stepFrameCount">ドロップ後に進めるフレーム数。</param>
         /// <param name="layer">
@@ -123,7 +125,9 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         /// <summary>
         /// ファイルドロップ処理を行う。
         /// </summary>
-        /// <param name="ownWindowHandle">送信元ウィンドウハンドル。</param>
+        /// <param name="ownWindowHandle">
+        /// WM_COPYDATA メッセージ送信元ウィンドウハンドル。
+        /// </param>
         /// <param name="filePathes">ファイルパス列挙。</param>
         /// <param name="stepFrameCount">ドロップ後に進めるフレーム数。</param>
         /// <param name="layer">レイヤー位置指定。既定位置にするならば 0 。</param>
@@ -138,32 +142,13 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             int layer = 0,
             int timeoutMilliseconds = -1)
         {
-            // 引数チェック
-            ValidateFilePathes(filePathes, nameof(filePathes));
-            ValidateArgumentOutOfRange(
-                stepFrameCount,
-                0,
-                int.MaxValue,
-                nameof(stepFrameCount));
-            if (layer != 0)
-            {
-                ValidateArgumentOutOfRange(
-                    layer,
-                    (layer < 0) ? -MaxLayer : MinLayer,
-                    (layer < 0) ? -MinLayer : MaxLayer,
-                    nameof(layer));
-            }
+            ValidateArguments(filePathes, stepFrameCount, layer);
 
             // 処理対象ウィンドウ取得
-            var result = ReadTargetWindowHandle(out var targetWindowHandle);
+            var result = ReadTargetWindow(out var targetWindow);
             if (result != Result.Success)
             {
                 return result;
-            }
-            var targetWindow = new Win32Window(targetWindowHandle);
-            if (!targetWindow.IsExists)
-            {
-                return Result.GcmzWindowNotFound;
             }
 
             // 拡張編集ウィンドウが表示されていないと失敗するので確認
@@ -294,81 +279,80 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
-        /// 『ごちゃまぜドロップス』のファイルマッピングデータ構造体。
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        private struct FileMapData
-        {
-            public uint WindowHandle;
-            public int Width;
-            public int Height;
-            public int VideoRate;
-            public int VideoScale;
-            public int AudioRate;
-            public int AudioChannel;
-        }
-
-        /// <summary>
-        /// 『ごちゃまぜドロップス』のファイルマッピング名。
-        /// </summary>
-        private const string FileMapName = @"GCMZDrops";
-
-        /// <summary>
         /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
         /// </summary>
         private const string ExEditWindowTitlePrefix = @"拡張編集";
+
+        /// <summary>
+        /// Run メソッドの引数群を検証する。
+        /// </summary>
+        /// <param name="filePathes">ファイルパス列挙。</param>
+        /// <param name="stepFrameCount">ドロップ後に進めるフレーム数。</param>
+        /// <param name="layer">レイヤー位置指定。既定位置にするならば 0 。</param>
+        private static void ValidateArguments(
+            IEnumerable<string> filePathes,
+            int stepFrameCount,
+            int layer)
+        {
+            ValidateFilePathes(filePathes, nameof(filePathes));
+
+            ValidateArgumentOutOfRange(
+                stepFrameCount,
+                0,
+                int.MaxValue,
+                nameof(stepFrameCount));
+
+            if (layer != 0)
+            {
+                ValidateArgumentOutOfRange(
+                    layer,
+                    (layer < 0) ? -MaxLayer : MinLayer,
+                    (layer < 0) ? -MinLayer : MaxLayer,
+                    nameof(layer));
+            }
+        }
 
         /// <summary>
         /// 『ごちゃまぜドロップス』から対象ウィンドウハンドルを読み取る。
         /// </summary>
         /// <param name="dest">対象ウィンドウハンドルの設定先。</param>
         /// <returns>処理結果。</returns>
-        private static Result ReadTargetWindowHandle(out IntPtr dest)
+        private static Result ReadTargetWindow(out Win32Window dest)
         {
-            dest = IntPtr.Zero;
+            dest = null;
 
-            var handle = IntPtr.Zero;
-            var dataAddress = IntPtr.Zero;
-            try
+            switch (GcmzInfoReader.Read(out var info))
             {
-                // ファイルマッピングハンドル取得
-                handle = OpenFileMapping(FILE_MAP_READ, false, FileMapName);
-                if (handle == IntPtr.Zero)
+            case GcmzInfoReader.Result.Success:
                 {
-                    return Result.FileMappingFail;
-                }
+                    if (!info.IsWindowOpened)
+                    {
+                        return Result.GcmzWindowNotFound;
+                    }
+                    if (!info.IsProjectOpened)
+                    {
+                        return Result.ProjectNotFound;
+                    }
 
-                // ファイルマッピングアドレス取得
-                dataAddress = MapViewOfFile(handle, FILE_MAP_READ, 0, 0, UIntPtr.Zero);
-                if (dataAddress == IntPtr.Zero)
-                {
-                    return Result.MapViewFail;
-                }
+                    var win = new Win32Window(info.WindowHandle);
+                    if (!win.IsExists)
+                    {
+                        return Result.GcmzWindowNotFound;
+                    }
 
-                // データ取得
-                var data =
-                    (FileMapData)Marshal.PtrToStructure(dataAddress, typeof(FileMapData));
-                if (data.WindowHandle == 0)
-                {
-                    return Result.GcmzWindowNotFound;
+                    dest = win;
                 }
-                if (data.Width <= 0 || data.Height <= 0)
-                {
-                    return Result.ProjectNotFound;
-                }
+                break;
 
-                dest = new IntPtr(data.WindowHandle);
-            }
-            finally
-            {
-                if (dataAddress != IntPtr.Zero)
-                {
-                    UnmapViewOfFile(dataAddress);
-                }
-                if (handle != IntPtr.Zero)
-                {
-                    CloseHandle(handle);
-                }
+            case GcmzInfoReader.Result.FileMappingFail:
+                return Result.FileMappingFail;
+
+            case GcmzInfoReader.Result.MapViewFail:
+                return Result.MapViewFail;
+
+            default:
+                // 来ないはず…
+                return Result.Fail;
             }
 
             return Result.Success;
@@ -384,29 +368,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             public IntPtr DataAddress;
         }
 
-        private const uint FILE_MAP_READ = 0x0004;
         private const uint WM_COPYDATA = 0x004A;
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr OpenFileMapping(
-            uint desiredAccess,
-            [MarshalAs(UnmanagedType.Bool)] bool inheritHandle,
-            string name);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool CloseHandle(IntPtr handle);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr MapViewOfFile(
-            IntPtr fileMapHandle,
-            uint desiredAccess,
-            uint fileOffsetHigh,
-            uint fileOffsetLow,
-            UIntPtr numberOfBytesToMap);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool UnmapViewOfFile(IntPtr address);
 
         #endregion
     }

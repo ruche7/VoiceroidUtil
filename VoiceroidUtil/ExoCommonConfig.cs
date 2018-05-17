@@ -48,6 +48,26 @@ namespace VoiceroidUtil
         public static readonly int MaxFpsDigits = 3;
 
         /// <summary>
+        /// 音声サンプリングレートの最小値。
+        /// </summary>
+        public static readonly int MinAudioSampleRate = 1;
+
+        /// <summary>
+        /// 音声サンプリングレートの最大値。
+        /// </summary>
+        public static readonly int MaxAudioSampleRate = 999999;
+
+        /// <summary>
+        /// 音声チャンネル数の最小値。
+        /// </summary>
+        public static readonly int MinAudioChannelCount = 1;
+
+        /// <summary>
+        /// 音声チャンネル数の最大値。
+        /// </summary>
+        public static readonly int MaxAudioChannelCount = 9;
+
+        /// <summary>
         /// 追加フレーム数の最小値。
         /// </summary>
         public static readonly int MinExtraFrames = 0;
@@ -108,7 +128,35 @@ namespace VoiceroidUtil
                         Math.Min(Math.Max(MinFps, value), MaxFps),
                         MaxFpsDigits));
         }
-        private decimal fps = 60;
+        private decimal fps = 30;
+
+        /// <summary>
+        /// 音声サンプリングレートを取得または設定する。
+        /// </summary>
+        [DataMember]
+        public int AudioSampleRate
+        {
+            get => this.audioSampleRate;
+            set =>
+                this.SetProperty(
+                    ref this.audioSampleRate,
+                    Math.Min(Math.Max(MinAudioSampleRate, value), MaxAudioSampleRate));
+        }
+        private int audioSampleRate = 48000;
+
+        /// <summary>
+        /// 音声チャンネル数を取得または設定する。
+        /// </summary>
+        [DataMember]
+        public int AudioChannelCount
+        {
+            get => this.audioChannelCount;
+            set =>
+                this.SetProperty(
+                    ref this.audioChannelCount,
+                    Math.Min(Math.Max(MinAudioChannelCount, value), MaxAudioChannelCount));
+        }
+        private int audioChannelCount = 2;
 
         /// <summary>
         /// 追加フレーム数を取得または設定する。
@@ -134,6 +182,17 @@ namespace VoiceroidUtil
             set => this.SetProperty(ref this.grouping, value);
         }
         private bool grouping = true;
+
+        /// <summary>
+        /// このオブジェクトのクローンを作成する。
+        /// </summary>
+        /// <returns>このオブジェクトのクローン。</returns>
+        public ExoCommonConfig Clone()
+        {
+            var dest = new ExoCommonConfig();
+            dest.CopyDataMembersFrom(this);
+            return dest;
+        }
 
         /// <summary>
         /// デシリアライズの直前に呼び出される。

@@ -354,14 +354,25 @@ namespace VoiceroidUtil
             {
                 var exoFilePath = Path.ChangeExtension(filePath, @".exo");
 
+                // 共通設定更新
+                ExoCommonConfig common = null;
+                var gcmzResult = GcmzDrops.FileDrop.Result.Success;
+                if (
+                    appConfig.IsSavedExoFileToAviUtl &&
+                    appConfig.IsExoFileParamReplacedByAviUtl)
+                {
+                    common = exoConfig.Common.Clone();
+                    gcmzResult = UpdateExoCommonConfigByAviUtl(ref common);
+                }
+
                 // ファイル保存
                 var exo =
                     await DoOperateExoSave(
                         exoFilePath,
                         filePath,
-                        voiceroidId,
                         text,
-                        exoConfig);
+                        common ?? exoConfig.Common,
+                        exoConfig.CharaStyles[voiceroidId]);
                 if (exo == null)
                 {
                     return
@@ -370,15 +381,18 @@ namespace VoiceroidUtil
                             @".exo ファイルを保存できませんでした。");
                 }
 
+                // ファイルドロップ
                 if (appConfig.IsSavedExoFileToAviUtl)
                 {
-                    // ファイルドロップ
+                    // UpdateExoCommonConfigByAviUtl で失敗しているなら実施しない
                     var failMessage =
-                        await DoOperateExoDrop(
-                            exoFilePath,
-                            exo.Length,
-                            appConfig.AviUtlDropLayers[voiceroidId].Layer,
-                            aviUtlFileDropService);
+                        (gcmzResult != GcmzDrops.FileDrop.Result.Success) ?
+                            MakeFailMessageFromExoDropResult(gcmzResult, true) :
+                            await DoOperateExoDrop(
+                                exoFilePath,
+                                exo.Length,
+                                appConfig.AviUtlDropLayers[voiceroidId].Layer,
+                                aviUtlFileDropService);
                     if (failMessage != null)
                     {
                         return Tuple.Create(ExoOperationResult.DropFail, failMessage);
@@ -394,20 +408,17 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="exoFilePath">AviUtl拡張編集ファイルパス。</param>
         /// <param name="waveFilePath">WAVEファイルパス。</param>
-        /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="text">テキスト。</param>
-        /// <param name="exoConfig">AviUtl拡張編集ファイル用設定。</param>
+        /// <param name="common">共通設定。</param>
+        /// <param name="charaStyle">キャラ別スタイル。</param>
         /// <returns>保存した拡張編集オブジェクト。失敗したならば null 。</returns>
         private static async Task<ExEditObject> DoOperateExoSave(
             string exoFilePath,
             string waveFilePath,
-            VoiceroidId voiceroidId,
             string text,
-            ExoConfig exoConfig)
+            ExoCommonConfig common,
+            ExoCharaStyle charaStyle)
         {
-            var common = exoConfig.Common;
-            var charaStyle = exoConfig.CharaStyles[voiceroidId];
-
             // フレーム数算出
             int frameCount = 0;
             try
@@ -417,7 +428,7 @@ namespace VoiceroidUtil
                 var f =
                     (waveTime.Ticks * common.Fps) /
                     (charaStyle.PlaySpeed.Begin * (TimeSpan.TicksPerSecond / 100));
-                frameCount = (int)decimal.Ceiling(f);
+                frameCount = (int)decimal.Floor(f); // 拡張編集の仕様に合わせて切り捨て
             }
             catch (Exception ex)
             {
@@ -431,6 +442,8 @@ namespace VoiceroidUtil
                     Width = common.Width,
                     Height = common.Height,
                     Length = frameCount + common.ExtraFrames,
+                    AudioSampleRate = common.AudioSampleRate,
+                    AudioChannelCount = common.AudioChannelCount,
                 };
 
             // decimal の小数部桁数を取得
@@ -529,6 +542,69 @@ namespace VoiceroidUtil
                 result = GcmzDrops.FileDrop.Result.Fail;
             }
 
+            return MakeFailMessageFromExoDropResult(result, true);
+        }
+
+        /// <summary>
+        /// 現在開いているAviUtl拡張編集プロジェクトの情報から、
+        /// AviUtl拡張編集ファイル用の共通設定を更新する。
+        /// </summary>
+        /// <param name="common">更新対象の共通設定。処理成功時のみ変更される。</param>
+        /// <returns>処理結果値。</returns>
+        private static GcmzDrops.FileDrop.Result UpdateExoCommonConfigByAviUtl(
+            ref ExoCommonConfig common)
+        {
+            switch (GcmzDrops.GcmzInfoReader.Read(out var info))
+            {
+            case GcmzDrops.GcmzInfoReader.Result.Success:
+                {
+                    if (!info.IsWindowOpened)
+                    {
+                        return GcmzDrops.FileDrop.Result.GcmzWindowNotFound;
+                    }
+                    if (!info.IsProjectOpened)
+                    {
+                        return GcmzDrops.FileDrop.Result.ProjectNotFound;
+                    }
+
+                    // 更新
+                    common.Width = info.Width;
+                    common.Height = info.Height;
+                    common.ExtraFrames =
+                        (int)(common.ExtraFrames * info.FrameRate / common.Fps + 0.5m);
+                    common.Fps = info.FrameRate;
+                    common.AudioSampleRate = info.AudioSampleRate;
+                    common.AudioChannelCount = info.AudioChannelCount;
+                }
+                break;
+
+            case GcmzDrops.GcmzInfoReader.Result.FileMappingFail:
+                return GcmzDrops.FileDrop.Result.FileMappingFail;
+
+            case GcmzDrops.GcmzInfoReader.Result.MapViewFail:
+                return GcmzDrops.FileDrop.Result.MapViewFail;
+
+            default:
+                // 来ないはず…
+                return GcmzDrops.FileDrop.Result.Fail;
+            }
+
+            return GcmzDrops.FileDrop.Result.Success;
+        }
+
+        /// <summary>
+        /// AviUtl拡張編集ファイルドロップ処理結果値から失敗文字列を作成する。
+        /// </summary>
+        /// <param name="result">AviUtl拡張編集ファイルドロップ処理結果値。</param>
+        /// <param name="bootCheckOnFileMappingFail">
+        /// result が <see cref="GcmzDrops.FileDrop.Result.FileMappingFail"/>
+        /// の時にAviUtlプロセスの起動確認を行うならば true 。
+        /// </param>
+        /// <returns>失敗文字列。成功値または成功扱いならば null 。</returns>
+        private static string MakeFailMessageFromExoDropResult(
+            GcmzDrops.FileDrop.Result result,
+            bool bootCheckOnFileMappingFail)
+        {
             switch (result)
             {
             case GcmzDrops.FileDrop.Result.Success:
@@ -536,8 +612,10 @@ namespace VoiceroidUtil
 
             case GcmzDrops.FileDrop.Result.FileMappingFail:
                 // AviUtlが起動していない or ごちゃまぜドロップス未導入
-                // 起動していないなら成功扱い
-                if (Process.GetProcessesByName(@"aviutl").Length > 0)
+                // bootCheckOnFileMappingFail == true かつ起動していないなら成功扱い
+                if (
+                    !bootCheckOnFileMappingFail ||
+                    Process.GetProcessesByName(@"aviutl").Length > 0)
                 {
                     return @"ごちゃまぜドロップス情報を取得できません。";
                 }
