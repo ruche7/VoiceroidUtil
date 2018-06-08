@@ -121,6 +121,7 @@
     <Compile Include="ExoTextStyleTemplate.cs" />
     <Compile Include="Extensions\ObservableExtension.cs" />
     <Compile Include="Extensions\ReactivePropertyExtension.cs" />
+    <Compile Include="InstalledFontNameEnumerable.cs" />
     <Compile Include="IVoiceroidItem.cs" />
     <Compile Include="Mvvm\CommandActivator.cs" />
     <Compile Include="Mvvm\IndexedCommandKeyBindingBehavior.cs" />
