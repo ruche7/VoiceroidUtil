@@ -14,6 +14,7 @@ using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using RucheHome.AviUtl;
 using RucheHome.AviUtl.ExEdit;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
@@ -223,7 +224,7 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// フォントファミリ名列挙を取得する。
         /// </summary>
-        public IEnumerable<string> FontFamilyNames => InstalledFontNameEnumerable.Instance;
+        public IEnumerable<string> FontFamilyNames { get; } = new FontFamilyNameEnumerable();
 
         /// <summary>
         /// テキストスタイル雛形コレクションを取得する。

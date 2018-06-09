@@ -36,6 +36,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -73,6 +74,7 @@
     <Compile Include="ExEdit\TextAlignment.cs" />
     <Compile Include="ExEdit\TextComponent.cs" />
     <Compile Include="ExEdit\UnknownComponent.cs" />
+    <Compile Include="FontFamilyNameEnumerable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
