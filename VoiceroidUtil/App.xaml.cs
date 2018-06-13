@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -221,6 +222,12 @@ namespace VoiceroidUtil
         {
             // ObserveOnUIDispatcher でUIスレッドを使うために初期化
             UIDispatcherScheduler.Initialize();
+
+            // TLS 1.1/1.2 対応設定
+            ServicePointManager.SecurityProtocol =
+                SecurityProtocolType.Tls |
+                SecurityProtocolType.Tls11 |
+                SecurityProtocolType.Tls12;
 
             this.SetupTraceListener();
             this.SetupUpdateChecker();
