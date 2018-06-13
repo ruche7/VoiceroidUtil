@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.12.0
+-VoiceroidUtil version 1.12.1
 -VOICEROID+ 結月ゆかり EX version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>http://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>http://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -624,6 +624,8 @@ VOICEROID2かつ本体側のファイル分割設定が有効である場合、設定内容に関わらず、AviU
 
 *更新履歴 [#history]
 
+:2018-06-13|
+--version 1.12.1 に対応。
 :2018-05-22|
 --[[Q＆A>#qa]]を更新。
 :2018-05-18|
