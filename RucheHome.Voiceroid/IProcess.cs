@@ -143,7 +143,7 @@ namespace RucheHome.Voiceroid
         /// </summary>
         /// <returns>ボイスプリセット名。</returns>
         /// <remarks>
-        /// VOICEROID2かつ実行中の場合はボイスプリセット名を取得して返す。
+        /// VOICEROID2ライクソフトウェアかつ実行中の場合はボイスプリセット名を取得して返す。
         /// それ以外では Name の値をそのまま返す。
         /// </remarks>
         Task<string> GetVoicePresetName();

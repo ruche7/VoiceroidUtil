@@ -114,6 +114,20 @@ namespace RucheHome.Voiceroid
     public static class VoiceroidIdExtension
     {
         /// <summary>
+        /// VOICEROID識別IDがVOICEROID2ライクなソフトウェアを示しているか否かを取得する。
+        /// </summary>
+        /// <param name="id">VOICEROID識別ID。</param>
+        /// <returns>
+        /// VOICEROID2ライクなソフトウェアを示しているならば true 。
+        /// そうでなければ false 。
+        /// </returns>
+        /// <remarks>
+        /// VoiceroidId.V2Akari 等、ソフトウェア内キャラクターを表すIDは含めない。
+        /// </remarks>
+        public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
+            (id == VoiceroidId.Voiceroid2 || id == VoiceroidId.GynoidTalk);
+
+        /// <summary>
         /// VOICEROID識別IDに紐付く情報を取得する。
         /// </summary>
         /// <param name="id">VOICEROID識別ID。</param>

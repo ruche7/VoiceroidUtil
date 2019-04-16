@@ -287,7 +287,7 @@ namespace VoiceroidUtil.ViewModel
                             // 敢えて空白文を保存したいことはまず無いと思われるので、
                             // 誤クリック抑止の意味も込めて空白文は送信不可とする。
                             // ただし本体側の文章を使う場合は空白文でも保存可能とする。
-                            // ↓のコメントを外すとVOICEROID2で空白文送信保存可能になる。
+                            // ↓のコメントを外すと(可能ならば)空白文送信保存可能になる。
                             //this
                             //    .ObserveSelectedProcessProperty(p => p.CanSaveBlankText)
                             //    .DistinctUntilChanged(),

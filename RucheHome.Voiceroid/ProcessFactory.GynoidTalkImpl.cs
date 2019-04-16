@@ -1,18 +1,22 @@
-﻿namespace RucheHome.Voiceroid
+﻿using System;
+
+namespace RucheHome.Voiceroid
 {
     partial class ProcessFactory
     {
         /// <summary>
-        /// GynoidTalk用の IProcess インタフェース実装クラス。
+        /// ガイノイドTalk用の IProcess インタフェース実装クラス。
         /// </summary>
-        private sealed class GynoidTalkImpl : Voiceroid2Impl
+        private sealed class GynoidTalkImpl : Voiceroid2ImplBase
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public GynoidTalkImpl() : base(VoiceroidId.GynoidTalk, true)
+            public GynoidTalkImpl() : base(VoiceroidId.GynoidTalk)
             {
             }
+
+            #region ImplBase のオーバライド
 
             /// <summary>
             /// メインウィンドウタイトルであるか否かを取得する。
@@ -28,6 +32,8 @@
             {
                 return (title?.Contains(@"ガイノイドTalk") == true);
             }
+
+            #endregion
         }
     }
 }

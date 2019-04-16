@@ -114,7 +114,7 @@ namespace VoiceroidUtil
         {
             var name = base.MakeVoiceroidName(voiceroidId);
             return
-                (voiceroidId == VoiceroidId.Voiceroid2) || (voiceroidId == VoiceroidId.GynoidTalk) ?
+                voiceroidId.IsVoiceroid2LikeSoftware() ?
                     (name + @" (キャラ不確定時)") : name;
         }
 
