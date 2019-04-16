@@ -237,13 +237,13 @@
                             <v:YmmCharaRelationsControl
                                 DataContext="{Binding VisibleYmmCharaRelations.Value}" />
                             <Expander
-                                Header="VOICEROID2のキャラクター選択について"
+                                Header="VOICEROID2 (ガイノイドTalk) のキャラクター選択について"
                                 IsExpanded="False"
                                 Margin="0,2,0,0">
                                 <Border Style="{StaticResource solidBorder}" Padding="4">
                                     <StackPanel Orientation="Vertical">
                                         <TextBlock TextWrapping="Wrap">
-                                            VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDの自動選択設定を利用します。
+                                            VOICEROID2 (ガイノイドTalk) 側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDの自動選択設定を利用します。
                                         </TextBlock>
                                         <v:VoiceroidKeywordsView Margin="8,4,0,4" />
                                         <TextBlock TextWrapping="Wrap">
@@ -328,7 +328,7 @@
                                         DataContext="{Binding
                                             Path=VisibleAviUtlDropLayers.Value}" />
                                     <Expander
-                                        Header="VOICEROID2のキャラクター選択について"
+                                        Header="VOICEROID2 (ガイノイドTalk) のキャラクター選択について"
                                         IsExpanded="False"
                                         Margin="0,2,0,0">
                                         <Border
@@ -336,12 +336,12 @@
                                             Padding="4">
                                             <StackPanel Orientation="Vertical">
                                                 <TextBlock TextWrapping="Wrap">
-                                                    VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDのレイヤー番号設定を利用します。
+                                                    VOICEROID2 (ガイノイドTalk) 側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのVOICEROIDのレイヤー番号設定を利用します。
                                                 </TextBlock>
                                                 <v:VoiceroidKeywordsView Margin="8,4,0,4" />
                                                 <TextBlock TextWrapping="Wrap">
                                                     いずれのキーワードも含まれていない場合のみ、
-                                                    <Run Text="VOICEROID2" FontWeight="Bold" />
+                                                    <Run Text="VOICEROID2 (ガイノイドTalk)" FontWeight="Bold" />
                                                     の設定を利用します。
                                                 </TextBlock>
                                             </StackPanel>

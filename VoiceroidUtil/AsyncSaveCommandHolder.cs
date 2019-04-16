@@ -682,7 +682,7 @@ namespace VoiceroidUtil
 
             // YMMキャラ名決定
             string charaName =
-                (voiceroidId == VoiceroidId.Voiceroid2) ?
+                (voiceroidId == VoiceroidId.Voiceroid2 || voiceroidId == VoiceroidId.GynoidTalk) ?
                     voiceroid2CharaName : config.YmmCharaRelations[voiceroidId].YmmCharaName;
 
             string warnText = null;
@@ -860,6 +860,9 @@ namespace VoiceroidUtil
             // VOICEROID2フラグ
             bool voiceroid2 = (process.Id == VoiceroidId.Voiceroid2);
 
+            // ガイノイドTalkフラグ
+            bool gynoidTalk = (process.Id == VoiceroidId.GynoidTalk);
+
             // 基テキスト、音声用テキスト作成
             string text, voiceText;
             if (appConfig.UseTargetText)
@@ -915,14 +918,14 @@ namespace VoiceroidUtil
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // キャラクター名取得
-            // VOICEROID2ならばボイスプリセット名を使う
-            var charaName = voiceroid2 ? (await process.GetVoicePresetName()) : process.Name;
+            // VOICEROID2またはガイノイドTalkならばボイスプリセット名を使う
+            var charaName = voiceroid2 || gynoidTalk ? (await process.GetVoicePresetName()) : process.Name;
 
             // WAVEファイルパス決定
             string filePath = null;
             try
             {
-                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2);
+                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2 || gynoidTalk);
             }
             catch (Exception ex)
             {
@@ -961,7 +964,7 @@ namespace VoiceroidUtil
                         AppStatusType.Fail,
                         @"文章の設定に失敗しました。",
                         AppStatusType.Information,
-                        voiceroid2 ? @"一度再生を行ってみてください。" : null);
+                        voiceroid2 || gynoidTalk ? @"一度再生を行ってみてください。" : null);
             }
 
             // WAVEファイル保存
@@ -981,10 +984,10 @@ namespace VoiceroidUtil
 
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 
-            // VOICEROID2かつファイル名が異なる
+            // VOICEROID2またはガイノイドTalkかつファイル名が異なる
             // → ファイル分割されているので以降の処理は行わない
             if (
-                voiceroid2 &&
+                (voiceroid2 || gynoidTalk) &&
                 !string.Equals(
                     Path.GetFileNameWithoutExtension(requiredFilePath),
                     Path.GetFileNameWithoutExtension(filePath),
@@ -1018,7 +1021,7 @@ namespace VoiceroidUtil
             // 以降の処理の対象となるキャラ
             // VOICEROID2ならボイスプリセット名からキャラ選別
             var voiceroidId =
-                (voiceroid2 ? FindKeywordContainedVoiceroidId(charaName) : null) ??
+                (voiceroid2 || gynoidTalk ? FindKeywordContainedVoiceroidId(charaName) : null) ??
                 process.Id;
 
             // .exo ファイル関連処理

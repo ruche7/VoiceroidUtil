@@ -206,7 +206,7 @@ namespace VoiceroidUtil
 
                 // テキスト設定
                 bool setOk = await process.SetTalkText(text);
-                if (!setOk && process.Id == VoiceroidId.Voiceroid2)
+                if (!setOk && (process.Id == VoiceroidId.Voiceroid2 || process.Id == VoiceroidId.GynoidTalk))
                 {
                     // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
                     // 一旦 再生→停止 の操作を行うことで解除を試みる

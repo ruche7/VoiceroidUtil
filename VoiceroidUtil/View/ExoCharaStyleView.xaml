@@ -359,20 +359,20 @@
             </Border>
         </Expander>
         <Expander
-            Header="VOICEROID2のキャラクター選択について"
+            Header="VOICEROID2 (ガイノイドTalk) のキャラクター選択について"
             IsExpanded="False"
             Margin="0,2,0,0">
             <Border Style="{StaticResource solidBorder}" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <TextBlock TextWrapping="Wrap">
-                        VOICEROID2側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのキャラクターの設定を利用します。
+                        VOICEROID2 (ガイノイドTalk) 側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのキャラクターの設定を利用します。
                     </TextBlock>
                     <v:VoiceroidKeywordsView
                         VoiceroidNameHeader="キャラクター"
                         Margin="8,4,0,4" />
                     <TextBlock TextWrapping="Wrap">
                         いずれのキーワードも含まれていない場合、
-                        <Run Text="VOICEROID2 (キャラ不確定時)" FontWeight="Bold" />
+                        <Run Text="VOICEROID2 (キャラ不確定時)、ガイノイドTalk (キャラ不確定時)" FontWeight="Bold" />
                         の設定を利用します。
                     </TextBlock>
                 </StackPanel>

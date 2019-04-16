@@ -84,10 +84,28 @@ namespace RucheHome.Voiceroid
         V2Akari,
 
         /// <summary>
+        /// 鳴花ヒメ(ガイノイドTalk専用)
+        /// </summary>
+        [EnumMember]
+        GTHime,
+
+        /// <summary>
+        /// 鳴花ミコト(ガイノイドTalk専用)
+        /// </summary>
+        [EnumMember]
+        GTMikoto,
+
+        /// <summary>
         /// VOICEROID2
         /// </summary>
         [EnumMember]
         Voiceroid2,
+
+        /// <summary>
+        /// ガイノイドTalk
+        /// </summary>
+        [EnumMember]
+        GynoidTalk,
     }
 
     /// <summary>
@@ -196,6 +214,20 @@ namespace RucheHome.Voiceroid
                     @"VOICEROID2 Editor",
                     @"VOICEROID2 紲星あかり"),
                 new VoiceroidInfo(
+                    VoiceroidId.GTHime,
+                    false,
+                    @"鳴花ヒメ",
+                    new[]{ @"ヒメ" },
+                    @"GynoidTalkEditor",
+                    @"ガイノイドTalk 鳴花ヒメ"),
+                new VoiceroidInfo(
+                    VoiceroidId.GTMikoto,
+                    false,
+                    @"鳴花ミコト",
+                    new[]{ @"ミコト" },
+                    @"GynoidTalkEditor",
+                    @"ガイノイドTalk 鳴花ミコト"),
+                new VoiceroidInfo(
                     VoiceroidId.Voiceroid2,
                     true,
                     @"VOICEROID2",
@@ -203,6 +235,14 @@ namespace RucheHome.Voiceroid
                     @"VoiceroidEditor",
                     @"VOICEROID2 Editor",
                     @"VOICEROID2"),
+                new VoiceroidInfo(
+                    VoiceroidId.GynoidTalk,
+                    true,
+                    @"ガイノイドTalk",
+                    null,
+                    @"GynoidTalkEditor",
+                    @"GynoidTalk Editor",
+                    @"ガイノイドTalk"),
             }
             .ToDictionary(info => info.Id);
     }

@@ -68,10 +68,25 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/akari.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="GTHime">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/hime.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="GTMikoto">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/mikoto.png" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="Voiceroid2">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/voiceroid2_ok.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="GynoidTalk">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/gynoidtalk_ok.png" />
             </DataTrigger>
         </Style.Triggers>
     </Style>
@@ -297,6 +312,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/voiceroid2_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="GynoidTalk" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/gynoidtalk_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="GynoidTalk" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/gynoidtalk_ok.png" />
             </MultiDataTrigger>
         </Style.Triggers>
     </Style>

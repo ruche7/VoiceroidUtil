@@ -83,8 +83,11 @@ namespace RucheHome.Voiceroid
                     {
                         // VOICEROID2プロセス作成
                         processes.Add(new Voiceroid2Impl());
-                    }
-                    else
+                    } else if (id == VoiceroidId.GynoidTalk)
+                    {
+                        // ガイノイドTalkプロセス作成
+                        processes.Add(new GynoidTalkImpl());
+                    } else
                     {
                         // VOICEROID+ EX 互換プロセス作成
                         processes.Add(new PlusExImpl(id));

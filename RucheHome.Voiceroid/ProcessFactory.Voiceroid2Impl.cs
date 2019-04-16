@@ -14,12 +14,21 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// VOICEROID2用の IProcess インタフェース実装クラス。
         /// </summary>
-        private sealed class Voiceroid2Impl : ImplBase
+        private class Voiceroid2Impl : ImplBase
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
             public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2, true)
+            {
+            }
+
+            /// <summary>
+            /// コンストラクタ＞
+            /// </summary>
+            /// <param name="id">VOICEROID識別ID。</param>
+            /// <param name="canSaveBlankText">空白文の音声保存を行えるならば true 。</param>
+            protected Voiceroid2Impl(VoiceroidId id, bool canSaveBlankText) : base(id, canSaveBlankText)
             {
             }
 

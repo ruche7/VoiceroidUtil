@@ -425,6 +425,18 @@
   <ItemGroup>
     <Resource Include="resources\voiceroid\akari.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\gynoidtalk_ok.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\gynoidtalk_ng.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\hime.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\mikoto.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
