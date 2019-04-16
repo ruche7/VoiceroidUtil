@@ -84,10 +84,28 @@ namespace RucheHome.Voiceroid
         V2Akari,
 
         /// <summary>
+        /// 鳴花ヒメ(ガイノイドTalk専用)
+        /// </summary>
+        [EnumMember]
+        GTHime,
+
+        /// <summary>
+        /// 鳴花ミコト(ガイノイドTalk専用)
+        /// </summary>
+        [EnumMember]
+        GTMikoto,
+
+        /// <summary>
         /// VOICEROID2
         /// </summary>
         [EnumMember]
         Voiceroid2,
+
+        /// <summary>
+        /// ガイノイドTalk
+        /// </summary>
+        [EnumMember]
+        GynoidTalk,
     }
 
     /// <summary>
@@ -95,6 +113,20 @@ namespace RucheHome.Voiceroid
     /// </summary>
     public static class VoiceroidIdExtension
     {
+        /// <summary>
+        /// VOICEROID識別IDがVOICEROID2ライクなソフトウェアを示しているか否かを取得する。
+        /// </summary>
+        /// <param name="id">VOICEROID識別ID。</param>
+        /// <returns>
+        /// VOICEROID2ライクなソフトウェアを示しているならば true 。
+        /// そうでなければ false 。
+        /// </returns>
+        /// <remarks>
+        /// VoiceroidId.V2Akari 等、ソフトウェア内キャラクターを表すIDは含めない。
+        /// </remarks>
+        public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
+            (id == VoiceroidId.Voiceroid2 || id == VoiceroidId.GynoidTalk);
+
         /// <summary>
         /// VOICEROID識別IDに紐付く情報を取得する。
         /// </summary>
@@ -196,6 +228,20 @@ namespace RucheHome.Voiceroid
                     @"VOICEROID2 Editor",
                     @"VOICEROID2 紲星あかり"),
                 new VoiceroidInfo(
+                    VoiceroidId.GTHime,
+                    false,
+                    @"鳴花ヒメ",
+                    new[]{ @"ヒメ" },
+                    @"GynoidTalkEditor",
+                    @"ガイノイドTalk 鳴花ヒメ"),
+                new VoiceroidInfo(
+                    VoiceroidId.GTMikoto,
+                    false,
+                    @"鳴花ミコト",
+                    new[]{ @"ミコト" },
+                    @"GynoidTalkEditor",
+                    @"ガイノイドTalk 鳴花ミコト"),
+                new VoiceroidInfo(
                     VoiceroidId.Voiceroid2,
                     true,
                     @"VOICEROID2",
@@ -203,6 +249,14 @@ namespace RucheHome.Voiceroid
                     @"VoiceroidEditor",
                     @"VOICEROID2 Editor",
                     @"VOICEROID2"),
+                new VoiceroidInfo(
+                    VoiceroidId.GynoidTalk,
+                    true,
+                    @"ガイノイドTalk",
+                    null,
+                    @"GynoidTalkEditor",
+                    @"GynoidTalk Editor",
+                    @"ガイノイドTalk"),
             }
             .ToDictionary(info => info.Id);
     }

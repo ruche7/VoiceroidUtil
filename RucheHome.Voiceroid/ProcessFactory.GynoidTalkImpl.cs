@@ -5,14 +5,14 @@ namespace RucheHome.Voiceroid
     partial class ProcessFactory
     {
         /// <summary>
-        /// VOICEROID2用の IProcess インタフェース実装クラス。
+        /// ガイノイドTalk用の IProcess インタフェース実装クラス。
         /// </summary>
-        private class Voiceroid2Impl : Voiceroid2ImplBase
+        private sealed class GynoidTalkImpl : Voiceroid2ImplBase
         {
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2)
+            public GynoidTalkImpl() : base(VoiceroidId.GynoidTalk)
             {
             }
 
@@ -30,7 +30,7 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             protected override bool IsMainWindowTitle(string title)
             {
-                return (title?.Contains(@"VOICEROID2") == true);
+                return (title?.Contains(@"ガイノイドTalk") == true);
             }
 
             #endregion

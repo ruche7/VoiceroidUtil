@@ -153,7 +153,7 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// VOICEROID2の分割ファイル名にマッチする正規表現。
+        /// VOICEROID2ライクソフトウェアの分割ファイル名にマッチする正規表現。
         /// </summary>
         private static readonly Regex RegexSplitFileName =
             new Regex(
@@ -166,13 +166,13 @@ namespace VoiceroidUtil
         /// <param name="config">アプリ設定。</param>
         /// <param name="charaName">キャラ名。</param>
         /// <param name="talkText">トークテキスト。</param>
-        /// <param name="voiceroid2">VOICEROID2用ならば true 。</param>
+        /// <param name="voiceroid2Like">VOICEROID2ライクソフトウェア用ならば true 。</param>
         /// <returns>WAVEファイルパス。作成できないならば null 。</returns>
         private static async Task<string> MakeWaveFilePath(
             AppConfig config,
             string charaName,
             string talkText,
-            bool voiceroid2)
+            bool voiceroid2Like)
         {
             if (
                 config == null ||
@@ -189,7 +189,7 @@ namespace VoiceroidUtil
 
             // 同名ファイルがあるならば名前の末尾に "[数字]" を付ける
             // 作成される可能性のあるテキストファイルや.exoファイルも確認する
-            // VOICEROID2用の場合は連番ファイルも確認する
+            // VOICEROID2ライクの場合は連番ファイルも確認する
             var name = baseName;
             await Task.Run(
                 () =>
@@ -202,9 +202,9 @@ namespace VoiceroidUtil
                             !File.Exists(path + @".txt") &&
                             !File.Exists(path + @".exo"))
                         {
-                            // VOICEROID2なら連番ファイルも存在チェック
+                            // VOICEROID2ライクなら連番ファイルも存在チェック
                             var splitFileFound =
-                                voiceroid2 &&
+                                voiceroid2Like &&
                                 Directory.EnumerateFiles(dirPath, name + @"-*.*")
                                     .Select(fp => Path.GetFileName(fp))
                                     .Any(fn => RegexSplitFileName.IsMatch(fn));
@@ -666,13 +666,15 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        /// <param name="voiceroid2CharaName">VOICEROID2の場合に用いるキャラ名。</param>
+        /// <param name="voiceroid2LikeCharaName">
+        /// voiceoidId がVOICEROID2ライクの場合に用いるキャラ名。
+        /// </param>
         /// <param name="config">アプリ設定。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
         private static async Task<string> DoOperateYmm(
             string filePath,
             VoiceroidId voiceroidId,
-            string voiceroid2CharaName,
+            string voiceroid2LikeCharaName,
             AppConfig config)
         {
             if (!config.IsSavedFileToYmm)
@@ -682,8 +684,9 @@ namespace VoiceroidUtil
 
             // YMMキャラ名決定
             string charaName =
-                (voiceroidId == VoiceroidId.Voiceroid2) ?
-                    voiceroid2CharaName : config.YmmCharaRelations[voiceroidId].YmmCharaName;
+                voiceroidId.IsVoiceroid2LikeSoftware() ?
+                    voiceroid2LikeCharaName :
+                    config.YmmCharaRelations[voiceroidId].YmmCharaName;
 
             string warnText = null;
 
@@ -857,8 +860,8 @@ namespace VoiceroidUtil
                         @"ファイル保存を開始できませんでした。");
             }
 
-            // VOICEROID2フラグ
-            bool voiceroid2 = (process.Id == VoiceroidId.Voiceroid2);
+            // VOICEROID2ライクソフトウェアフラグ
+            bool voiceroid2Like = process.Id.IsVoiceroid2LikeSoftware();
 
             // 基テキスト、音声用テキスト作成
             string text, voiceText;
@@ -915,14 +918,15 @@ namespace VoiceroidUtil
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // キャラクター名取得
-            // VOICEROID2ならばボイスプリセット名を使う
-            var charaName = voiceroid2 ? (await process.GetVoicePresetName()) : process.Name;
+            // VOICEROID2ライクならばボイスプリセット名を使う
+            var charaName =
+                voiceroid2Like ? (await process.GetVoicePresetName()) : process.Name;
 
             // WAVEファイルパス決定
             string filePath = null;
             try
             {
-                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2);
+                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2Like);
             }
             catch (Exception ex)
             {
@@ -952,7 +956,7 @@ namespace VoiceroidUtil
             // トークテキスト設定
             if (!appConfig.UseTargetText && !(await process.SetTalkText(voiceText)))
             {
-                // VOICEROID2の場合、本体の入力欄が読み取り専用になることがある。
+                // VOICEROID2ライクの場合、本体の入力欄が読み取り専用になることがある。
                 // 再生時と違い、メッセージを返すのみでリカバリはしない。
 
                 return
@@ -961,7 +965,7 @@ namespace VoiceroidUtil
                         AppStatusType.Fail,
                         @"文章の設定に失敗しました。",
                         AppStatusType.Information,
-                        voiceroid2 ? @"一度再生を行ってみてください。" : null);
+                        voiceroid2Like ? @"一度再生を行ってみてください。" : null);
             }
 
             // WAVEファイル保存
@@ -981,10 +985,10 @@ namespace VoiceroidUtil
 
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 
-            // VOICEROID2かつファイル名が異なる
+            // VOICEROID2ライクかつファイル名が異なる
             // → ファイル分割されているので以降の処理は行わない
             if (
-                voiceroid2 &&
+                voiceroid2Like &&
                 !string.Equals(
                     Path.GetFileNameWithoutExtension(requiredFilePath),
                     Path.GetFileNameWithoutExtension(filePath),
@@ -1016,9 +1020,9 @@ namespace VoiceroidUtil
             }
 
             // 以降の処理の対象となるキャラ
-            // VOICEROID2ならボイスプリセット名からキャラ選別
+            // VOICEROID2ライクならボイスプリセット名からキャラ選別
             var voiceroidId =
-                (voiceroid2 ? FindKeywordContainedVoiceroidId(charaName) : null) ??
+                (voiceroid2Like ? FindKeywordContainedVoiceroidId(charaName) : null) ??
                 process.Id;
 
             // .exo ファイル関連処理

@@ -61,9 +61,11 @@
     <Compile Include="FileSaveResult.cs" />
     <Compile Include="IProcess.cs" />
     <Compile Include="ProcessFactory.cs" />
+    <Compile Include="ProcessFactory.GynoidTalkImpl.cs" />
     <Compile Include="ProcessFactory.ImplBase.cs" />
     <Compile Include="ProcessFactory.PlusExImpl.cs" />
     <Compile Include="ProcessFactory.Voiceroid2Impl.cs" />
+    <Compile Include="ProcessFactory.Voiceroid2ImplBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VoiceroidId.cs" />
     <Compile Include="VoiceroidInfo.cs" />

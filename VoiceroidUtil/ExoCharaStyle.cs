@@ -108,13 +108,13 @@ namespace VoiceroidUtil
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <returns>VOICEROIDの名前。</returns>
         /// <remarks>
-        /// VOICEROID2の名前を変えるためにオーバライドする。
+        /// VOICEROID2およびガイノイドTalkの名前を変えるためにオーバライドする。
         /// </remarks>
         protected override string MakeVoiceroidName(VoiceroidId voiceroidId)
         {
             var name = base.MakeVoiceroidName(voiceroidId);
             return
-                (voiceroidId == VoiceroidId.Voiceroid2) ?
+                voiceroidId.IsVoiceroid2LikeSoftware() ?
                     (name + @" (キャラ不確定時)") : name;
         }
 

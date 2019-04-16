@@ -69,6 +69,11 @@
                                             Value="Voiceroid2">
                                             <Setter Property="Visibility" Value="Visible" />
                                         </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding VoiceroidId}"
+                                            Value="GynoidTalk">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Label.Style>

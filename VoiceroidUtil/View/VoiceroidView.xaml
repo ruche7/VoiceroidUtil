@@ -90,6 +90,14 @@
                                                             Property="Visibility"
                                                             Value="Collapsed" />
                                                     </DataTrigger>
+                                                    <!-- ガイノイドTalk は製品名非表示 -->
+                                                    <DataTrigger
+                                                        Binding="{Binding Id}"
+                                                        Value="GynoidTalk">
+                                                        <Setter
+                                                            Property="Visibility"
+                                                            Value="Collapsed" />
+                                                    </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </TextBlock.Style>
