@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2018-06-14
-  Version : 1.12.2
+   Update : 2019-04-17
+  Version : 1.13.0
        By : ルーチェ
 
 ================================================================================
@@ -32,6 +32,11 @@ VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - http://otomachiuna.jp/talk
 - http://www.ssw.co.jp/products/talk/una/
+
+『ガイノイドTalk』は、株式会社ガイノイドから発売されている、
+VOICEROID2と同等の機能を持つ文章読み上げソフトウェアです。
+詳しくは公式サイトをご覧ください。
+- http://gynoid.co.jp/
 
 『ゆっくりMovieMaker』は、饅頭遣い氏が開発した動画作成補助ツールです。
 音声ファイルを指定することで、ゆっくりボイス以外の音声にも対応可能です。
@@ -75,8 +80,9 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
         - VOICEROID+ 京町セイカ EX           [1.7.4]
         - VOICEROID+ 水奈瀬コウ EX           [1.7.3]
         - 音街ウナTalk Ex                    [1.0.0]
-        - VOICEROID2                         [2.0.4.0]
-    - VOICEROID2は VOICEROID2 Editor への対応となるため、
+        - VOICEROID2                         [2.0.5.0]
+        - ガイノイドTalk                     [1.0.0.0]
+    - VOICEROID2およびガイノイドTalkはエディターへの対応となるため、
       シリーズ製品を1つ以上インストール済みであれば利用可能です。
 
 - ゆっくりMovieMaker
@@ -84,7 +90,7 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
     - 必須ではありません。無くとも動作します。
 
 - AviUtl, 拡張編集Plugin, ごちゃまぜドロップス
-    - 動作確認済みバージョンはそれぞれ 1.00, 0.92, 0.3.5 です。
+    - 動作確認済みバージョンはそれぞれ 1.00, 0.92, 0.3.9 です。
     - 必須ではありません。無くとも動作します。
     - ごちゃまぜドロップスはPSDToolKitに同梱されているものでも構いません。
       https://github.com/oov/aviutl_psdtoolkit
@@ -164,13 +170,15 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 - 結月ゆかり              http://seiga.nicovideo.jp/seiga/im4538340
 - 弦巻マキ                http://seiga.nicovideo.jp/seiga/im4608092
 - 東北ずん子              http://seiga.nicovideo.jp/seiga/im4654903
-- 東北きりたん            http://seiga.nicovideo.jp/seiga/im6172244
 - 琴葉茜・葵              http://seiga.nicovideo.jp/seiga/im4681154
+- 東北きりたん            http://seiga.nicovideo.jp/seiga/im6172244
+- 東北イタコ              http://seiga.nicovideo.jp/seiga/im7109958
 
 blueberry様
 - 月読アイ                http://seiga.nicovideo.jp/seiga/im5730761
 - SD京町セイカ            http://seiga.nicovideo.jp/seiga/im5837297
 - SD紲星あかり            http://seiga.nicovideo.jp/seiga/im7736161
+- SD桜乃そら              http://seiga.nicovideo.jp/seiga/im8488086
 
 はるか様
 - デフォルメ水奈瀬コウ    http://seiga.nicovideo.jp/seiga/im5773085
@@ -179,15 +187,26 @@ blueberry様
 空どうふ様
 - 音街ウナ                http://seiga.nicovideo.jp/seiga/im6646019
 
+谷裕司様
+- 鳴花ヒメ・ミコト        http://seiga.nicovideo.jp/seiga/im9057850
+
+lill様
+- ガイノイドTalk アイコン
+
 ICOOON MONO 様のアイコン素材
 - http://icooon-mono.com/
 
-下記の方からの修正コード提供 (Pull Request) を受け付けました。
+下記の方からのコード提供 (Pull Request) を受け付けました。
 
 naokiy様 (https://github.com/naokiy)
-- https://github.com/ruche7/VoiceroidUtil/pull/143
+- #143 ウエイト込みでのフォント指定を可能にする
+  https://github.com/ruche7/VoiceroidUtil/pull/143
 
-ライブラリ、素材、修正コードの提供者各位には厚く御礼申し上げます。
+lill様 (https://github.com/lill-azk)
+- #149 ガイノイドTalk対応
+  https://github.com/ruche7/VoiceroidUtil/pull/149
+
+ライブラリ、素材、コードの提供者各位には厚く御礼申し上げます。
 
 ================================================================================
 ■免責事項等
@@ -205,7 +224,7 @@ naokiy様 (https://github.com/naokiy)
 ■連絡先
 
 作者Webサイト
-- http://www.ruche-home.net/
+- https://ruche-home.net/
 
 作者メールアドレス
 - webmaster@ruche-home.net
@@ -215,6 +234,24 @@ naokiy様 (https://github.com/naokiy)
 
 ================================================================================
 ■更新履歴
+
+------------------------------------------------------------
+◆2019-04-17 [1.13.0]
+
+- 『ガイノイドTalk 鳴花ヒメ・ミコト』に対応。
+    - 『VOICEROID2』と同等の扱いになります。
+      詳細はWebマニュアルを参照してください。
+    - 本体側でファイル分割設定を有効にしている場合、以下の処理は無効です。
+        - テキストファイル強制保存
+        - .exoファイル保存
+        - 『ゆっくりMovieMaker』連携
+
+- 『VOICEROID2 桜乃そら』、『VOICEROID2 東北イタコ』に対応。
+    - 下記における設定対象キャラクターとして追加されました。
+        - 設定画面/YMM連携タブのキャラクター自動選択設定
+        - .exo画面/キャラクター別タブ
+    - 操作画面のVOICEROID選択コンボボックスには追加されていません。
+      今まで通り「VOICEROID2」を選択してください。
 
 ------------------------------------------------------------
 ◆2018-06-14 [1.12.2]
