@@ -76,9 +76,9 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 --[[VOICEROID2 紲星あかり>http://www.ah-soft.com/voiceroid/akari/]] （version 1.10.0 よりキャラクター対応）
 --[[VOICEROID2 桜乃そら>http://www.ah-soft.com/voiceroid/sora/]] （version 1.13.0 よりキャラクター対応）
 --[[VOICEROID2 東北イタコ>http://www.ah-soft.com/voiceroid/itako/]] （version 1.13.0 よりキャラクター対応）
+--他、インポートしたVOICEROID+シリーズ等
 -ガイノイドTalk （version 1.13.0 より）
 --[[ガイノイドTalk 鳴花ヒメ・ミコト>https://gynoid.co.jp/items/view/19]]
---他、インポートしたVOICEROID+シリーズ等
 
 一部のソフトウェアはVOICEROIDではありませんが、当ツールでは便宜上同列に扱います。~
 当文書内で「VOICEROID」と書かれている場合はそれらのソフトウェアも含みます。
