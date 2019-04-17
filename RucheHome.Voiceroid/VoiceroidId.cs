@@ -84,6 +84,18 @@ namespace RucheHome.Voiceroid
         V2Akari,
 
         /// <summary>
+        /// 桜乃そら(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2Sora,
+
+        /// <summary>
+        /// 東北イタコ(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2Itako,
+
+        /// <summary>
         /// 鳴花ヒメ(ガイノイドTalk専用)
         /// </summary>
         [EnumMember]
@@ -227,6 +239,20 @@ namespace RucheHome.Voiceroid
                     new[]{ @"紲星", @"あかり" },
                     @"VOICEROID2 Editor",
                     @"VOICEROID2 紲星あかり"),
+                new VoiceroidInfo(
+                    VoiceroidId.V2Sora,
+                    false,
+                    @"桜乃そら",
+                    new[]{ @"桜乃", @"そら" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 桜乃そら"),
+                new VoiceroidInfo(
+                    VoiceroidId.V2Itako,
+                    false,
+                    @"東北イタコ",
+                    new[]{ @"イタコ" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 東北イタコ"),
                 new VoiceroidInfo(
                     VoiceroidId.GTHime,
                     false,

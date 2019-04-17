@@ -56,7 +56,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             ExEditWindowNotFound,
 
             /// <summary>
-            /// 拡張編集ウィンドウが閉じられている。
+            /// 拡張編集ウィンドウが閉じられているか最小化されている。
             /// </summary>
             ExEditWindowInvisible,
 
