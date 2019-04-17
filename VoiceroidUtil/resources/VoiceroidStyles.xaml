@@ -68,6 +68,16 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/akari.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="V2Sora">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/sora.png" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="V2Itako">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/itako.png" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="GTHime">
                 <Setter
                     Property="Source"
