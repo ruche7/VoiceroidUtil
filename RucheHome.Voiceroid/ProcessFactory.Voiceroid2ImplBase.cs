@@ -158,12 +158,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // すべてのボタンが揃っているか確認
-                if (results.Any(b => b == null))
-                {
-                    return null;
-                }
-
-                return results;
+                return results.Any(b => b == null) ? null : results;
             }
 
             /// <summary>
@@ -460,7 +455,7 @@ namespace RucheHome.Voiceroid
                                 Path.GetDirectoryName(filePath),
                                 Path.GetFileNameWithoutExtension(filePath) + @"-" + i +
                                 Path.GetExtension(filePath));
-                        var c = await DoEraseOldFileTask(splitPath, false);
+                        var c = await this.DoEraseOldFileTask(splitPath, false);
                         if (c <= 0)
                         {
                             break;
@@ -665,7 +660,7 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public override async Task<string> GetVoicePresetName()
             {
-                string name = null;
+                string name;
                 try
                 {
                     name = this.FindPresetNameText()?.Current.Name;
@@ -682,11 +677,9 @@ namespace RucheHome.Voiceroid
             /// メインウィンドウ変更時の更新処理を行う。
             /// </summary>
             /// <returns>更新できたならば true 。そうでなければ false 。</returns>
-            protected override async Task<bool> UpdateOnMainWindowChanged()
-            {
+            protected override async Task<bool> UpdateOnMainWindowChanged() =>
                 // ボタンがあるか適当に調べておく
-                return ((await this.FindButtons(ButtonType.Save)) != null);
-            }
+                (await this.FindButtons(ButtonType.Save)) != null;
 
             /// <summary>
             /// IsDialogShowing プロパティ値を更新する。
@@ -752,12 +745,7 @@ namespace RucheHome.Voiceroid
             protected override async Task<string> DoGetTalkText()
             {
                 var edit = this.FindTalkTextEdit();
-                if (edit == null)
-                {
-                    return null;
-                }
-
-                return await Task.Run(() => GetElementValue(edit));
+                return (edit == null) ? null : await Task.Run(() => GetElementValue(edit));
             }
 
             /// <summary>
@@ -768,12 +756,10 @@ namespace RucheHome.Voiceroid
             protected override async Task<bool> DoSetTalkText(string text)
             {
                 var edit = this.FindTalkTextEdit();
-                if (edit == null || !edit.Current.IsEnabled)
-                {
-                    return false;
-                }
-
-                return await Task.Run(() => SetElementValue(edit, text));
+                return
+                    edit != null &&
+                    edit.Current.IsEnabled &&
+                    await Task.Run(() => SetElementValue(edit, text));
             }
 
             /// <summary>
@@ -963,15 +949,13 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 追加情報が設定されていたら保存失敗
-                if (extraMsg != null)
-                {
-                    return new FileSaveResult(
-                        false,
-                        error: @"ファイル保存処理に失敗しました。",
-                        extraMessage: extraMsg);
-                }
-
-                return new FileSaveResult(true, filePath);
+                return
+                    (extraMsg == null) ?
+                        new FileSaveResult(true, filePath) :
+                        new FileSaveResult(
+                            false,
+                            error: @"ファイル保存処理に失敗しました。",
+                            extraMessage: extraMsg);
             }
 
             #endregion

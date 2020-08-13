@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
@@ -15,10 +16,7 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        public VoiceroidItemBase(VoiceroidId voiceroidId)
-        {
-            this.VoiceroidId = voiceroidId;
-        }
+        public VoiceroidItemBase(VoiceroidId voiceroidId) => this.VoiceroidId = voiceroidId;
 
         /// <summary>
         /// VOICEROID識別IDを取得する。
@@ -34,7 +32,7 @@ namespace VoiceroidUtil
                         value : VoiceroidId.YukariEx);
 
                 // 名前も更新
-                this.VoiceroidName = MakeVoiceroidName(this.VoiceroidId);
+                this.VoiceroidName = this.MakeVoiceroidName(this.VoiceroidId);
             }
         }
         private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
@@ -43,6 +41,7 @@ namespace VoiceroidUtil
         /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(VoiceroidId))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string VoiceroidIdString
         {
             get => this.VoiceroidId.ToString();
@@ -71,9 +70,7 @@ namespace VoiceroidUtil
         /// VoiceroidId プロパティ値が設定される時に呼び出される。
         /// 既定では voiceroidId.GetInfo().Name を返す。
         /// </remarks>
-        protected virtual string MakeVoiceroidName(VoiceroidId voiceroidId)
-        {
-            return voiceroidId.GetInfo().Name;
-        }
+        protected virtual string MakeVoiceroidName(VoiceroidId voiceroidId) =>
+            voiceroidId.GetInfo().Name;
     }
 }

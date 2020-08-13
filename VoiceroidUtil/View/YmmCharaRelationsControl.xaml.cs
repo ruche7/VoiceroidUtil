@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public YmmCharaRelationsControl()
-        {
-            InitializeComponent();
-        }
+        public YmmCharaRelationsControl() => this.InitializeComponent();
     }
 }

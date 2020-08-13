@@ -21,7 +21,7 @@ namespace VoiceroidUtil.ViewModel
         /// 再生や音声保存に関わる設定値の変更可否状態値。
         /// </param>
         /// <param name="config">設定値。</param>
-        public ConfigViewModelBase(
+        protected ConfigViewModelBase(
             IReadOnlyReactiveProperty<bool> canModify,
             IReadOnlyReactiveProperty<TConfig> config)
         {

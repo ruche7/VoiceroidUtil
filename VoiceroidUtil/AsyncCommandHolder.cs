@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reactive.Disposables;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Reactive.Bindings;
@@ -21,7 +20,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AsyncCommandHolderBase() : this(new AsyncReactiveCommand<TParameter>())
+        protected AsyncCommandHolderBase() : this(new AsyncReactiveCommand<TParameter>())
         {
         }
 
@@ -29,11 +28,10 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="canExecuteSource">コマンド実施可否状態のプッシュ通知。</param>
-        public AsyncCommandHolderBase(IObservable<bool> canExecuteSource)
+        protected AsyncCommandHolderBase(IObservable<bool> canExecuteSource)
             : this(canExecuteSource?.ToAsyncReactiveCommand<TParameter>())
-        {
+            =>
             ValidateArgumentNull(canExecuteSource, nameof(canExecuteSource));
-        }
 
         /// <summary>
         /// コンストラクタ。
@@ -41,11 +39,15 @@ namespace VoiceroidUtil
         /// <param name="sharedCanExecute">
         /// コマンド実施可否状態を共有する ReactiveProperty 。
         /// </param>
-        public AsyncCommandHolderBase(IReactiveProperty<bool> sharedCanExecute)
+        protected AsyncCommandHolderBase(IReactiveProperty<bool> sharedCanExecute)
             : this(sharedCanExecute?.ToAsyncReactiveCommand<TParameter>())
-        {
+            =>
             ValidateArgumentNull(sharedCanExecute, nameof(sharedCanExecute));
-        }
+
+        /// <summary>
+        /// デストラクタ。
+        /// </summary>
+        ~AsyncCommandHolderBase() => this.Dispose(false);
 
         /// <summary>
         /// コマンドを取得する。
@@ -110,7 +112,7 @@ namespace VoiceroidUtil
             // 同値でも通知されるように DistinctUntilChanged を外す
             var result =
                 new ReactiveProperty<TResult>(
-                    default(TResult),
+                    default,
                     ReactivePropertyMode.RaiseLatestValueOnSubscribe)
                     .AddTo(this.CompositeDisposable);
 
@@ -146,15 +148,30 @@ namespace VoiceroidUtil
         /// <summary>
         /// リソースを破棄する。
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            try
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// リソース破棄の実処理を行う。
+        /// </summary>
+        /// <param name="disposing">
+        /// Dispose メソッドから呼び出された場合は true 。
+        /// </param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                this.CompositeDisposable.Dispose();
-            }
-            catch (Exception ex)
-            {
-                ThreadTrace.WriteException(ex);
+                try
+                {
+                    this.CompositeDisposable.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
             }
         }
 
@@ -180,9 +197,8 @@ namespace VoiceroidUtil
             Func<TParameter, Task<TResult>> executer,
             Func<TParameter, TParameter> parameterConverter = null)
             : base()
-        {
+            =>
             this.Construct(executer, parameterConverter);
-        }
 
         /// <summary>
         /// コンストラクタ。
@@ -197,9 +213,8 @@ namespace VoiceroidUtil
             Func<TParameter, Task<TResult>> executer,
             Func<TParameter, TParameter> parameterConverter = null)
             : base(canExecuteSource)
-        {
+            =>
             this.Construct(executer, parameterConverter);
-        }
 
         /// <summary>
         /// コンストラクタ。
@@ -216,9 +231,8 @@ namespace VoiceroidUtil
             Func<TParameter, Task<TResult>> executer,
             Func<TParameter, TParameter> parameterConverter = null)
             : base(sharedCanExecute)
-        {
+            =>
             this.Construct(executer, parameterConverter);
-        }
 
         /// <summary>
         /// コマンド処理デリゲートを取得または設定する。

@@ -106,10 +106,8 @@ namespace VoiceroidUtil.Mvvm
         /// 自身の型のインスタンスを作成する。
         /// </summary>
         /// <returns>作成されたインスタンス。</returns>
-        protected override Freezable CreateInstanceCore()
-        {
-            return new IndexedCommandKeyBindingBehavior();
-        }
+        protected override Freezable CreateInstanceCore() =>
+            new IndexedCommandKeyBindingBehavior();
 
         #endregion
     }

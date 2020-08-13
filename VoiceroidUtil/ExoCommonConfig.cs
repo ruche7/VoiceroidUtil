@@ -198,9 +198,6 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
     }
 }

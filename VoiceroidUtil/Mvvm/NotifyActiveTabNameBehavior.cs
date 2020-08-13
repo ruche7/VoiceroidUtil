@@ -102,8 +102,7 @@ namespace VoiceroidUtil.Mvvm
         /// <returns>TabControl のネスト配列。見つからなければ空の配列。</returns>
         private TabControl[] FindActiveTabControls(TabControl tabControl)
         {
-            var item = tabControl?.SelectedItem as TabItem;
-            if (item == null)
+            if (!(tabControl?.SelectedItem is TabItem item))
             {
                 return new TabControl[0];
             }

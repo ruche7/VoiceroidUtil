@@ -278,9 +278,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// アプリケーションの終了時に呼び出される。
         /// </summary>
-        private void OnExit(object sender, ExitEventArgs e)
-        {
+        private void OnExit(object sender, ExitEventArgs e) =>
             this.CompositeDisposable.Dispose();
-        }
     }
 }

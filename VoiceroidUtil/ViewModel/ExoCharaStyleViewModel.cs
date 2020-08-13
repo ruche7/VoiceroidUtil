@@ -352,7 +352,7 @@ namespace VoiceroidUtil.ViewModel
                 let render = i.GetComponent<RenderComponent>()
                 let text = i.GetComponent<TextComponent>()
                 where render != null && text != null && !ContainsCharaScript(i)
-                orderby (text.Text != "") ? 0 : 1, i.BeginFrame, i.LayerId
+                orderby (text.Text.Length == 0) ? 1 : 0, i.BeginFrame, i.LayerId
                 select new { render, text, clipping = i.IsClipping };
 
             foreach (var item in items)
@@ -639,7 +639,7 @@ namespace VoiceroidUtil.ViewModel
             string subStatusText = "",
             ICommand subStatusCommand = null,
             string subStatusCommandTip = "")
-        {
+            =>
             this.LastStatus.Value =
                 new AppStatus
                 {
@@ -652,9 +652,8 @@ namespace VoiceroidUtil.ViewModel
                         string.IsNullOrEmpty(subStatusCommandTip) ?
                             null : subStatusCommandTip,
                 };
-        }
 
-#region デザイン時用定義
+        #region デザイン時用定義
 
         /// <summary>
         /// デザイン時用コンストラクタ。

@@ -88,7 +88,7 @@ namespace RucheHome.Text
             {
                 throw new ArgumentNullException(argName);
             }
-            if (name == "")
+            if (name.Length == 0)
             {
                 throw new ArgumentException(@"The name is empty.", argName);
             }

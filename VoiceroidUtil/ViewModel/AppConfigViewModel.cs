@@ -335,7 +335,7 @@ namespace VoiceroidUtil.ViewModel
             e.Handled = true;
 
             // 末尾がディレクトリ区切り文字なら削除
-            if (Path.GetFileName(path) == "")
+            if (Path.GetFileName(path).Length == 0)
             {
                 // ドライブルートの場合は null が返ってくる
                 path = Path.GetDirectoryName(path) ?? path;
@@ -385,7 +385,7 @@ namespace VoiceroidUtil.ViewModel
             string subStatusText = "",
             ICommand subStatusCommand = null,
             string subStatusCommandTip = "")
-        {
+            =>
             this.LastStatus.Value =
                 new AppStatus
                 {
@@ -398,7 +398,6 @@ namespace VoiceroidUtil.ViewModel
                         string.IsNullOrEmpty(subStatusCommandTip) ?
                             null : subStatusCommandTip,
                 };
-        }
 
         #region デザイン時用定義
 

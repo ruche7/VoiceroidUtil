@@ -26,11 +26,9 @@ namespace VoiceroidUtil
         /// <param name="layer">
         /// レイヤー番号。範囲外ならばVOICEROID識別IDから決定する。
         /// </param>
-        public AviUtlDropLayer(VoiceroidId voiceroidId, int layer) : base(voiceroidId)
-        {
+        public AviUtlDropLayer(VoiceroidId voiceroidId, int layer) : base(voiceroidId) =>
             this.Layer =
                 (layer < MinLayer || layer > MaxLayer) ? ((int)voiceroidId * 2 + 10) : layer;
-        }
 
         /// <summary>
         /// レイヤー番号の最小許容値。

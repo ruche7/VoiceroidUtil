@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.Serialization;
 using RucheHome.Util;
@@ -120,6 +121,7 @@ namespace VoiceroidUtil
         /// FileNameFormat プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(FileNameFormat))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string FileNameFormatString
         {
             get => this.FileNameFormat.ToString();
@@ -277,9 +279,6 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
     }
 }

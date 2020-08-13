@@ -21,7 +21,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public ComponentBase() : base()
+        protected ComponentBase() : base()
         {
         }
 
@@ -52,15 +52,13 @@ namespace RucheHome.AviUtl.ExEdit
         protected static bool HasComponentNameCore(
             IniFileItemCollection items,
             string componentName)
-        {
-            return
-                items != null &&
-                componentName != null &&
-                componentName ==
-                    items
-                        .FirstOrDefault(i => i.Name == ExoFileItemNameOfComponentName)?
-                        .Value;
-        }
+            =>
+            items != null &&
+            componentName != null &&
+            componentName ==
+                items
+                    .FirstOrDefault(i => i.Name == ExoFileItemNameOfComponentName)?
+                    .Value;
 
         /// <summary>
         /// 拡張編集オブジェクトファイルのアイテムコレクションから
@@ -159,9 +157,9 @@ namespace RucheHome.AviUtl.ExEdit
                 {
                     value = clone.Invoke(value, null);
                 }
-                else if (value is ICloneable)
+                else if (value is ICloneable c)
                 {
-                    value = ((ICloneable)value).Clone();
+                    value = c.Clone();
                 }
 
                 prop.SetMethod.Invoke(target, new[] { value });

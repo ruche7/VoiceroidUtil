@@ -487,18 +487,16 @@ namespace VoiceroidUtil.ViewModel
         /// <returns>ファイルパス配列。取得できなければ null 。</returns>
         private static string[] GetFilePathes(IDataObject data)
         {
-            if (data == null || !data.GetDataPresent(DataFormats.FileDrop, true))
+            if (
+                data?.GetDataPresent(DataFormats.FileDrop, true) == true &&
+                data.GetData(DataFormats.FileDrop, true) is string[] pathes &&
+                pathes.Length > 0 &&
+                pathes.All(p => File.Exists(p)))
             {
-                return null;
+                return pathes;
             }
 
-            var pathes = data.GetData(DataFormats.FileDrop, true) as string[];
-            if (pathes == null || pathes.Length == 0)
-            {
-                return null;
-            }
-
-            return pathes.All(p => File.Exists(p)) ? pathes : null;
+            return null;
         }
 
         /// <summary>
@@ -543,16 +541,14 @@ namespace VoiceroidUtil.ViewModel
         /// </remarks>
         private IObservable<T> ObserveSelectedProcessProperty<T>(
             Expression<Func<IProcess, T>> propertySelector)
-        {
-            return
-                this.SelectedProcess
-                    .Select(
-                        p =>
-                            (p == null) ?
-                                Observable.Return(default(T)) :
-                                p.ObserveProperty(propertySelector))
-                    .Switch();
-        }
+            =>
+            this.SelectedProcess
+                .Select(
+                    p =>
+                        (p == null) ?
+                            Observable.Return(default(T)) :
+                            p.ObserveProperty(propertySelector))
+                .Switch();
 
         /// <summary>
         /// UI設定周りのセットアップを行う。
@@ -589,16 +585,15 @@ namespace VoiceroidUtil.ViewModel
                             processes.First(p => p.Id == uiConfig.Value.VoiceroidId))
                 .AddTo(this.CompositeDisposable);
 
-            // 実行ファイルパス反映用デリゲート
-            Action<VoiceroidId, string> pathSetter =
-                (id, path) =>
+            // 実行ファイルパス反映用ローカル関数
+            void pathSetter(VoiceroidId id, string path)
+            {
+                // パスが有効な場合のみ反映する
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
                 {
-                    // パスが有効な場合のみ反映する
-                    if (!string.IsNullOrEmpty(path) && File.Exists(path))
-                    {
-                        uiConfig.Value.VoiceroidExecutablePathes[id].Path = path;
-                    }
-                };
+                    uiConfig.Value.VoiceroidExecutablePathes[id].Path = path;
+                }
+            }
 
             // UI設定変更時に実行ファイルパスを反映する
             uiConfig
@@ -860,7 +855,7 @@ namespace VoiceroidUtil.ViewModel
                         for (int i = 0; i < 10; ++i)
                         {
                             await process.SetTalkText(@"");
-                            if ((await process.GetTalkText()) == @"")
+                            if ((await process.GetTalkText())?.Length == 0)
                             {
                                 break;
                             }
@@ -1023,7 +1018,7 @@ namespace VoiceroidUtil.ViewModel
             string subStatusText = "",
             ICommand subStatusCommand = null,
             string subStatusCommandTip = "")
-        {
+            =>
             this.LastStatus.Value =
                 new AppStatus
                 {
@@ -1036,7 +1031,6 @@ namespace VoiceroidUtil.ViewModel
                         string.IsNullOrEmpty(subStatusCommandTip) ?
                             null : subStatusCommandTip,
                 };
-        }
 
         #region デザイン時用定義
 

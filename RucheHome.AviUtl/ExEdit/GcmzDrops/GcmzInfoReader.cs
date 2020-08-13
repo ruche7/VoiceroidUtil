@@ -88,7 +88,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
 
         private const uint FILE_MAP_READ = 0x0004;
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr OpenFileMapping(
             uint desiredAccess,
             [MarshalAs(UnmanagedType.Bool)] bool inheritHandle,

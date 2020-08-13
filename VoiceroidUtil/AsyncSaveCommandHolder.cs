@@ -14,6 +14,7 @@ using VoiceroidUtil.Services;
 using GcmzDrops = RucheHome.AviUtl.ExEdit.GcmzDrops;
 using static RucheHome.Util.ArgumentValidater;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoiceroidUtil
 {
@@ -29,6 +30,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// コマンドパラメータクラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
         public class CommandParameter
         {
             /// <summary>
@@ -82,6 +84,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// コマンド戻り値クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
         public class CommandResult
         {
             /// <summary>
@@ -526,7 +529,7 @@ namespace VoiceroidUtil
             int layer,
             IAviUtlFileDropService aviUtlFileDropService)
         {
-            var result = GcmzDrops.FileDrop.Result.Fail;
+            GcmzDrops.FileDrop.Result result;
             try
             {
                 result =
@@ -923,7 +926,7 @@ namespace VoiceroidUtil
                 voiceroid2Like ? (await process.GetVoicePresetName()) : process.Name;
 
             // WAVEファイルパス決定
-            string filePath = null;
+            string filePath;
             try
             {
                 filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2Like);

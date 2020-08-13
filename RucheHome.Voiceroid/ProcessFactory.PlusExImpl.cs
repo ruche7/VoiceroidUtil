@@ -204,8 +204,7 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                string title = null;
-                if (!DialogTitles.TryGetValue(type, out title))
+                if (!DialogTitles.TryGetValue(type, out var title))
                 {
                     return null;
                 }
@@ -347,8 +346,7 @@ namespace RucheHome.Voiceroid
                 }
 
                 // 保存ダイアログ取得
-                Win32Window dialog = null;
-                if (!dialogs.TryGetValue(DialogType.Save, out dialog))
+                if (!dialogs.TryGetValue(DialogType.Save, out var dialog))
                 {
                     ThreadTrace.WriteLine(@"音声保存ダイアログが見つかりません。");
                     return null;
@@ -796,21 +794,15 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// スプラッシュウィンドウ等の判別用に用いる。
             /// </remarks>
-            protected override bool IsMainWindowTitle(string title)
-            {
-                return
-                    (title?.Contains(@"VOICEROID") == true) ||
-                    (title?.Contains(@"Talk") == true);
-            }
+            protected override bool IsMainWindowTitle(string title) =>
+                title != null && (title.Contains(@"VOICEROID") || title.Contains(@"Talk"));
 
             /// <summary>
             /// メインウィンドウ変更時の更新処理を行う。
             /// </summary>
             /// <returns>更新できたならば true 。そうでなければ false 。</returns>
-            protected override async Task<bool> UpdateOnMainWindowChanged()
-            {
-                return await Task.Run(() => this.UpdateControls());
-            }
+            protected override async Task<bool> UpdateOnMainWindowChanged() =>
+                await Task.Run(() => this.UpdateControls());
 
             /// <summary>
             /// IsDialogShowing プロパティ値を更新する。
@@ -831,13 +823,10 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// 直接本体側を操作して保存処理を行っている場合にも true を返すこと。
             /// </remarks>
-            protected override async Task<bool> CheckSaving()
-            {
+            protected override async Task<bool> CheckSaving() =>
                 // 保存ダイアログか保存進捗ダイアログが表示中なら保存中と判断
-                return
-                    (await this.FindDialogs()).Keys
-                        .Any(t => t == DialogType.Save || t == DialogType.SaveProgress);
-            }
+                (await this.FindDialogs()).Keys
+                    .Any(t => t == DialogType.Save || t == DialogType.SaveProgress);
 
             /// <summary>
             /// 現在再生中であるか否か調べる。
@@ -846,11 +835,9 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// 直接本体側を操作して再生処理を行っている場合にも true を返すこと。
             /// </remarks>
-            protected override async Task<bool> CheckPlaying()
-            {
+            protected override async Task<bool> CheckPlaying() =>
                 // 保存ボタンが押せない状態＝再生中と判定
-                return await Task.FromResult(this.SaveButton?.IsEnabled == false);
-            }
+                await Task.FromResult(this.SaveButton?.IsEnabled == false);
 
             /// <summary>
             /// トークテキスト取得の実処理を行う。

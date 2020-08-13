@@ -39,7 +39,7 @@ namespace VoiceroidUtil.Services
         {
             FileDrop.ValidateFilePath(filePath, nameof(filePath));
 
-            return Run(new[] { filePath }, stepFrameCount, layer, timeoutMilliseconds);
+            return this.Run(new[] { filePath }, stepFrameCount, layer, timeoutMilliseconds);
         }
 
         public async Task<FileDrop.Result> Run(

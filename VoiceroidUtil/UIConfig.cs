@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using RucheHome.Util;
 using RucheHome.Voiceroid;
@@ -14,11 +15,9 @@ namespace VoiceroidUtil
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public UIConfig()
-        {
+        public UIConfig() =>
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.VoiceroidExecutablePathes = new VoiceroidExecutablePathSet();
-        }
 
         /// <summary>
         /// 選択中VOICEROID識別IDを取得または設定する。
@@ -38,6 +37,7 @@ namespace VoiceroidUtil
         /// VoiceroidId プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(VoiceroidId))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string VoiceroidIdString
         {
             get => this.VoiceroidId.ToString();
@@ -102,6 +102,7 @@ namespace VoiceroidUtil
         /// ExoCharaVoiceroidId プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(ExoCharaVoiceroidId))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string ExoCharaVoiceroidIdString
         {
             get => this.ExoCharaVoiceroidId.ToString();
@@ -162,9 +163,6 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
     }
 }

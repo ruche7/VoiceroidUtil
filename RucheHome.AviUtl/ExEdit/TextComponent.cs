@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -319,6 +320,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// FontDecoration プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(FontDecoration))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string FontDecorationString
         {
             get => this.FontDecoration.ToString();
@@ -347,6 +349,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// TextAlignment プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(TextAlignment))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string TextAlignmentString
         {
             get => this.TextAlignment.ToString();
@@ -477,10 +480,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
 
         #region ICloneable の明示的実装
 
@@ -497,6 +497,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// フォントサイズ用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct FontSizeConst : IMovableValueConstants
         {
             public int Digits => 0;
@@ -510,6 +512,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 表示速度用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct TextSpeedConst : IMovableValueConstants
         {
             public int Digits => 1;
@@ -531,6 +535,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// 『ゆっくりMovieMaker』で「ソフトシャドー(濃)」を選択すると
         /// 範囲外の値が書き出されるため、その対処を行う。
         /// </remarks>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public class FontDecorationConverter : IExoFileValueConverter
         {
             /// <summary>
@@ -589,6 +595,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <remarks>
         /// AviUtl拡張編集が byte (0 ～ 255) で扱っているようなのでそれに合わせる。
         /// </remarks>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public class SpaceConverter : IExoFileValueConverter
         {
             /// <summary>
@@ -656,6 +664,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// テキスト用のコンバータクラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public class TextConverter : IExoFileValueConverter
         {
             /// <summary>
@@ -671,26 +681,16 @@ namespace RucheHome.AviUtl.ExEdit
             /// <param name="value">.NETオブジェクト値。</param>
             /// <param name="objectType">.NETオブジェクトの型情報。</param>
             /// <returns>文字列値。変換できなかった場合は null 。</returns>
-            public string ToExoFileValue(object value, Type objectType)
-            {
-                if (objectType == null)
-                {
-                    throw new ArgumentNullException(nameof(objectType));
-                }
-
-                var propValue = value as string;
-                if (propValue == null)
-                {
-                    return null;
-                }
-
-                return
-                    string.Join(
-                        null,
-                        propValue
-                            .PadRight(TextLengthLimit + 1, '\0')
-                            .Select(c => Convert(c).ToString(@"x4")));
-            }
+            public string ToExoFileValue(object value, Type objectType) =>
+                (objectType == null) ?
+                    throw new ArgumentNullException(nameof(objectType)) :
+                    !(value is string propValue) ?
+                        null :
+                        string.Join(
+                            null,
+                            propValue
+                                .PadRight(TextLengthLimit + 1, '\0')
+                                .Select(c => Convert(c).ToString(@"x4")));
 
             /// <summary>
             /// 拡張編集オブジェクトファイルの文字列値を.NETオブジェクト値に変換する。

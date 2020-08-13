@@ -29,11 +29,9 @@ namespace VoiceroidUtil
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidItemSetBase()
-        {
+        protected VoiceroidItemSetBase() =>
             // イベントハンドラ追加のためにプロパティ経由で設定
             this.Table = new InnerList();
-        }
 
         /// <summary>
         /// VOICEROID識別IDに対応するアイテムを取得するインデクサ。
@@ -77,10 +75,9 @@ namespace VoiceroidUtil
         /// <returns>TItem インスタンス。</returns>
         protected TItem GetItem(VoiceroidId id)
         {
-            var item = default(TItem);
+            TItem item;
 
             int index = this.Table.IndexOf(id);
-
             if (index < 0)
             {
                 // 有効なIDか？
@@ -280,11 +277,8 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            // null 回避
-            this.Table = new InnerList();
-        }
+        private void OnDeserializing(StreamingContext context) =>
+            this.Table = new InnerList(); // null 回避
 
         #region IEnumerable の明示的実装
 

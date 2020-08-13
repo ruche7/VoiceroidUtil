@@ -210,10 +210,8 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="src">文字列。</param>
         /// <returns>CodePage932 エンコーディングで表現可能な文字列。</returns>
-        private static string ToCodePage932String(string src)
-        {
-            return new string(CodePage932.GetChars(CodePage932.GetBytes(src)));
-        }
+        private static string ToCodePage932String(string src) =>
+            new string(CodePage932.GetChars(CodePage932.GetBytes(src)));
 
         /// <summary>
         /// 文字列からファイル名の一部を作成する。

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using RucheHome.Text;
 
@@ -208,6 +208,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// BlendMode プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(BlendMode))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string BlendModeString
         {
             get => this.BlendMode.ToString();
@@ -264,8 +265,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// </param>
         private void SetCoordProperty(
             ref MovableValue<CoordConst> field,
-            MovableValue<CoordConst> value,
-            [CallerMemberName] string propertyName = null)
+            MovableValue<CoordConst> value)
         {
             if (field == value)
             {
@@ -320,10 +320,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
 
         #region ICloneable の明示的実装
 
@@ -340,6 +337,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 座標用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct CoordConst : IMovableValueConstants
         {
             public int Digits => 1;
@@ -353,6 +352,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 拡大率用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct ScaleConst : IMovableValueConstants
         {
             public int Digits => 2;
@@ -366,6 +367,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 透明度用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct TransparencyConst : IMovableValueConstants
         {
             public int Digits => 1;
@@ -379,6 +382,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 回転角度用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct RotationConst : IMovableValueConstants
         {
             public int Digits => 2;

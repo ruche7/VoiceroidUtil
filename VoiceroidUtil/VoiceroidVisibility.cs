@@ -25,9 +25,8 @@ namespace VoiceroidUtil
         /// <param name="visible">表示するならば true 。</param>
         public VoiceroidVisibility(VoiceroidId voiceroidId, bool visible)
             : base(voiceroidId)
-        {
+            =>
             this.IsVisible = visible;
-        }
 
         /// <summary>
         /// VOICEROIDを表示するか否かを取得する。
@@ -44,9 +43,6 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.IsVisible = true;
-        }
+        private void OnDeserializing(StreamingContext context) => this.IsVisible = true;
     }
 }

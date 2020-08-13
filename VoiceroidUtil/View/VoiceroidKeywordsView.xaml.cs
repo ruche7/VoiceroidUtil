@@ -15,10 +15,7 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public VoiceroidKeywordsView()
-        {
-            InitializeComponent();
-        }
+        public VoiceroidKeywordsView() => this.InitializeComponent();
 
         /// <summary>
         /// VoiceroidNameHeader 依存関係プロパティ。

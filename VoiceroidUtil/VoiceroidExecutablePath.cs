@@ -25,9 +25,8 @@ namespace VoiceroidUtil
         /// <param name="path">実行ファイルパス。</param>
         public VoiceroidExecutablePath(VoiceroidId voiceroidId, string path)
             : base(voiceroidId)
-        {
+            =>
             this.Path = path;
-        }
 
         /// <summary>
         /// 実行ファイルパスを取得または設定する。

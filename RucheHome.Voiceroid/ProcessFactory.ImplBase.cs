@@ -40,10 +40,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// デストラクタ。
             /// </summary>
-            ~ImplBase()
-            {
-                this.Dispose(false);
-            }
+            ~ImplBase() => this.Dispose(false);
 
             /// <summary>
             /// アプリプロセス列挙を基に状態を更新する。
@@ -95,14 +92,12 @@ namespace RucheHome.Voiceroid
                 Func<T, bool> condition,
                 int loopCount = -1,
                 int intervalMilliseconds = 20)
-            {
-                return
-                    RepeatUntil(
-                        () => Task.Run(func),
-                        condition,
-                        loopCount,
-                        intervalMilliseconds);
-            }
+                =>
+                RepeatUntil(
+                    () => Task.Run(func),
+                    condition,
+                    loopCount,
+                    intervalMilliseconds);
 
             /// <summary>
             /// 戻り値が条件を満たさない間、非同期デリゲートを呼び出し続ける。
@@ -179,14 +174,12 @@ namespace RucheHome.Voiceroid
                 AutomationElement element,
                 AutomationProperty property,
                 object propertyValue)
-            {
-                return
-                    (element == null || property == null) ?
-                        null :
-                        FindFirstChild(
-                            element,
-                            new PropertyCondition(property, propertyValue));
-            }
+                =>
+                (element == null || property == null) ?
+                    null :
+                    FindFirstChild(
+                        element,
+                        new PropertyCondition(property, propertyValue));
 
             /// <summary>
             /// AutomationElement の子をコントロール種別で検索する。
@@ -197,13 +190,11 @@ namespace RucheHome.Voiceroid
             protected static AutomationElement FindFirstChildByControlType(
                 AutomationElement element,
                 ControlType controlType)
-            {
-                return
-                    FindFirstChild(
-                        element,
-                        AutomationElement.ControlTypeProperty,
-                        controlType);
-            }
+                =>
+                FindFirstChild(
+                    element,
+                    AutomationElement.ControlTypeProperty,
+                    controlType);
 
             /// <summary>
             /// AutomationElement の子をオートメーションIDで検索する。
@@ -214,13 +205,11 @@ namespace RucheHome.Voiceroid
             protected static AutomationElement FindFirstChildByAutomationId(
                 AutomationElement element,
                 string automationId)
-            {
-                return
-                    FindFirstChild(
-                        element,
-                        AutomationElement.AutomationIdProperty,
-                        automationId);
-            }
+                =>
+                FindFirstChild(
+                    element,
+                    AutomationElement.AutomationIdProperty,
+                    automationId);
 
             /// <summary>
             /// AutomationElement の子ウィンドウを列挙する。
@@ -276,13 +265,9 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    object pattern = null;
-                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
-                    {
-                        return null;
-                    }
-
-                    return ((ValuePattern)pattern).Current.Value;
+                    return
+                        element.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern) ?
+                            ((ValuePattern)pattern).Current.Value : null;
                 }
                 catch (Exception ex)
                 {
@@ -307,8 +292,7 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    object pattern = null;
-                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out pattern))
+                    if (!element.TryGetCurrentPattern(ValuePattern.Pattern, out var pattern))
                     {
                         return false;
                     }
@@ -349,8 +333,7 @@ namespace RucheHome.Voiceroid
                         return false;
                     }
 
-                    object pattern = null;
-                    if (!element.TryGetCurrentPattern(InvokePattern.Pattern, out pattern))
+                    if (!element.TryGetCurrentPattern(InvokePattern.Pattern, out var pattern))
                     {
                         return false;
                     }
@@ -376,7 +359,7 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             protected Process AppProcess
             {
-                get { return this.appProcess; }
+                get => this.appProcess;
                 set
                 {
                     this.appProcess = value;
@@ -676,13 +659,9 @@ namespace RucheHome.Voiceroid
             /// <returns>
             /// 操作対象アプリプロセスであるならば true 。そうでなければ false 。
             /// </returns>
-            private bool IsOwnProcess(Process appProcess)
-            {
-                return (
-                    appProcess != null &&
-                    !appProcess.HasExited &&
-                    appProcess.MainModule.FileVersionInfo.ProductName == this.Product);
-            }
+            private bool IsOwnProcess(Process appProcess) =>
+                appProcess?.HasExited == false &&
+                appProcess.MainModule.FileVersionInfo.ProductName == this.Product;
 
             /// <summary>
             /// アプリプロセス情報から状態を更新する。
@@ -783,8 +762,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public string ExecutablePath
             {
-                get { return this.executablePath; }
-                private set { this.SetProperty(ref this.executablePath, value); }
+                get => this.executablePath;
+                private set => this.SetProperty(ref this.executablePath, value);
             }
             private string executablePath = null;
 
@@ -796,8 +775,8 @@ namespace RucheHome.Voiceroid
             /// </remarks>
             public IntPtr MainWindowHandle
             {
-                get { return this.mainWindowHandle; }
-                private set { this.SetProperty(ref this.mainWindowHandle, value); }
+                get => this.mainWindowHandle;
+                private set => this.SetProperty(ref this.mainWindowHandle, value);
             }
             private IntPtr mainWindowHandle = IntPtr.Zero;
 
@@ -855,10 +834,8 @@ namespace RucheHome.Voiceroid
             /// トークテキストを取得する。
             /// </summary>
             /// <returns>トークテキスト。取得できなかったならば null 。</returns>
-            public async Task<string> GetTalkText()
-            {
-                return this.IsRunning ? (await this.DoGetTalkText()) : null;
-            }
+            public async Task<string> GetTalkText() =>
+                this.IsRunning ? (await this.DoGetTalkText()) : null;
 
             /// <summary>
             /// トークテキストを設定する。
@@ -1188,11 +1165,8 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// 既定では Name の値を返す。
             /// </remarks>
-            public virtual async Task<string> GetVoicePresetName()
-            {
-                // 単に Name の値を返す
-                return await Task.FromResult(this.Name);
-            }
+            public virtual async Task<string> GetVoicePresetName() =>
+                await Task.FromResult(this.Name); // 単に Name の値を返す
 
             #endregion
 
@@ -1215,8 +1189,11 @@ namespace RucheHome.Voiceroid
             /// </param>
             protected virtual void Dispose(bool disposing)
             {
-                this.UpdateLock.Dispose();
-                this.SaveLock.Dispose();
+                if (disposing)
+                {
+                    this.UpdateLock.Dispose();
+                    this.SaveLock.Dispose();
+                }
             }
 
             #endregion

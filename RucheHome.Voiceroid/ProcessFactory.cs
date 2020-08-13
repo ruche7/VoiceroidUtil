@@ -25,10 +25,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// デストラクタ。
         /// </summary>
-        ~ProcessFactory()
-        {
-            this.Dispose(false);
-        }
+        ~ProcessFactory() => this.Dispose(false);
 
         /// <summary>
         /// VOICEROIDプロセスリストを取得する。
@@ -45,10 +42,7 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// 全VOICEROIDプロセスの状態を更新する。
         /// </summary>
-        public Task Update()
-        {
-            return Task.WhenAll(this.MakeUpdateTasks());
-        }
+        public Task Update() => Task.WhenAll(this.MakeUpdateTasks());
 
         /// <summary>
         /// 全VOICEROIDプロセスの UI Automation 利用許可状態を設定する。
@@ -154,9 +148,12 @@ namespace RucheHome.Voiceroid
         /// </param>
         protected virtual void Dispose(bool disposing)
         {
-            foreach (var p in this.Impls)
+            if (disposing)
             {
-                p.Dispose();
+                foreach (var p in this.Impls)
+                {
+                    p.Dispose();
+                }
             }
         }
 

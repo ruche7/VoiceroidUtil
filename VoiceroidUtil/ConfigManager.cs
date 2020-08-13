@@ -14,7 +14,7 @@ namespace VoiceroidUtil
     /// <summary>
     /// 設定マネージャクラス。
     /// </summary>
-    public class ConfigManager : IDisposable
+    public sealed class ConfigManager : IDisposable
     {
         /// <summary>
         /// コンストラクタ。
@@ -274,10 +274,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// リソースを破棄する。
         /// </summary>
-        public void Dispose()
-        {
-            this.CompositeDisposable.Dispose();
-        }
+        public void Dispose() => this.CompositeDisposable.Dispose();
 
         #endregion
     }
