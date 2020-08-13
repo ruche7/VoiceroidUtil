@@ -14,7 +14,7 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         [StructLayout(LayoutKind.Sequential)]
         internal struct Data
         {
-            public uint WindowHandle;
+            public int WindowHandle;
             public int Width;
             public int Height;
             public int VideoRate;
