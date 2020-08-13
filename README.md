@@ -5,9 +5,8 @@
 VOICEROID動画制作支援ツール『VoiceroidUtil』のソースです。
 
 * MIT License です。
-* ビルドには Visual Studio 2017 が必要です。
-* RucheHomeLib および libs/Windows-API-Code-Pack-1.1 は submodule です。
-* 使用ライブラリの一部はNuGetパッケージです。
+* ビルドには Visual Studio 2019 が必要です。
+* 外部ライブラリは NuGet で取得しています。
 * 画像リソースの一部は再配布禁止のため、ダミー画像がコミットされています。
 * 使用したライブラリや素材の詳細は [data/readme.txt](data/readme.txt) を参照してください。
 
@@ -36,7 +35,7 @@ version 1.4.0 リリース以降は下記のルールで作業しています。
 2. `release/vバージョン番号` ブランチの Pull Request を行い、 `master` へマージする。
     * Pull Request のタイトルは `version バージョン番号` とする。
 3. ローカルの `master` ブランチで下記作業を行う。
-    1. `git pull` および `git submodule update` を実施する。
+    1. `git pull` を実施する。
     2. [build_and_pack.bat](build_and_pack.bat) でビルドする。
     3. __release/VoiceroidUtil ディレクトリを __release/VoiceroidUtil-日付 ディレクトリに改名してZIP圧縮する。
 4. Draft a new release する。
