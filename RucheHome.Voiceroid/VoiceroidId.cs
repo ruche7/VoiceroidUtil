@@ -72,6 +72,12 @@ namespace RucheHome.Voiceroid
         KouEx,
 
         /// <summary>
+        /// ギャラ子Talk
+        /// </summary>
+        [EnumMember]
+        GalacoTalk,
+
+        /// <summary>
         /// 音街ウナTalk Ex
         /// </summary>
         [EnumMember]
@@ -225,6 +231,13 @@ namespace RucheHome.Voiceroid
                     new[]{ @"水奈瀬", @"コウ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 水奈瀬コウ EX"),
+                new VoiceroidInfo(
+                    VoiceroidId.GalacoTalk,
+                    true,
+                    @"ギャラ子",
+                    new[]{ @"ギャラ子" },
+                    @"galacoTalk",
+                    @"ギャラ子Talk"),
                 new VoiceroidInfo(
                     VoiceroidId.UnaTalkEx,
                     true,

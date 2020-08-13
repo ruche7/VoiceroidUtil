@@ -58,6 +58,11 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/kou_ok.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="GalacoTalk">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/galaco_ok.png" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="UnaTalkEx">
                 <Setter
                     Property="Source"
@@ -286,6 +291,24 @@
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/kou_ok.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="GalacoTalk" />
+                    <Condition Binding="{Binding IsRunning}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/galaco_ng.png" />
+            </MultiDataTrigger>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Id}" Value="GalacoTalk" />
+                    <Condition Binding="{Binding IsRunning}" Value="True" />
+                </MultiDataTrigger.Conditions>
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/galaco_ok.png" />
             </MultiDataTrigger>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>

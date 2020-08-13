@@ -19,13 +19,19 @@
 対応ソフトウェアについては動作環境の項をご覧ください。
 
 最新版は当ツール作者のWebサイトからどうぞ。
-- http://www.ruche-home.net/
+- https://ruche-home.net/
 
 『VOICEROID+』および『VOICEROID2』は、
 株式会社AHSから発売されている文章読み上げソフトウェアシリーズです。
 動画投稿サイト向けの実況動画作成等に利用されています。
 詳しくは公式サイトをご覧ください。
 - http://www.ah-soft.com/
+
+『ギャラ子Talk』は、ヤマハ株式会社から発売されている
+『VOCALOID3 Library ギャラ子』に特典として同梱されている、
+VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
+詳しくは公式サイトをご覧ください。
+- https://www.vocaloid.com/products/show/v3l_galaco
 
 『音街ウナTalk Ex』は、株式会社インターネットから発売されている、
 VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
@@ -38,10 +44,10 @@ VOICEROID2と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - http://gynoid.co.jp/
 
-『ゆっくりMovieMaker』は、饅頭遣い氏が開発した動画作成補助ツールです。
+『ゆっくりMovieMaker3』は、饅頭遣い氏が開発した動画作成補助ツールです。
 音声ファイルを指定することで、ゆっくりボイス以外の音声にも対応可能です。
 詳しくは公式サイトをご覧ください。
-- http://manjubox.net/YukkuriMovieMaker.php
+- https://manjubox.net/ymm3/
 
 『AviUtl』は、ＫＥＮくん氏が開発した動画編集ツールです。
 拡張編集Pluginを導入することで、タイムラインベースでの動画編集を行えます。
@@ -79,18 +85,19 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
         - VOICEROID+ 月読ショウタ EX         [1.7.3]
         - VOICEROID+ 京町セイカ EX           [1.7.4]
         - VOICEROID+ 水奈瀬コウ EX           [1.7.3]
+        - ギャラ子Talk                       [1.0.0]
         - 音街ウナTalk Ex                    [1.0.0]
         - VOICEROID2                         [2.0.5.0]
         - ガイノイドTalk                     [1.0.0.0]
     - VOICEROID2およびガイノイドTalkはエディターへの対応となるため、
       シリーズ製品を1つ以上インストール済みであれば利用可能です。
 
-- ゆっくりMovieMaker
+- ゆっくりMovieMaker3
     - 動作確認済みバージョンは 3.4.8.1 です。
     - 必須ではありません。無くとも動作します。
 
 - AviUtl, 拡張編集Plugin, ごちゃまぜドロップス
-    - 動作確認済みバージョンはそれぞれ 1.00, 0.92, 0.3.9 です。
+    - 動作確認済みバージョンはそれぞれ 1.10, 0.92, 0.3.13 です。
     - 必須ではありません。無くとも動作します。
     - ごちゃまぜドロップスはPSDToolKitに同梱されているものでも構いません。
       https://github.com/oov/aviutl_psdtoolkit
@@ -194,6 +201,9 @@ blueberry様
 
 谷裕司様
 - 鳴花ヒメ・ミコト        http://seiga.nicovideo.jp/seiga/im9057850
+
+さばとら様
+- ミニギャラ子さん立ち絵  https://seiga.nicovideo.jp/seiga/im9071558
 
 lill様
 - ガイノイドTalk アイコン
