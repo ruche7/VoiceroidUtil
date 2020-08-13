@@ -132,30 +132,30 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 
 下記のライブラリを利用しています。
 
-『ReactiveProperty』
-- Copyright (C) 2015 neuecc, xin9le, okazuki
+『ReactiveProperty』 v3.6.0
+- Copyright (C) 2016 neuecc, xin9le, okazuki
 - The MIT License
 - https://github.com/runceel/ReactiveProperty
 
-『Rx (Reactive Extensions)』
+『Rx (Reactive Extensions)』 v3.1.1
 - Copyright (C) Microsoft
-- Apache License 2.0
-- http://rx.codeplex.com/
+- The MIT License
+- https://github.com/dotnet/reactive
 
-『Extended WPF Toolkit Community Edition』
+『Extended WPF Toolkit Community Edition』 v3.8.2
 - Copyright (C) Xceed
 - Microsoft Public License (Ms-PL)
-- http://wpftoolkit.codeplex.com/
+- https://github.com/xceedsoftware/wpftoolkit
 
-『Windows API Code Pack』
+『Windows API Code Pack』 Core v1.1.2, Shell v1.1.1
 - Copyright (C) Microsoft
-- The MIT License
-- https://github.com/devkimchi/Windows-API-Code-Pack-1.1
+- Custom License
+- https://github.com/aybe/Windows-API-Code-Pack-1.1
 
-『ReadJEnc』
-- Copyright (C) 2014 hnx8(H.Takahashi)
+『ReadJEnc』 v1.3.1.2
+- Copyright (C) 2017 hnx8
 - The MIT License
-- http://hp.vector.co.jp/authors/VA055804/
+- https://github.com/hnx8/ReadJEnc
 
 下記のAviUtlプラグインの機能を利用しています。
 
