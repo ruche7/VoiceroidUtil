@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using Codeplex.Data;
 using RucheHome.Util;
 using RucheHome.Windows.WinApi;
 using static RucheHome.Util.ArgumentValidater;
@@ -69,6 +72,21 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             /// メッセージ送信タイムアウト。
             /// </summary>
             MessageTimeout,
+
+            /// <summary>
+            /// ミューテクスオープン試行時例外。
+            /// </summary>
+            MutexOpenFail,
+
+            /// <summary>
+            /// ミューテクスロック失敗。
+            /// </summary>
+            MutexLockFail,
+
+            /// <summary>
+            /// ミューテクスロックタイムアウト。
+            /// </summary>
+            MutexLockTimeout,
         }
 
         /// <summary>
@@ -175,31 +193,61 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
                 return Result.ExEditWindowInvisible;
             }
 
-            var dataPtr = IntPtr.Zero;
-            var lParamPtr = IntPtr.Zero;
+            // 『ごちゃまぜドロップス』 v0.3.12 以降であればミューテクスによる排他制御が可能
+            Mutex mutex;
             try
             {
-                // 送信文字列作成
-                var data =
-                    ((layer == 0) ? DefaultLayerPosition : layer) + "\0" +
-                    stepFrameCount + "\0" +
-                    string.Join("\0", filePathes) + "\0";
-                dataPtr = Marshal.StringToHGlobalUni(data);
+                // 開けなければ mutex は null
+                Mutex.TryOpenExisting(GcmzMutexName, out mutex);
+            }
+            catch (Exception ex)
+            {
+                ThreadTrace.WriteException(ex);
+                return Result.MutexOpenFail;
+            }
 
-                // LPARAM 作成
-                COPYDATASTRUCT lParam;
-                lParam.Param = UIntPtr.Zero;
-                lParam.DataSize = data.Length * 2;
-                lParam.DataAddress = dataPtr;
-                lParamPtr = Marshal.AllocHGlobal(Marshal.SizeOf(lParam));
-                Marshal.StructureToPtr(lParam, lParamPtr, false);
+            var data = new COPYDATASTRUCT();
+            var lParam = IntPtr.Zero;
+            bool mutexLocked = false;
+
+            try
+            {
+                // COPYDATASTRUCT 作成
+                // 『ごちゃまぜドロップス』 v0.3.11 以前なら旧フォーマットを使う
+                var gcmzLayer = (layer == 0) ? -MinLayer : layer;
+                data =
+                    (mutex == null) ?
+                        CreateCopyDataStructLegacy(gcmzLayer, stepFrameCount, filePathes) :
+                        CreateCopyDataStruct(gcmzLayer, stepFrameCount, filePathes);
+
+                // LPARAM 値作成
+                lParam = Marshal.AllocHGlobal(Marshal.SizeOf(data));
+                Marshal.StructureToPtr(data, lParam, false);
+
+                // ミューテクスが有効なら排他制御開始
+                if (mutex != null)
+                {
+                    try
+                    {
+                        if (!mutex.WaitOne((timeoutMilliseconds < 0) ? -1 : timeoutMilliseconds))
+                        {
+                            return Result.MutexLockTimeout;
+                        }
+                        mutexLocked = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                        return Result.MutexLockFail;
+                    }
+                }
 
                 // WM_COPYDATA メッセージ送信
                 var msgRes =
                     targetWindow.SendMessage(
                         WM_COPYDATA,
                         ownWindowHandle,
-                        lParamPtr,
+                        lParam,
                         timeoutMilliseconds);
                 if (!msgRes.HasValue)
                 {
@@ -213,13 +261,21 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             }
             finally
             {
-                if (lParamPtr != IntPtr.Zero)
+                if (mutex != null)
                 {
-                    Marshal.FreeHGlobal(lParamPtr);
+                    if (mutexLocked)
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                    mutex.Dispose();
                 }
-                if (dataPtr != IntPtr.Zero)
+                if (lParam != IntPtr.Zero)
                 {
-                    Marshal.FreeHGlobal(dataPtr);
+                    Marshal.FreeHGlobal(lParam);
+                }
+                if (data.DataAddress != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(data.DataAddress);
                 }
             }
 
@@ -282,6 +338,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
         /// </summary>
         private const string ExEditWindowTitlePrefix = @"拡張編集";
+
+        /// <summary>
+        /// 『ごちゃまぜドロップス』のミューテクス名。
+        /// </summary>
+        private const string GcmzMutexName = @"GCMZDropsMutex";
 
         /// <summary>
         /// Run メソッドの引数群を検証する。
@@ -356,6 +417,84 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             }
 
             return Result.Success;
+        }
+
+        /// <summary>
+        /// 『ごちゃまぜドロップス』 v0.3.12 以降用の COPYDATASTRUCT 値を作成する。
+        /// </summary>
+        /// <param name="layer">レイヤー位置指定。</param>
+        /// <param name="frameAdvance">ドロップ後に進めるフレーム数。</param>
+        /// <param name="files">ファイルパス列挙。</param>
+        /// <returns>
+        /// COPYDATASTRUCT 値。
+        /// DataAddress フィールドは利用後に Marshal.FreeHGlobal で解放する必要がある。
+        /// </returns>
+        private static COPYDATASTRUCT CreateCopyDataStruct(
+            int layer,
+            int frameAdvance,
+            IEnumerable<string> files)
+        {
+            // 送信JSON文字列作成
+            var json = DynamicJson.Serialize(new { layer, frameAdvance, files });
+            var data = Encoding.UTF8.GetBytes(json);
+
+            // COPYDATASTRUCT 作成
+            var cds = new COPYDATASTRUCT();
+            try
+            {
+                cds.Param = new UIntPtr(1);
+                cds.DataSize = data.Length;
+                cds.DataAddress = Marshal.AllocHGlobal(data.Length);
+                Marshal.Copy(data, 0, cds.DataAddress, data.Length);
+            }
+            catch
+            {
+                if (cds.DataAddress != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(cds.DataAddress);
+                }
+                throw;
+            }
+
+            return cds;
+        }
+
+        /// <summary>
+        /// 『ごちゃまぜドロップス』 v0.3.11 以前用の COPYDATASTRUCT 値を作成する。
+        /// </summary>
+        /// <param name="layer">レイヤー位置指定。</param>
+        /// <param name="frameAdvance">ドロップ後に進めるフレーム数。</param>
+        /// <param name="files">ファイルパス列挙。</param>
+        /// <returns>
+        /// COPYDATASTRUCT 値。
+        /// DataAddress フィールドは利用後に Marshal.FreeHGlobal で解放する必要がある。
+        /// </returns>
+        private static COPYDATASTRUCT CreateCopyDataStructLegacy(
+            int layer,
+            int frameAdvance,
+            IEnumerable<string> files)
+        {
+            // 送信文字列作成
+            var data = $"{layer}\0{frameAdvance}\0{string.Join("\0", files)}\0";
+
+            // COPYDATASTRUCT 作成
+            var cds = new COPYDATASTRUCT();
+            try
+            {
+                cds.Param = UIntPtr.Zero;
+                cds.DataSize = data.Length * 2;
+                cds.DataAddress = Marshal.StringToHGlobalUni(data);
+            }
+            catch
+            {
+                if (cds.DataAddress != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(cds.DataAddress);
+                }
+                throw;
+            }
+
+            return cds;
         }
 
         #region Win32 API インポート

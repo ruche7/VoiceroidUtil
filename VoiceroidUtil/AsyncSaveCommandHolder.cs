@@ -642,6 +642,9 @@ namespace VoiceroidUtil
             case GcmzDrops.FileDrop.Result.Fail:
             case GcmzDrops.FileDrop.Result.MapViewFail:
             case GcmzDrops.FileDrop.Result.MessageFail:
+            case GcmzDrops.FileDrop.Result.MutexOpenFail:
+            case GcmzDrops.FileDrop.Result.MutexLockFail:
+            case GcmzDrops.FileDrop.Result.MutexLockTimeout:
                 ThreadTrace.WriteLine(@"AviUtl拡張編集 連携失敗 : " + result);
                 return @"AviUtl拡張編集との連携に失敗しました。";
             }
