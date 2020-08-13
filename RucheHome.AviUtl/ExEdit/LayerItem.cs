@@ -149,9 +149,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>コンポーネント。見つからない場合は default(T) 。</returns>
         public T GetComponent<T>()
             where T : IComponent
-        {
-            return (T)this.Components.FirstOrDefault(c => c is T);
-        }
+            =>
+            this.GetComponents<T>().FirstOrDefault();
 
         /// <summary>
         /// 指定した型のコンポーネント列挙を取得する。
@@ -160,8 +159,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>コンポーネント列挙。見つからない場合は空の列挙。</returns>
         public IEnumerable<T> GetComponents<T>()
             where T : IComponent
-        {
-            return this.Components.Where(c => c is T).Cast<T>();
-        }
+            =>
+            this.Components.OfType<T>();
     }
 }

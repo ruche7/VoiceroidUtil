@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AppConfigView()
-        {
-            InitializeComponent();
-        }
+        public AppConfigView() => this.InitializeComponent();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Serialization;
 using RucheHome.Util;
@@ -31,15 +32,9 @@ namespace RucheHome.AviUtl.ExEdit
         /// <typeparam name="T">MovableValueBase 派生クラス型。</typeparam>
         /// <param name="value">文字列表現値。</param>
         /// <returns>パース結果。</returns>
-        public static MovableValue<TConstants> Parse(string value)
-        {
-            if (!TryParse(value, out var result))
-            {
-                throw new ArgumentException(@"Invalid format.", nameof(value));
-            }
-
-            return result;
-        }
+        public static MovableValue<TConstants> Parse(string value) =>
+            TryParse(value, out var result) ?
+                result : throw new ArgumentException(@"Invalid format.", nameof(value));
 
         /// <summary>
         /// 拡張編集オブジェクトファイルにおける文字列表現値のパースを試みる。
@@ -106,7 +101,7 @@ namespace RucheHome.AviUtl.ExEdit
                     new MovableValue<TConstants>(
                         begin,
                         end,
-                        MoveMode.None,
+                        moveMode,
                         accel,
                         decel,
                         param);
@@ -357,6 +352,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// MoveMode プロパティのシリアライズ用ラッパプロパティ。
         /// </summary>
         [DataMember(Name = nameof(MoveMode))]
+        [SuppressMessage("CodeQuality", "IDE0051")]
         private string MoveModeString
         {
             get => this.MoveMode.ToString();
@@ -431,19 +427,15 @@ namespace RucheHome.AviUtl.ExEdit
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
+        private void OnDeserializing(StreamingContext context) =>
             this.IsCorrectingOnChanged = false;
-        }
 
         /// <summary>
         /// デシリアライズの完了時に呼び出される。
         /// </summary>
         [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
+        private void OnDeserialized(StreamingContext context) =>
             this.IsCorrectingOnChanged = true;
-        }
 
         #region Object のオーバライド
 
@@ -453,7 +445,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// <returns>拡張編集オブジェクトファイルにおける文字列表現値。</returns>
         public override string ToString()
         {
-            string result = null;
+            string result;
 
             var valueFormat = @"F" + this.Constants.Digits;
             var begin = this.Begin.ToString(valueFormat);

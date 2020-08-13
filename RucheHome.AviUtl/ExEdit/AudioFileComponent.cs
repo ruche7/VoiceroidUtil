@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using RucheHome.Text;
 
@@ -171,10 +172,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
-            this.ResetDataMembers();
-        }
+        private void OnDeserializing(StreamingContext context) => this.ResetDataMembers();
 
         #region ICloneable の明示的実装
 
@@ -191,6 +189,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 再生開始位置用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct PlayPositionConst : IMovableValueConstants
         {
             public int Digits => 2;
@@ -204,6 +204,8 @@ namespace RucheHome.AviUtl.ExEdit
         /// <summary>
         /// 再生速度用の定数情報クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
+        [SuppressMessage("Performance", "CA1815")]
         public struct PlaySpeedConst : IMovableValueConstants
         {
             public int Digits => 1;

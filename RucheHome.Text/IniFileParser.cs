@@ -16,17 +16,10 @@ namespace RucheHome.Text
         /// <param name="filePath">ファイルパス。</param>
         /// <param name="strict">厳格な形式チェックを行うならば true 。</param>
         /// <returns>IniFileSectionCollection オブジェクト。</returns>
-        public static IniFileSectionCollection FromFile(
-            string filePath,
-            bool strict = false)
-        {
-            if (filePath == null)
-            {
-                throw new ArgumentNullException(nameof(filePath));
-            }
-
-            return FromString(TextFileReader.Read(filePath), strict);
-        }
+        public static IniFileSectionCollection FromFile(string filePath, bool strict = false) =>
+            (filePath == null) ?
+                throw new ArgumentNullException(nameof(filePath)) :
+                FromString(TextFileReader.Read(filePath), strict);
 
         /// <summary>
         /// INIファイルの内容を IniFileSectionCollection オブジェクトへパースする。
@@ -37,14 +30,10 @@ namespace RucheHome.Text
         public static IniFileSectionCollection FromFile(
             FileInfo fileInfo,
             bool strict = false)
-        {
-            if (fileInfo == null)
-            {
-                throw new ArgumentNullException(nameof(fileInfo));
-            }
-
-            return FromString(TextFileReader.Read(fileInfo), strict);
-        }
+            =>
+            (fileInfo == null) ?
+                throw new ArgumentNullException(nameof(fileInfo)) :
+                FromString(TextFileReader.Read(fileInfo), strict);
 
         /// <summary>
         /// INIファイル形式文字列値を IniFileSectionCollection オブジェクトへパースする。
@@ -139,8 +128,7 @@ namespace RucheHome.Text
         {
             Debug.Assert(dest != null);
 
-            IniFileSection section = null;
-
+            IniFileSection section;
             try
             {
                 section = new IniFileSection(sectionName);
@@ -176,8 +164,8 @@ namespace RucheHome.Text
             Debug.Assert(dest != null && dest.Count > 0);
 
             var section = dest[dest.Count - 1];
-            IniFileItem item = null;
 
+            IniFileItem item;
             try
             {
                 item = new IniFileItem(name);

@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public TalkTextReplaceConfigView()
-        {
-            InitializeComponent();
-        }
+        public TalkTextReplaceConfigView() => this.InitializeComponent();
     }
 }

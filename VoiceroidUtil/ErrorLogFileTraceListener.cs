@@ -86,10 +86,8 @@ namespace VoiceroidUtil
             catch { }
         }
 
-        public override void WriteLine(string message)
-        {
+        public override void WriteLine(string message) =>
             this.Write(message + Environment.NewLine);
-        }
 
         #endregion
     }

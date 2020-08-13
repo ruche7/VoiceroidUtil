@@ -105,9 +105,7 @@ namespace VoiceroidUtil.Mvvm
             Type targetType,
             object parameter,
             CultureInfo culture)
-        {
-            // 逆変換は非サポート
-            throw new NotSupportedException();
-        }
+            =>
+            throw new NotSupportedException(); // 逆変換は非サポート
     }
 }

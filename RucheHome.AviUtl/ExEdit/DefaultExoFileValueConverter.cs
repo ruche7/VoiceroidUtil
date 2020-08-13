@@ -18,6 +18,7 @@ namespace RucheHome.AviUtl.ExEdit
         {
         }
 
+
         /// <summary>
         /// .NETオブジェクト値を拡張編集オブジェクトファイルの文字列値に変換する。
         /// </summary>
@@ -52,15 +53,15 @@ namespace RucheHome.AviUtl.ExEdit
             }
 
             // string
-            if (value is string)
+            if (value is string s)
             {
-                return (string)value;
+                return s;
             }
 
             // bool
-            if (value is bool)
+            if (value is bool f)
             {
-                return (bool)value ? @"1" : @"0";
+                return f ? @"1" : @"0";
             }
 
             // enum

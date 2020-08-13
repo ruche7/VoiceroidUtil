@@ -20,9 +20,9 @@ namespace VoiceroidUtil.View
     /// </summary>
     public partial class AviUtlDropLayersControl : UserControl
     {
-        public AviUtlDropLayersControl()
-        {
-            InitializeComponent();
-        }
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
+        public AviUtlDropLayersControl() => this.InitializeComponent();
     }
 }

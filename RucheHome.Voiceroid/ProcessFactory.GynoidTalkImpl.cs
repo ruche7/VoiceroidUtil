@@ -28,10 +28,8 @@ namespace RucheHome.Voiceroid
             /// <remarks>
             /// スプラッシュウィンドウ等の判別用に用いる。
             /// </remarks>
-            protected override bool IsMainWindowTitle(string title)
-            {
-                return (title?.Contains(@"ガイノイドTalk") == true);
-            }
+            protected override bool IsMainWindowTitle(string title) =>
+                title?.Contains(@"ガイノイドTalk") == true;
 
             #endregion
         }

@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AppStatusBar()
-        {
-            this.InitializeComponent();
-        }
+        public AppStatusBar() => this.InitializeComponent();
     }
 }

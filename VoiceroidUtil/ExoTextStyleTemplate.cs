@@ -253,7 +253,7 @@ namespace VoiceroidUtil
         private bool IsUnusedCleared =>
             this.Text.IsAutoAdjusting == false &&
             this.Text.IsAutoScrolling == false &&
-            this.Text.Text == "";
+            this.Text.Text.Length == 0;
 
         /// <summary>
         /// AviUtl拡張編集ファイル用設定で利用されないパラメータをクリアする。

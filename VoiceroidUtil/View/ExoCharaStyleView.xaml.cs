@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public ExoCharaStyleView()
-        {
-            InitializeComponent();
-        }
+        public ExoCharaStyleView() => this.InitializeComponent();
     }
 }

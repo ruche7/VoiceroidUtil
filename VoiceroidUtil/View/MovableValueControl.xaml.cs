@@ -11,9 +11,6 @@ namespace VoiceroidUtil.View
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public MovableValueControl()
-        {
-            InitializeComponent();
-        }
+        public MovableValueControl() => this.InitializeComponent();
     }
 }

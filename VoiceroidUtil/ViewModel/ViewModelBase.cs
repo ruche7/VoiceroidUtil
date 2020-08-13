@@ -21,9 +21,14 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public ViewModelBase()
+        protected ViewModelBase()
         {
         }
+
+        /// <summary>
+        /// デストラクタ。
+        /// </summary>
+        ~ViewModelBase() => this.Dispose(false);
 
         /// <summary>
         /// IDisposable.Dispose をまとめて呼び出すためのコンテナを取得する。
@@ -279,15 +284,30 @@ namespace VoiceroidUtil.ViewModel
         /// <summary>
         /// リソースを破棄する。
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            try
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// リソース破棄の実処理を行う。
+        /// </summary>
+        /// <param name="disposing">
+        /// Dispose メソッドから呼び出された場合は true 。
+        /// </param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
             {
-                this.CompositeDisposable.Dispose();
-            }
-            catch (Exception ex)
-            {
-                ThreadTrace.WriteException(ex);
+                try
+                {
+                    this.CompositeDisposable.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    ThreadTrace.WriteException(ex);
+                }
             }
         }
 

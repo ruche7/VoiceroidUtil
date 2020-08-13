@@ -95,10 +95,8 @@ namespace VoiceroidUtil
         /// デシリアライズの直前に呼び出される。
         /// </summary>
         [OnDeserializing]
-        private void OnDeserializing(StreamingContext context)
-        {
+        private void OnDeserializing(StreamingContext context) =>
             this.ResetDataMembers(VoiceroidId.YukariEx);
-        }
 
         #region VoiceroidItemBase のオーバライド
 

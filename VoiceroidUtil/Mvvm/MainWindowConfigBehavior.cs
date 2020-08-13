@@ -20,10 +20,8 @@ namespace VoiceroidUtil.Mvvm
         /// <summary>
         /// ウィンドウが最初に表示された時に呼び出される。
         /// </summary>
-        private void OnWindowContentRendered(object sender, EventArgs e)
-        {
+        private void OnWindowContentRendered(object sender, EventArgs e) =>
             this.ConfigKeeper.Value?.ApplyMaximizedTo(this.AssociatedObject);
-        }
 
         /// <summary>
         /// ウィンドウが閉じようとしている時に呼び出される。
@@ -71,10 +69,7 @@ namespace VoiceroidUtil.Mvvm
             base.OnDetaching();
         }
 
-        protected override Freezable CreateInstanceCore()
-        {
-            return new MainWindowConfigBehavior();
-        }
+        protected override Freezable CreateInstanceCore() => new MainWindowConfigBehavior();
 
         #endregion
     }

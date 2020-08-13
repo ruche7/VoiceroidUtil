@@ -15,30 +15,20 @@ namespace RucheHome.Text
         /// </summary>
         /// <param name="filePath">ファイルパス。</param>
         /// <returns>読み取った文字列。読み取れなかった場合は null 。</returns>
-        public static string Read(string filePath)
-        {
-            if (filePath == null)
-            {
-                throw new ArgumentNullException(nameof(filePath));
-            }
-
-            return ReadAll(new[] { filePath })[0];
-        }
+        public static string Read(string filePath) =>
+            (filePath == null) ?
+                throw new ArgumentNullException(nameof(filePath)) :
+                ReadAll(new[] { filePath })[0];
 
         /// <summary>
         /// 文字コードを自動判別してテキストファイルを読み取る。
         /// </summary>
         /// <param name="fileInfo">ファイル情報。</param>
         /// <returns>読み取った文字列。読み取れなかった場合は null 。</returns>
-        public static string Read(FileInfo fileInfo)
-        {
-            if (fileInfo == null)
-            {
-                throw new ArgumentNullException(nameof(fileInfo));
-            }
-
-            return ReadAll(new[] { fileInfo })[0];
-        }
+        public static string Read(FileInfo fileInfo) =>
+            (fileInfo == null) ?
+                throw new ArgumentNullException(nameof(fileInfo)) :
+                ReadAll(new[] { fileInfo })[0];
 
         /// <summary>
         /// 文字コードを自動判別して複数のテキストファイルを読み取る。

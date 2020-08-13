@@ -8,9 +8,9 @@ namespace VoiceroidUtil.View
     /// </summary>
     public partial class ExoConfigView : UserControl
     {
-        public ExoConfigView()
-        {
-            InitializeComponent();
-        }
+        /// <summary>
+        /// コンストラクタ。
+        /// </summary>
+        public ExoConfigView() => this.InitializeComponent();
     }
 }

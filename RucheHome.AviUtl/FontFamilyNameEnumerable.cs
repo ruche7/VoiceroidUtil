@@ -22,10 +22,7 @@ namespace RucheHome.AviUtl
         /// コンストラクタ。
         /// </summary>
         /// <param name="sorting">フォントファミリ名でソートするならば true 。</param>
-        public FontFamilyNameEnumerable(bool sorting)
-        {
-            this.IsSorting = sorting;
-        }
+        public FontFamilyNameEnumerable(bool sorting) => this.IsSorting = sorting;
 
         /// <summary>
         /// フォントコレクションを取得する。
@@ -48,7 +45,7 @@ namespace RucheHome.AviUtl
             var e =
                 this.Fonts.Families
                     .Select(f => f.Name)
-                    .Where(n => !String.IsNullOrWhiteSpace(n));
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
             return this.IsSorting ? e.OrderBy(n => n).GetEnumerator() : e.GetEnumerator();
         }
 
@@ -56,10 +53,7 @@ namespace RucheHome.AviUtl
 
         #region IEnumerable の明示的実装
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         #endregion
     }

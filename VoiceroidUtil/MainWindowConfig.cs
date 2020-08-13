@@ -128,12 +128,12 @@ namespace VoiceroidUtil
         /// <summary>
         /// スクリーン内に収まっていると判断する幅。
         /// </summary>
-        private static readonly int WindowOnScreenWidth = 48;
+        private const int WindowOnScreenWidth = 48;
 
         /// <summary>
         /// スクリーン内に収まっていると判断する高さ。
         /// </summary>
-        private static readonly int WindowOnScreenHeight = 48;
+        private const int WindowOnScreenHeight = 48;
 
         /// <summary>
         /// ウィンドウがいずれかのスクリーン内に収まっているか否かを取得する。

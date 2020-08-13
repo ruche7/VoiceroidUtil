@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using RucheHome.Util;
@@ -19,6 +20,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// コマンドパラメータクラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
         public class CommandParameter
         {
             /// <summary>
@@ -80,6 +82,7 @@ namespace VoiceroidUtil
         /// <summary>
         /// コマンド戻り値クラス。
         /// </summary>
+        [SuppressMessage("Design", "CA1034")]
         public class CommandResult
         {
             /// <summary>

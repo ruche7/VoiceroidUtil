@@ -11,11 +11,9 @@ namespace VoiceroidUtil
         /// コンストラクタ。
         /// </summary>
         /// <param name="description">説明文。</param>
-        public TalkTextReplacePreset(string description)
-        {
+        public TalkTextReplacePreset(string description) =>
             this.Description =
                 description ?? throw new ArgumentNullException(nameof(description));
-        }
 
         /// <summary>
         /// 説明文を取得する。
