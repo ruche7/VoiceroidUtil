@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamicJson.cs" />
     <Compile Include="ExEdit\AudioFileComponent.cs" />
     <Compile Include="ExEdit\BlendMode.cs" />
     <Compile Include="ExEdit\ComponentBase.cs" />
@@ -87,6 +88,8 @@
       <Name>RucheHomeLib</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
