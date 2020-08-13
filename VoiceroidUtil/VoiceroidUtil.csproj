@@ -379,5 +379,9 @@
     <Resource Include="resources\voiceroid\itako.png" />
     <Resource Include="resources\voiceroid\sora.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\galaco_ng.png" />
+    <Resource Include="resources\voiceroid\galaco_ok.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
