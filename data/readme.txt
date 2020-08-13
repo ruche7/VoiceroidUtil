@@ -157,6 +157,11 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 - The MIT License
 - https://github.com/hnx8/ReadJEnc
 
+『DynamicJson』 v1.2.0
+- Copyright (C) neuecc
+- Microsoft Public License (Ms-PL)
+- https://dynamicjson.codeplex.com/
+
 下記のAviUtlプラグインの機能を利用しています。
 
 『ごちゃまぜドロップス』
