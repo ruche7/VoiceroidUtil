@@ -27,9 +27,7 @@ namespace RucheHome.Voiceroid
         /// <param name="displayProduct">
         /// 表示プロダクト名。プロダクト名と同一ならば null を指定してよい。
         /// </param>
-        /// <param name="multiCharacters">
-        /// 複数キャラクターを保持しているか否かを取得する。
-        /// </param>
+        /// <param name="multiCharacters">複数キャラクターを保持しているならば true 。</param>
         internal VoiceroidInfo(
             VoiceroidId id,
             bool controllable,
@@ -95,7 +93,7 @@ namespace RucheHome.Voiceroid
         public string DisplayProduct { get; }
 
         /// <summary>
-        /// 複数キャラクターをまとめるプロセスであるか否かを取得する。
+        /// 複数キャラクターを保持しているか否かを取得する。
         /// </summary>
         public bool HasMultiCharacters { get; }
     }
