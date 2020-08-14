@@ -5,7 +5,7 @@ using RucheHome.Voiceroid;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを定義するクラス。
+    /// VOICEROIDと『ゆっくりMovieMaker3』のキャラ名との紐付けを定義するクラス。
     /// </summary>
     [DataContract(Namespace = "")]
     public class YmmCharaRelation : VoiceroidItemBase
@@ -23,7 +23,7 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
         /// <param name="ymmCharaName">
-        /// 『ゆっくりMovieMaker』のキャラ名。 null ならばVOICEROID識別IDから決定する。
+        /// 『ゆっくりMovieMaker3』のキャラ名。 null ならばVOICEROID識別IDから決定する。
         /// </param>
         public YmmCharaRelation(VoiceroidId voiceroidId, string ymmCharaName)
             : base(voiceroidId)
@@ -31,7 +31,7 @@ namespace VoiceroidUtil
             this.YmmCharaName = ymmCharaName ?? voiceroidId.GetInfo()?.ShortName ?? "";
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』のキャラ名を取得または設定する。
+        /// 『ゆっくりMovieMaker3』のキャラ名を取得または設定する。
         /// </summary>
         [DataMember]
         public string YmmCharaName

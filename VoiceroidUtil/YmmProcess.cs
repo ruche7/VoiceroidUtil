@@ -11,7 +11,7 @@ using RucheHome.Windows.WinApi;
 namespace VoiceroidUtil
 {
     /// <summary>
-    /// 『ゆっくりMovieMaker』プロセスを操作するクラス。
+    /// 『ゆっくりMovieMaker3』プロセスを操作するクラス。
     /// </summary>
     public class YmmProcess
     {
@@ -41,7 +41,7 @@ namespace VoiceroidUtil
             (this.AddButtonElement != null);
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス名。
+        /// 『ゆっくりMovieMaker3』プロセス名。
         /// </summary>
         private const string ProcessName = @"YukkuriMovieMaker_v3";
 
@@ -367,7 +367,7 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセスを取得または設定する。
+        /// 『ゆっくりMovieMaker3』プロセスを取得または設定する。
         /// </summary>
         private Process Process { get; set; } = null;
 
@@ -396,7 +396,7 @@ namespace VoiceroidUtil
         private AutomationElement AddButtonElement { get; set; } = null;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセスが入力待機状態になるまで非同期で待機する。
+        /// 『ゆっくりMovieMaker3』プロセスが入力待機状態になるまで非同期で待機する。
         /// </summary>
         /// <param name="loopCount">
         /// 最大ループ回数。 0 ならば状態確認結果を即座に返す。

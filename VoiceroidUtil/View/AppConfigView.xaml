@@ -200,7 +200,7 @@
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/VoiceroidUtil;component/resources/icon/ymm.png" />
-                    <AccessText Text="YMM(_Y)" Margin="2,0,0,0" />
+                    <AccessText Text="YMM3(_Y)" Margin="2,0,0,0" />
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -210,7 +210,7 @@
                     Margin="6">
                     <Label>
                         <TextBlock>
-                            <Run Text="ゆっくりMovieMaker" FontWeight="Bold" />
+                            <Run Text="ゆっくりMovieMaker3" FontWeight="Bold" />
                             との連携機能を設定します。
                         </TextBlock>
                     </Label>
@@ -248,7 +248,7 @@
                                         <v:VoiceroidKeywordsView Margin="8,4,0,4" />
                                         <TextBlock TextWrapping="Wrap">
                                             いずれのキーワードも含まれていない場合、ボイスプリセット名自体をキャラクター名として利用します。<LineBreak />
-                                            ゆっくりMovieMakerにキャラクター名が登録されていない場合は何も行いません。
+                                            ゆっくりMovieMaker3にキャラクター名が登録されていない場合は何も行いません。
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>

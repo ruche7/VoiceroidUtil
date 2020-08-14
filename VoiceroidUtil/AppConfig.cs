@@ -187,7 +187,7 @@ namespace VoiceroidUtil
         private bool uiAutomationEnabledOnSave = true;
 
         /// <summary>
-        /// 保存したファイルのパスを『ゆっくりMovieMaker』に設定するか否かを
+        /// 保存したファイルのパスを『ゆっくりMovieMaker3』に設定するか否かを
         /// 取得または設定する。
         /// </summary>
         [DataMember]
@@ -199,7 +199,7 @@ namespace VoiceroidUtil
         private bool savedFileToYmm = true;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』のキャラを自動選択するか否かを取得または設定する。
+        /// 『ゆっくりMovieMaker3』のキャラを自動選択するか否かを取得または設定する。
         /// </summary>
         [DataMember]
         public bool IsYmmCharaSelecting
@@ -210,7 +210,7 @@ namespace VoiceroidUtil
         private bool ymmCharaSelecting = true;
 
         /// <summary>
-        /// VOICEROIDと『ゆっくりMovieMaker』のキャラ名との紐付けを取得または設定する。
+        /// VOICEROIDと『ゆっくりMovieMaker3』のキャラ名との紐付けを取得または設定する。
         /// </summary>
         [DataMember]
         public YmmCharaRelationSet YmmCharaRelations
@@ -224,7 +224,7 @@ namespace VoiceroidUtil
         private YmmCharaRelationSet ymmCharaRelations = null;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』の追加ボタンを自動押下するか否かを取得または設定する。
+        /// 『ゆっくりMovieMaker3』の追加ボタンを自動押下するか否かを取得または設定する。
         /// </summary>
         [DataMember]
         public bool IsYmmAddButtonClicking
