@@ -651,14 +651,14 @@ namespace RucheHome.Voiceroid
             #region ImplBase のオーバライド
 
             /// <summary>
-            /// ボイスプリセット名を取得する。
+            /// キャラクター名を取得する。
             /// </summary>
-            /// <returns>ボイスプリセット名。</returns>
+            /// <returns>キャラクター名。</returns>
             /// <remarks>
             /// 実行中の場合はボイスプリセット名を取得して返す。
             /// それ以外では Name の値をそのまま返す。
             /// </remarks>
-            public override async Task<string> GetVoicePresetName()
+            public override async Task<string> GetCharacterName()
             {
                 string name;
                 try
@@ -670,7 +670,7 @@ namespace RucheHome.Voiceroid
                     name = null;
                 }
 
-                return name ?? (await base.GetVoicePresetName());
+                return name ?? (await base.GetCharacterName());
             }
 
             /// <summary>

@@ -97,25 +97,5 @@ namespace VoiceroidUtil
         [OnDeserializing]
         private void OnDeserializing(StreamingContext context) =>
             this.ResetDataMembers(VoiceroidId.YukariEx);
-
-        #region VoiceroidItemBase のオーバライド
-
-        /// <summary>
-        /// VOICEROID識別IDに対応するVOICEROIDの名前を作成する。
-        /// </summary>
-        /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        /// <returns>VOICEROIDの名前。</returns>
-        /// <remarks>
-        /// VOICEROID2およびガイノイドTalkの名前を変えるためにオーバライドする。
-        /// </remarks>
-        protected override string MakeVoiceroidName(VoiceroidId voiceroidId)
-        {
-            var name = base.MakeVoiceroidName(voiceroidId);
-            return
-                voiceroidId.IsVoiceroid2LikeSoftware() ?
-                    (name + @" (キャラ不確定時)") : name;
-        }
-
-        #endregion
     }
 }

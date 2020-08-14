@@ -102,6 +102,24 @@ namespace RucheHome.Voiceroid
         V2Itako,
 
         /// <summary>
+        /// ついなちゃん 関西弁(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2Tsuina,
+
+        /// <summary>
+        /// ついなちゃん 標準語(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2TsuinaStandard,
+
+        /// <summary>
+        /// 伊織弓鶴(VOICEROID2専用)
+        /// </summary>
+        [EnumMember]
+        V2Iori,
+
+        /// <summary>
         /// 鳴花ヒメ(ガイノイドTalk専用)
         /// </summary>
         [EnumMember]
@@ -183,43 +201,43 @@ namespace RucheHome.Voiceroid
                     VoiceroidId.ZunkoEx,
                     true,
                     @"東北ずん子",
-                    new[]{ @"ずん子" },
+                    new[]{ @"東北", @"ずん子" },
                     @"VOICEROID",
                     @"VOICEROID＋ 東北ずん子 EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KiritanEx,
                     true,
                     @"東北きりたん",
-                    new[]{ @"きりたん" },
+                    new[]{ @"東北", @"きりたん" },
                     @"VOICEROID",
                     @"VOICEROID＋ 東北きりたん",
-                    @"VOICEROID＋ 東北きりたん EX"),
+                    displayProduct: @"VOICEROID＋ 東北きりたん EX"),
                 new VoiceroidInfo(
                     VoiceroidId.Akane,
                     true,
                     @"琴葉茜",
-                    new[]{ @"茜" },
+                    new[]{ @"琴葉", @"茜", @"関西弁" },
                     @"VOICEROID",
                     @"VOICEROID＋ 琴葉茜"),
                 new VoiceroidInfo(
                     VoiceroidId.Aoi,
                     true,
                     @"琴葉葵",
-                    new[]{ @"葵" },
+                    new[]{ @"琴葉", @"葵" },
                     @"VOICEROID",
                     @"VOICEROID＋ 琴葉葵"),
                 new VoiceroidInfo(
                     VoiceroidId.AiEx,
                     true,
                     @"月読アイ",
-                    new[]{ @"アイ" },
+                    new[]{ @"月読", @"アイ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 月読アイ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.ShoutaEx,
                     true,
                     @"月読ショウタ",
-                    new[]{ @"ショウタ" },
+                    new[]{ @"月読", @"ショウタ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 月読ショウタ EX"),
                 new VoiceroidInfo(
@@ -229,7 +247,7 @@ namespace RucheHome.Voiceroid
                     new[]{ @"京町", @"セイカ" },
                     @"VOICEROID",
                     @"VOICEROID＋ 京町セイカ",
-                    @"VOICEROID＋ 京町セイカ EX"),
+                    displayProduct: @"VOICEROID＋ 京町セイカ EX"),
                 new VoiceroidInfo(
                     VoiceroidId.KouEx,
                     true,
@@ -269,30 +287,54 @@ namespace RucheHome.Voiceroid
                     VoiceroidId.V2Itako,
                     false,
                     @"東北イタコ",
-                    new[]{ @"イタコ" },
+                    new[]{ @"東北", @"イタコ" },
                     @"VOICEROID2 Editor",
                     @"VOICEROID2 東北イタコ"),
+                new VoiceroidInfo(
+                    VoiceroidId.V2Tsuina,
+                    false,
+                    @"ついなちゃん(関西弁)",
+                    new[]{ @"ついな", @"関西弁" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 ついなちゃん",
+                    shortName: @"ついな関西弁"),
+                new VoiceroidInfo(
+                    VoiceroidId.V2TsuinaStandard,
+                    false,
+                    @"ついなちゃん(標準語)",
+                    new[]{ @"ついな", @"標準語" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 ついなちゃん",
+                    shortName: @"ついな標準語"),
+                new VoiceroidInfo(
+                    VoiceroidId.V2Iori,
+                    false,
+                    @"伊織弓鶴",
+                    new[]{ @"伊織", @"弓鶴" },
+                    @"VOICEROID2 Editor",
+                    @"VOICEROID2 伊織弓鶴"),
                 new VoiceroidInfo(
                     VoiceroidId.GTHime,
                     false,
                     @"鳴花ヒメ",
-                    new[]{ @"ヒメ" },
+                    new[]{ @"鳴花", @"ヒメ" },
                     @"GynoidTalkEditor",
                     @"ガイノイドTalk 鳴花ヒメ"),
                 new VoiceroidInfo(
                     VoiceroidId.GTMikoto,
                     false,
                     @"鳴花ミコト",
-                    new[]{ @"ミコト" },
+                    new[]{ @"鳴花", @"ミコト" },
                     @"GynoidTalkEditor",
                     @"ガイノイドTalk 鳴花ミコト"),
                 new VoiceroidInfo(
                     VoiceroidId.GTFlower,
                     false,
-                    @"flower",
+                    @"flower(フラワ)",
                     new[]{ @"flower", @"フラワ" },
                     @"GynoidTalkEditor",
-                    @"ガイノイドTalk flower(フラワ)"),
+                    @"ガイノイドTalk flower",
+                    shortName: @"flower"),
                 new VoiceroidInfo(
                     VoiceroidId.Voiceroid2,
                     true,
@@ -300,7 +342,8 @@ namespace RucheHome.Voiceroid
                     null,
                     @"VoiceroidEditor",
                     @"VOICEROID2 Editor",
-                    @"VOICEROID2"),
+                    displayProduct: @"VOICEROID2",
+                    multiCharacters: true),
                 new VoiceroidInfo(
                     VoiceroidId.GynoidTalk,
                     true,
@@ -308,7 +351,8 @@ namespace RucheHome.Voiceroid
                     null,
                     @"GynoidTalkEditor",
                     @"GynoidTalk Editor",
-                    @"ガイノイドTalk"),
+                    displayProduct: @"ガイノイドTalk",
+                    multiCharacters: true),
             }
             .ToDictionary(info => info.Id);
     }

@@ -203,10 +203,16 @@ blueberry様
 - 鳴花ヒメ・ミコト        http://seiga.nicovideo.jp/seiga/im9057850
 
 さばとら様
-- ミニギャラ子さん立ち絵  https://seiga.nicovideo.jp/seiga/im9071558
+- ミニギャラ子さん        https://seiga.nicovideo.jp/seiga/im9071558
 
 新島秋一様
-- flower Talk立ち絵素材   https://seiga.nicovideo.jp/seiga/im10272452
+- flower Talk             https://seiga.nicovideo.jp/seiga/im10272452
+
+ふにちか様
+- 役ついな                https://seiga.nicovideo.jp/seiga/im9753778
+
+sii様
+- 伊織弓鶴                https://seiga.nicovideo.jp/seiga/im10181836
 
 lill様
 - ガイノイドTalk アイコン

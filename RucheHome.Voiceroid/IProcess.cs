@@ -30,6 +30,11 @@ namespace RucheHome.Voiceroid
         string DisplayProduct { get; }
 
         /// <summary>
+        /// 複数キャラクターを保持しているか否かを取得する。
+        /// </summary>
+        bool HasMultiCharacters { get; }
+
+        /// <summary>
         /// 空白文の音声保存を行えるか否かを取得する。
         /// </summary>
         bool CanSaveBlankText { get; }
@@ -139,13 +144,13 @@ namespace RucheHome.Voiceroid
         Task<bool> Exit();
 
         /// <summary>
-        /// ボイスプリセット名を取得する。
+        /// キャラクター名を取得する。
         /// </summary>
-        /// <returns>ボイスプリセット名。</returns>
+        /// <returns>キャラクター名。</returns>
         /// <remarks>
-        /// VOICEROID2ライクソフトウェアかつ実行中の場合はボイスプリセット名を取得して返す。
+        /// 複数キャラクターを保持するプロセスかつ実行中の場合はキャラクター名を取得して返す。
         /// それ以外では Name の値をそのまま返す。
         /// </remarks>
-        Task<string> GetVoicePresetName();
+        Task<string> GetCharacterName();
     }
 }

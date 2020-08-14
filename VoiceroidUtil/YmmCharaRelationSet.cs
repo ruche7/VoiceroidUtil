@@ -23,9 +23,9 @@ namespace VoiceroidUtil
         /// アイテムセットとして保持するVOICEROID識別ID列挙を取得する。
         /// </summary>
         /// <remarks>
-        /// VOICEROID2ライクソフトウェアを示すIDを除外する。
+        /// 複数VOICEROIDをまとめるプロセスを示すIDを除外する。
         /// </remarks>
         protected override IEnumerable<VoiceroidId> VoiceroidIds =>
-            AllVoiceroidIds.Where(id => !id.IsVoiceroid2LikeSoftware());
+            AllVoiceroidIds.Where(id => !id.GetInfo().HasMultiCharacters);
     }
 }

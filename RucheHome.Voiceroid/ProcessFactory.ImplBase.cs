@@ -750,6 +750,11 @@ namespace RucheHome.Voiceroid
             public string DisplayProduct => this.Id.GetInfo().DisplayProduct;
 
             /// <summary>
+            /// 複数キャラクターを保持しているか否かを取得する。
+            /// </summary>
+            public bool HasMultiCharacters => this.Id.GetInfo().HasMultiCharacters;
+
+            /// <summary>
             /// 空白文の音声保存を行えるか否かを取得する。
             /// </summary>
             public bool CanSaveBlankText { get; }
@@ -1159,13 +1164,13 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// ボイスプリセット名を取得する。
+            /// キャラクター名を取得する。
             /// </summary>
-            /// <returns>ボイスプリセット名。</returns>
+            /// <returns>キャラクター名。</returns>
             /// <remarks>
             /// 既定では Name の値を返す。
             /// </remarks>
-            public virtual async Task<string> GetVoicePresetName() =>
+            public virtual async Task<string> GetCharacterName() =>
                 await Task.FromResult(this.Name); // 単に Name の値を返す
 
             #endregion
