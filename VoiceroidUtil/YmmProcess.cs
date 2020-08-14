@@ -69,7 +69,7 @@ namespace VoiceroidUtil
             // 入力待機状態待ち
             if (!(await this.WhenForInputIdle()))
             {
-                ThreadDebug.WriteLine(@"YMM : WaitForInputIdle() == false");
+                ThreadDebug.WriteLine(@"YMM3 : WaitForInputIdle() == false");
                 this.Reset();
                 return false;
             }
@@ -78,7 +78,7 @@ namespace VoiceroidUtil
             this.Process.Refresh();
             if (this.MainWindowHandle == IntPtr.Zero)
             {
-                ThreadDebug.WriteLine(@"YMM : process.MainWindowHandle == IntPtr.Zero");
+                ThreadDebug.WriteLine(@"YMM3 : process.MainWindowHandle == IntPtr.Zero");
                 this.Reset();
                 return false;
             }
@@ -126,7 +126,7 @@ namespace VoiceroidUtil
             if (edit == null || edit.Current.IsReadOnly)
             {
                 ThreadDebug.WriteLine(
-                    @"YMM : SpeechEditElement から ValuePattern を取得できない。");
+                    @"YMM3 : SpeechEditElement から ValuePattern を取得できない。");
                 return false;
             }
 
@@ -169,7 +169,7 @@ namespace VoiceroidUtil
             if (expand == null)
             {
                 ThreadDebug.WriteLine(
-                    @"YMM : CharaComboElement から ExpandCollapsePattern を取得できない。");
+                    @"YMM3 : CharaComboElement から ExpandCollapsePattern を取得できない。");
                 return false;
             }
             try
@@ -205,7 +205,7 @@ namespace VoiceroidUtil
             if (item == null)
             {
                 ThreadDebug.WriteLine(
-                    @"YMM : CharaComboElement から SelectionItemPattern を取得できない。");
+                    @"YMM3 : CharaComboElement から SelectionItemPattern を取得できない。");
                 return false;
             }
 
@@ -241,7 +241,7 @@ namespace VoiceroidUtil
             if (button == null)
             {
                 ThreadDebug.WriteLine(
-                    @"YMM : AddButtonElement から InvokePattern を取得できない。");
+                    @"YMM3 : AddButtonElement から InvokePattern を取得できない。");
                 return false;
             }
 

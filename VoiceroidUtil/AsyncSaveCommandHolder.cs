@@ -786,7 +786,7 @@ namespace VoiceroidUtil
                 // デバッグ時にはリトライ回数を報告
                 if (ri > 0)
                 {
-                    warnText = @"YMMリトライ回数 : " + ri;
+                    warnText = @"YMM3リトライ回数 : " + ri;
                     ThreadDebug.WriteLine(warnText);
                     return warnText;
                 }
