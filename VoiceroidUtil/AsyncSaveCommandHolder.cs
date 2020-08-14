@@ -673,22 +673,22 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作インスタンスを取得する。
+        /// 『ゆっくりMovieMaker3』プロセス操作インスタンスを取得する。
         /// </summary>
         private static YmmProcess YmmProcess { get; } = new YmmProcess();
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライ回数。
+        /// 『ゆっくりMovieMaker3』プロセス操作失敗時のリトライ回数。
         /// </summary>
         private const int YmmRetryCount = 8;
 
         /// <summary>
-        /// 『ゆっくりMovieMaker』プロセス操作失敗時のリトライインターバル。
+        /// 『ゆっくりMovieMaker3』プロセス操作失敗時のリトライインターバル。
         /// </summary>
         private static readonly TimeSpan YmmRetryInterval = TimeSpan.FromMilliseconds(250);
 
         /// <summary>
-        /// 設定を基に『ゆっくりMovieMaker』の操作を行う。
+        /// 設定を基に『ゆっくりMovieMaker3』の操作を行う。
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
@@ -708,7 +708,7 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            // YMMキャラ名決定
+            // YMM3キャラ名決定
             string charaName =
                 voiceroidId.GetInfo().HasMultiCharacters ?
                     charaNameForMulti :
@@ -733,7 +733,7 @@ namespace VoiceroidUtil
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-                    return @"ゆっくりMovieMakerの起動状態確認に失敗しました。";
+                    return @"ゆっくりMovieMaker3の起動状態確認に失敗しました。";
                 }
 
                 // そもそも起動していないなら何もしない
@@ -745,20 +745,20 @@ namespace VoiceroidUtil
                 // タイムラインウィンドウが見つからなければ即失敗
                 if (!YmmProcess.IsTimelineWindowFound)
                 {
-                    return @"ゆっくりMovieMakerのタイムラインが見つかりません。";
+                    return @"ゆっくりMovieMaker3のタイムラインが見つかりません。";
                 }
 
                 // コントロール群が見つからなければリトライ
                 if (!YmmProcess.IsTimelineElementFound)
                 {
-                    warnText = @"ゆっくりMovieMakerのタイムラインを操作できませんでした。";
+                    warnText = @"ゆっくりMovieMaker3のタイムラインを操作できませんでした。";
                     continue;
                 }
 
                 // ファイルパス設定
                 if (!(await YmmProcess.SetTimelineSpeechEditValue(filePath)))
                 {
-                    warnText = @"ゆっくりMovieMakerへのファイルパス設定に失敗しました。";
+                    warnText = @"ゆっくりMovieMaker3へのファイルパス設定に失敗しました。";
                     continue;
                 }
 
@@ -769,7 +769,7 @@ namespace VoiceroidUtil
                     !string.IsNullOrEmpty(charaName) &&
                     (await YmmProcess.SelectTimelineCharaComboBoxItem(charaName)) == false)
                 {
-                    warnText = @"ゆっくりMovieMakerのキャラ選択に失敗しました。";
+                    warnText = @"ゆっくりMovieMaker3のキャラ選択に失敗しました。";
                     continue;
                 }
 
@@ -778,7 +778,7 @@ namespace VoiceroidUtil
                     config.IsYmmAddButtonClicking &&
                     !(await YmmProcess.ClickTimelineSpeechAddButton()))
                 {
-                    warnText = @"ゆっくりMovieMakerの追加ボタン押下に失敗しました。";
+                    warnText = @"ゆっくりMovieMaker3の追加ボタン押下に失敗しました。";
                     continue;
                 }
 
@@ -1076,7 +1076,7 @@ namespace VoiceroidUtil
             var exoWarnText =
                 (exoResult.Item1 == ExoOperationResult.Success) ? null : exoResult.Item2;
 
-            // ゆっくりMovieMaker処理
+            // ゆっくりMovieMaker3処理
             var ymmWarnText =
                 await DoOperateYmm(filePath, voiceroidId, charaName, appConfig);
 

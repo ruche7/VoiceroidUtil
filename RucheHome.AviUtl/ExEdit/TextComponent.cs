@@ -532,7 +532,7 @@ namespace RucheHome.AviUtl.ExEdit
         /// フォント装飾種別用のコンバータクラス。
         /// </summary>
         /// <remarks>
-        /// 『ゆっくりMovieMaker』で「ソフトシャドー(濃)」を選択すると
+        /// 『ゆっくりMovieMaker3』で「ソフトシャドー(濃)」を選択すると
         /// 範囲外の値が書き出されるため、その対処を行う。
         /// </remarks>
         [SuppressMessage("Design", "CA1034")]
