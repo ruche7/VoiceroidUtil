@@ -114,6 +114,12 @@ namespace RucheHome.Voiceroid
         GTMikoto,
 
         /// <summary>
+        /// flower(ガイノイドTalk専用)
+        /// </summary>
+        [EnumMember]
+        GTFlower,
+
+        /// <summary>
         /// VOICEROID2
         /// </summary>
         [EnumMember]
@@ -280,6 +286,13 @@ namespace RucheHome.Voiceroid
                     new[]{ @"ミコト" },
                     @"GynoidTalkEditor",
                     @"ガイノイドTalk 鳴花ミコト"),
+                new VoiceroidInfo(
+                    VoiceroidId.GTFlower,
+                    false,
+                    @"flower",
+                    new[]{ @"flower", @"フラワ" },
+                    @"GynoidTalkEditor",
+                    @"ガイノイドTalk flower(フラワ)"),
                 new VoiceroidInfo(
                     VoiceroidId.Voiceroid2,
                     true,
