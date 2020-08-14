@@ -205,6 +205,9 @@ blueberry様
 さばとら様
 - ミニギャラ子さん立ち絵  https://seiga.nicovideo.jp/seiga/im9071558
 
+新島秋一様
+- flower Talk立ち絵素材   https://seiga.nicovideo.jp/seiga/im10272452
+
 lill様
 - ガイノイドTalk アイコン
 

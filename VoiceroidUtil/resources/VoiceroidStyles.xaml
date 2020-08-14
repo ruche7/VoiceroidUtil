@@ -93,6 +93,11 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/mikoto.png" />
             </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="GTFlower">
+                <Setter
+                    Property="Source"
+                    Value="/VoiceroidUtil;component/resources/voiceroid/flower.png" />
+            </DataTrigger>
             <DataTrigger Binding="{Binding}" Value="Voiceroid2">
                 <Setter
                     Property="Source"
