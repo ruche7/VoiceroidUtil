@@ -21,8 +21,14 @@ namespace RucheHome.Voiceroid
         /// </param>
         /// <param name="appProcessName">アプリプロセス名。</param>
         /// <param name="product">プロダクト名。</param>
+        /// <param name="shortName">
+        /// VOICEROID短縮名。VOICEROID名と同一ならば null を指定してよい。
+        /// </param>
         /// <param name="displayProduct">
         /// 表示プロダクト名。プロダクト名と同一ならば null を指定してよい。
+        /// </param>
+        /// <param name="multiCharacters">
+        /// 複数キャラクターを保持しているか否かを取得する。
         /// </param>
         internal VoiceroidInfo(
             VoiceroidId id,
@@ -31,17 +37,21 @@ namespace RucheHome.Voiceroid
             IEnumerable<string> keywords,
             string appProcessName,
             string product,
-            string displayProduct = null)
+            string shortName = null,
+            string displayProduct = null,
+            bool multiCharacters = false)
         {
             this.Id = id;
             this.IsControllable = controllable;
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
+            this.ShortName = shortName ?? name;
             this.Keywords =
                 new ReadOnlyCollection<string>((keywords ?? new string[0]).ToList());
             this.AppProcessName =
                 appProcessName ?? throw new ArgumentNullException(nameof(appProcessName));
             this.Product = product ?? throw new ArgumentNullException(nameof(product));
             this.DisplayProduct = displayProduct ?? product;
+            this.HasMultiCharacters = multiCharacters;
         }
 
         /// <summary>
@@ -58,6 +68,11 @@ namespace RucheHome.Voiceroid
         /// VOICEROID名を取得する。
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// VOICEROID短縮名を取得する。
+        /// </summary>
+        public string ShortName { get; }
 
         /// <summary>
         /// VOICEROIDを識別するためのキーワードコレクションを取得する。
@@ -78,5 +93,10 @@ namespace RucheHome.Voiceroid
         /// 表示プロダクト名を取得する。
         /// </summary>
         public string DisplayProduct { get; }
+
+        /// <summary>
+        /// 複数キャラクターをまとめるプロセスであるか否かを取得する。
+        /// </summary>
+        public bool HasMultiCharacters { get; }
     }
 }

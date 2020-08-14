@@ -371,10 +371,10 @@
                         VoiceroidNameHeader="キャラクター"
                         Margin="8,4,0,4" />
                     <TextBlock TextWrapping="Wrap">
-                        いずれのキーワードも含まれていない場合、
-                        <Run Text="VOICEROID2 (キャラ不確定時)" FontWeight="Bold" />
+                        いずれのキーワードも含まれていない場合のみ、
+                        <Run Text="VOICEROID2" FontWeight="Bold" />
                         または
-                        <Run Text="ガイノイドTalk (キャラ不確定時)" FontWeight="Bold" />
+                        <Run Text="ガイノイドTalk" FontWeight="Bold" />
                         の設定を利用します。
                     </TextBlock>
                 </StackPanel>

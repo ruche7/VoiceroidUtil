@@ -216,30 +216,57 @@
                         ItemsSource="{Binding VisibleCharaStyles.Value}"
                         SelectedItem="{Binding SelectedCharaStyle.Value}"
                         ToolTip="{Binding SelectCharaStyleCommandTip.Value}"
-                        Padding="6,1"
+                        Padding="2,1"
                         Margin="4,4,4,2"
                         DockPanel.Dock="Top">
                         <ComboBox.Resources>
                             <Style TargetType="ComboBoxItem">
-                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Padding" Value="0,0,4,0" />
                             </Style>
                         </ComboBox.Resources>
+                        <ComboBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid
+                                    Columns="{Binding VisibleCharaStylesColumnCount.Value}" />
+                            </ItemsPanelTemplate>
+                        </ComboBox.ItemsPanel>
                         <ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <DockPanel>
-                                    <StackPanel
+                                    <Image
                                         DataContext="{Binding VoiceroidId}"
-                                        DockPanel.Dock="Left">
-                                        <Image
-                                            Style="{StaticResource VoiceroidIdImage}"
-                                            Stretch="Uniform"
-                                            Width="24"
-                                            Height="24" />
+                                        Style="{StaticResource VoiceroidIdImage}"
+                                        Margin="0,0,4,0"
+                                        DockPanel.Dock="Left" />
+                                    <StackPanel
+                                        Orientation="Vertical"
+                                        VerticalAlignment="Center">
+                                        <TextBlock
+                                            Text="{Binding VoiceroidName, Mode=OneWay}"
+                                            FontWeight="Bold" />
+                                        <TextBlock
+                                            Text="※キャラ不確定時のみ"
+                                            FontSize="11"
+                                            Margin="0,2,0,0">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter
+                                                        Property="Visibility"
+                                                        Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger
+                                                            Binding="{Binding
+                                                                Path=HasMultiVoiceroidCharacters}"
+                                                            Value="True">
+                                                            <Setter
+                                                                Property="Visibility"
+                                                                Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </StackPanel>
-                                    <TextBlock
-                                        Text="{Binding VoiceroidName}"
-                                        VerticalAlignment="Center"
-                                        Margin="4,0,0,0" />
                                 </DockPanel>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

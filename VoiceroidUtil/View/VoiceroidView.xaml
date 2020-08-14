@@ -82,18 +82,9 @@
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Style.Triggers>
-                                                    <!-- VOICEROID2 は製品名非表示 -->
                                                     <DataTrigger
-                                                        Binding="{Binding Id}"
-                                                        Value="Voiceroid2">
-                                                        <Setter
-                                                            Property="Visibility"
-                                                            Value="Collapsed" />
-                                                    </DataTrigger>
-                                                    <!-- ガイノイドTalk は製品名非表示 -->
-                                                    <DataTrigger
-                                                        Binding="{Binding Id}"
-                                                        Value="GynoidTalk">
+                                                        Binding="{Binding HasMultiCharacters}"
+                                                        Value="True">
                                                         <Setter
                                                             Property="Visibility"
                                                             Value="Collapsed" />
@@ -102,7 +93,7 @@
                                             </Style>
                                         </TextBlock.Style>
                                         <TextBlock.LayoutTransform>
-                                            <ScaleTransform ScaleX="0.85" />
+                                            <ScaleTransform ScaleX="0.75" />
                                         </TextBlock.LayoutTransform>
                                     </TextBlock>
                                 </StackPanel>

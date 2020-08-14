@@ -28,7 +28,7 @@ namespace VoiceroidUtil
         public YmmCharaRelation(VoiceroidId voiceroidId, string ymmCharaName)
             : base(voiceroidId)
             =>
-            this.YmmCharaName = ymmCharaName ?? voiceroidId.GetInfo()?.Name ?? "";
+            this.YmmCharaName = ymmCharaName ?? voiceroidId.GetInfo()?.ShortName ?? "";
 
         /// <summary>
         /// 『ゆっくりMovieMaker』のキャラ名を取得または設定する。

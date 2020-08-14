@@ -37,13 +37,13 @@ namespace VoiceroidUtil.View
         }
 
         /// <summary>
-        /// VOICEROID名とキーワードリスト文字列のディクショナリを取得する。
+        /// VOICEROID短縮名とキーワードリスト文字列のディクショナリを取得する。
         /// </summary>
         public IReadOnlyDictionary<string, string> VoiceroidKeywords { get; } =
             ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
                 .Where(id => id.GetInfo().Keywords.Count > 0)
                 .ToDictionary(
-                    id => id.GetInfo().Name,
+                    id => id.GetInfo().ShortName,
                     id => string.Join(@", ", id.GetInfo().Keywords));
     }
 }

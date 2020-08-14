@@ -15,6 +15,7 @@ using GcmzDrops = RucheHome.AviUtl.ExEdit.GcmzDrops;
 using static RucheHome.Util.ArgumentValidater;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace VoiceroidUtil
 {
@@ -281,7 +282,9 @@ namespace VoiceroidUtil
         /// <param name="src">文字列。</param>
         /// <returns>VOICEROID識別ID。見つからなければ null 。</returns>
         /// <remarks>
-        /// 複数のキーワードが見つかった場合はより前方にあるものが優先される。
+        /// より多くのキーワードが一致するVOICEROID識別IDが優先される。
+        /// 一致数が同じ場合はより前方で一致したVOICEROID識別IDが優先される。
+        /// 一致位置も同じ場合はより小さいVOICEROID識別IDが優先される。
         /// </remarks>
         private static VoiceroidId? FindKeywordContainedVoiceroidId(string src)
         {
@@ -290,21 +293,38 @@ namespace VoiceroidUtil
                 return null;
             }
 
-            // src の中で最も手前に含まれているキーワードを検索する関数
-            int? minIndexOf(IEnumerable<string> keywords) =>
-                keywords?
-                    .Select(k => src.IndexOf(k))
-                    .Where(i => i >= 0)
-                    .Min(i => (int?)i);
+            VoiceroidId? resultId = null;
+            var maxCount = 1;
+            var minIndex = int.MaxValue;
 
-            // 全VOICEROIDの中から最も手前にキーワードが含まれているものを検索
-            return
-                ((VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
-                    .Select(id => new { id, index = minIndexOf(id.GetInfo().Keywords) })
-                    .Where(v => v.index != null)
-                    .OrderBy(v => (int)v.index)
-                    .FirstOrDefault()?
-                    .id;
+            foreach (var id in (VoiceroidId[])Enum.GetValues(typeof(VoiceroidId)))
+            {
+                var keywords = id.GetInfo().Keywords;
+                if (keywords != null)
+                {
+                    // 一致キーワード群の位置配列作成
+                    var indices =
+                        keywords.Select(k => src.IndexOf(k)).Where(i => i >= 0).ToArray();
+
+                    // 少なくともこれまでのID以上の一致数でなければダメ
+                    // maxCount は初期値 1 なので一致なしでもダメ
+                    if (indices.Length >= maxCount)
+                    {
+                        // 最も前方の一致位置検索
+                        var index = indices.Min();
+
+                        // 初回 or 一致数がより多い or 一致位置がより前方
+                        if (!resultId.HasValue || indices.Length > maxCount || index < minIndex)
+                        {
+                            resultId = id;
+                            maxCount = indices.Length;
+                            minIndex = index;
+                        }
+                    }
+                }
+            }
+
+            return resultId;
         }
 
         /// <summary>
@@ -672,15 +692,15 @@ namespace VoiceroidUtil
         /// </summary>
         /// <param name="filePath">WAVEファイルパス。</param>
         /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        /// <param name="voiceroid2LikeCharaName">
-        /// voiceoidId がVOICEROID2ライクの場合に用いるキャラ名。
+        /// <param name="charaNameForMulti">
+        /// voiceoidId が複数キャラクターを保持するプロセスを表す場合に用いるキャラ名。
         /// </param>
         /// <param name="config">アプリ設定。</param>
         /// <returns>警告文字列。問題ないならば null 。</returns>
         private static async Task<string> DoOperateYmm(
             string filePath,
             VoiceroidId voiceroidId,
-            string voiceroid2LikeCharaName,
+            string charaNameForMulti,
             AppConfig config)
         {
             if (!config.IsSavedFileToYmm)
@@ -690,8 +710,8 @@ namespace VoiceroidUtil
 
             // YMMキャラ名決定
             string charaName =
-                voiceroidId.IsVoiceroid2LikeSoftware() ?
-                    voiceroid2LikeCharaName :
+                voiceroidId.GetInfo().HasMultiCharacters ?
+                    charaNameForMulti :
                     config.YmmCharaRelations[voiceroidId].YmmCharaName;
 
             string warnText = null;
@@ -866,9 +886,6 @@ namespace VoiceroidUtil
                         @"ファイル保存を開始できませんでした。");
             }
 
-            // VOICEROID2ライクソフトウェアフラグ
-            bool voiceroid2Like = process.Id.IsVoiceroid2LikeSoftware();
-
             // 基テキスト、音声用テキスト作成
             string text, voiceText;
             if (appConfig.UseTargetText)
@@ -924,15 +941,21 @@ namespace VoiceroidUtil
                 talkTextReplaceConfig?.TextFileReplaceItems.Replace(text) ?? text;
 
             // キャラクター名取得
-            // VOICEROID2ライクならばボイスプリセット名を使う
-            var charaName =
-                voiceroid2Like ? (await process.GetVoicePresetName()) : process.Name;
+            var charaName = await process.GetCharacterName();
+
+            // VOICEROID2ライクか？
+            bool voiceroid2Like = process.Id.IsVoiceroid2LikeSoftware();
 
             // WAVEファイルパス決定
             string filePath;
             try
             {
-                filePath = await MakeWaveFilePath(appConfig, charaName, text, voiceroid2Like);
+                filePath =
+                    await MakeWaveFilePath(
+                        appConfig,
+                        charaName,
+                        text,
+                        voiceroid2Like);
             }
             catch (Exception ex)
             {
@@ -1025,10 +1048,10 @@ namespace VoiceroidUtil
                 }
             }
 
-            // 以降の処理の対象となるキャラ
-            // VOICEROID2ライクならボイスプリセット名からキャラ選別
+            // 以降の処理の対象となるVOICEROID識別ID
+            // 複数キャラクターを保持するならキャラクター名からキャラ選別
             var voiceroidId =
-                (voiceroid2Like ? FindKeywordContainedVoiceroidId(charaName) : null) ??
+                (process.HasMultiCharacters ? FindKeywordContainedVoiceroidId(charaName) : null) ??
                 process.Id;
 
             // .exo ファイル関連処理

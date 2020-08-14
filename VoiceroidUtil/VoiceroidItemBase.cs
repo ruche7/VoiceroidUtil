@@ -31,8 +31,11 @@ namespace VoiceroidUtil
                     Enum.IsDefined(value.GetType(), value) ?
                         value : VoiceroidId.YukariEx);
 
-                // 名前も更新
-                this.VoiceroidName = this.MakeVoiceroidName(this.VoiceroidId);
+                // 関連プロパティを更新
+                var info = this.VoiceroidId.GetInfo();
+                this.VoiceroidName = info.Name;
+                this.VoiceroidShortName = info.ShortName;
+                this.HasMultiVoiceroidCharacters = info.HasMultiCharacters;
             }
         }
         private VoiceroidId voiceroidId = VoiceroidId.YukariEx;
@@ -51,7 +54,7 @@ namespace VoiceroidUtil
         }
 
         /// <summary>
-        /// VOICEROIDの名前を取得する。
+        /// VOICEROID名を取得する。
         /// </summary>
         public string VoiceroidName
         {
@@ -61,16 +64,23 @@ namespace VoiceroidUtil
         private string voiceroidName = "";
 
         /// <summary>
-        /// VOICEROID識別IDに対応するVOICEROIDの名前を作成する。
+        /// VOICEROID短縮名を取得する。
         /// </summary>
-        /// <param name="voiceroidId">VOICEROID識別ID。</param>
-        /// <returns>VOICEROIDの名前。</returns>
-        /// <remarks>
-        /// コンストラクタおよびデシリアライズによって
-        /// VoiceroidId プロパティ値が設定される時に呼び出される。
-        /// 既定では voiceroidId.GetInfo().Name を返す。
-        /// </remarks>
-        protected virtual string MakeVoiceroidName(VoiceroidId voiceroidId) =>
-            voiceroidId.GetInfo().Name;
+        public string VoiceroidShortName
+        {
+            get => this.voiceroidShortName;
+            private set => this.SetProperty(ref this.voiceroidShortName, value ?? "");
+        }
+        private string voiceroidShortName = "";
+
+        /// <summary>
+        /// 複数キャラクターを保持しているか否かを取得する。
+        /// </summary>
+        public bool HasMultiVoiceroidCharacters
+        {
+            get => this.multiVoiceroidCharacter;
+            private set => this.SetProperty(ref this.multiVoiceroidCharacter, value);
+        }
+        private bool multiVoiceroidCharacter = false;
     }
 }

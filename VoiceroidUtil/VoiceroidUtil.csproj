@@ -386,5 +386,12 @@
   <ItemGroup>
     <Resource Include="resources\voiceroid\flower.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\iori.png" />
+    <Resource Include="resources\voiceroid\tsuina-std.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\voiceroid\tsuina.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

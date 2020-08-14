@@ -82,6 +82,14 @@ namespace VoiceroidUtil.ViewModel
                     .ToReadOnlyReactiveProperty()
                     .AddTo(this.CompositeDisposable);
 
+            // 最適表示列数
+            // 6キャラ単位で列数を増やす
+            this.VisibleCharaStylesColumnCount =
+                this.VisibleCharaStyles
+                    .Select(vp => Math.Min(Math.Max(1, (vp.Count + 5) / 6), 3))
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(this.CompositeDisposable);
+
             // 選択中キャラ別スタイル
             this.SelectedCharaStyle =
                 new ReactiveProperty<ExoCharaStyle>(this.VisibleCharaStyles.Value.First())
@@ -172,6 +180,11 @@ namespace VoiceroidUtil.ViewModel
         /// キャラ別スタイル設定選択コマンドのチップテキストを取得する。
         /// </summary>
         public IReadOnlyReactiveProperty<string> SelectCharaStyleCommandTip { get; }
+
+        /// <summary>
+        /// 表示状態のキャラ別スタイル設定コレクションの最適表示列数を取得する。
+        /// </summary>
+        public IReadOnlyReactiveProperty<int> VisibleCharaStylesColumnCount { get; }
 
         /// <summary>
         /// 選択中キャラ別スタイル設定を取得する。
