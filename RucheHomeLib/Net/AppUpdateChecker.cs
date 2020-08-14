@@ -297,6 +297,18 @@ namespace RucheHome.Net
                 AppInfo info = null;
                 using (var webClient = new WebClient())
                 {
+                    // ユーザーエージェント設定
+                    webClient.Headers.Add(
+                        HttpRequestHeader.UserAgent,
+                        @"Mozilla/5.0 (compatible; " +
+                        this.CurrentProduct +
+                        @"/" +
+                        this.CurrentVersion +
+#if DEBUG
+                        @"; Debug" +
+#endif // DEBUG
+                        @")");
+
                     // キャッシュしない
                     webClient.CachePolicy =
                         new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
