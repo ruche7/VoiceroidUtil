@@ -12,7 +12,7 @@
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppConfigView"
     mc:Ignorable="d"
-    d:DesignWidth="368"
+    d:DesignWidth="400"
     d:DataContext="{d:DesignInstance vm:AppConfigViewModel, IsDesignTimeCreatable=True}"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"
