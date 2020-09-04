@@ -54,7 +54,7 @@
                 TabIndex="0">
                 <ComboBox.Resources>
                     <Style TargetType="ComboBoxItem">
-                        <Setter Property="Padding" Value="0,0,4,0" />
+                        <Setter Property="Padding" Value="0" />
                     </Style>
                 </ComboBox.Resources>
                 <ComboBox.ItemsPanel>
@@ -79,7 +79,8 @@
                                         Text="{Binding DisplayProduct, Mode=OneWay}"
                                         FontSize="11"
                                         VerticalAlignment="Bottom"
-                                        Margin="6,0,0,0">
+                                        Margin="6,0,0,0"
+                                        Padding="0,0,4,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Style.Triggers>
