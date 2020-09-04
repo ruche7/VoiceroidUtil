@@ -6,6 +6,7 @@
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.VoiceroidView"
     mc:Ignorable="d"
@@ -112,19 +113,19 @@
         </DockPanel>
 
         <!-- Row 1 -->
-        <tk:WatermarkTextBox
-            Text="{Binding TalkText.Value, UpdateSourceTrigger=PropertyChanged}"
+        <v:ImeWatermarkTextBox
+            Text="{Binding TalkText.Value, UpdateSourceTrigger=Explicit}"
             MaxLength="{Binding TalkTextLengthLimit.Value}"
             IsEnabled="{Binding IsTalkTextEditable.Value}"
             AcceptsReturn="True"
             AcceptsTab="{Binding IsTalkTextTabAccepted.Value}"
             Margin="0,2,0,0"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto"
             Grid.Row="1">
-            <tk:WatermarkTextBox.Style>
+            <v:ImeWatermarkTextBox.Style>
                 <Style
-                    TargetType="tk:WatermarkTextBox"
+                    TargetType="v:ImeWatermarkTextBox"
                     BasedOn="{StaticResource {x:Type tk:WatermarkTextBox}}">
                     <Style.Triggers>
                         <DataTrigger
@@ -137,26 +138,26 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </tk:WatermarkTextBox.Style>
-            <tk:WatermarkTextBox.InputBindings>
+            </v:ImeWatermarkTextBox.Style>
+            <v:ImeWatermarkTextBox.InputBindings>
                 <KeyBinding Gesture="Alt+Enter" Command="{Binding PlayStopCommand}" />
                 <KeyBinding Gesture="Ctrl+Enter" Command="{Binding SaveCommand}" />
-            </tk:WatermarkTextBox.InputBindings>
-            <tk:WatermarkTextBox.Watermark>
+            </v:ImeWatermarkTextBox.InputBindings>
+            <v:ImeWatermarkTextBox.Watermark>
                 <TextBlock>
                     しゃべらせたい文章を入力してください。<LineBreak />
                     F5, Ctrl+Q または入力中に Alt+Enter で再生します。<LineBreak />
                     F6, Ctrl+S または入力中に Ctrl+Enter で音声保存します。<LineBreak />
                     F9, Ctrl+E で保存先フォルダーを開きます。
                 </TextBlock>
-            </tk:WatermarkTextBox.Watermark>
+            </v:ImeWatermarkTextBox.Watermark>
 
             <i:Interaction.Behaviors>
                 <ru:DragDropCommandBehavior
                     PreviewDragOverCommand="{Binding DragOverTalkTextFileCommand}"
                     DropCommand="{Binding DropTalkTextFileCommand}" />
             </i:Interaction.Behaviors>
-        </tk:WatermarkTextBox>
+        </v:ImeWatermarkTextBox>
 
         <!-- Row 2 -->
         <StackPanel Orientation="Horizontal" Margin="0,2,0,0" Grid.Row="2">

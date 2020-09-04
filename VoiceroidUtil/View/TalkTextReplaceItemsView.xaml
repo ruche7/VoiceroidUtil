@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
-    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
     xmlns:ru="http://schemas.ruche-home.net/xaml/windows/mvvm"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.TalkTextReplaceItemsView"
     mc:Ignorable="d"
@@ -77,11 +77,11 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </CheckBox>
-                            <tk:WatermarkTextBox
+                            <v:ImeWatermarkTextBox
                                 Text="{Binding
                                     Path=OldValue,
                                     Mode=TwoWay,
-                                    UpdateSourceTrigger=PropertyChanged}"
+                                    UpdateSourceTrigger=Explicit}"
                                 MaxLength="1024">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="GotFocus">
@@ -94,7 +94,7 @@
                                             Value="True" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                            </tk:WatermarkTextBox>
+                            </v:ImeWatermarkTextBox>
                         </DockPanel>
                         <DockPanel>
                             <Image
@@ -103,11 +103,11 @@
                                 Height="16"
                                 Margin="2,0"
                                 DockPanel.Dock="Left" />
-                            <tk:WatermarkTextBox
+                            <v:ImeWatermarkTextBox
                                 Text="{Binding
                                     Path=NewValue,
                                     Mode=TwoWay,
-                                    UpdateSourceTrigger=PropertyChanged}"
+                                    UpdateSourceTrigger=Explicit}"
                                 MaxLength="1024">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="GotFocus">
@@ -120,7 +120,7 @@
                                             Value="True" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                            </tk:WatermarkTextBox>
+                            </v:ImeWatermarkTextBox>
                         </DockPanel>
                     </UniformGrid>
                 </DataTemplate>

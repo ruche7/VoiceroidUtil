@@ -2,8 +2,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:tk="http://schemas.xceed.com/wpf/xaml/toolkit"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:v="clr-namespace:VoiceroidUtil.View"
     xmlns:local="clr-namespace:VoiceroidUtil"
     x:Class="VoiceroidUtil.View.YmmCharaRelationsControl"
     mc:Ignorable="d"
@@ -50,8 +50,8 @@
                         Source="/VoiceroidUtil;component/resources/icon/arrow_right.png"
                         Width="16"
                         DockPanel.Dock="Left" />
-                    <tk:WatermarkTextBox
-                        Text="{Binding YmmCharaName, UpdateSourceTrigger=PropertyChanged}"
+                    <v:ImeWatermarkTextBox
+                        Text="{Binding YmmCharaName, UpdateSourceTrigger=Explicit}"
                         Watermark="キャラクター名"
                         MaxLength="256" />
                 </DockPanel>
