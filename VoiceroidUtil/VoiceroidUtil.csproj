@@ -172,6 +172,7 @@
     <Compile Include="View\ExoConfigView.xaml.cs">
       <DependentUpon>ExoConfigView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ImeWatermarkTextBox.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>

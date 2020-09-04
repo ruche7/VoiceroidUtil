@@ -162,7 +162,7 @@ namespace VoiceroidUtil.ViewModel
 
             // トークテキスト
             this.TalkText =
-                new ReactiveProperty<string>("").AddTo(this.CompositeDisposable);
+                new ReactiveProperty<string>(@"").AddTo(this.CompositeDisposable);
             this.TalkTextLengthLimit =
                 new ReactiveProperty<int>(TextComponent.TextLengthLimit)
                     .AddTo(this.CompositeDisposable);
