@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.14.0
+-VoiceroidUtil version 1.14.1
 -[[VOICEROID+ 結月ゆかり EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -668,6 +668,8 @@ VOICEROID2およびガイノイドTalkは、従来のVOICEROID+シリーズ等とはいくつか扱いの異
 
 *更新履歴 [#history]
 
+:2020-09-05|
+--version 1.14.1 に対応。
 :2020-08-15|
 --version 1.14.0 に対応。
 ---『ギャラ子Talk』、『VOICEROID2 桜乃そら』、『VOICEROID2 東北イタコ』、『ガイノイドTalk flower』追加。
