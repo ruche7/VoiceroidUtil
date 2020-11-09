@@ -170,6 +170,11 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 - Microsoft Public License (Ms-PL)
 - https://dynamicjson.codeplex.com/
 
+『XamlBehaviors for WPF』 v1.1.19
+- Copyright (C) Microsoft
+- The MIT License
+- https://github.com/Microsoft/XamlBehaviorsWpf
+
 下記のAviUtlプラグインの機能を利用しています。
 
 『ごちゃまぜドロップス』
