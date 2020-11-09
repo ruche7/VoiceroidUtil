@@ -3,8 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-    xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:vm="clr-namespace:VoiceroidUtil.ViewModel"
     x:Class="VoiceroidUtil.View.AppStatusBar"
     mc:Ignorable="d"
@@ -69,20 +68,20 @@
 
             <!-- アプリ状態更新時の発光処理 -->
             <i:Interaction.Triggers>
-                <ei:PropertyChangedTrigger Binding="{Binding}">
+                <i:PropertyChangedTrigger Binding="{Binding}">
                     <i:Interaction.Behaviors>
-                        <ei:ConditionBehavior>
-                            <ei:ConditionalExpression>
-                                <ei:ComparisonCondition
+                        <i:ConditionBehavior>
+                            <i:ConditionalExpression>
+                                <i:ComparisonCondition
                                     LeftOperand="{Binding StatusType}"
                                     Operator="NotEqual"
                                     RightOperand="None" />
-                            </ei:ConditionalExpression>
-                        </ei:ConditionBehavior>
+                            </i:ConditionalExpression>
+                        </i:ConditionBehavior>
                     </i:Interaction.Behaviors>
 
-                    <ei:ControlStoryboardAction>
-                        <ei:ControlStoryboardAction.Storyboard>
+                    <i:ControlStoryboardAction>
+                        <i:ControlStoryboardAction.Storyboard>
                             <Storyboard>
                                 <ColorAnimation
                                     Storyboard.Target="{Binding ElementName=status}"
@@ -94,9 +93,9 @@
                                     </ColorAnimation.EasingFunction>
                                 </ColorAnimation>
                             </Storyboard>
-                        </ei:ControlStoryboardAction.Storyboard>
-                    </ei:ControlStoryboardAction>
-                </ei:PropertyChangedTrigger>
+                        </i:ControlStoryboardAction.Storyboard>
+                    </i:ControlStoryboardAction>
+                </i:PropertyChangedTrigger>
             </i:Interaction.Triggers>
 
             <StackPanel Orientation="Horizontal">
