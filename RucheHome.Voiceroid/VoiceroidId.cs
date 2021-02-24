@@ -148,6 +148,12 @@ namespace RucheHome.Voiceroid
         /// </summary>
         [EnumMember]
         GynoidTalk,
+        
+        /// <summary>
+        /// A.I.VOICE
+        /// </summary>
+        [EnumMember]
+        AiVoice,
     }
 
     /// <summary>
@@ -167,7 +173,9 @@ namespace RucheHome.Voiceroid
         /// VoiceroidId.V2Akari 等、ソフトウェア内キャラクターを表すIDは含めない。
         /// </remarks>
         public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
-            (id == VoiceroidId.Voiceroid2 || id == VoiceroidId.GynoidTalk);
+            id == VoiceroidId.Voiceroid2 ||
+            id == VoiceroidId.GynoidTalk ||
+            id == VoiceroidId.AiVoice;
 
         /// <summary>
         /// VOICEROID識別IDに紐付く情報を取得する。
@@ -352,6 +360,15 @@ namespace RucheHome.Voiceroid
                     @"GynoidTalkEditor",
                     @"GynoidTalk Editor",
                     displayProduct: @"ガイノイドTalk",
+                    multiCharacters: true),
+                new VoiceroidInfo(
+                    VoiceroidId.AiVoice,
+                    true,
+                    @"A.I.VOICE",
+                    null,
+                    @"AIVoiceEditor",
+                    @"A.I.VOICE Editor",
+                    displayProduct: @"A.I.VOICE",
                     multiCharacters: true),
             }
             .ToDictionary(info => info.Id);

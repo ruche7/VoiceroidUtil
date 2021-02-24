@@ -380,6 +380,8 @@
     <Resource Include="resources\voiceroid\mikoto.png" />
     <Resource Include="resources\voiceroid\itako.png" />
     <Resource Include="resources\voiceroid\sora.png" />
+    <Resource Include="resources\voiceroid\aivoice_ng.png" />
+    <Resource Include="resources\voiceroid\aivoice_ok.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\voiceroid\galaco_ng.png" />
