@@ -237,7 +237,7 @@
                             <v:YmmCharaRelationsControl
                                 DataContext="{Binding VisibleYmmCharaRelations.Value}" />
                             <Expander
-                                Header="VOICEROID2/ガイノイドTalk/A.I.VOICEのキャラクター選択について"
+                                Header="VOICEROID2/ガイノイドTalk/A.I.VOICEについて"
                                 IsExpanded="False"
                                 Margin="0,2,0,0">
                                 <Border Style="{StaticResource solidBorder}" Padding="4">
@@ -328,7 +328,7 @@
                                         DataContext="{Binding
                                             Path=VisibleAviUtlDropLayers.Value}" />
                                     <Expander
-                                        Header="VOICEROID2/ガイノイドTalk/A.I.VOICEのキャラクター選択について"
+                                        Header="VOICEROID2/ガイノイドTalk/A.I.VOICEについて"
                                         IsExpanded="False"
                                         Margin="0,2,0,0">
                                         <Border

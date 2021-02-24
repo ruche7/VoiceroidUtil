@@ -17,7 +17,7 @@
     ResizeMode="CanResizeWithGrip"
     Width="416"
     Height="384"
-    MinWidth="384"
+    MinWidth="392"
     MinHeight="240"
     UseLayoutRounding="True"
     TextOptions.TextFormattingMode="Display"

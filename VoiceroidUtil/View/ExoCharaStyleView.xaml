@@ -359,7 +359,7 @@
             </Border>
         </Expander>
         <Expander
-            Header="VOICEROID2/ガイノイドTalk/A.I.VOICEのキャラクター選択について"
+            Header="VOICEROID2/ガイノイドTalk/A.I.VOICEについて"
             IsExpanded="False"
             Margin="0,2,0,0">
             <Border Style="{StaticResource solidBorder}" Padding="6">

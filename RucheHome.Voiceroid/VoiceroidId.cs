@@ -173,7 +173,9 @@ namespace RucheHome.Voiceroid
         /// VoiceroidId.V2Akari 等、ソフトウェア内キャラクターを表すIDは含めない。
         /// </remarks>
         public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
-            (id == VoiceroidId.Voiceroid2 || id == VoiceroidId.GynoidTalk || id == VoiceroidId.AiVoice);
+            id == VoiceroidId.Voiceroid2 ||
+            id == VoiceroidId.GynoidTalk ||
+            id == VoiceroidId.AiVoice;
 
         /// <summary>
         /// VOICEROID識別IDに紐付く情報を取得する。
