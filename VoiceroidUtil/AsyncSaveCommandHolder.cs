@@ -778,7 +778,7 @@ namespace VoiceroidUtil
                     config.IsYmmAddButtonClicking &&
                     !(await YmmProcess.ClickTimelineSpeechAddButton()))
                 {
-                    warnText = @"ゆっくりMovieMaker3の追加ボタン押下に失敗しました。";
+                    warnText = @"ゆっくりMovieMaker3の追加ボタンクリックに失敗しました。";
                     continue;
                 }
 
@@ -1011,6 +1011,18 @@ namespace VoiceroidUtil
 
             var requiredFilePath = filePath;
             filePath = result.FilePath;
+
+            // 本体側の自動命名時はファイルパスが空文字列            
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return
+                    MakeResult(
+                        parameter,
+                        AppStatusType.Success,
+                        @"音声ファイルを保存しました。",
+                        AppStatusType.Warning,
+                        @"本体側での自動命名時は音声ファイル保存のみ行います。");
+            }
 
             var statusText = Path.GetFileName(filePath) + @" を保存しました。";
 

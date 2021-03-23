@@ -99,6 +99,11 @@ namespace RucheHome.Voiceroid
             private const string SaveCompleteDialogName = @"情報";
 
             /// <summary>
+            /// A.I.VOICE自動命名時の音声保存確認ダイアログ名。
+            /// </summary>
+            private const string AiVoiceSaveConfirmDialogName = @"確認";
+
+            /// <summary>
             /// ボタン群を検索する。
             /// </summary>
             /// <param name="types">検索対象ボタン種別配列。</param>
@@ -244,7 +249,8 @@ namespace RucheHome.Voiceroid
             /// </summary>
             /// <returns>音声保存ダイアログ。見つからなければ null 。</returns>
             /// <remarks>
-            /// オプションウィンドウかファイルダイアログのいずれかを返す。
+            /// オプションウィンドウ、ファイルダイアログ、
+            /// 確認ダイアログ(A.I.VOICEのみ)のいずれかを返す。
             /// </remarks>
             private async Task<AutomationElement> DoFindSaveDialogTask()
             {
@@ -259,8 +265,13 @@ namespace RucheHome.Voiceroid
                         dialogs
                             .FirstOrDefault(
                                 d =>
-                                    d.Current.Name == SaveOptionDialogName ||
-                                    d.Current.Name == SaveFileDialogName);
+                                {
+                                    var name = d.Current.Name;
+                                    return
+                                        (name == SaveOptionDialogName) ||
+                                        (name == SaveFileDialogName) ||
+                                        (name == AiVoiceSaveConfirmDialogName);
+                                });
                 }
                 catch (Exception ex)
                 {
@@ -270,13 +281,19 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// 音声保存オプションウィンドウのOKボタンを押下し、ファイルダイアログを取得する。
+            /// 音声保存オプションウィンドウのOKボタンを押下し、
+            /// ファイルダイアログまたは保存進捗ウィンドウ(A.I.VOICE自動命名時)を取得する。
             /// </summary>
             /// <param name="dialog">音声保存オプションウィンドウ。</param>
-            /// <returns>ファイルダイアログ。見つからなければ null 。</returns>
-            private async Task<AutomationElement> DoPushOkButtonOfSaveOptionDialogTask(
-                AutomationElement optionDialog)
+            /// <returns>
+            /// ファイルダイアログまたは保存進捗ウィンドウ(A.I.VOICE自動命名時)と、
+            /// 処理失敗時の追加メッセージのタプル。
+            /// </returns>
+            private async Task<Tuple<AutomationElement, string>>
+            DoPushOkButtonOfSaveOptionDialogTask(AutomationElement optionDialog)
             {
+                AutomationElement nextWin = null;
+
                 if (optionDialog == null)
                 {
                     throw new ArgumentNullException(nameof(optionDialog));
@@ -285,8 +302,7 @@ namespace RucheHome.Voiceroid
                 // 入力可能状態まで待機
                 if (!(await this.WhenForInputIdle()))
                 {
-                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
-                    return null;
+                    return Tuple.Create(nextWin, @"入力可能状態になりませんでした。");
                 }
 
                 // OKボタン検索
@@ -301,23 +317,19 @@ namespace RucheHome.Voiceroid
                         50);
                 if (okButton == null)
                 {
-                    ThreadTrace.WriteLine(@"OKボタンが見つかりません。");
-                    return null;
+                    return Tuple.Create(nextWin, @"OKボタンが見つかりませんでした。");
                 }
-
-                AutomationElement fileDialog = null;
 
                 try
                 {
                     // OKボタン押下
                     if (!InvokeElement(okButton))
                     {
-                        ThreadTrace.WriteLine(@"OKボタンを押下できません。");
-                        return null;
+                        return Tuple.Create(nextWin, @"OKボタンをクリックできませんでした。");
                     }
 
-                    // ファイルダイアログ検索
-                    fileDialog =
+                    // ファイルダイアログ or 保存進捗ウィンドウ(A.I.VOICE自動命名時) 検索
+                    nextWin =
                         await RepeatUntil(
                             () =>
                                 FindFirstChildByControlType(
@@ -325,19 +337,25 @@ namespace RucheHome.Voiceroid
                                     ControlType.Window),
                             elem => elem != null,
                             150);
-                    if (fileDialog?.Current.Name != SaveFileDialogName)
+                    var nextWinName = nextWin?.Current.Name;
+                    if (
+                        nextWinName != SaveFileDialogName &&
+                        nextWinName != SaveProgressDialogName)
                     {
-                        ThreadTrace.WriteLine(@"ファイルダイアログが見つかりません。");
-                        return null;
+                        nextWin = null;
+                        return
+                            Tuple.Create(nextWin, @"ウィンドウが見つかりませんでした。");
                     }
                 }
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-                    return null;
+
+                    nextWin = null;
+                    return Tuple.Create(nextWin, @"内部エラーが発生しました。");
                 }
 
-                return fileDialog;
+                return Tuple.Create(nextWin, (string)null);
             }
 
             /// <summary>
@@ -345,21 +363,22 @@ namespace RucheHome.Voiceroid
             /// </summary>
             /// <param name="fileNameEdit">ファイル名エディット。</param>
             /// <param name="filePath">WAVEファイルパス。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private async Task<bool> DoSetFilePathToEditTask(
+            /// <returns>
+            /// 成功したならば null 。そうでなければ処理失敗時の追加メッセージ。
+            /// </returns>
+            private async Task<string> DoSetFilePathToEditTask(
                 AutomationElement fileNameEdit,
                 string filePath)
             {
                 if (fileNameEdit == null || string.IsNullOrWhiteSpace(filePath))
                 {
-                    return false;
+                    return @"内部パラメータが不正です。";
                 }
 
                 // 入力可能状態まで待機
                 if (!(await this.WhenForInputIdle()))
                 {
-                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
-                    return false;
+                    return @"入力可能状態になりませんでした。";
                 }
 
                 // フォーカス
@@ -370,7 +389,7 @@ namespace RucheHome.Voiceroid
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-                    return false;
+                    return @"ファイル名入力欄をフォーカスできませんでした。";
                 }
 
                 // VOICEROID2ライクソフトウェアでは、
@@ -396,11 +415,10 @@ namespace RucheHome.Voiceroid
                 // ファイルパス設定
                 if (!SetElementValue(fileNameEdit, filePath))
                 {
-                    ThreadTrace.WriteLine(@"ファイルパスを設定できません。");
-                    return false;
+                    return @"ファイル名を設定できませんでした。";
                 }
 
-                return true;
+                return null;
             }
 
             /// <summary>
@@ -472,21 +490,22 @@ namespace RucheHome.Voiceroid
             /// </summary>
             /// <param name="okButton">ファイルダイアログのOKボタン。</param>
             /// <param name="fileDialogParent">ファイルダイアログの親。</param>
-            /// <returns>成功したならば true 。そうでなければ false 。</returns>
-            private async Task<bool> DoDecideFilePathTask(
+            /// <returns>
+            /// 成功したならば null 。そうでなければ処理失敗時の追加メッセージ。
+            /// </returns>
+            private async Task<string> DoDecideFilePathTask(
                 AutomationElement okButton,
                 AutomationElement fileDialogParent)
             {
                 if (okButton == null || fileDialogParent == null)
                 {
-                    return false;
+                    return @"内部パラメータが不正です。";
                 }
 
                 // 入力可能状態まで待機
                 if (!(await this.WhenForInputIdle()))
                 {
-                    ThreadTrace.WriteLine(@"入力可能状態になりません。");
-                    return false;
+                    return @"入力可能状態になりませんでした。";
                 }
 
                 // フォーカス
@@ -497,14 +516,13 @@ namespace RucheHome.Voiceroid
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-                    return false;
+                    return @"OKボタンをフォーカスできませんでした。";
                 }
 
                 // OKボタン押下
                 if (!InvokeElement(okButton))
                 {
-                    ThreadTrace.WriteLine(@"OKボタンを押下できません。");
-                    return false;
+                    return @"OKボタンをクリックできませんでした。";
                 }
 
                 // ファイルダイアログが閉じるまで待つ
@@ -521,17 +539,16 @@ namespace RucheHome.Voiceroid
                             150);
                     if (!closed)
                     {
-                        ThreadTrace.WriteLine(@"ファイルダイアログの終了を確認できません。");
-                        return false;
+                        return @"ダイアログの終了を確認できませんでした。";
                     }
                 }
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-                    return false;
+                    return @"内部エラーが発生しました。";
                 }
 
-                return true;
+                return null;
             }
 
             /// <summary>
@@ -540,15 +557,23 @@ namespace RucheHome.Voiceroid
             /// <param name="filePath">WAVEファイルパス。</param>
             /// <param name="optionShown">オプションウィンドウ表示フラグ。</param>
             /// <param name="progressWindowParent">保存進捗ウィンドウの親。</param>
-            /// <returns>保存確認したファイルパス。確認できなければ null 。</returns>
-            private async Task<string> DoCheckFileSavedTask(
+            /// <param name="aiVoiceAutoNamed">
+            /// A.I.VOICE自動命名による保存処理ならば true 。
+            /// </param>
+            /// <returns>保存処理結果。</returns>
+            private async Task<FileSaveResult> DoCheckFileSavedTask(
                 string filePath,
                 bool optionShown,
-                AutomationElement progressWindowParent)
+                AutomationElement progressWindowParent,
+                bool aiVoiceAutoNamed)
             {
                 if (string.IsNullOrWhiteSpace(filePath) || progressWindowParent == null)
                 {
-                    return null;
+                    return
+                        new FileSaveResult(
+                            false,
+                            error: @"音声保存確認処理に失敗しました。",
+                            extraMessage: @"内部パラメータが不正です。");
                 }
 
                 // 保存進捗ウィンドウ表示を待つ
@@ -561,7 +586,10 @@ namespace RucheHome.Voiceroid
                         100);
                 if (progressWin == null)
                 {
-                    return null;
+                    return
+                        new FileSaveResult(
+                            false,
+                            error: @"音声保存進捗ウィンドウが見つかりませんでした。");
                 }
 
                 // オプションウィンドウを表示しているか否かで保存完了ダイアログの親が違う
@@ -619,6 +647,12 @@ namespace RucheHome.Voiceroid
                     }
                 }
 
+                // A.I.VOICE自動命名の場合はファイル名不明なので空のパスを返して終わり
+                if (aiVoiceAutoNamed)
+                {
+                    return new FileSaveResult(true, @"");
+                }
+
                 // ファイル保存確認
                 var resultPath = filePath;
                 if (!File.Exists(resultPath))
@@ -634,7 +668,10 @@ namespace RucheHome.Voiceroid
                     if (!File.Exists(resultPath))
                     {
                         // ファイル非分割かつキャンセルした場合はここに来るはず
-                        return null;
+                        return
+                            new FileSaveResult(
+                                false,
+                                error: @"音声保存がキャンセルされました。");
                     }
                 }
 
@@ -643,7 +680,7 @@ namespace RucheHome.Voiceroid
                 var txtPath = Path.ChangeExtension(resultPath, @".txt");
                 await RepeatUntil(() => File.Exists(txtPath), f => f, 10);
 
-                return resultPath;
+                return new FileSaveResult(true, resultPath);
             }
 
             #endregion
@@ -864,7 +901,7 @@ namespace RucheHome.Voiceroid
                 {
                     return new FileSaveResult(
                         false,
-                        error: @"音声保存ボタンを押下できませんでした。");
+                        error: @"音声保存ボタンをクリックできませんでした。");
                 }
 
                 // ダイアログ検索
@@ -874,88 +911,159 @@ namespace RucheHome.Voiceroid
                     var msg =
                         (await this.UpdateDialogShowing()) ?
                             @"音声保存を開始できませんでした。" :
-                            @"音声保存ダイアログが見つかりませんでした。";
+                            @"操作対象ウィンドウが見つかりませんでした。";
                     return new FileSaveResult(false, error: msg);
                 }
 
-                // オプションウィンドウを表示する設定か？
-                bool optionShown = (rootDialog.Current.Name == SaveOptionDialogName);
-
-                // オプションウインドウのOKボタンを押してファイルダイアログを出す
-                // 最初からファイルダイアログが出ているならそのまま使う
-                var fileDialog =
-                    optionShown ?
-                        (await this.DoPushOkButtonOfSaveOptionDialogTask(rootDialog)) :
-                        rootDialog;
-                if (fileDialog == null)
-                {
-                    return new FileSaveResult(
-                        false,
-                        error: @"ファイル保存ダイアログが見つかりませんでした。");
-                }
-
-                // ファイルダイアログの親
-                // オプションウィンドウが表示されているならそれが親
-                // 表示されていないならメインウィンドウが親
-                var fileDialogParent =
-                    optionShown ? rootDialog : MakeElementFromHandle(this.MainWindowHandle);
-                if (fileDialogParent == null)
-                {
-                    return new FileSaveResult(false, error: @"ウィンドウが閉じられました。");
-                }
-
-                // OKボタンとファイル名エディットを検索
-                var fileDialogElems = await this.DoFindFileDialogElements(fileDialog);
-                if (fileDialogElems == null)
-                {
-                    return new FileSaveResult(
-                        false,
-                        error: @"ファイル名入力欄が見つかりませんでした。");
-                }
-                var okButton = fileDialogElems.Item1;
-                var fileNameEdit = fileDialogElems.Item2;
-
+                var fileDialog = rootDialog;
+                AutomationElement parentWin = null;
+                bool optionShown = false;
+                bool aiVoiceAutoNamed = false;
+                string errorMsg = null;
                 string extraMsg = null;
 
-                // ファイル保存
-                if (!(await this.DoSetFilePathToEditTask(fileNameEdit, filePath)))
+                switch (rootDialog.Current.Name)
                 {
-                    extraMsg = @"ファイル名を設定できませんでした。";
-                }
-                else if ((await this.DoEraseOldFileTask(filePath)) < 0)
-                {
-                    extraMsg = @"既存ファイルの削除に失敗しました。";
-                }
-                else if (!(await this.DoDecideFilePathTask(okButton, fileDialogParent)))
-                {
-                    extraMsg = @"ファイル名の確定操作に失敗しました。";
-                }
-                else
-                {
-                    filePath =
-                        await this.DoCheckFileSavedTask(
-                            filePath,
-                            optionShown,
-                            fileDialogParent);
-                    if (filePath == null)
+                case SaveOptionDialogName:
+                    // 毎回オプションウィンドウ表示設定有効時
                     {
-                        extraMsg = @"ファイル保存を確認できませんでした。";
-                    }
+                        optionShown = true;
 
-                    // 一旦VOICEROID2ライクソフトウェア側をアクティブにしないと
-                    // 再生, 音声保存, 再生時間 ボタンが無効状態のままになることがある
-                    // 停止操作(成否問わず)を行うことでアクティブ化する
-                    await this.DoStop();
+                        // オプションウィンドウを親ウィンドウとする
+                        parentWin = rootDialog;
+
+                        // オプションウインドウのOKボタンをクリックして
+                        // ファイルダイアログ or 進捗ウィンドウ(A.I.VOICE自動命名時) を出す
+                        var t = await this.DoPushOkButtonOfSaveOptionDialogTask(rootDialog);
+                        if (t.Item1 == null)
+                        {
+                            errorMsg = @"設定ウィンドウの操作に失敗しました。";
+                            extraMsg = t.Item2;
+                            break;
+                        }
+
+                        // ファイルダイアログならば当該 case 句へ移動
+                        if (t.Item1.Current.Name == SaveFileDialogName)
+                        {
+                            fileDialog = t.Item1;
+                            goto case SaveFileDialogName;
+                        }
+
+                        aiVoiceAutoNamed = true;
+                    }
+                    break;
+
+                case SaveFileDialogName:
+                    // 音声保存ダイアログ表示
+                    {
+                        errorMsg = @"音声保存ダイアログの操作に失敗しました。";
+
+                        // オプションウィンドウが表示されていなければ
+                        // メインウィンドウを親ウィンドウとする
+                        parentWin = parentWin ?? MakeElementFromHandle(this.MainWindowHandle);
+                        if (parentWin == null)
+                        {
+                            extraMsg = @"親ウィンドウが閉じられました。";
+                            break;
+                        }
+
+                        // OKボタンとファイル名エディットを検索
+                        var fileDialogElems = await this.DoFindFileDialogElements(fileDialog);
+                        if (fileDialogElems == null)
+                        {
+                            extraMsg = @"ファイル名入力欄が見つかりませんでした。";
+                            break;
+                        }
+                        var okButton = fileDialogElems.Item1;
+                        var fileNameEdit = fileDialogElems.Item2;
+
+                        // ファイルダイアログ処理
+                        extraMsg = await this.DoSetFilePathToEditTask(fileNameEdit, filePath);
+                        if (extraMsg != null)
+                        {
+                            break;
+                        }
+                        if ((await this.DoEraseOldFileTask(filePath)) < 0)
+                        {
+                            extraMsg = @"既存ファイルを削除できませんでした。";
+                            break;
+                        }
+                        extraMsg = await this.DoDecideFilePathTask(okButton, parentWin);
+                        if (extraMsg != null)
+                        {
+                            break;
+                        }
+
+                        errorMsg = null;
+                    }
+                    break;
+
+                case AiVoiceSaveConfirmDialogName:
+                    // A.I.VOICE自動命名による確認ダイアログ表示
+                    // 自動命名有効 かつ オプションウィンドウ表示なし だとここに来る
+                    {
+                        errorMsg = @"確認ダイアログの操作に失敗しました。";
+                        aiVoiceAutoNamed = true;
+
+                        // メインウィンドウを親ウィンドウとする
+                        parentWin = MakeElementFromHandle(this.MainWindowHandle);
+                        if (parentWin == null)
+                        {
+                            extraMsg = @"親ウィンドウが閉じられました。";
+                            break;
+                        }
+
+                        // 「はい」ボタン(AutomationId == "6")を検索
+                        var yesButton =
+                            await RepeatUntil(
+                                () =>
+                                    FindFirstChild(
+                                        rootDialog,
+                                        AutomationElement.AutomationIdProperty,
+                                        @"6"),
+                                elem => elem != null,
+                                50);
+                        if (yesButton == null)
+                        {
+                            extraMsg = @"決定ボタンが見つかりませんでした。";
+                            break;
+                        }
+
+                        // 「はい」ボタンをクリック
+                        if (!InvokeElement(yesButton))
+                        {
+                            extraMsg = @"決定ボタンをクリックできませんでした。";
+                            break;
+                        }
+
+                        errorMsg = null;
+                    }
+                    break;
+
+                default:
+                    errorMsg = @"不明なダイアログが表示されました。";
+                    break;
                 }
 
-                // 追加情報が設定されていたら保存失敗
-                return
-                    (extraMsg == null) ?
-                        new FileSaveResult(true, filePath) :
-                        new FileSaveResult(
-                            false,
-                            error: @"ファイル保存処理に失敗しました。",
-                            extraMessage: extraMsg);
+                if (errorMsg != null)
+                {
+                    return new FileSaveResult(false, error: errorMsg, extraMessage: extraMsg);
+                }
+
+                // 音声保存確認
+                var result =
+                    await this.DoCheckFileSavedTask(
+                        filePath,
+                        optionShown,
+                        parentWin,
+                        aiVoiceAutoNamed);
+
+                // 一旦VOICEROID2ライクソフトウェア側をアクティブにしないと
+                // 再生, 音声保存, 再生時間 ボタンが無効状態のままになることがある
+                // 停止操作(成否問わず)を行うことでアクティブ化する
+                await this.DoStop();
+
+                return result;
             }
 
             #endregion

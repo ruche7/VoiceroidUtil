@@ -11,7 +11,9 @@ namespace RucheHome.Voiceroid
         /// コンストラクタ。
         /// </summary>
         /// <param name="succeeded">ファイル保存成否。</param>
-        /// <param name="filePath">保存ファイルパス。</param>
+        /// <param name="filePath">
+        /// 保存ファイルパス。本体側の自動命名による保存時は空文字列。
+        /// </param>
         /// <param name="error">保存失敗時のエラーテキスト。</param>
         /// <param name="extraMessage">保存失敗時の追加情報テキスト。</param>
         public FileSaveResult(
@@ -34,6 +36,9 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// 保存ファイルパスを取得する。
         /// </summary>
+        /// <remarks>
+        /// 本体側の自動命名による保存時は空文字列を返す。
+        /// </remarks>
         public string FilePath { get; }
 
         /// <summary>
