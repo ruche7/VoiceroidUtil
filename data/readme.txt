@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2020-09-05
-  Version : 1.14.1
+   Update : 2021-03-24
+  Version : 1.15.0
        By : ルーチェ
 
 ================================================================================
@@ -22,27 +22,32 @@
 - https://ruche-home.net/
 
 『VOICEROID+』および『VOICEROID2』は、
-株式会社AHSから発売されている文章読み上げソフトウェアシリーズです。
+株式会社AHSから販売されている文章読み上げソフトウェアシリーズです。
 動画投稿サイト向けの実況動画作成等に利用されています。
 詳しくは公式サイトをご覧ください。
 - https://www.ah-soft.com/
 
-『ギャラ子Talk』は、ヤマハ株式会社から発売されている
+『ギャラ子Talk』は、ヤマハ株式会社から販売されている
 『VOCALOID3 Library ギャラ子』に特典として同梱されている、
 VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - https://www.vocaloid.com/products/show/v3l_galaco
 
-『音街ウナTalk Ex』は、株式会社インターネットから発売されている、
+『音街ウナTalk Ex』は、株式会社インターネットから販売されている、
 VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - https://otomachiuna.jp/talkex/
 - https://www.ssw.co.jp/products/talk/una/
 
-『ガイノイドTalk』は、株式会社ガイノイドから発売されている、
+『ガイノイドTalk』は、株式会社ガイノイドから販売されている、
 VOICEROID2と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - https://gynoid.co.jp/
+
+『A.I.VOICE』は、株式会社AI(エーアイ)から販売されている、
+VOICEROID2を更に拡張した機能を持つ文章読み上げソフトウェアです。
+詳しくは公式サイトをご覧ください。
+- https://aivoice.jp/
 
 『ゆっくりMovieMaker3』は、饅頭遣い氏が開発した動画作成補助ツールです。
 音声ファイルを指定することで、ゆっくりボイス以外の音声にも対応可能です。
@@ -66,9 +71,7 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 下記の環境が必要です。
 
 - Windows 7 SP1, Windows 8.1, Windows 10
-    - Windows 10 は May 2020 Update (version 2004) で確認しています。
-    - Windows Vista SP2, Windows 8 でも恐らく動きますが保証しません。
-    - Windows XP では動きません。
+    - Windows 10 はリリース時点での最新バージョンで動作確認しています。
 
 - .NET Framework 4.5 以降
     - Windows 8 以降であれば標準でインストール済みです。
@@ -88,9 +91,11 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
         - VOICEROID+ 水奈瀬コウ EX           [1.7.3]
         - ギャラ子Talk                       [1.0.0]
         - 音街ウナTalk Ex                    [1.0.0]
-        - VOICEROID2                         [2.0.5.0]
+        - VOICEROID2                         [2.1.1.0]
         - ガイノイドTalk                     [1.0.0.0]
-    - VOICEROID2およびガイノイドTalkはエディターへの対応となるため、
+        - A.I.VOICE                          [1.0.2.0]
+    - VOICEROID2は通常版、64ビット版の両方で動作確認しています。
+    - VOICEROID2、ガイノイドTalk、A.I.VOICEはエディターへの対応となるため、
       シリーズ製品を1つ以上インストール済みであれば利用可能です。
 
 - ゆっくりMovieMaker3
@@ -98,7 +103,7 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
     - 必須ではありません。無くとも動作します。
 
 - AviUtl, 拡張編集Plugin, ごちゃまぜドロップス
-    - 動作確認済みバージョンはそれぞれ 1.10, 0.92, 0.3.13 です。
+    - 動作確認済みバージョンはそれぞれ 1.10, 0.92, 0.3.16 です。
     - 必須ではありません。無くとも動作します。
     - ごちゃまぜドロップスはPSDToolKitに同梱されているものでも構いません。
       https://github.com/oov/aviutl_psdtoolkit
@@ -170,7 +175,7 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 - Microsoft Public License (Ms-PL)
 - https://dynamicjson.codeplex.com/
 
-『XamlBehaviors for WPF』 v1.1.19
+『XamlBehaviors for WPF』 v1.1.31
 - Copyright (C) Microsoft
 - The MIT License
 - https://github.com/Microsoft/XamlBehaviorsWpf
@@ -223,6 +228,9 @@ sii様
 lill様
 - ガイノイドTalk アイコン
 
+Nox Halt 様
+- A.I.VOICE アイコン
+
 ICOOON MONO 様のアイコン素材
 - https://icooon-mono.com/
 
@@ -232,11 +240,21 @@ naokiy様 (https://github.com/naokiy)
 - #143 ウエイト込みでのフォント指定を可能にする
   https://github.com/ruche7/VoiceroidUtil/pull/143
 
-lill様 (https://github.com/lill-azk)
+lill様 (https://github.com/lillazk)
 - #149 ガイノイドTalk対応
   https://github.com/ruche7/VoiceroidUtil/pull/149
 
-ライブラリ、素材、コードの提供者各位には厚く御礼申し上げます。
+Nox Halt 様 (https://github.com/noxhalt)
+- #179 A.I.VOICE対応
+  https://github.com/ruche7/VoiceroidUtil/pull/179
+
+下記の方からの改善提案 (Issue) を受け付けました。
+
+Tan様 (https://github.com/Tan90909090)
+- #175 Expression Blend SDK未導入環境ではビルドできない
+  https://github.com/ruche7/VoiceroidUtil/issues/175
+
+ライブラリ、素材、コード等の提供者各位には厚く御礼申し上げます。
 
 ================================================================================
 ■免責事項等
@@ -264,6 +282,29 @@ lill様 (https://github.com/lill-azk)
 
 ================================================================================
 ■更新履歴
+
+------------------------------------------------------------
+◆2021-03-24 [1.15.0]
+
+- 『A.I,VOICE』に対応。
+    - 『VOICEROID2』と同等の扱いになります。
+      詳細はWebマニュアルを参照してください。
+    - 本体側でファイル分割設定を有効にしている場合、
+      または音声ファイルの命名規則設定を有効にしている場合、
+      以下の処理は無効です。
+        - テキストファイル強制保存
+        - .exoファイル保存
+        - 字幕置換
+        - 『ゆっくりMovieMaker3』連携
+        - 『AviUtl拡張編集』連携
+    - 本体側で音声ファイルの命名規則設定を有効にしている場合、
+      保存完了までの自動操作(ダイアログのボタンクリック等)は行われますが、
+      音声ファイルの保存先は本体側の設定に準じます。
+
+- 特に機能追加等を行ったわけではありませんが、
+  ボイスプリセット名で識別する仕組み上、『VOICEROID2 音街ウナ』に対応済み。
+
+- 利用ライブラリを一部変更。
 
 ------------------------------------------------------------
 ◆2020-09-05 [1.14.1]
@@ -326,7 +367,9 @@ lill様 (https://github.com/lill-azk)
     - 本体側でファイル分割設定を有効にしている場合、以下の処理は無効です。
         - テキストファイル強制保存
         - .exoファイル保存
+        - 字幕置換
         - 『ゆっくりMovieMaker3』連携
+        - 『AviUtl拡張編集』連携
 
 - 『VOICEROID2 桜乃そら』、『VOICEROID2 東北イタコ』に対応。
     - 下記における設定対象キャラクターとして追加されました。
