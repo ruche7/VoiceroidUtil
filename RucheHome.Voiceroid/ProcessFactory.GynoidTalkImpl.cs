@@ -12,7 +12,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public GynoidTalkImpl() : base(VoiceroidId.GynoidTalk)
+            public GynoidTalkImpl() : base(VoiceroidId.GynoidTalk, true)
             {
             }
 

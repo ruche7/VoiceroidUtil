@@ -20,7 +20,9 @@ namespace RucheHome.Voiceroid
             /// コンストラクタ＞
             /// </summary>
             /// <param name="id">VOICEROID識別ID。</param>
-            public Voiceroid2ImplBase(VoiceroidId id) : base(id, true)
+            /// <param name="canSaveBlankText">空白文の音声保存を行えるならば true 。</param>
+            public Voiceroid2ImplBase(VoiceroidId id, bool canSaveBlankText)
+                : base(id, canSaveBlankText)
             {
             }
 
