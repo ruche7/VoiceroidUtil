@@ -12,7 +12,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2)
+            public Voiceroid2Impl() : base(VoiceroidId.Voiceroid2, true)
             {
             }
 

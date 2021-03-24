@@ -12,7 +12,7 @@ namespace RucheHome.Voiceroid
             /// <summary>
             /// コンストラクタ。
             /// </summary>
-            public AiVoiceImpl() : base(VoiceroidId.AiVoice)
+            public AiVoiceImpl() : base(VoiceroidId.AiVoice, false)
             {
             }
 
