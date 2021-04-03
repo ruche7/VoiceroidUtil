@@ -215,13 +215,9 @@ namespace RucheHome.Voiceroid
             /// AutomationElement の子ウィンドウを列挙する。
             /// </summary>
             /// <param name="element">検索対象 AutomationElement 。</param>
-            /// <permission cref="name">
-            /// 検索対象 Name プロパティ値。限定しないならば null 。
-            /// </permission>
             /// <returns>子ウィンドウ列挙。</returns>
             protected static IEnumerable<AutomationElement> FindChildWindows(
-                AutomationElement element,
-                string name = null)
+                AutomationElement element)
             {
                 if (element == null)
                 {
@@ -230,22 +226,14 @@ namespace RucheHome.Voiceroid
 
                 try
                 {
-                    Condition cond =
-                        new PropertyCondition(
-                            AutomationElement.ControlTypeProperty,
-                            ControlType.Window);
-                    if (name != null)
-                    {
-                        cond =
-                            new AndCondition(
-                                cond,
-                                new PropertyCondition(AutomationElement.NameProperty, name));
-                    }
-
                     return
                         element
-                            .FindAll(TreeScope.Children, cond)
-                            .OfType<AutomationElement>();
+                            .FindAll(
+                                TreeScope.Children,
+                                new PropertyCondition(
+                                    AutomationElement.ControlTypeProperty,
+                                    ControlType.Window))
+                            .Cast<AutomationElement>();
                 }
                 catch { }
                 return Enumerable.Empty<AutomationElement>();
@@ -404,6 +392,11 @@ namespace RucheHome.Voiceroid
             protected async Task<Tuple<AutomationElement, AutomationElement>>
             DoFindFileDialogElements(AutomationElement fileDialog)
             {
+                if (fileDialog == null)
+                {
+                    throw new ArgumentNullException(nameof(fileDialog));
+                }
+
                 // 入力可能状態まで待機
                 if (!(await this.WhenForInputIdle()))
                 {
@@ -422,30 +415,10 @@ namespace RucheHome.Voiceroid
                     return null;
                 }
 
-                // ファイル名エディットホスト AutomationElement 検索
-                var editHost =
-                    await RepeatUntil(
-                        () =>
-                            fileDialog.FindFirst(
-                                TreeScope.Descendants,
-                                new PropertyCondition(
-                                    AutomationElement.AutomationIdProperty,
-                                    @"FileNameControlHost")),
-                        elem => elem != null,
-                        50);
-                if (editHost == null)
-                {
-                    return null;
-                }
-
                 // ファイル名エディット AutomationElement 検索
                 var edit =
                     await RepeatUntil(
-                        () =>
-                            FindFirstChild(
-                                editHost,
-                                AutomationElement.ClassNameProperty,
-                                @"Edit"),
+                        () => FindFileDialogFileNameEdit(fileDialog),
                         elem => elem != null,
                         50);
                 if (edit == null)
@@ -454,6 +427,33 @@ namespace RucheHome.Voiceroid
                 }
 
                 return Tuple.Create(okButton, edit);
+            }
+
+            /// <summary>
+            /// ファイルダイアログからファイル名入力エディットを検索する。
+            /// </summary>
+            /// <param name="fileDialog">ファイルダイアログ。</param>
+            /// <returns>ファイル名入力エディット。見つからなければ null 。</returns>
+            protected static AutomationElement FindFileDialogFileNameEdit(
+                AutomationElement fileDialog)
+            {
+                if (fileDialog == null)
+                {
+                    throw new ArgumentNullException(nameof(fileDialog));
+                }
+
+                var elem = FindFirstChildByControlType(fileDialog, ControlType.Pane);
+                if (elem == null)
+                {
+                    return null;
+                }
+                elem = FindFirstChildByAutomationId(elem, @"FileNameControlHost");
+                if (elem == null)
+                {
+                    return null;
+                }
+
+                return FindFirstChildByControlType(elem, ControlType.Edit);
             }
 
             #endregion
