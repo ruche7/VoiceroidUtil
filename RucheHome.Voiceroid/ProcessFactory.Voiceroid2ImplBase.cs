@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +25,8 @@ namespace RucheHome.Voiceroid
             {
             }
 
+            #region メインウィンドウUI
+
             /// <summary>
             /// ボタン種別列挙。
             /// </summary>
@@ -34,7 +35,7 @@ namespace RucheHome.Voiceroid
                 /// <summary>
                 /// 再生
                 /// </summary>
-                Play,
+                Play = 0,
 
                 /// <summary>
                 /// 停止
@@ -63,47 +64,10 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// ボタン上テキストとボタン種別のディクショナリ。
+            /// ボタン種別数。
             /// </summary>
-            private static readonly Dictionary<string, ButtonType> NamedButtonTypes =
-                new Dictionary<string, ButtonType>
-                {
-                    { @"再生", ButtonType.Play },
-                    { @"停止", ButtonType.Stop },
-                    { @"先頭", ButtonType.Head },
-                    { @"末尾", ButtonType.Tail },
-                    { @"音声保存", ButtonType.Save },
-                    { @"再生時間", ButtonType.Time },
-                };
-
-            /// <summary>
-            /// 音声保存オプションウィンドウ名。
-            /// </summary>
-            /// <remarks>
-            /// 本体側の設定次第で表示される。
-            /// 表示される場合、以降の保存関連ダイアログはこのウィンドウの子となる。
-            /// </remarks>
-            private const string SaveOptionDialogName = @"音声保存";
-
-            /// <summary>
-            /// 音声保存ファイルダイアログ名。
-            /// </summary>
-            private const string SaveFileDialogName = @"名前を付けて保存";
-
-            /// <summary>
-            /// 音声保存進捗ウィンドウ名。
-            /// </summary>
-            private const string SaveProgressDialogName = @"音声保存";
-
-            /// <summary>
-            /// 音声保存完了ダイアログ名。
-            /// </summary>
-            private const string SaveCompleteDialogName = @"情報";
-
-            /// <summary>
-            /// A.I.VOICE自動命名時の音声保存確認ダイアログ名。
-            /// </summary>
-            private const string AiVoiceSaveConfirmDialogName = @"確認";
+            private static readonly int ButtonTypeCount =
+                Enum.GetValues(typeof(ButtonType)).Length;
 
             /// <summary>
             /// ボタン群を検索する。
@@ -131,30 +95,17 @@ namespace RucheHome.Voiceroid
                     await Task.Run(
                         () =>
                         {
-                            // ボタン群取得
                             var buttons =
                                 buttonsRoot.FindAll(
                                     TreeScope.Children,
                                     new PropertyCondition(
                                         AutomationElement.ControlTypeProperty,
                                         ControlType.Button));
-
-                            foreach (AutomationElement button in buttons)
+                            if (buttons.Count >= ButtonTypeCount)
                             {
-                                // 子のテキストからボタン種別決定
-                                var buttonText =
-                                    FindFirstChildByControlType(button, ControlType.Text);
-                                if (
-                                    buttonText != null &&
-                                    NamedButtonTypes.TryGetValue(
-                                        buttonText.Current.Name,
-                                        out var type))
+                                for (int ti = 0; ti < types.Length; ++ti)
                                 {
-                                    var index = Array.IndexOf(types, type);
-                                    if (index >= 0)
-                                    {
-                                        results[index] = button;
-                                    }
+                                    results[ti] = buttons[(int)types[ti]];
                                 }
                             }
                         });
@@ -169,47 +120,7 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// ダイアログ群を検索する。
-            /// </summary>
-            /// <returns>ダイアログ AutomationElement 配列。</returns>
-            private async Task<AutomationElement[]> FindDialogs()
-            {
-                var mainHandle = this.MainWindowHandle;
-                if (!this.IsRunning || mainHandle == IntPtr.Zero)
-                {
-                    return new AutomationElement[0];
-                }
-
-                var root = MakeElementFromHandle(mainHandle);
-                if (root == null)
-                {
-                    return new AutomationElement[0];
-                }
-
-                var dialogs =
-                    await Task.Run(
-                        () =>
-                            FindChildWindows(root)
-                                .Where(
-                                    e =>
-                                    {
-                                        try
-                                        {
-                                            return (e.Current.Name.Length > 0);
-                                        }
-                                        catch { }
-                                        return false;
-                                    })
-                                .ToArray());
-
-                // ダイアログ表示中フラグを更新
-                this.IsDialogShowing = (dialogs.Length > 0);
-
-                return dialogs;
-            }
-
-            /// <summary>
-            /// トークテクストエディットコントロールを検索する。
+            /// トークテキストエディットコントロールを検索する。
             /// </summary>
             /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
             private AutomationElement FindTalkTextEdit()
@@ -244,36 +155,577 @@ namespace RucheHome.Voiceroid
                 return FindFirstChildByControlType(textRoot, ControlType.Text);
             }
 
+            #endregion
+
+            #region ダイアログ
+
+            /// <summary>
+            /// ダイアログ種別列挙。
+            /// </summary>
+            private enum DialogType
+            {
+                /// <summary>
+                /// 共通通知ダイアログ。(OKボタンのみのタスクダイアログ)
+                /// </summary>
+                CommonNotify,
+
+                /// <summary>
+                /// 共通確認ダイアログ。(はい/いいえボタンのタスクダイアログ)
+                /// </summary>
+                CommonConfirm,
+
+                /// <summary>
+                /// 共通ファイル保存ダイアログ。
+                /// </summary>
+                CommonFileSave,
+
+                /// <summary>
+                /// 音声保存オプションウインドウ。
+                /// </summary>
+                SaveOption,
+
+                /// <summary>
+                /// 音声保存進捗ウィンドウ。
+                /// </summary>
+                SaveProgress,
+            }
+
+            /// <summary>
+            /// ダイアログ種別配列。
+            /// </summary>
+            private static readonly DialogType[] DialogTypes =
+                (DialogType[])Enum.GetValues(typeof(DialogType));
+
+            /// <summary>
+            /// 共通ダイアログのウィンドウクラス名。
+            /// </summary>
+            private const string CommonDialogClassName = @"#32770";
+
+            /// <summary>
+            /// 共通通知ダイアログUI情報クラス。
+            /// </summary>
+            private sealed class CommonNotifyDialogUIInfo
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="okButton">OKボタン。</param>
+                public CommonNotifyDialogUIInfo(AutomationElement okButton) =>
+                    this.OkButton =
+                        okButton ?? throw new ArgumentNullException(nameof(okButton));
+
+                /// <summary>
+                /// OKボタンを取得する。
+                /// </summary>
+                public AutomationElement OkButton { get; }
+            }
+
+            /// <summary>
+            /// 共通確認ダイアログUI情報クラス。
+            /// </summary>
+            private sealed class CommonConfirmDialogUIInfo
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="yesButton">はいボタン。</param>
+                /// <param name="noButton">いいえボタン。</param>
+                public CommonConfirmDialogUIInfo(
+                    AutomationElement yesButton,
+                    AutomationElement noButton)
+                {
+                    this.YesButton =
+                        yesButton ?? throw new ArgumentNullException(nameof(yesButton));
+                    this.NoButton =
+                        noButton ?? throw new ArgumentNullException(nameof(noButton));
+                }
+
+                /// <summary>
+                /// はいボタンを取得する。
+                /// </summary>
+                public AutomationElement YesButton { get; }
+
+                /// <summary>
+                /// いいえボタンを取得する。
+                /// </summary>
+                public AutomationElement NoButton { get; }
+            }
+
+            /// <summary>
+            /// 共通ファイル保存ダイアログUI情報クラス。
+            /// </summary>
+            private sealed class CommonFileSaveDialogUIInfo
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="fileNameEdit">ファイル名入力エディット。</param>
+                /// <param name="saveButton">保存ボタン。</param>
+                public CommonFileSaveDialogUIInfo(
+                    AutomationElement fileNameEdit,
+                    AutomationElement saveButton)
+                {
+                    this.FileNameEdit =
+                        fileNameEdit ?? throw new ArgumentNullException(nameof(fileNameEdit));
+                    this.SaveButton =
+                        saveButton ?? throw new ArgumentNullException(nameof(saveButton));
+                }
+
+                /// <summary>
+                /// ファイル名入力エディットを取得する。
+                /// </summary>
+                public AutomationElement FileNameEdit { get; }
+
+                /// <summary>
+                /// 保存ボタンを取得する。
+                /// </summary>
+                public AutomationElement SaveButton { get; }
+            }
+
+            /// <summary>
+            /// 音声保存オプションウィンドウUI情報クラス。
+            /// </summary>
+            private sealed class SaveOptionWindowUIInfo
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="okButton">OKボタン。</param>
+                public SaveOptionWindowUIInfo(AutomationElement okButton) =>
+                    this.OkButton =
+                        okButton ?? throw new ArgumentNullException(nameof(okButton));
+
+                /// <summary>
+                /// OKボタンを取得する。
+                /// </summary>
+                public AutomationElement OkButton { get; }
+            }
+
+            /// <summary>
+            /// 音声保存進捗ウィンドウUI情報クラス。
+            /// </summary>
+            private sealed class SaveProgressWindowUIInfo
+            {
+                /// <summary>
+                /// コンストラクタ。
+                /// </summary>
+                /// <param name="progressBar">プログレスバー。</param>
+                public SaveProgressWindowUIInfo(AutomationElement progressBar) =>
+                    this.ProgressBar =
+                        progressBar ?? throw new ArgumentNullException(nameof(progressBar));
+
+                /// <summary>
+                /// プログレスバーを取得する。
+                /// </summary>
+                public AutomationElement ProgressBar { get; }
+            }
+
+            /// <summary>
+            /// ダイアログ群を検索する。
+            /// </summary>
+            /// <param name="parent">
+            /// 親ウィンドウ。
+            /// null ならばメインウィンドウを親とし、ダイアログが見つかったか否かに応じて
+            /// <see cref="IsDialogShowing"/> プロパティ値を更新する。
+            /// </param>
+            /// <returns>ダイアログ群。見つからなければ空の配列。</returns>
+            private async Task<AutomationElement[]> FindDialogs(
+                AutomationElement parent = null)
+            {
+                var root = parent;
+                if (root == null)
+                {
+                    var mainHandle = this.MainWindowHandle;
+                    if (!this.IsRunning || mainHandle == IntPtr.Zero)
+                    {
+                        return new AutomationElement[0];
+                    }
+
+                    root = MakeElementFromHandle(mainHandle);
+                    if (root == null)
+                    {
+                        return new AutomationElement[0];
+                    }
+                }
+
+                var dialogs =
+                    await Task.Run(
+                        () =>
+                            FindChildWindows(root)
+                                .Where(
+                                    d =>
+                                    {
+                                        try
+                                        {
+                                            return
+                                                d.TryGetCurrentPattern(
+                                                    WindowPattern.Pattern,
+                                                    out var pattern) &&
+                                                ((WindowPattern)pattern).Current.IsModal;
+                                        }
+                                        catch { }
+                                        return false;
+                                    })
+                                .ToArray());
+
+                if (parent == null)
+                {
+                    this.IsDialogShowing = (dialogs.Length > 0);
+                }
+
+                return dialogs;
+            }
+
+            /// <summary>
+            /// ダイアログ種別を決定する。
+            /// </summary>
+            /// <param name="dialog">ダイアログ。</param>
+            /// <param name="targetTypes">
+            /// 確認対象のダイアログ種別配列。 null または空の配列ならば全種別を対象とする。
+            /// </param>
+            /// <returns>
+            /// ダイアログ種別とそれに対応するUI情報の Tuple 。決定できなければ null 。
+            /// </returns>
+            private async Task<Tuple<DialogType, object>> DecideDialogType(
+                AutomationElement dialog,
+                params DialogType[] targetTypes)
+            {
+                if (dialog == null)
+                {
+                    throw new ArgumentNullException(nameof(dialog));
+                }
+
+                // 入力可能状態まで待機
+                if (!(await this.WhenForInputIdle()))
+                {
+                    return null;
+                }
+
+                var types = targetTypes;
+                if (types == null || types.Length == 0)
+                {
+                    types = DialogTypes;
+                }
+
+                return
+                    await Task.Run(
+                        () =>
+                        {
+                            // 共通ダイアログか否か
+                            bool common = (dialog.Current.ClassName == CommonDialogClassName);
+
+                            // 子ボタン配列
+                            var buttons =
+                                dialog
+                                    .FindAll(
+                                        TreeScope.Children,
+                                        new PropertyCondition(
+                                            AutomationElement.ControlTypeProperty,
+                                            ControlType.Button))
+                                    .Cast<AutomationElement>()
+                                    .ToArray();
+
+                            foreach (var type in types)
+                            {
+                                switch (type)
+                                {
+                                case DialogType.CommonNotify:
+                                    {
+                                        if (
+                                            common &&
+                                            TryGetUIInfo(
+                                                dialog,
+                                                buttons,
+                                                out CommonNotifyDialogUIInfo uiInfo))
+                                        {
+                                            return
+                                                Tuple.Create(
+                                                    DialogType.CommonNotify,
+                                                    (object)uiInfo);
+                                        }
+                                    }
+                                    break;
+
+                                case DialogType.CommonConfirm:
+                                    {
+                                        if (
+                                            common &&
+                                            TryGetUIInfo(
+                                                dialog,
+                                                buttons,
+                                                out CommonConfirmDialogUIInfo uiInfo))
+                                        {
+                                            return
+                                                Tuple.Create(
+                                                    DialogType.CommonConfirm,
+                                                    (object)uiInfo);
+                                        }
+                                    }
+                                    break;
+
+                                case DialogType.CommonFileSave:
+                                    {
+                                        if (
+                                            common &&
+                                            TryGetUIInfo(
+                                                dialog,
+                                                buttons,
+                                                out CommonFileSaveDialogUIInfo uiInfo))
+                                        {
+                                            return
+                                                Tuple.Create(
+                                                    DialogType.CommonFileSave,
+                                                    (object)uiInfo);
+                                        }
+                                    }
+                                    break;
+
+                                case DialogType.SaveOption:
+                                    {
+                                        if (
+                                            !common &&
+                                            TryGetUIInfo(
+                                                dialog,
+                                                buttons,
+                                                out SaveOptionWindowUIInfo uiInfo))
+                                        {
+                                            return
+                                                Tuple.Create(
+                                                    DialogType.SaveOption,
+                                                    (object)uiInfo);
+                                        }
+                                    }
+                                    break;
+
+                                case DialogType.SaveProgress:
+                                    {
+                                        if (
+                                            !common &&
+                                            TryGetUIInfo(
+                                                dialog,
+                                                buttons,
+                                                out SaveProgressWindowUIInfo uiInfo))
+                                        {
+                                            return
+                                                Tuple.Create(
+                                                    DialogType.SaveProgress,
+                                                    (object)uiInfo);
+                                        }
+                                    }
+                                    break;
+
+                                default:
+                                    break;
+                                }
+                            }
+
+                            return null;
+                        });
+            }
+
+            /// <summary>
+            /// 共通通知ダイアログのUI情報取得を試みる。
+            /// </summary>
+            /// <param name="dialog">ダイアログ。</param>
+            /// <param name="childButtons">子ボタン配列。</param>
+            /// <param name="uiInfo">UI情報の設定先。</param>
+            /// <returns>取得できたならば true 。そうでなければ false 。</returns>
+            private static bool TryGetUIInfo(
+                AutomationElement dialog,
+                AutomationElement[] childButtons,
+                out CommonNotifyDialogUIInfo uiInfo)
+            {
+                uiInfo = null;
+
+                if (dialog == null || childButtons?.Length != 1)
+                {
+                    return false;
+                }
+
+                var okButton = childButtons[0];
+                if (okButton?.Current.AutomationId != @"2")
+                {
+                    return false;
+                }
+
+                uiInfo = new CommonNotifyDialogUIInfo(okButton);
+                return true;
+            }
+
+            /// <summary>
+            /// 共通確認ダイアログのUI情報取得を試みる。
+            /// </summary>
+            /// <param name="dialog">ダイアログ。</param>
+            /// <param name="childButtons">子ボタン配列。</param>
+            /// <param name="uiInfo">UI情報の設定先。</param>
+            /// <returns>取得できたならば true 。そうでなければ false 。</returns>
+            private static bool TryGetUIInfo(
+                AutomationElement dialog,
+                AutomationElement[] childButtons,
+                out CommonConfirmDialogUIInfo uiInfo)
+            {
+                uiInfo = null;
+
+                if (dialog == null || childButtons?.Length != 2)
+                {
+                    return false;
+                }
+
+                var yesButton = childButtons[0];
+                var noButton = childButtons[1];
+                if (
+                    yesButton?.Current.AutomationId != @"6" ||
+                    noButton?.Current.AutomationId != @"7")
+                {
+                    return false;
+                }
+
+                uiInfo = new CommonConfirmDialogUIInfo(yesButton, noButton);
+                return true;
+            }
+
+            /// <summary>
+            /// 共通ファイル保存ダイアログのUI情報取得を試みる。
+            /// </summary>
+            /// <param name="dialog">ダイアログ。</param>
+            /// <param name="childButtons">子ボタン配列。</param>
+            /// <param name="uiInfo">UI情報の設定先。</param>
+            /// <returns>取得できたならば true 。そうでなければ false 。</returns>
+            private static bool TryGetUIInfo(
+                AutomationElement dialog,
+                AutomationElement[] childButtons,
+                out CommonFileSaveDialogUIInfo uiInfo)
+            {
+                uiInfo = null;
+
+                if (dialog == null)
+                {
+                    return false;
+                }
+
+                // 保存ボタン検索
+                var saveButton =
+                    childButtons?.FirstOrDefault(b => b?.Current.AutomationId == @"1");
+                if (saveButton == null)
+                {
+                    return false;
+                }
+
+                // ファイル名エディット検索
+                var edit = FindFileDialogFileNameEdit(dialog);
+                if (edit == null)
+                {
+                    return false;
+                }
+
+                uiInfo = new CommonFileSaveDialogUIInfo(edit, saveButton);
+                return true;
+            }
+
+            /// <summary>
+            /// 音声保存オプションウィンドウのUI情報取得を試みる。
+            /// </summary>
+            /// <param name="window">ウィンドウ。</param>
+            /// <param name="childButtons">子ボタン配列。</param>
+            /// <param name="uiInfo">UI情報の設定先。</param>
+            /// <returns>取得できたならば true 。そうでなければ false 。</returns>
+            private static bool TryGetUIInfo(
+                AutomationElement window,
+                AutomationElement[] childButtons,
+                out SaveOptionWindowUIInfo uiInfo)
+            {
+                uiInfo = null;
+
+                if (window == null || childButtons?.Length != 2)
+                {
+                    return false;
+                }
+
+                // キャンセルボタンの AutomationId が "b" か否かで判断
+                var okButton = childButtons[0];
+                if (okButton == null || childButtons[1]?.Current.AutomationId != @"b")
+                {
+                    return false;
+                }
+
+                uiInfo = new SaveOptionWindowUIInfo(okButton);
+                return true;
+            }
+
+            /// <summary>
+            /// 音声保存進捗ウィンドウのUI情報取得を試みる。
+            /// </summary>
+            /// <param name="window">ウィンドウ。</param>
+            /// <param name="childButtons">子ボタン配列。</param>
+            /// <param name="uiInfo">UI情報の設定先。</param>
+            /// <returns>取得できたならば true 。そうでなければ false 。</returns>
+            private static bool TryGetUIInfo(
+                AutomationElement window,
+                AutomationElement[] childButtons,
+                out SaveProgressWindowUIInfo uiInfo)
+            {
+                uiInfo = null;
+
+                if (window == null || childButtons?.Length != 1)
+                {
+                    return false;
+                }
+
+                var progressBar =
+                    FindFirstChild(
+                        window,
+                        AutomationElement.ControlTypeProperty,
+                        ControlType.ProgressBar);
+                if (progressBar == null)
+                {
+                    return false;
+                }
+
+                uiInfo = new SaveProgressWindowUIInfo(progressBar);
+                return true;
+            }
+
+            #endregion
+
             #region 音声保存処理
 
             /// <summary>
             /// 音声保存ダイアログを検索する処理を行う。
             /// </summary>
-            /// <returns>音声保存ダイアログ。見つからなければ null 。</returns>
+            /// <returns>
+            /// ダイアログ、ダイアログ種別、UI情報の Tuple 。見つからなければ null 。
+            /// </returns>
             /// <remarks>
             /// オプションウィンドウ、ファイルダイアログ、
             /// 確認ダイアログ(A.I.VOICEのみ)のいずれかを返す。
             /// </remarks>
-            private async Task<AutomationElement> DoFindSaveDialogTask()
+            private async Task<Tuple<AutomationElement, DialogType, object>>
+            DoFindSaveDialogTask()
             {
                 try
                 {
-                    var dialogs =
-                        await RepeatUntil(
-                            async () => await this.FindDialogs(),
-                            dlgs => dlgs.Any(),
-                            150);
                     return
-                        dialogs
-                            .FirstOrDefault(
-                                d =>
+                        await RepeatUntil(
+                            async () =>
+                            {
+                                foreach (var dialog in await this.FindDialogs())
                                 {
-                                    var name = d.Current.Name;
-                                    return
-                                        (name == SaveOptionDialogName) ||
-                                        (name == SaveFileDialogName) ||
-                                        (name == AiVoiceSaveConfirmDialogName);
-                                });
+                                    var t =
+                                        await this.DecideDialogType(
+                                            dialog,
+                                            DialogType.CommonFileSave,
+                                            DialogType.SaveOption,
+                                            DialogType.CommonConfirm);
+                                    if (t != null)
+                                    {
+                                        return Tuple.Create(dialog, t.Item1, t.Item2);
+                                    }
+                                }
+
+                                return null;
+                            },
+                            (Tuple<AutomationElement, DialogType, object> t) => t != null,
+                            150);
                 }
                 catch (Exception ex)
                 {
@@ -287,39 +739,30 @@ namespace RucheHome.Voiceroid
             /// ファイルダイアログまたは保存進捗ウィンドウ(A.I.VOICE自動命名時)を取得する。
             /// </summary>
             /// <param name="dialog">音声保存オプションウィンドウ。</param>
+            /// <param name="okButton">音声保存オプションウィンドウのOKボタン。</param>
             /// <returns>
-            /// ファイルダイアログまたは保存進捗ウィンドウ(A.I.VOICE自動命名時)と、
-            /// 処理失敗時の追加メッセージのタプル。
+            /// 処理に成功したならば、
+            /// ファイルダイアログまたは保存進捗ウィンドウ(A.I.VOICE自動命名時)、
+            /// ダイアログ種別、UI情報の Tuple 。
+            /// そうでなければ処理失敗時の追加メッセージ文字列。
             /// </returns>
-            private async Task<Tuple<AutomationElement, string>>
-            DoPushOkButtonOfSaveOptionDialogTask(AutomationElement optionDialog)
+            private async Task<object> DoPushOkButtonOfSaveOptionDialogTask(
+                AutomationElement optionDialog,
+                AutomationElement okButton)
             {
-                AutomationElement nextWin = null;
-
                 if (optionDialog == null)
                 {
                     throw new ArgumentNullException(nameof(optionDialog));
+                }
+                if (okButton == null)
+                {
+                    throw new ArgumentNullException(nameof(okButton));
                 }
 
                 // 入力可能状態まで待機
                 if (!(await this.WhenForInputIdle()))
                 {
-                    return Tuple.Create(nextWin, @"入力可能状態になりませんでした。");
-                }
-
-                // OKボタン検索
-                var okButton =
-                    await RepeatUntil(
-                        () =>
-                            FindFirstChild(
-                                optionDialog,
-                                AutomationElement.NameProperty,
-                                @"OK"),
-                        elem => elem != null,
-                        50);
-                if (okButton == null)
-                {
-                    return Tuple.Create(nextWin, @"OKボタンが見つかりませんでした。");
+                    return @"入力可能状態になりませんでした。";
                 }
 
                 try
@@ -327,37 +770,43 @@ namespace RucheHome.Voiceroid
                     // OKボタン押下
                     if (!InvokeElement(okButton))
                     {
-                        return Tuple.Create(nextWin, @"OKボタンをクリックできませんでした。");
+                        return @"OKボタンをクリックできませんでした。";
                     }
 
                     // ファイルダイアログ or 保存進捗ウィンドウ(A.I.VOICE自動命名時) 検索
-                    nextWin =
+                    var result =
                         await RepeatUntil(
-                            () =>
-                                FindFirstChildByControlType(
-                                    optionDialog,
-                                    ControlType.Window),
-                            elem => elem != null,
+                            async () =>
+                            {
+                                foreach (var dialog in await this.FindDialogs(optionDialog))
+                                {
+                                    var t =
+                                        await this.DecideDialogType(
+                                            dialog,
+                                            DialogType.CommonFileSave,
+                                            DialogType.SaveProgress);
+                                    if (t != null)
+                                    {
+                                        return Tuple.Create(dialog, t.Item1, t.Item2);
+                                    }
+                                }
+
+                                return null;
+                            },
+                            (Tuple<AutomationElement, DialogType, object> t) => t != null,
                             150);
-                    var nextWinName = nextWin?.Current.Name;
-                    if (
-                        nextWinName != SaveFileDialogName &&
-                        nextWinName != SaveProgressDialogName)
+                    if (result == null)
                     {
-                        nextWin = null;
-                        return
-                            Tuple.Create(nextWin, @"ウィンドウが見つかりませんでした。");
+                        return @"ウィンドウが見つかりませんでした。";
                     }
+
+                    return result;
                 }
                 catch (Exception ex)
                 {
                     ThreadTrace.WriteException(ex);
-
-                    nextWin = null;
-                    return Tuple.Create(nextWin, @"内部エラーが発生しました。");
+                    return @"内部エラーが発生しました。";
                 }
-
-                return Tuple.Create(nextWin, (string)null);
             }
 
             /// <summary>
@@ -532,11 +981,21 @@ namespace RucheHome.Voiceroid
                 {
                     var closed =
                         await RepeatUntil(
-                            () =>
-                                !FindChildWindows(
-                                    fileDialogParent,
-                                    SaveFileDialogName)
-                                    .Any(),
+                            async () =>
+                            {
+                                foreach (var dialog in await this.FindDialogs(fileDialogParent))
+                                {
+                                    var t =
+                                        await this.DecideDialogType(
+                                            dialog,
+                                            DialogType.CommonFileSave);
+                                    if (t != null)
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            },
                             f => f,
                             150);
                     if (!closed)
@@ -581,10 +1040,23 @@ namespace RucheHome.Voiceroid
                 // 保存進捗ウィンドウ表示を待つ
                 var progressWin =
                     await RepeatUntil(
-                        () =>
-                            FindChildWindows(progressWindowParent, SaveProgressDialogName)
-                                .FirstOrDefault(),
-                        d => d != null,
+                        async () =>
+                        {
+                            foreach (var dialog in await this.FindDialogs(progressWindowParent))
+                            {
+                                var t =
+                                    await this.DecideDialogType(
+                                        dialog,
+                                        DialogType.SaveProgress);
+                                if (t != null)
+                                {
+                                    return dialog;
+                                }
+                            }
+
+                            return null;
+                        },
+                        (AutomationElement d) => d != null,
                         100);
                 if (progressWin == null)
                 {
@@ -598,55 +1070,71 @@ namespace RucheHome.Voiceroid
                 var completeDialogParent = optionShown ? progressWindowParent : progressWin;
 
                 // 保存完了ダイアログ表示か保存進捗ウィンドウ非表示を待つ
-                AutomationElement completeDialog = null;
+                CommonNotifyDialogUIInfo completeDialogUI = null;
                 await RepeatUntil(
-                    () =>
+                    async () =>
                     {
                         // 保存完了ダイアログ表示確認
-                        completeDialog =
-                            FindChildWindows(completeDialogParent, SaveCompleteDialogName)
-                                .FirstOrDefault();
-                        if (completeDialog != null)
+                        var dialogs = await this.FindDialogs(completeDialogParent);
+                        foreach (var dialog in dialogs)
                         {
-                            return true;
+                            var t = await this.DecideDialogType(dialog, DialogType.CommonNotify);
+                            if (t?.Item1 == DialogType.CommonNotify)
+                            {
+                                completeDialogUI = (CommonNotifyDialogUIInfo)t.Item2;
+                                return true;
+                            }
                         }
 
                         // たまにデスクトップが親になる場合があるのでそちらも探す
-                        completeDialog =
-                            AutomationElement.RootElement.FindFirst(
-                                TreeScope.Children,
-                                new AndCondition(
-                                    new PropertyCondition(
-                                        AutomationElement.ControlTypeProperty,
-                                        ControlType.Window),
-                                    new PropertyCondition(
-                                        AutomationElement.ProcessIdProperty,
-                                        completeDialogParent.Current.ProcessId),
-                                    new PropertyCondition(
-                                        AutomationElement.NameProperty,
-                                        SaveCompleteDialogName)));
-                        if (completeDialog != null)
                         {
-                            return true;
+                            var dialog =
+                                AutomationElement.RootElement.FindFirst(
+                                    TreeScope.Children,
+                                    new AndCondition(
+                                        new PropertyCondition(
+                                            AutomationElement.ControlTypeProperty,
+                                            ControlType.Window),
+                                        new PropertyCondition(
+                                            AutomationElement.ProcessIdProperty,
+                                            completeDialogParent.Current.ProcessId),
+                                        new PropertyCondition(
+                                            AutomationElement.ClassNameProperty,
+                                            CommonDialogClassName)));
+                            if (dialog != null)
+                            {
+                                var t =
+                                    await this.DecideDialogType(dialog, DialogType.CommonNotify);
+                                if (t?.Item1 == DialogType.CommonNotify)
+                                {
+                                    completeDialogUI = (CommonNotifyDialogUIInfo)t.Item2;
+                                    return true;
+                                }
+                            }
                         }
 
                         // 保存進捗ウィンドウ非表示確認
-                        return
-                            !FindChildWindows(progressWindowParent, SaveProgressDialogName)
-                                .Any();
+                        if (progressWindowParent != completeDialogParent)
+                        {
+                            dialogs = await this.FindDialogs(progressWindowParent);
+                        }
+                        foreach (var dialog in dialogs)
+                        {
+                            var t = await this.DecideDialogType(dialog, DialogType.SaveProgress);
+                            if (t != null)
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
                     },
                     f => f);
 
-                if (completeDialog != null)
+                if (completeDialogUI != null)
                 {
                     // OKボタンを探して押す
                     // 失敗しても先へ進む
-                    var okButton =
-                        FindFirstChildByControlType(completeDialog, ControlType.Button);
-                    if (okButton != null)
-                    {
-                        InvokeElement(okButton);
-                    }
+                    _ = InvokeElement(completeDialogUI.OkButton);
                 }
 
                 // A.I.VOICE自動命名の場合はファイル名不明なので空のパスを返して終わり
@@ -727,7 +1215,7 @@ namespace RucheHome.Voiceroid
             protected override async Task<bool> UpdateDialogShowing()
             {
                 // FindDialogs 内で IsDialogShowing が更新される
-                await this.FindDialogs();
+                _ = await this.FindDialogs();
 
                 return this.IsDialogShowing;
             }
@@ -742,17 +1230,26 @@ namespace RucheHome.Voiceroid
             protected override async Task<bool> CheckSaving()
             {
                 // 下記のいずれかのダイアログが表示されているならば保存中
-                // - "音声保存" (オプションウィンドウor保存進捗ウィンドウ)
-                // - "名前を付けて保存" (ファイルダイアログ)
+                // - 共通ファイル保存ダイアログ
+                // - 音声保存オプションウィンドウ
+                // - 音声保存進捗ウィンドウ
+                // - 共通確認ダイアログ(A.I.VOICEのみ)
                 try
                 {
-                    return
-                        (await this.FindDialogs())
-                            .Select(d => d.Current.Name)
-                            .Any(
-                                name =>
-                                    name == SaveOptionDialogName ||
-                                    name == SaveFileDialogName);
+                    foreach (var dialog in await this.FindDialogs())
+                    {
+                        var t =
+                            await this.DecideDialogType(
+                                dialog,
+                                DialogType.CommonFileSave,
+                                DialogType.SaveOption,
+                                DialogType.SaveProgress,
+                                DialogType.CommonConfirm);
+                        if (t != null)
+                        {
+                            return true;
+                        }
+                    }
                 }
                 catch { }
                 return false;
@@ -907,8 +1404,8 @@ namespace RucheHome.Voiceroid
                 }
 
                 // ダイアログ検索
-                var rootDialog = await this.DoFindSaveDialogTask();
-                if (rootDialog == null)
+                var saveDialogTuple = await this.DoFindSaveDialogTask();
+                if (saveDialogTuple == null)
                 {
                     var msg =
                         (await this.UpdateDialogShowing()) ?
@@ -916,17 +1413,19 @@ namespace RucheHome.Voiceroid
                             @"操作対象ウィンドウが見つかりませんでした。";
                     return new FileSaveResult(false, error: msg);
                 }
+                var rootDialog = saveDialogTuple.Item1;
+                var dialogType = saveDialogTuple.Item2;
+                var uiInfo = saveDialogTuple.Item3;
 
-                var fileDialog = rootDialog;
                 AutomationElement parentWin = null;
                 bool optionShown = false;
                 bool aiVoiceAutoNamed = false;
                 string errorMsg = null;
                 string extraMsg = null;
 
-                switch (rootDialog.Current.Name)
+                switch (dialogType)
                 {
-                case SaveOptionDialogName:
+                case DialogType.SaveOption:
                     // 毎回オプションウィンドウ表示設定有効時
                     {
                         optionShown = true;
@@ -936,26 +1435,33 @@ namespace RucheHome.Voiceroid
 
                         // オプションウインドウのOKボタンをクリックして
                         // ファイルダイアログ or 進捗ウィンドウ(A.I.VOICE自動命名時) を出す
-                        var t = await this.DoPushOkButtonOfSaveOptionDialogTask(rootDialog);
-                        if (t.Item1 == null)
+                        var temp =
+                            await this.DoPushOkButtonOfSaveOptionDialogTask(
+                                rootDialog,
+                                ((SaveOptionWindowUIInfo)uiInfo).OkButton);
+                        if (temp is string s)
                         {
                             errorMsg = @"設定ウィンドウの操作に失敗しました。";
-                            extraMsg = t.Item2;
+                            extraMsg = s;
                             break;
                         }
 
+                        saveDialogTuple = (Tuple<AutomationElement, DialogType, object>)temp;
+                        rootDialog = saveDialogTuple.Item1;
+                        dialogType = saveDialogTuple.Item2;
+                        uiInfo = saveDialogTuple.Item3;
+
                         // ファイルダイアログならば当該 case 句へ移動
-                        if (t.Item1.Current.Name == SaveFileDialogName)
+                        if (dialogType == DialogType.CommonFileSave)
                         {
-                            fileDialog = t.Item1;
-                            goto case SaveFileDialogName;
+                            goto case DialogType.CommonFileSave;
                         }
 
                         aiVoiceAutoNamed = true;
                     }
                     break;
 
-                case SaveFileDialogName:
+                case DialogType.CommonFileSave:
                     // 音声保存ダイアログ表示
                     {
                         errorMsg = @"音声保存ダイアログの操作に失敗しました。";
@@ -969,18 +1475,10 @@ namespace RucheHome.Voiceroid
                             break;
                         }
 
-                        // OKボタンとファイル名エディットを検索
-                        var fileDialogElems = await this.DoFindFileDialogElements(fileDialog);
-                        if (fileDialogElems == null)
-                        {
-                            extraMsg = @"ファイル名入力欄が見つかりませんでした。";
-                            break;
-                        }
-                        var okButton = fileDialogElems.Item1;
-                        var fileNameEdit = fileDialogElems.Item2;
+                        var ui = (CommonFileSaveDialogUIInfo)uiInfo;
 
                         // ファイルダイアログ処理
-                        extraMsg = await this.DoSetFilePathToEditTask(fileNameEdit, filePath);
+                        extraMsg = await this.DoSetFilePathToEditTask(ui.FileNameEdit, filePath);
                         if (extraMsg != null)
                         {
                             break;
@@ -990,7 +1488,7 @@ namespace RucheHome.Voiceroid
                             extraMsg = @"既存ファイルを削除できませんでした。";
                             break;
                         }
-                        extraMsg = await this.DoDecideFilePathTask(okButton, parentWin);
+                        extraMsg = await this.DoDecideFilePathTask(ui.SaveButton, parentWin);
                         if (extraMsg != null)
                         {
                             break;
@@ -1000,7 +1498,7 @@ namespace RucheHome.Voiceroid
                     }
                     break;
 
-                case AiVoiceSaveConfirmDialogName:
+                case DialogType.CommonConfirm:
                     // A.I.VOICE自動命名による確認ダイアログ表示
                     // 自動命名有効 かつ オプションウィンドウ表示なし だとここに来る
                     {
@@ -1015,24 +1513,8 @@ namespace RucheHome.Voiceroid
                             break;
                         }
 
-                        // 「はい」ボタン(AutomationId == "6")を検索
-                        var yesButton =
-                            await RepeatUntil(
-                                () =>
-                                    FindFirstChild(
-                                        rootDialog,
-                                        AutomationElement.AutomationIdProperty,
-                                        @"6"),
-                                elem => elem != null,
-                                50);
-                        if (yesButton == null)
-                        {
-                            extraMsg = @"決定ボタンが見つかりませんでした。";
-                            break;
-                        }
-
                         // 「はい」ボタンをクリック
-                        if (!InvokeElement(yesButton))
+                        if (!InvokeElement(((CommonConfirmDialogUIInfo)uiInfo).YesButton))
                         {
                             extraMsg = @"決定ボタンをクリックできませんでした。";
                             break;
