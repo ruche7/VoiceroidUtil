@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìx‰‡ƒc[ƒ‹wVoiceroidUtilx‚Ìg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»İ‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.15.0
+-VoiceroidUtil version 1.15.1
 -[[VOICEROID+ Œ‹Œ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -703,6 +703,8 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgİ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 
 *XV—š—ğ [#history]
 
+:2021-04-12|
+--version 1.15.1 ‚É‘Î‰B
 :2021-03-24|
 --version 1.15.0 ‚É‘Î‰B
 ---wA.I.VOICEx’Ç‰ÁB‚»‚ê‚É”º‚¤‰Á•MC³B
