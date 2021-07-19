@@ -1129,18 +1129,18 @@ namespace RucheHome.Voiceroid
                             // 保存完了ダイアログ表示確認
                             // メッセージ表示レベル「冗長」時のみ表示される
                             var dialogs = await this.FindDialogs(completeDialogParent);
-                                foreach (var dialog in dialogs)
+                            foreach (var dialog in dialogs)
+                            {
+                                var t =
+                                    await this.DecideDialogType(
+                                        dialog,
+                                        DialogType.CommonNotify);
+                                if (t?.Item1 == DialogType.CommonNotify)
                                 {
-                                    var t =
-                                        await this.DecideDialogType(
-                                            dialog,
-                                            DialogType.CommonNotify);
-                                    if (t?.Item1 == DialogType.CommonNotify)
-                                    {
-                                        completeDialogUI = (CommonNotifyDialogUIInfo)t.Item2;
-                                        return true;
-                                    }
+                                    completeDialogUI = (CommonNotifyDialogUIInfo)t.Item2;
+                                    return true;
                                 }
+                            }
 
                             // たまにデスクトップが親になる場合があるのでそちらも探す
                             {

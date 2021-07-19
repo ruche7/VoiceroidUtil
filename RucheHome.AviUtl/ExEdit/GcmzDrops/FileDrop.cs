@@ -170,17 +170,12 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             }
 
             // 拡張編集ウィンドウが表示されていないと失敗するので確認
-            var aviUtlWindowHandle = targetWindow.GetOwner()?.Handle;
-            if (!aviUtlWindowHandle.HasValue)
-            {
-                return Result.ExEditWindowNotFound;
-            }
             var exEditWindow =
                 Win32Window.FromDesktop()
                     .FindChildren()
                     .FirstOrDefault(
                         win =>
-                            win.GetOwner()?.Handle == aviUtlWindowHandle.Value &&
+                            win.ClassName == @"AviUtl" &&
                             win
                                 .GetText(timeoutMilliseconds)?
                                 .StartsWith(ExEditWindowTitlePrefix) == true);
