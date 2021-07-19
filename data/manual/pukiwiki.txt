@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»Ý‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.15.1
+-VoiceroidUtil version 1.15.2
 -[[VOICEROID+ Œ‹ŒŽ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñŽq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -32,13 +32,13 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 -ƒKƒCƒmƒCƒhTalk Editor version 1.0.0.0
 --[[ƒKƒCƒmƒCƒhTalk –Â‰ÔƒqƒEƒ~ƒRƒg>https://gynoid.co.jp/items/view/19]]
 --[[ƒKƒCƒmƒCƒhTalk flower>https://gynoid.co.jp/items/view/21]]
--A.I.VOICE Editor version 1.0.2.0
+-A.I.VOICE Editor version 1.0.3.0
 --[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
 --[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
 -[[‚ä‚Á‚­‚èMovieMaker3>https://manjubox.net/ymm3/]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.10
 --[[Šg’£•ÒW>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
---[[‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒX>https://github.com/oov/aviutl_gcmzdrops]] version 0.3.16
+--[[‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒX>https://github.com/oov/aviutl_gcmzdrops]] version 0.3.19
 
 w‚ä‚Á‚­‚èMovieMaker3x‚âwAviUtlx‚Í“®ì‚É•K{‚Å‚Í‚ ‚è‚Ü‚¹‚ñB
 
@@ -677,6 +677,7 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 :wAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚ÉŽ¸”s‚·‚éB|
 --wVoiceroidUtilx‚ðÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 ---–{‹@”\‚Í version 1.11.0 ‚Å’Ç‰Á‚³‚ê‚Ü‚µ‚½B
+---version 1.15.1 ˆÈ‘O‚Ìƒo[ƒWƒ‡ƒ“‚Æw‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒXx‚ÌÅV”Å‚ð•¹—p‚·‚é‚Æ•K‚¸Ž¸”s‚µ‚Ü‚·B
 --wAviUtlx‚ÉwŠg’£•ÒWPluginx‚¨‚æ‚Ñw‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒXx‚ª“±“ü‚³‚ê‚Ä‚¢‚é‚©‚²Šm”F‚­‚¾‚³‚¢B‚Ü‚½A‚»‚ê‚¼‚êÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 ---w‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒXx‚É‚Â‚¢‚Ä‚ÍwPSDToolKitx‚É“¯«‚³‚ê‚Ä‚¢‚é‚à‚Ì‚Å‚à\‚¢‚Ü‚¹‚ñB
 --wAviUtlx‚ª‹N“®‚µ‚Ä‚¨‚èAÅ¬‰»‚³‚ê‚Ä‚¨‚ç‚¸AwAviUtlŠg’£•ÒWx‚Ìƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚ªŠJ‚¢‚Ä‚¢‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
@@ -703,6 +704,10 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 
 *XV—š—ð [#history]
 
+:2021-07-20|
+--version 1.15.2 ‚É‘Î‰žB
+--[[Q•A>#qa]]‚ðXVB
+---uwAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚ÉŽ¸”s‚·‚éBv‚Ì€‚É version 1.15.1 ‚Ü‚Å‚Ì–â‘è‚ð’Ç‹LB
 :2021-04-12|
 --version 1.15.1 ‚É‘Î‰žB
 :2021-03-24|
