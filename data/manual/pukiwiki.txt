@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»Ý‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.15.2
+-VoiceroidUtil version 1.15.3
 -[[VOICEROID+ Œ‹ŒŽ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñŽq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -639,6 +639,7 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 :uÄ¶vƒ{ƒ^ƒ“‚Í³í“®ì‚·‚é‚ªAu‰¹º•Û‘¶vƒ{ƒ^ƒ“‚Ìˆ—‚ÉŽ¸”s‚·‚éB|
 --wVoiceroidUtilx‚ðÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 ---version 1.7.0 ˆÈ‘O‚ÍAˆÈ~‚Ì“à—e‚ð‚·‚×‚ÄŠm”F‚µ‚½ã‚Å‚È‚¨‰¹º•Û‘¶‚ÉŽ¸”s‚·‚éŠÂ‹«‚ª‘¶Ý‚µ‚Ä‚¢‚Ü‚µ‚½B
+---version 1.15.1 ‚¨‚æ‚Ñ version 1.15.2 ‚Å‚ÍAVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ì‰¹º•Û‘¶Žž‚ÉƒAƒvƒŠ‚ª—Ž‚¿‚Ä‚µ‚Ü‚¤•s‹ï‡‚ª‚ ‚è‚Ü‚µ‚½B
 --VOICEROID–{‘Ì‚ðÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 --•Û‘¶æƒtƒHƒ‹ƒ_‚É‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
 ---u•Û‘¶æƒtƒHƒ‹ƒ_[‚ðì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½BvAu•Û‘¶æƒtƒHƒ‹ƒ_[‚Ö‚Ì‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚è‚Ü‚¹‚ñBv‚È‚Ç‚ÆƒGƒ‰[•\Ž¦‚³‚ê‚éê‡‚Í‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚è‚Ü‚¹‚ñB
@@ -704,6 +705,10 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 
 *XV—š—ð [#history]
 
+:2021-07-21|
+--version 1.15.3 ‚É‘Î‰žB
+--[[Q•A>#qa]]‚ðXVB
+---version 1.15.1 ‚¨‚æ‚Ñ version 1.15.2 ‚ÅVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ì‰¹º•Û‘¶Žž‚ÉƒAƒvƒŠ‚ª—Ž‚¿‚Ä‚µ‚Ü‚¤•s‹ï‡‚É‚Â‚¢‚Ä‹LÚB
 :2021-07-20|
 --version 1.15.2 ‚É‘Î‰žB
 --[[Q•A>#qa]]‚ðXVB
