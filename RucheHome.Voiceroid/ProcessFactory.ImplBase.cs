@@ -368,15 +368,20 @@ namespace RucheHome.Voiceroid
                 int loopCount = 25,
                 int loopIntervalMilliseconds = 20)
             {
-                bool? result = this.AppProcess?.WaitForInputIdle(0);
-
-                for (int i = 0; result == false && i < loopCount; ++i)
+                try
                 {
-                    await Task.Delay(loopIntervalMilliseconds);
-                    result = this.AppProcess?.WaitForInputIdle(0);
-                }
+                    bool? result = this.AppProcess?.WaitForInputIdle(0);
 
-                return (result == true);
+                    for (int i = 0; result == false && i < loopCount; ++i)
+                    {
+                        await Task.Delay(loopIntervalMilliseconds);
+                        result = this.AppProcess?.WaitForInputIdle(0);
+                    }
+
+                    return (result == true);
+                }
+                catch { }
+                return false;
             }
 
             #region 音声保存処理補助

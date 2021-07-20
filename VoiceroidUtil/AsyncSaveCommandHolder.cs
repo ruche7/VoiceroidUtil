@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,11 +12,8 @@ using RucheHome.Util;
 using RucheHome.Voiceroid;
 using RucheHome.Windows.Mvvm.Commands;
 using VoiceroidUtil.Services;
-using GcmzDrops = RucheHome.AviUtl.ExEdit.GcmzDrops;
 using static RucheHome.Util.ArgumentValidater;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
+using GcmzDrops = RucheHome.AviUtl.ExEdit.GcmzDrops;
 
 namespace VoiceroidUtil
 {

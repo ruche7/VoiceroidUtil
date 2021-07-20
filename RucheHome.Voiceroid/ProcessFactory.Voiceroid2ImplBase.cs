@@ -608,120 +608,126 @@ namespace RucheHome.Voiceroid
                     types = DialogTypes;
                 }
 
-                return
-                    await Task.Run(
-                        () =>
-                        {
-                            // 共通ダイアログか否か
-                            bool common = (dialog.Current.ClassName == CommonDialogClassName);
-
-                            // 子ボタン配列
-                            var buttons =
-                                dialog
-                                    .FindAll(
-                                        TreeScope.Children,
-                                        new PropertyCondition(
-                                            AutomationElement.ControlTypeProperty,
-                                            ControlType.Button))
-                                    .Cast<AutomationElement>()
-                                    .ToArray();
-
-                            foreach (var type in types)
+                try
+                {
+                    return
+                        await Task.Run(
+                            () =>
                             {
-                                switch (type)
+                                // 共通ダイアログか否か
+                                bool common =
+                                    (dialog.Current.ClassName == CommonDialogClassName);
+
+                                // 子ボタン配列
+                                var buttons =
+                                        dialog
+                                            .FindAll(
+                                                TreeScope.Children,
+                                                new PropertyCondition(
+                                                    AutomationElement.ControlTypeProperty,
+                                                    ControlType.Button))
+                                            .Cast<AutomationElement>()
+                                            .ToArray();
+
+                                foreach (var type in types)
                                 {
-                                case DialogType.CommonNotify:
+                                    switch (type)
                                     {
-                                        if (
-                                            common &&
-                                            TryGetUIInfo(
-                                                dialog,
-                                                buttons,
-                                                out CommonNotifyDialogUIInfo uiInfo))
+                                    case DialogType.CommonNotify:
                                         {
-                                            return
-                                                Tuple.Create(
-                                                    DialogType.CommonNotify,
-                                                    (object)uiInfo);
+                                            if (
+                                                common &&
+                                                TryGetUIInfo(
+                                                    dialog,
+                                                    buttons,
+                                                    out CommonNotifyDialogUIInfo uiInfo))
+                                            {
+                                                return
+                                                    Tuple.Create(
+                                                        DialogType.CommonNotify,
+                                                        (object)uiInfo);
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
 
-                                case DialogType.CommonConfirm:
-                                    {
-                                        if (
-                                            common &&
-                                            TryGetUIInfo(
-                                                dialog,
-                                                buttons,
-                                                out CommonConfirmDialogUIInfo uiInfo))
+                                    case DialogType.CommonConfirm:
                                         {
-                                            return
-                                                Tuple.Create(
-                                                    DialogType.CommonConfirm,
-                                                    (object)uiInfo);
+                                            if (
+                                                common &&
+                                                TryGetUIInfo(
+                                                    dialog,
+                                                    buttons,
+                                                    out CommonConfirmDialogUIInfo uiInfo))
+                                            {
+                                                return
+                                                    Tuple.Create(
+                                                        DialogType.CommonConfirm,
+                                                        (object)uiInfo);
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
 
-                                case DialogType.CommonFileSave:
-                                    {
-                                        if (
-                                            common &&
-                                            TryGetUIInfo(
-                                                dialog,
-                                                buttons,
-                                                out CommonFileSaveDialogUIInfo uiInfo))
+                                    case DialogType.CommonFileSave:
                                         {
-                                            return
-                                                Tuple.Create(
-                                                    DialogType.CommonFileSave,
-                                                    (object)uiInfo);
+                                            if (
+                                                common &&
+                                                TryGetUIInfo(
+                                                    dialog,
+                                                    buttons,
+                                                    out CommonFileSaveDialogUIInfo uiInfo))
+                                            {
+                                                return
+                                                    Tuple.Create(
+                                                        DialogType.CommonFileSave,
+                                                        (object)uiInfo);
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
 
-                                case DialogType.SaveOption:
-                                    {
-                                        if (
-                                            !common &&
-                                            TryGetUIInfo(
-                                                dialog,
-                                                buttons,
-                                                out SaveOptionWindowUIInfo uiInfo))
+                                    case DialogType.SaveOption:
                                         {
-                                            return
-                                                Tuple.Create(
-                                                    DialogType.SaveOption,
-                                                    (object)uiInfo);
+                                            if (
+                                                !common &&
+                                                TryGetUIInfo(
+                                                    dialog,
+                                                    buttons,
+                                                    out SaveOptionWindowUIInfo uiInfo))
+                                            {
+                                                return
+                                                    Tuple.Create(
+                                                        DialogType.SaveOption,
+                                                        (object)uiInfo);
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
 
-                                case DialogType.SaveProgress:
-                                    {
-                                        if (
-                                            !common &&
-                                            TryGetUIInfo(
-                                                dialog,
-                                                buttons,
-                                                out SaveProgressWindowUIInfo uiInfo))
+                                    case DialogType.SaveProgress:
                                         {
-                                            return
-                                                Tuple.Create(
-                                                    DialogType.SaveProgress,
-                                                    (object)uiInfo);
+                                            if (
+                                                !common &&
+                                                TryGetUIInfo(
+                                                    dialog,
+                                                    buttons,
+                                                    out SaveProgressWindowUIInfo uiInfo))
+                                            {
+                                                return
+                                                    Tuple.Create(
+                                                        DialogType.SaveProgress,
+                                                        (object)uiInfo);
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
 
-                                default:
-                                    break;
+                                    default:
+                                        break;
+                                    }
                                 }
-                            }
 
-                            return null;
-                        });
+                                return null;
+                            });
+                }
+                catch { }
+                return null;
             }
 
             /// <summary>
@@ -1143,6 +1149,7 @@ namespace RucheHome.Voiceroid
                             }
 
                             // たまにデスクトップが親になる場合があるのでそちらも探す
+                            try
                             {
                                 var dialog =
                                     AutomationElement.RootElement.FindFirst(
@@ -1170,6 +1177,7 @@ namespace RucheHome.Voiceroid
                                     }
                                 }
                             }
+                            catch { }
 
                             // 保存進捗ウィンドウ非表示確認
                             if (progressWindowParent != completeDialogParent)
