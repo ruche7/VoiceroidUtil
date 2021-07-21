@@ -85,10 +85,12 @@ namespace RucheHome.Voiceroid
                         processes.Add(new GynoidTalkImpl());
                         break;
 
+#if AIVOICE_SUPPORTED
                     case VoiceroidId.AiVoice:
                         // A.I.VOICEプロセス作成
                         processes.Add(new AiVoiceImpl());
                         break;
+#endif // AIVOICE_SUPPORTED
 
                     default:
                         // VOICEROID+ EX 互換プロセス作成

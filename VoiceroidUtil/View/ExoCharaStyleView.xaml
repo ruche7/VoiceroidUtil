@@ -26,6 +26,8 @@
                     Source="/VoiceroidUtil;component/resources/CommonStyles.xaml" />
                 <ResourceDictionary
                     Source="/VoiceroidUtil;component/resources/Converters.xaml" />
+                <ResourceDictionary
+                    Source="/VoiceroidUtil;component/resources/VoiceroidStyles.xaml" />
                 <ResourceDictionary>
                     <ObjectDataProvider
                         x:Key="blendModes"
@@ -359,25 +361,23 @@
             </Border>
         </Expander>
         <Expander
-            Header="VOICEROID2/ガイノイドTalk/A.I.VOICEについて"
             IsExpanded="False"
             Margin="0,2,0,0">
+            <Expander.Header>
+                <TextBlock>
+                    <Run Text="{StaticResource StringVoiceroid2Family}"/>について
+                </TextBlock>
+            </Expander.Header>
             <Border Style="{StaticResource solidBorder}" Padding="6">
                 <StackPanel Orientation="Vertical">
                     <TextBlock TextWrapping="Wrap">
-                        VOICEROID2/ガイノイドTalk/A.I.VOICE側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのキャラクターの設定を利用します。
+                        <Run Text="{StaticResource StringVoiceroid2Family}"/>側で使用したボイスプリセット名に特定キーワードが含まれている場合、そのキャラクターの設定を利用します。
                     </TextBlock>
                     <v:VoiceroidKeywordsView
                         VoiceroidNameHeader="キャラクター"
                         Margin="8,4,0,4" />
                     <TextBlock TextWrapping="Wrap">
-                        いずれのキーワードも含まれていない場合のみ、
-                        <Run Text="VOICEROID2" FontWeight="Bold" />
-                        /
-                        <Run Text="ガイノイドTalk" FontWeight="Bold" />
-                        /
-                        <Run Text="A.I.VOICE" FontWeight="Bold" />
-                        の設定を利用します。
+                        いずれのキーワードも含まれていない場合のみ、<Run Text="{StaticResource StringVoiceroid2Family}"/>の設定を利用します。
                     </TextBlock>
                 </StackPanel>
             </Border>

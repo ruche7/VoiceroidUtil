@@ -1,4 +1,4 @@
-﻿using System;
+﻿#if AIVOICE_SUPPORTED
 
 namespace RucheHome.Voiceroid
 {
@@ -35,3 +35,5 @@ namespace RucheHome.Voiceroid
         }
     }
 }
+
+#endif // AIVOICE_SUPPORTED
