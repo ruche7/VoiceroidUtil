@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»Ý‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.15.3
+-VoiceroidUtil version 1.16.0
 -[[VOICEROID+ Œ‹ŒŽ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñŽq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -32,9 +32,9 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 -ƒKƒCƒmƒCƒhTalk Editor version 1.0.0.0
 --[[ƒKƒCƒmƒCƒhTalk –Â‰ÔƒqƒEƒ~ƒRƒg>https://gynoid.co.jp/items/view/19]]
 --[[ƒKƒCƒmƒCƒhTalk flower>https://gynoid.co.jp/items/view/21]]
--A.I.VOICE Editor version 1.0.3.0
---[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
---[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
+//-A.I.VOICE Editor version 1.0.3.0
+//--[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
+//--[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
 -[[‚ä‚Á‚­‚èMovieMaker3>https://manjubox.net/ymm3/]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.10
 --[[Šg’£•ÒW>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
@@ -92,15 +92,15 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 -ƒKƒCƒmƒCƒhTalk iversion 1.13.0 ‚æ‚èj
 --[[ƒKƒCƒmƒCƒhTalk –Â‰ÔƒqƒEƒ~ƒRƒg>https://gynoid.co.jp/items/view/19]]
 --[[ƒKƒCƒmƒCƒhTalk flower>https://gynoid.co.jp/items/view/21]] iversion 1.14.0 ‚æ‚èƒLƒƒƒ‰ƒNƒ^[‘Î‰žj
--A.I.VOICE iversion 1.15.0 ‚æ‚èj
---[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
---[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
+//-A.I.VOICE iversion 1.15.0 ‚æ‚èj
+//--[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
+//--[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
 
 ˆê•”‚Ìƒ\ƒtƒgƒEƒFƒA‚ÍVOICEROID‚Å‚Í‚ ‚è‚Ü‚¹‚ñ‚ªA“–ƒc[ƒ‹‚Å‚Í•Ö‹Xã“¯—ñ‚Éˆµ‚¢‚Ü‚·B~
 “–•¶‘“à‚ÅuVOICEROIDv‚Æ‘‚©‚ê‚Ä‚¢‚éê‡‚Í‚»‚ê‚ç‚Ìƒ\ƒtƒgƒEƒFƒA‚àŠÜ‚Ý‚Ü‚·B
 
-VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚ÌˆÙ‚È‚é“_‚ª‚ ‚è‚Ü‚·B~
-Ú‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+VOICEROID2AƒKƒCƒmƒCƒhTalk‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚ÌˆÙ‚È‚é“_‚ª‚ ‚è‚Ü‚·B~
+Ú‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 
 ƒc[ƒ‹‚ð—˜—p‚µ‚Ä§ì‚µ‚½“®‰æ‚ðƒjƒRƒjƒR“®‰æ‚É“Še‚·‚éÛ‚ÍA‰º‹L“®‰æ‚ðeì•i‚É“o˜^‚µ‚Ä‚­‚ê‚é‚ÆŠð‚µ‚¢‚Å‚·Bi•K{‚Å‚Í‚ ‚è‚Ü‚¹‚ñj
 
@@ -126,13 +126,13 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 #ref(Žg‚¢•û6_“ü—Í•¶.png,left,nolink,“ü—Í•¶‚ð•ÒW‚µ‚Ä‚¢‚é‚Æ‚±‚ë);
 --u–{‘Ì‘¤‚Ì•¶Í‚ðŽg‚¤v‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚±‚Æ‚ÅAVOICEROID–{‘Ì‘¤‚Å•¶Í“ü—Í‚·‚é‚±‚Æ‚à‚Å‚«‚Ü‚·B
 +~uÄ¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚ÄA‰¹º‚ðŠm”F‚µ‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚ÄÄ¶‚ªs‚í‚ê‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚ÄÄ¶‚ªs‚í‚ê‚Ü‚·B
 +~Ä¶‚³‚ê‚½‰¹º‚ª‹C‚É“ü‚ç‚È‚¯‚ê‚ÎA–{‘Ì‘¤‚ÅƒtƒŒ[ƒY•ÒW“™‚ðs‚¢‚Ü‚·B
 --ƒtƒŒ[ƒY•ÒW‚ðs‚Á‚½ê‡‚ÍAVOICEROID–{‘Ì‘¤‚Åu“o˜^vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚·‚é“™‚µ‚ÄA•ÒW‚ðŠ®—¹‚³‚¹‚Ä‚­‚¾‚³‚¢B
 --’PŒê•ÒW‚ðs‚Á‚½ê‡‚ÍAVOICEROID–{‘Ì‘¤‚Åu“o˜^vƒ{ƒ^ƒ“‚âuƒNƒŠƒAvƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚·‚é“™‚µ‚ÄA•ÒW‚ðŠ®—¹‚³‚¹‚Ä‚­‚¾‚³‚¢B
 +~u‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚ÄA‰¹ºƒtƒ@ƒCƒ‹‚ð•Û‘¶‚µ‚Ü‚·B
 --‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶ƒtƒHƒ‹ƒ_‚âƒtƒ@ƒCƒ‹–¼‚Í[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚ÌÝ’è“à—e‚É]‚Á‚ÄŽ©“®Œˆ’è‚³‚ê‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚Ä‰¹º•Û‘¶‚ªs‚í‚ê‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚Ä‰¹º•Û‘¶‚ªs‚í‚ê‚Ü‚·B
 --[[Ý’è‰æ–Ê>#explain-config]]/[[YMM3ƒ^ƒu>#explain-config-ymm]]‚É‚Äw‚ä‚Á‚­‚èMovieMaker3x‚Æ˜AŒg‚·‚éÝ’è‚ðs‚Á‚Ä‚¢‚ê‚ÎA‰¹º•Û‘¶Žž‚ÉŽ©“®“I‚É˜AŒg‚µ‚Ü‚·B
 ---‰¹ºƒtƒ@ƒCƒ‹‚Æ“¯Žž‚ÉƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ðì¬‚·‚éÝ’è‚É‚È‚Á‚Ä‚¢‚È‚¢ê‡AŽš–‹‚Í‘}“ü‚³‚ê‚Ü‚¹‚ñB
 --[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚É‚ÄwAviUtlŠg’£•ÒWx‚Æ˜AŒg‚·‚éÝ’è‚ðs‚Á‚Ä‚¢‚ê‚ÎA‰¹º•Û‘¶Žž‚ÉŽ©“®“I‚É˜AŒg‚µ‚Ü‚·B
@@ -173,7 +173,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 --Ä¶’†‚Ìê‡‚Íu’âŽ~vƒ{ƒ^ƒ“‚É•Ï‰»‚µAVOICEROID–{‘Ì‚ÉÄ¶’âŽ~‚ðŽwŽ¦‚µ‚Ü‚·B
 --VOICEROID–{‘Ì‚Æ‚ÍˆÙ‚È‚èA“ü—Í•¶ƒeƒLƒXƒgƒ{ƒbƒNƒX‚ÌƒJ[ƒ\ƒ‹ˆÊ’u‚ÉˆË‚ç‚¸í‚É‘S•¶Ä¶‚Æ‚È‚è‚Ü‚·B
 --@kbd{F5}; ‚Ü‚½‚Í @kbd{Ctrl+Q}; ‚ÌƒVƒ‡[ƒgƒJƒbƒg“ü—Í‚ðs‚¤‚±‚Æ‚Å‚àƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚Å‚«‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚ÄÄ¶‚ªs‚í‚ê‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Ìê‡A–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ð—p‚¢‚ÄÄ¶‚ªs‚í‚ê‚Ü‚·B
 :&#9316;u‰¹º•Û‘¶vƒ{ƒ^ƒ“|
 --VOICEROID–{‘Ì‚É“ü—Í•¶‚Ì‰¹º•Û‘¶‚ðŽwŽ¦‚µ‚Ü‚·B
 ---ŽÀÛ‚É‰¹º•Û‘¶‚³‚ê‚é•¶Í‚ÍA“ü—Í•¶‚É‘Î‚µ‚Ä[[’uŠ·‰æ–Ê>#explain-replace]]‚ÌÝ’è“à—e‚É‚æ‚é’uŠ·‚ðs‚Á‚½‚à‚Ì‚É‚È‚è‚Ü‚·B
@@ -184,14 +184,14 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 ---wAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚É‚Íw‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒXx‚Ì“±“ü‚ª•K—v‚Å‚·BÚ‚µ‚­‚Í[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚Ìà–¾‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 --@kbd{F6}; ‚Ü‚½‚Í @kbd{Ctrl+S}; ‚ÌƒVƒ‡[ƒgƒJƒbƒg“ü—Í‚ðs‚¤‚±‚Æ‚Å‚àƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚Å‚«‚Ü‚·B
 --@kbd{F9}; ‚Ü‚½‚Í @kbd{Ctrl+E}; ‚ÌƒVƒ‡[ƒgƒJƒbƒg“ü—Í‚ðs‚¤‚±‚Æ‚Å•Û‘¶æƒtƒHƒ‹ƒ_‚ðŠJ‚­‚±‚Æ‚ª‚Å‚«‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEˆÈŠO‚Å‚ÍA“ü—Í•¶‚É”­º‰Â”\‚È•¶Žš‚ªŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢ê‡A‰¹º•Û‘¶‚ÉŽ¸”s‚µ‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Å‚Ì‰¹º•Û‘¶‚É‚Â‚¢‚Ä‚ÍA[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[‰¹º•Û‘¶>#voiceroid2-save]]‚Ì€‚àŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+--VOICEROID2AƒKƒCƒmƒCƒhTalkˆÈŠO‚Å‚ÍA“ü—Í•¶‚É”­º‰Â”\‚È•¶Žš‚ªŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢ê‡A‰¹º•Û‘¶‚ÉŽ¸”s‚µ‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Å‚Ì‰¹º•Û‘¶‚É‚Â‚¢‚Ä‚ÍA[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[‰¹º•Û‘¶>#voiceroid2-save]]‚Ì€‚àŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 :&#9317;u–{‘Ì‘¤‚Ì•¶Í‚ðŽg‚¤vƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆAÄ¶‚¨‚æ‚Ñ‰¹º•Û‘¶‚É‚¨‚¢‚ÄVoiceroidUtil‘¤‚Ì“ü—Í•¶‚ð—p‚¢‚¸AVOICEROID–{‘Ì‚É‹Lq‚³‚ê‚Ä‚¢‚é•¶Í‚ð‚»‚Ì‚Ü‚Ü—p‚¢‚Ü‚·B
 ---ƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚É•Û‘¶‚·‚é•¶Í‚âA.exoƒtƒ@ƒCƒ‹‚É•Û‘¶‚³‚ê‚éƒeƒLƒXƒgƒIƒuƒWƒFƒNƒg‚É‚àVOICEROID–{‘Ì‚Ì•¶Í‚ª—p‚¢‚ç‚ê‚Ü‚·B
 ---[[’uŠ·‰æ–Ê>#explain-replace]]‚É‚¨‚¯‚é‰¹º‚Ö‚Ì’uŠ·Ý’è‚Í''“K—p‚³‚ê‚Ü‚¹‚ñ''BŽš–‹‚Ö‚Ì’uŠ·Ý’è‚ÍAVOICEROID–{‘Ì‚Ì•¶Í‚ð—p‚¢‚Ä’Êí’Ê‚è“K—p‚³‚ê‚Ü‚·B
 --VOICEROID2AƒKƒCƒmƒCƒhTalk‚Å‚ÍA‹ó”’•¶‚Ì‰¹º•Û‘¶‚à‰Â”\‚É‚È‚è‚Ü‚·B
---A.I.VOICE‚Å‹ó”’•¶‚ð‰¹º•Û‘¶‚·‚é‚ÆAŒ©‚½–Úã‚Í¬Œ÷‚·‚é‚à‚Ì‚ÌŽÀÛ‚É‚Í‰¹ºƒtƒ@ƒCƒ‹‚ªì¬‚³‚ê‚È‚¢‚½‚ßA“–ƒc[ƒ‹‚Å‚Í‹ó”’•¶‚Ì‰¹º•Û‘¶‚ÍŽÀŽ{‚µ‚Ü‚¹‚ñB
+//--A.I.VOICE‚Å‹ó”’•¶‚ð‰¹º•Û‘¶‚·‚é‚ÆAŒ©‚½–Úã‚Í¬Œ÷‚·‚é‚à‚Ì‚ÌŽÀÛ‚É‚Í‰¹ºƒtƒ@ƒCƒ‹‚ªì¬‚³‚ê‚È‚¢‚½‚ßA“–ƒc[ƒ‹‚Å‚Í‹ó”’•¶‚Ì‰¹º•Û‘¶‚ÍŽÀŽ{‚µ‚Ü‚¹‚ñB
 
 **Ý’è‰æ–Ê [#explain-config]
 
@@ -213,7 +213,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 :&#9315;uVOICEROID•\Ž¦Ø‘Övƒ`ƒFƒbƒNƒ{ƒbƒNƒXŒQ|
 --ƒ`ƒFƒbƒN‚ðŠO‚µ‚½VOICEROID‚ðA‰º‹L‚Ì‰ÓŠ‚Å”ñ•\Ž¦‚É‚µ‚Ü‚·B
 ---[[‘€ì‰æ–Ê>#explain-main]]‚Ì ''VOICEROID‘I‘ðƒRƒ“ƒ{ƒ{ƒbƒNƒX''
----[[Ý’è‰æ–Ê>#explain-config]]/[[YMM3ƒ^ƒu>#explain-config-ymm]]‚Ì ''ƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ðÝ’èƒeƒLƒXƒgƒ{ƒbƒNƒXŒQ'' iVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Íí‚É”ñ•\Ž¦j
+---[[Ý’è‰æ–Ê>#explain-config]]/[[YMM3ƒ^ƒu>#explain-config-ymm]]‚Ì ''ƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ðÝ’èƒeƒLƒXƒgƒ{ƒbƒNƒXŒQ'' iVOICEROID2AƒKƒCƒmƒCƒhTalk‚Íí‚É”ñ•\Ž¦j
 ---[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚Ì ''uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èvƒAƒbƒvƒ_ƒEƒ“ŒQ''
 ---[[.exo‰æ–Ê>#explain-exo]]/[[ƒLƒƒƒ‰ƒNƒ^[•Êƒ^ƒu>#explain-exo-chara]]‚Ì ''VOICEROID‘I‘ðƒRƒ“ƒ{ƒ{ƒbƒNƒX''
 --”ñ•\Ž¦‚É‚È‚é‚¾‚¯‚Å‚ ‚èA‚»‚ÌVOICEROIDŒÂ•Ê‚ÌÝ’è‚ªÁ‚¦‚é‚±‚Æ‚Í‚ ‚è‚Ü‚¹‚ñB
@@ -252,7 +252,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 --‰üs‚â‹ó”’•¶Žš‚Í ''"_"'' iƒAƒ“ƒ_[ƒo[j‚ÉAƒtƒ@ƒCƒ‹–¼‚Æ‚µ‚ÄŽg—p‚Å‚«‚È‚¢•¶Žš‚Í ''"x"'' ‚É’uŠ·‚³‚ê‚Ü‚·B
 ---VOICEROID–{‘Ì‚â.exoƒtƒ@ƒCƒ‹‚Ì§–ñãAUnicode•¶Žš‚àƒtƒ@ƒCƒ‹–¼‚Æ‚µ‚ÄŽg—p‚Å‚«‚È‚¢•¶Žš‚ÉŠÜ‚Ý‚Ü‚·B
 --Šù‚É“¯‚¶–¼‘O‚Ìƒtƒ@ƒCƒ‹‚ª‘¶Ý‚·‚éê‡‚ÍŠg’£Žq‚ÌŽè‘O‚É ''"[1]"'' “™‚ÌŠpƒJƒbƒR”’l•¶Žš—ñ‚ª’Ç‰Á‚³‚ê‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Å‚ÍAƒLƒƒƒ‰–¼‚Æ‚µ‚Ä–{‘Ì‘¤‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg–¼‚ª‚»‚Ì‚Ü‚Ü—˜—p‚³‚ê‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Å‚ÍAƒLƒƒƒ‰–¼‚Æ‚µ‚Ä–{‘Ì‘¤‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg–¼‚ª‚»‚Ì‚Ü‚Ü—˜—p‚³‚ê‚Ü‚·B
 :&#9316;uƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð•K‚¸ì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆA‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶Žž‚É“ü—Í•¶‚ª‘‚©‚ê‚½ƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð“¯Žž‚Éì¬‚µ‚Ü‚·B
 ---ŽÀÛ‚É‘‚«o‚³‚ê‚é•¶Í‚ÍA“ü—Í•¶‚É‘Î‚µ‚Ä[[’uŠ·‰æ–Ê>#explain-replace]]‚ÌÝ’è“à—e‚É‚æ‚é’uŠ·‚ðs‚Á‚½‚à‚Ì‚É‚È‚è‚Ü‚·B
@@ -260,7 +260,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 --‚±‚Ìƒ`ƒFƒbƒN‚ð“ü‚ê‚È‚¢ê‡‚Å‚àAVOICEROID–{‘Ì‘¤‚ªƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ðì¬‚·‚éÝ’è‚É‚È‚Á‚Ä‚¢‚é‚È‚ç‚ÎA‚»‚¿‚ç‚Ìˆ—‚É‚æ‚Á‚ÄƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ªì¬‚³‚ê‚Ü‚·B
 ---—¼‹@”\‚Æ‚à—LŒø‚Èê‡‚ÍAVOICEROID–{‘Ì‘¤‚ªì¬‚µ‚½ƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ðwVoiceroidUtilx‘¤‚Ìˆ—‚Åã‘‚«‚µ‚Ü‚·B
 ---—¼‹@”\‚Æ‚à–³Œø‚Èê‡Aw‚ä‚Á‚­‚èMovieMaker3x‚Æ‚Ì˜AŒgŽž‚ÉŽš–‹‚ª‘}“ü‚³‚ê‚Ü‚¹‚ñB
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚ÌÝ’è‚Í–³Ž‹''‚³‚êAƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚ÌÝ’è‚Í–³Ž‹''‚³‚êAƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
 :&#9317;u•¶ŽšƒR[ƒh UTF-8 ‚Åì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆAì¬‚·‚éƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Ì•¶ŽšƒR[ƒh‚ðUTF-8‚É‚µ‚Ü‚·B
 ---ƒ`ƒFƒbƒN‚ð“ü‚ê‚È‚¯‚ê‚ÎVOICEROID–{‘Ì‚Æ“¯‚¶‚­ƒVƒtƒgJIS((³Šm‚É‚ÍCodePage932B))‚É‚È‚è‚Ü‚·B
@@ -276,17 +276,17 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÉŠÖ‚µ‚Ä‚Í‘¼‚Ìƒ\ƒtƒgƒEƒFƒA‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚
 ---[[.exo‰æ–Ê>#explain-exo]]‚ÌŠeƒ^ƒuƒy[ƒW‚Å‚ÌÝ’è‚ª”½‰f‚³‚ê‚½‚à‚Ì‚Æ‚È‚è‚Ü‚·B
 ---ƒeƒLƒXƒgƒIƒuƒWƒFƒNƒg‚Ì•¶Í‚ÍA“ü—Í•¶‚É‘Î‚µ‚Ä[[’uŠ·‰æ–Ê>#explain-replace]]‚ÌÝ’è“à—e‚É‚æ‚é’uŠ·‚ðs‚Á‚½‚à‚Ì‚É‚È‚è‚Ü‚·B
 ---‰¹ºƒtƒ@ƒCƒ‹‚Ìâ‘ÎƒpƒX‚ªŠÜ‚Ü‚ê‚Ä‚¢‚é‚½‚ßA‰¹ºƒtƒ@ƒCƒ‹‚ð•Ê‚ÌêŠ‚ÖˆÚ“®‚·‚é‚Æ³í‚É“Ç‚ÝŽæ‚ê‚È‚­‚È‚è‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚ÌÝ’è‚Í–³Ž‹''‚³‚êA.exoƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚ÌÝ’è‚Í–³Ž‹''‚³‚êA.exoƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
 :&#9319;u•Û‘¶¬Œ÷Žž‚É“ü—Í•¶‚ðƒNƒŠƒAvƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆA‰¹º•Û‘¶‚É¬Œ÷‚µ‚½Žž‚É[[‘€ì‰æ–Ê>#explain-main]]‚Ì“ü—Í•¶ƒeƒLƒXƒgƒ{ƒbƒNƒX“à—e‚ðƒNƒŠƒA‚µ‚Ü‚·B
 :&#9320;u•Û‘¶ƒtƒ@ƒCƒ‹–¼Ý’è‘€ì‚ðŒµ–§‚És‚¤vƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆAˆê•”‚ÌŠÂ‹«‚Å‹N‚«‚éA‰¹º•Û‘¶‚É‚Šm—¦‚ÅŽ¸”s‚·‚é•s‹ï‡‚ð‰ñ”ð‚µ‚Ü‚·B
 --•s‹ï‡‚ð‰ñ”ð‚Å‚«‚é‘ã‚í‚è‚É‰¹º•Û‘¶ˆ—‚ª‘½­’x‚­‚È‚é‚½‚ßAŒ³X–â‘è‚Ì‚È‚¢ŠÂ‹«‚Å‚Í‚±‚Ìƒ`ƒFƒbƒN‚ðŠO‚·‚±‚Æ‚Å]—ˆ‚Ì‚‘¬‚Èˆ—‚É–ß‚·‚±‚Æ‚ª‚Å‚«‚Ü‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Å‚Í‚±‚ÌÝ’è‚Í–³Ž‹‚³‚ê‚Ü‚·B
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Å‚Í‚±‚ÌÝ’è‚Í–³Ž‹‚³‚ê‚Ü‚·B
 
 ***YMM3ƒ^ƒu [#explain-config-ymm]
 
-VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚Ìƒ^ƒu‚ÌÝ’è‚Í‚·‚×‚Ä–³Ž‹''‚³‚êAw‚ä‚Á‚­‚èMovieMaker3x‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
+VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚Ìƒ^ƒu‚ÌÝ’è‚Í‚·‚×‚Ä–³Ž‹''‚³‚êAw‚ä‚Á‚­‚èMovieMaker3x‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
 
 #ref(Ý’è‰æ–Ê_YMM.png,left,nolink,Ý’è‰æ–Ê‚ÌYMM3ƒ^ƒu);
 
@@ -301,11 +301,11 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 --w‚ä‚Á‚­‚èMovieMaker3x‚É‘ÎÛƒLƒƒƒ‰ƒNƒ^[‚ª‘¶Ý‚µ‚È‚¢ê‡‚Í‰½‚às‚¢‚Ü‚¹‚ñB
 :&#9314;ƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ðÝ’èƒeƒLƒXƒgƒ{ƒbƒNƒXŒQ|
 --''uƒLƒƒƒ‰ƒNƒ^[‚ðŽ©“®‘I‘ðvƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚Ä‚¢‚éê‡A‚±‚ÌÝ’è‚É]‚Á‚Äw‚ä‚Á‚­‚èMovieMaker3x‚ÌƒLƒƒƒ‰ƒNƒ^[‚ð‘I‘ð‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
 --‹ó—“‚É‚µ‚½ê‡‚ÍƒLƒƒƒ‰ƒNƒ^[‚ðŽ©“®‘I‘ð‚µ‚Ü‚¹‚ñB
-:&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk/A.I.VOICE‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¢‚Äw‚ä‚Á‚­‚èMovieMaker3x‚ÌƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ð‚ª‚Ç‚Ì‚æ‚¤‚És‚í‚ê‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
---[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
+:&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¢‚Äw‚ä‚Á‚­‚èMovieMaker3x‚ÌƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ð‚ª‚Ç‚Ì‚æ‚¤‚És‚í‚ê‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
+--[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
 :&#9316;u’Ç‰Áƒ{ƒ^ƒ“‚ðŽ©“®ƒNƒŠƒbƒNvƒ`ƒFƒbƒNƒ{ƒbƒNƒX|
 --ƒ`ƒFƒbƒN‚ð“ü‚ê‚é‚ÆAw‚ä‚Á‚­‚èMovieMaker3x‚Ìƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚É‚ ‚éu’Ç‰Ávƒ{ƒ^ƒ“‚ðŽ©“®‚ÅƒNƒŠƒbƒN‚µ‚Ü‚·B
 --‰¹ºƒtƒ@ƒCƒ‹‚Æ“¯Žž‚ÉƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ðì¬‚µ‚Ä‚¢‚éê‡Aw‚ä‚Á‚­‚èMovieMaker3x‚Í‚»‚ê‚ðŽš–‹ƒeƒLƒXƒg‚ÉÝ’è‚µ‚Ü‚·B
@@ -322,7 +322,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 -[[‚²‚¿‚á‚Ü‚ºƒhƒƒbƒvƒX>https://github.com/oov/aviutl_gcmzdrops]]
 --[[PSDToolKit>https://github.com/oov/aviutl_psdtoolkit]]
 
-VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚Ìƒ^ƒu‚ÌÝ’è‚Í‚·‚×‚Ä–³Ž‹''‚³‚êAwAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
+VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡A''‚±‚Ìƒ^ƒu‚ÌÝ’è‚Í‚·‚×‚Ä–³Ž‹''‚³‚êAwAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
 
 #ref(Ý’è‰æ–Ê_AviUtl.png,left,nolink,Ý’è‰æ–Ê‚ÌAviUtlƒ^ƒu);
 
@@ -346,11 +346,11 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 --ƒtƒ@ƒCƒ‹ƒhƒƒbƒv‰Â”\‚Èó‘Ô‚É‚È‚Á‚Ä‚¢‚È‚¯‚ê‚Îî•ñ‚ÌŽæ“¾‚ÉŽ¸”s‚µ‚Ü‚·B‚»‚Ìê‡‚Í[[.exo‰æ–Ê>#explain-exo]]/[[‹¤’Êƒ^ƒu>#explain-exo-common]]‚ÌŠeŽíÝ’è‚ª—˜—p‚³‚ê‚Ü‚·B
 :&#9314;uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èvƒAƒbƒvƒ_ƒEƒ“ŒQ|
 --VOICEROID•Ê‚ÉAƒtƒ@ƒCƒ‹ƒhƒƒbƒvæƒŒƒCƒ„[”Ô†‚ðÝ’è‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
---Ý’è€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkvAuA.I.VOICEv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
-:&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk/A.I.VOICE‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÅŽ©“®ƒtƒ@ƒCƒ‹ƒhƒƒbƒv‹@”\‚ð—p‚¢‚éÛA‚Ç‚Ì ''uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èv'' ‚ª—˜—p‚³‚ê‚é‚±‚Æ‚É‚È‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
---[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+--Ý’è€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+:&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚ÅŽ©“®ƒtƒ@ƒCƒ‹ƒhƒƒbƒv‹@”\‚ð—p‚¢‚éÛA‚Ç‚Ì ''uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èv'' ‚ª—˜—p‚³‚ê‚é‚±‚Æ‚É‚È‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
+--[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
 
 **’uŠ·‰æ–Ê [#explain-replace]
 
@@ -393,7 +393,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 Šeƒ^ƒuƒy[ƒW‚É‚ÄAAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚Ìì¬‚ÉŠÖ‚·‚éŠeŽíÝ’è‚ðs‚¢‚Ü‚·B~
 ‚±‚Ì‰æ–Ê‚ð—˜—p‚·‚é‚É‚ÍA[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚Ì ''uAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚ðì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚é•K—v‚ª‚ ‚è‚Ü‚·B
 
-VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡AÝ’è“à—e‚ÉŠÖ‚í‚ç‚¸AAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
+VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê‡AÝ’è“à—e‚ÉŠÖ‚í‚ç‚¸AAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Íì¬‚³‚ê‚Ü‚¹‚ñB
 
 ***‹¤’Êƒ^ƒu [#explain-exo-common]
 
@@ -433,9 +433,9 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 
 :&#9312;VOICEROID‘I‘ðƒRƒ“ƒ{ƒ{ƒbƒNƒX|
 --Ý’è‚ðs‚¤VOICEROID‚ð‘I‘ð‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
 --ˆÈ~‚ÌÝ’è‚ÍA‚±‚±‚Å‘I‘ð‚µ‚½VOICEROID‚ð—p‚¢‚Ä‰¹º•Û‘¶•AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ì¬‚ðs‚¤Û‚É—˜—p‚³‚ê‚é‚à‚Ì‚Æ‚È‚è‚Ü‚·B
----‚½‚¾‚µ‘I‘ð€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkvAuA.I.VOICEv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
+---‚½‚¾‚µ‘I‘ð€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 --Ý’è‚ÍVOICEROID‚²‚Æ‚É•Û‘¶‚³‚ê‚Ä‚¨‚èA‚±‚ÌƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì‘€ì‚É‚æ‚Á‚ÄÁ‚¦‚½‚èã‘‚«‚³‚ê‚½‚è‚·‚é‚±‚Æ‚Í‚ ‚è‚Ü‚¹‚ñB
 --@kbd{Ctrl+”Žš}; ‚ÌƒVƒ‡[ƒgƒJƒbƒg“ü—Í‚ðs‚¤‚±‚Æ‚Å‘Î‰ž‚·‚éˆÊ’u‚ÌVOICEROID‚ð‘I‘ð‚Å‚«‚Ü‚·B
 --@kbd{F1}; ‚ÌƒVƒ‡[ƒgƒJƒbƒg“ü—Í‚ðs‚¤‚±‚Æ‚Å1‚Â‘O‚ÌVOICEROID‚ð‘I‘ð‚Å‚«‚Ü‚·B
@@ -459,14 +459,14 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 --AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Ì‰¹ºƒtƒ@ƒCƒ‹ƒIƒuƒWƒFƒNƒg‚É“K—p‚³‚ê‚éŠeŽíÝ’è‚ðs‚¢‚Ü‚·B
 --Še€–Ú‚Ì“à—e‚ÍwAviUtlŠg’£•ÒWx‚É‚¨‚¯‚é“¯ˆê€–Ú‚É€‚¶‚Ü‚·B
 --€–Ú‚ª­‚È‚­A‚ ‚Ü‚è‚¢‚¶‚é•K—v‚à‚È‚¢‚½‚ßAƒeƒLƒXƒgÝ’èŒQ‚Æ‚ÍˆÙ‚È‚èŠO•”ƒtƒ@ƒCƒ‹‚©‚ç‚ÌÝ’èƒCƒ“ƒ|[ƒg‹@”\‚Í‚ ‚è‚Ü‚¹‚ñB
-:&#9319;uVOICEROID2/ƒKƒCƒmƒCƒhTalk/A.I.VOICE‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÅAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹o—Í‹@”\‚ð—p‚¢‚éÛA‚Ç‚ÌƒLƒƒƒ‰ƒNƒ^[•ÊÝ’è‚ª—˜—p‚³‚ê‚é‚±‚Æ‚É‚È‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
---[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
+:&#9319;uVOICEROID2/ƒKƒCƒmƒCƒhTalk‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚ÅAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹o—Í‹@”\‚ð—p‚¢‚éÛA‚Ç‚ÌƒLƒƒƒ‰ƒNƒ^[•ÊÝ’è‚ª—˜—p‚³‚ê‚é‚±‚Æ‚É‚È‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
+--[[VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚é“à—e‚Æ“¯‚¶‚Å‚·B
 
-*VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì [#voiceroid2]
+*VOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¯‚é“®ì [#voiceroid2]
 
-VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚ÌˆÙ‚È‚é“_‚ª‚ ‚è‚Ü‚·B~
-‚±‚Ì€‚Å‚ÍVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¢‚Ä“Á•Êˆµ‚¢‚³‚ê‚é“®ì‚É‚Â‚¢‚Ä‚Ü‚Æ‚ß‚Ä‚¢‚Ü‚·B
+VOICEROID2AƒKƒCƒmƒCƒhTalk‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚ÌˆÙ‚È‚é“_‚ª‚ ‚è‚Ü‚·B~
+‚±‚Ì€‚Å‚ÍVOICEROID2AƒKƒCƒmƒCƒhTalk‚É‚¨‚¢‚Ä“Á•Êˆµ‚¢‚³‚ê‚é“®ì‚É‚Â‚¢‚Ä‚Ü‚Æ‚ß‚Ä‚¢‚Ü‚·B
 
 **ŠÈ’P‚È‚Ü‚Æ‚ß [#voiceroid2-about]
 
@@ -475,11 +475,11 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆ
 --•¶Í’†‚Éƒ{ƒCƒXƒvƒŠƒZƒbƒgƒ^ƒO‚ð‹Lq‚µ‚ÄŽÀÛ‚ÉŽg‚í‚ê‚éƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ðŒÅ’è‚µ‚Ä‚¢‚éê‡‚Å‚ ‚Á‚Ä‚àA“–ƒc[ƒ‹‚Å‚Íˆ—ŠJŽnŽž‚É‘I‘ð’†‚¾‚Á‚½ƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ªŽg‚í‚ê‚½‚à‚Ì‚Æ”FŽ¯‚µ‚Ü‚·B
 -[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚¨‚æ‚Ñ[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚É‚¨‚¢‚Ä‚ÍAƒ{ƒCƒXƒvƒŠƒZƒbƒg‚Ì–¼‘O‚ÉŠÜ‚Ü‚ê‚éƒL[ƒ[ƒh‚É‚æ‚Á‚Ä‘ÎÛƒLƒƒƒ‰ƒNƒ^[‚ªŒˆ’è‚³‚ê‚Ü‚·B
 --[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚Ì€‚É‘‚©‚ê‚Ä‚¢‚éƒL[ƒ[ƒhˆê——•\‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
--–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒuiA.I.VOICE‚Å‚ÍƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒuj‚É‚Ä ''uƒtƒ@ƒCƒ‹•ªŠ„vÝ’è'' ‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·v''ˆÈŠO''‚ÉÝ’è‚·‚é‚±‚Æ‚Í”ñ„§‚Å‚·B
+-–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒu‚É‚Ä ''uƒtƒ@ƒCƒ‹•ªŠ„vÝ’è'' ‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·v''ˆÈŠO''‚ÉÝ’è‚·‚é‚±‚Æ‚Í”ñ„§‚Å‚·B
 #ref(VOICEROID2_‰¹º•Û‘¶_ƒtƒ@ƒCƒ‹•ªŠ„Ý’è.png,left,nolink,VOICEROID2 : ƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒu‚É‚¨‚¯‚éƒtƒ@ƒCƒ‹•ªŠ„‚Ì„§Ý’è)
 --''uƒtƒ@ƒCƒ‹•ªŠ„vÝ’è'' ‚ð”ñ„§Ý’è‚É‚·‚é‚ÆAAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ì¬Aw‚ä‚Á‚­‚èMovieMaker3x˜AŒgAwAviUtlŠg’£•ÒWx˜AŒg“™‚ªs‚í‚ê‚È‚­‚È‚è‚Ü‚·B
--A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶æ‚Í–{‘Ì‘¤‚ÌÝ’è‚É€‚¶‚Ü‚·B
---‚Ü‚½AAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ì¬Aw‚ä‚Á‚­‚èMovieMaker3x˜AŒgAwAviUtlŠg’£•ÒWx˜AŒg“™‚ªs‚í‚ê‚È‚­‚È‚è‚Ü‚·B
+//-A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶æ‚Í–{‘Ì‘¤‚ÌÝ’è‚É€‚¶‚Ü‚·B
+//--‚Ü‚½AAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ì¬Aw‚ä‚Á‚­‚èMovieMaker3x˜AŒgAwAviUtlŠg’£•ÒWx˜AŒg“™‚ªs‚í‚ê‚È‚­‚È‚è‚Ü‚·B
 
 Ú×‚ÍŒãq‚ÌŠe€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 
@@ -487,13 +487,13 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆ
 
 -~‰¹º•Û‘¶‚ÍA[[‘€ì‰æ–Ê>#explain-main]]‚Ì''u‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚½ŽžA–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg''‚ð—p‚¢‚Äs‚í‚ê‚Ü‚·B
 --‰¹ºƒtƒ@ƒCƒ‹–¼‚ÉŽg‚í‚ê‚éƒLƒƒƒ‰–¼‚âA[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]A[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚É‚¨‚¢‚ÄA‚±‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚Ì–¼‘O‚ª—˜—p‚³‚ê‚Ü‚·B
--~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/ƒ{ƒCƒXƒ^ƒuiA.I.VOICE‚Å‚ÍƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/ƒ{ƒCƒXƒ^ƒuj‚É‚Ä ''uƒ{ƒCƒXƒvƒŠƒZƒbƒgƒ^ƒOvÝ’è'' ‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ÉŠÖ‚í‚ç‚¸“Á’è‚©‚Â•¡”‚ÌVOICEROID‚É’‚ç‚¹‚é‚±‚Æ‚ª‰Â”\‚Å‚·‚ªA‚±‚Ìê‡‚Å‚ ‚Á‚Ä‚à“–ƒc[ƒ‹‚Å‚ÍA''u‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚½ŽžA–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg''‚ªŽg‚í‚ê‚½‚à‚Ì‚Æ”FŽ¯‚µ‚Ü‚·B
+-~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/ƒ{ƒCƒXƒ^ƒu‚É‚Ä ''uƒ{ƒCƒXƒvƒŠƒZƒbƒgƒ^ƒOvÝ’è'' ‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ÉŠÖ‚í‚ç‚¸“Á’è‚©‚Â•¡”‚ÌVOICEROID‚É’‚ç‚¹‚é‚±‚Æ‚ª‰Â”\‚Å‚·‚ªA‚±‚Ìê‡‚Å‚ ‚Á‚Ä‚à“–ƒc[ƒ‹‚Å‚ÍA''u‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚½ŽžA–{‘Ì‘¤‚Å‘I‘ð’†‚Ìƒ{ƒCƒXƒvƒŠƒZƒbƒg''‚ªŽg‚í‚ê‚½‚à‚Ì‚Æ”FŽ¯‚µ‚Ü‚·B
 --—á‚¦‚Î‰º‹L‰æ–Ê‚Ì‚æ‚¤‚Èó‘Ô‚Åu‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚½ê‡AŽÀÛ‚ÉŽg‚í‚ê‚éƒ{ƒCƒXƒvƒŠƒZƒbƒg‚ÍuŒ‹ŒŽ‚ä‚©‚èv‚Å‚·‚ªA“–ƒc[ƒ‹‚Å‚Í‘I‘ð’†‚Ìu‹Õ—t ˆ©v‚ªŽg‚í‚ê‚½‚à‚Ì‚Æ”FŽ¯‚µ‚Ü‚·B
 #ref(VOICEROID2_‰¹º•Û‘¶_ƒ{ƒCƒXƒvƒŠƒZƒbƒgƒ^ƒO.png,left,nolink,VOICEROID2 : uŒ‹ŒŽ‚ä‚©‚èvƒ^ƒO‚ð—p‚¢‚Â‚Âu‹Õ—t ˆ©v‚ð‘I‘ð‚µ‚½ó‘Ô)
 -~[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚Ì ''uƒtƒ@ƒCƒ‹–½–¼vƒRƒ“ƒ{ƒ{ƒbƒNƒX'' ‚ÅuƒLƒƒƒ‰–¼v‚ðŠÜ‚Þ€–Ú‚ð‘I‘ð‚µ‚Ä‚¢‚éê‡AƒLƒƒƒ‰–¼‚É‚Íƒ{ƒCƒXƒvƒŠƒZƒbƒg–¼Ž©‘Ì‚ªŽg‚í‚ê‚Ü‚·B
 --‹ó”’•¶Žš‚âUnicode•¶Žš‚Ì’uŠ·ˆ—‘ÎÛ‚Å‚ ‚é‚½‚ßA—á‚¦‚Îƒ{ƒCƒXƒvƒŠƒZƒbƒgu‹Õ—t ˆ©v‚ÌƒLƒƒƒ‰–¼‚Í ''"‹Õ—t_ˆ©"'' ‚É‚È‚è‚Ü‚·B
 --ƒ{ƒCƒXƒvƒŠƒZƒbƒg–¼‚ÍŒãq‚Ì[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚â[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Å‚à—˜—p‚³‚ê‚é‚½‚ßAƒ†[ƒU[ƒ{ƒCƒXƒvƒŠƒZƒbƒg‚Ì–¼‘O‚ð•t‚¯‚éÛ‚Í‚»‚ê‚ç‚àl—¶‚µ‚Ä‚­‚¾‚³‚¢B
--~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒuiA.I.VOICE‚Å‚ÍƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒuj‚É‚Ä ''uƒtƒ@ƒCƒ‹•ªŠ„vÝ’è'' ‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·v''ˆÈŠO''‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A“–ƒc[ƒ‹‚Å‚Í‰¹ºƒtƒ@ƒCƒ‹•Û‘¶''‚Ì‚Ý''‚ðs‚¢‚Ü‚·B
+-~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒu‚É‚Ä ''uƒtƒ@ƒCƒ‹•ªŠ„vÝ’è'' ‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·v''ˆÈŠO''‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A“–ƒc[ƒ‹‚Å‚Í‰¹ºƒtƒ@ƒCƒ‹•Û‘¶''‚Ì‚Ý''‚ðs‚¢‚Ü‚·B
 --[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚É‚ ‚é‰º‹L‚ÌÝ’è‚Í''–³Ž‹''‚³‚êAƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚âAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Ìì¬‚Ís‚í‚ê‚Ü‚¹‚ñB
 ---uƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð•K‚¸ì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
 ---uAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚ðì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
@@ -502,28 +502,28 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆ
 --[[’uŠ·‰æ–Ê>#explain-replace]]/Žš–‹ƒ^ƒu‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êA–{‘Ì‘¤‚Åì¬‚³‚ê‚éƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Ì’uŠ·ˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
 --ã‹L‚©‚ç‚à‚í‚©‚é’Ê‚èA“–ƒc[ƒ‹‚Æƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚Æ‚Ì•¹—p‚Í”ñ„§‚Å‚·B
 #ref(VOICEROID2_‰¹º•Û‘¶_ƒtƒ@ƒCƒ‹•ªŠ„Ý’è.png,left,nolink,VOICEROID2 : ƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒu‚É‚¨‚¯‚éƒtƒ@ƒCƒ‹•ªŠ„‚Ì„§Ý’è)
--~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒuiA.I.VOICE‚Å‚ÍŠÂ‹«Ý’è‰æ–Êj‚É‚¨‚¯‚é ''u‰¹º•Û‘¶Žž‚É–ˆ‰ñÝ’è‚ð•\Ž¦‚·‚évƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Íƒ`ƒFƒbƒN‚µ‚Ä‚à‚µ‚È‚­‚Ä‚à‘åä•v‚Å‚·B
+-~–{‘Ì‚ÌƒIƒvƒVƒ‡ƒ“‰æ–Ê/‰¹º•Û‘¶ƒ^ƒu‚É‚¨‚¯‚é ''u‰¹º•Û‘¶Žž‚É–ˆ‰ñÝ’è‚ð•\Ž¦‚·‚évƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Íƒ`ƒFƒbƒN‚µ‚Ä‚à‚µ‚È‚­‚Ä‚à‘åä•v‚Å‚·B
 --“–‘R‚È‚ª‚çA‚¢‚¿‚¢‚¿•\Ž¦‚µ‚È‚¢•û‚ª‰¹º•Û‘¶ˆ—‚ª‘‚­I‚í‚é‚½‚ßA“–ƒc[ƒ‹‚Ì—˜—p‚ª‘O’ñ‚Å‚ ‚ê‚Îƒ`ƒFƒbƒN‚ðŠO‚·‚Æ‚æ‚¢‚Å‚µ‚å‚¤B
 
-***A.I.VOICE‚Ìƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’èŽž [#voiceroid2-save-auto]
-
-A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒX‚ÌŽw’è•û–@vÝ’è'' ‚ðuƒtƒ@ƒCƒ‹–½–¼‹K‘¥‚ðŽw’è‚µ‚Ä‘I‘ð‚·‚év‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A‰º‹L‚Ì‚æ‚¤‚È‹““®‚Æ‚È‚è‚Ü‚·B
-
--~‰¹º•Û‘¶‚ÌŽ©“®‘€ì‚ÍÅŒã‚Ü‚Ås‚í‚ê‚Ü‚·B
---–{‘Ì‚ÌŠÂ‹«Ý’è‰æ–Ê‚É‚¨‚¯‚é ''u‰¹º•Û‘¶Žž‚É–ˆ‰ñÝ’è‚ð•\Ž¦‚·‚évƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Íƒ`ƒFƒbƒN‚µ‚Ä‚à‚µ‚È‚­‚Ä‚à‘åä•v‚Å‚·B
--~‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶æ‚Í–{‘Ì‘¤‚Ì–½–¼‹K‘¥Ý’è‚É€‚¶‚Ü‚·B
---[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚É‚ ‚é‰º‹L‚ÌÝ’è‚Í''–³Ž‹''‚³‚ê‚Ü‚·B
----•Û‘¶æƒeƒLƒXƒgƒ{ƒbƒNƒX
----uƒtƒ@ƒCƒ‹–½–¼vƒRƒ“ƒ{ƒ{ƒbƒNƒX
--~‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ˆÈŠO‚Ìˆ—‚ÍˆêØs‚í‚ê‚Ü‚¹‚ñB
---[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚É‚ ‚é‰º‹L‚ÌÝ’è‚Í''–³Ž‹''‚³‚êAƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚âAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Ìì¬‚Ís‚í‚ê‚Ü‚¹‚ñB
----uƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð•K‚¸ì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
----uAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚ðì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
---[[Ý’è‰æ–Ê>#explain-config]]/[[YMM3ƒ^ƒu>#explain-config-ymm]]‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êAw‚ä‚Á‚­‚èMovieMaker3x‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
---[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êAwAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
---[[’uŠ·‰æ–Ê>#explain-replace]]/Žš–‹ƒ^ƒu‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êA–{‘Ì‘¤‚Åì¬‚³‚ê‚éƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Ì’uŠ·ˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
-
-ã‹L‚Ì’Ê‚èA“–ƒc[ƒ‹‚Ì‹@”\‚Í‚Ù‚Æ‚ñ‚Ç—˜—p‚Å‚«‚Ü‚¹‚ñ‚ªA[[w‚©‚ñ‚µ‚­‚ñx>https://github.com/oov/forcepser]]‚Æ•¹—p‚·‚éê‡“™A“–ƒc[ƒ‹‚Å‰¹º•Û‘¶‘€ìˆÈŠO‚Ì–Ê“|‚ðŒ©‚é•K—v‚ª‚È‚¢ê‡‚Í—L—p‚Å‚·B
+//***A.I.VOICE‚Ìƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’èŽž [#voiceroid2-save-auto]
+//
+//A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒX‚ÌŽw’è•û–@vÝ’è'' ‚ðuƒtƒ@ƒCƒ‹–½–¼‹K‘¥‚ðŽw’è‚µ‚Ä‘I‘ð‚·‚év‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A‰º‹L‚Ì‚æ‚¤‚È‹““®‚Æ‚È‚è‚Ü‚·B
+//
+//-~‰¹º•Û‘¶‚ÌŽ©“®‘€ì‚ÍÅŒã‚Ü‚Ås‚í‚ê‚Ü‚·B
+//--–{‘Ì‚ÌŠÂ‹«Ý’è‰æ–Ê‚É‚¨‚¯‚é ''u‰¹º•Û‘¶Žž‚É–ˆ‰ñÝ’è‚ð•\Ž¦‚·‚évƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Íƒ`ƒFƒbƒN‚µ‚Ä‚à‚µ‚È‚­‚Ä‚à‘åä•v‚Å‚·B
+//-~‰¹ºƒtƒ@ƒCƒ‹‚Ì•Û‘¶æ‚Í–{‘Ì‘¤‚Ì–½–¼‹K‘¥Ý’è‚É€‚¶‚Ü‚·B
+//--[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚É‚ ‚é‰º‹L‚ÌÝ’è‚Í''–³Ž‹''‚³‚ê‚Ü‚·B
+//---•Û‘¶æƒeƒLƒXƒgƒ{ƒbƒNƒX
+//---uƒtƒ@ƒCƒ‹–½–¼vƒRƒ“ƒ{ƒ{ƒbƒNƒX
+//-~‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ˆÈŠO‚Ìˆ—‚ÍˆêØs‚í‚ê‚Ü‚¹‚ñB
+//--[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚É‚ ‚é‰º‹L‚ÌÝ’è‚Í''–³Ž‹''‚³‚êAƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚âAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹‚Ìì¬‚Ís‚í‚ê‚Ü‚¹‚ñB
+//---uƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð•K‚¸ì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
+//---uAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚ðì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX
+//--[[Ý’è‰æ–Ê>#explain-config]]/[[YMM3ƒ^ƒu>#explain-config-ymm]]‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êAw‚ä‚Á‚­‚èMovieMaker3x‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
+//--[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êAwAviUtlŠg’£•ÒWx‚Æ‚Ì˜AŒg‚Ís‚í‚ê‚Ü‚¹‚ñB
+//--[[’uŠ·‰æ–Ê>#explain-replace]]/Žš–‹ƒ^ƒu‚ÌÝ’è‚Í''‚·‚×‚Ä–³Ž‹''‚³‚êA–{‘Ì‘¤‚Åì¬‚³‚ê‚éƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚Ì’uŠ·ˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
+//
+//ã‹L‚Ì’Ê‚èA“–ƒc[ƒ‹‚Ì‹@”\‚Í‚Ù‚Æ‚ñ‚Ç—˜—p‚Å‚«‚Ü‚¹‚ñ‚ªA[[w‚©‚ñ‚µ‚­‚ñx>https://github.com/oov/forcepser]]‚Æ•¹—p‚·‚éê‡“™A“–ƒc[ƒ‹‚Å‰¹º•Û‘¶‘€ìˆÈŠO‚Ì–Ê“|‚ðŒ©‚é•K—v‚ª‚È‚¢ê‡‚Í—L—p‚Å‚·B
 
 **w‚ä‚Á‚­‚èMovieMaker3x˜AŒg [#voiceroid2-ymm]
 
@@ -596,7 +596,7 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 ‚Ü‚¸A[[w‚ä‚Á‚­‚èMovieMaker3x˜AŒg>#voiceroid2-ymm]]‚Æ“¯—l‚Ì•û–@‚ÅAƒL[ƒ[ƒh‚ª1‚ÂˆÈãŠÜ‚Ü‚ê‚Ä‚¢‚éVOICEROID‚Ì’†‚©‚ç‘ÎÛVOICEROID‚ðŒˆ’è‚µ‚Ü‚·B~
 Œˆ’è‚Å‚«‚½‚Ì‚Å‚ ‚ê‚ÎˆÈ~‚à“¯—l‚ÉA‘ÎÛVOICEROID‚ð—p‚¢‚Ä‰¹º•Û‘¶‚ðs‚Á‚½ê‡‚Æ“¯“™‚Ì“®ì‚É‚È‚è‚Ü‚·B
 
-‚Ç‚ÌVOICEROID‚ÌƒL[ƒ[ƒh‚àŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢ê‡A‚»‚ê‚¼‚ê€–Ú–¼‚ªuVOICEROID2vAuƒKƒCƒmƒCƒhTalkvAuA.I.VOICEv‚ÌÝ’è‚ª—p‚¢‚ç‚ê‚Ü‚·B~
+‚Ç‚ÌVOICEROID‚ÌƒL[ƒ[ƒh‚àŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢ê‡A‚»‚ê‚¼‚ê€–Ú–¼‚ªuVOICEROID2vAuƒKƒCƒmƒCƒhTalkv‚ÌÝ’è‚ª—p‚¢‚ç‚ê‚Ü‚·B~
 ‚±‚ÌÝ’è‚ÍƒL[ƒ[ƒh‚ªˆêØŠÜ‚Ü‚ê‚Ä‚¢‚È‚¢ê‡ŒÀ’è‚Å—p‚¢‚ç‚êAƒL[ƒ[ƒh‚ªŠÜ‚Ü‚ê‚Ä‚¢‚éê‡‚É—˜—p‚³‚ê‚é‚±‚Æ‚Í‚ ‚è‚Ü‚¹‚ñB
 
 *Q•A [#qa]
@@ -639,7 +639,7 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 :uÄ¶vƒ{ƒ^ƒ“‚Í³í“®ì‚·‚é‚ªAu‰¹º•Û‘¶vƒ{ƒ^ƒ“‚Ìˆ—‚ÉŽ¸”s‚·‚éB|
 --wVoiceroidUtilx‚ðÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 ---version 1.7.0 ˆÈ‘O‚ÍAˆÈ~‚Ì“à—e‚ð‚·‚×‚ÄŠm”F‚µ‚½ã‚Å‚È‚¨‰¹º•Û‘¶‚ÉŽ¸”s‚·‚éŠÂ‹«‚ª‘¶Ý‚µ‚Ä‚¢‚Ü‚µ‚½B
----version 1.15.1 ‚¨‚æ‚Ñ version 1.15.2 ‚Å‚ÍAVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Ì‰¹º•Û‘¶Žž‚ÉƒAƒvƒŠ‚ª—Ž‚¿‚Ä‚µ‚Ü‚¤•s‹ï‡‚ª‚ ‚è‚Ü‚µ‚½B
+---version 1.15.1 ‚¨‚æ‚Ñ version 1.15.2 ‚Å‚ÍAVOICEROID2AƒKƒCƒmƒCƒhTalk‚Ì‰¹º•Û‘¶Žž‚ÉƒAƒvƒŠ‚ª—Ž‚¿‚Ä‚µ‚Ü‚¤•s‹ï‡‚ª‚ ‚è‚Ü‚µ‚½B
 --VOICEROID–{‘Ì‚ðÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 --•Û‘¶æƒtƒHƒ‹ƒ_‚É‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
 ---u•Û‘¶æƒtƒHƒ‹ƒ_[‚ðì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½BvAu•Û‘¶æƒtƒHƒ‹ƒ_[‚Ö‚Ì‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚è‚Ü‚¹‚ñBv‚È‚Ç‚ÆƒGƒ‰[•\Ž¦‚³‚ê‚éê‡‚Í‘‚«ž‚ÝŒ ŒÀ‚ª‚ ‚è‚Ü‚¹‚ñB
@@ -668,8 +668,8 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 --‘¼‚ÌƒEƒBƒ“ƒhƒE‘€ìŒnƒc[ƒ‹‚ð“®ì‚³‚¹‚Ä‚¢‚éê‡Aˆ—‚ª‹£‡‚·‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
 --Windows 7 Home ‚©‚ÂwƒJƒXƒyƒ‹ƒXƒL[ 2016x‚âwƒJƒXƒyƒ‹ƒXƒL[ ƒZƒLƒ…ƒŠƒeƒB 2017x‚ð“±“ü‚µ‚½ŠÂ‹«‚É‚¨‚¢‚ÄA˜AŒg‚ÉŽ¸”s‚·‚é‚±‚Æ‚ªŠm”F‚³‚ê‚Ä‚¢‚Ü‚·B
 ---version 1.6.2 ‚Å‘Îˆ‚µ‚Ü‚µ‚½‚ªAª–{‰ðŒˆ‚Å‚«‚Ä‚¢‚é‚©”Û‚©‚Í•s–¾‚Å‚·B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Åuƒtƒ@ƒCƒ‹•ªŠ„vÝ’è‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·vˆÈŠO‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
---A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Åuƒtƒ@ƒCƒ‹•ªŠ„vÝ’è‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·vˆÈŠO‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
+//--A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
 --ìŽÒ‚Ü‚Å‹ï‘Ì“I‚ÈÇó‚ÆPCŠÂ‹«i»•i–¼AWindows‚Ìƒo[ƒWƒ‡ƒ““™j‚ð[[‚²˜A—>Home#about]]’¸‚¯‚ê‚Î‰ü‘P‚Å‚«‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñBi•ÛØ‚Í‚Å‚«‚Ü‚¹‚ñj
 :w‚ä‚Á‚­‚èMovieMaker3x‚ÉŽš–‹ƒeƒLƒXƒg‚ª‘}“ü‚³‚ê‚È‚¢i‚±‚Æ‚ª‚ ‚éjB|
 --[[Ý’è‰æ–Ê>#explain-config]]/[[‰¹º•Û‘¶ƒ^ƒu>#explain-config-save]]‚Ì ''uƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ð•K‚¸ì¬vƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚Ä‚¨‚ç‚¸AVOICEROID–{‘Ì‚ÌƒeƒLƒXƒgƒtƒ@ƒCƒ‹ì¬Ý’è‚à–³Œø‚Å‚ ‚éê‡AƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚ªì¬‚³‚ê‚È‚¢‚½‚ßw‚ä‚Á‚­‚èMovieMaker3x‚ÌŽš–‹ƒeƒLƒXƒg‘}“üˆ—‚ª“­‚«‚Ü‚¹‚ñB
@@ -686,8 +686,8 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 ---ƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚ª•\Ž¦‚³‚ê‚Ä‚¢‚È‚¢ê‡AuÝ’èvƒƒjƒ…[‚©‚çuŠg’£•ÒW‚ÌÝ’èv‚ð‘I‚ñ‚Å•\Ž¦‚³‚¹‚Ä‚­‚¾‚³‚¢B
 --AviUtlŠg’£•ÒWƒvƒƒWƒFƒNƒg‚ªŠJ‚¢‚Ä‚¢‚é‚±‚Æ‚ð‚²Šm”F‚­‚¾‚³‚¢B
 ---V‹Kì¬‚µ‚½‚¢ê‡‚Íƒ^ƒCƒ€ƒ‰ƒCƒ“ƒEƒBƒ“ƒhƒE‚Ì‰EƒNƒŠƒbƒNƒƒjƒ…[‚©‚çuV‹KƒvƒƒWƒFƒNƒg‚Ìì¬v‚ð‘I‚ñ‚Å‚­‚¾‚³‚¢B
---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚Åuƒtƒ@ƒCƒ‹•ªŠ„vÝ’è‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·vˆÈŠO‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
---A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
+--VOICEROID2AƒKƒCƒmƒCƒhTalk‚Åuƒtƒ@ƒCƒ‹•ªŠ„vÝ’è‚ðu‚P‚Â‚Ìƒtƒ@ƒCƒ‹‚É‘‚«o‚·vˆÈŠO‚ÉÝ’è‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
+//--A.I.VOICE‚Åƒtƒ@ƒCƒ‹–½–¼‹K‘¥Ý’è‚ð—LŒø‚É‚µ‚Ä‚¢‚éê‡A˜AŒgˆ—‚Ís‚í‚ê‚Ü‚¹‚ñB
 --ìŽÒ‚Ü‚Å‹ï‘Ì“I‚ÈÇó‚ÆPCŠÂ‹«i»•i–¼AWindows‚Ìƒo[ƒWƒ‡ƒ““™j‚ð[[‚²˜A—>Home#about]]’¸‚¯‚ê‚Î‰ü‘P‚Å‚«‚é‚©‚à‚µ‚ê‚Ü‚¹‚ñBi•ÛØ‚Í‚Å‚«‚Ü‚¹‚ñj
 :wAviUtlŠg’£•ÒWx‚ÉAviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹i.exoj‚ª³‚µ‚­ƒhƒƒbƒv‚³‚ê‚È‚¢B|
 --ƒtƒ@ƒCƒ‹ƒhƒƒbƒv—\’èæ‚ÉŠù‚ÉƒAƒCƒeƒ€‚ª‘¶Ý‚·‚éê‡Aƒhƒƒbƒv‚Å‚«‚È‚©‚Á‚½‚è’†“r”¼’[‚Éƒhƒƒbƒv‚³‚ê‚½‚è‚µ‚Ü‚·B
@@ -702,9 +702,16 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 --w‚©‚ñ‚µ‚­‚ñx‚ð—˜—p‚·‚éê‡A[[Ý’è‰æ–Ê>#explain-config]]/[[AviUtlƒ^ƒu>#explain-config-aviutl]]‚ÌŽ©“®ƒtƒ@ƒCƒ‹ƒhƒƒbƒvÝ’è‚Í–³Œø‚É‚µ‚Ä‚­‚¾‚³‚¢B
 --‚»‚à‚»‚àƒtƒ@ƒCƒ‹ƒhƒƒbƒvŽ©‘Ì‚ªs‚í‚ê‚È‚¢ê‡Aw‚©‚ñ‚µ‚­‚ñx‚ÌÝ’èƒtƒ@ƒCƒ‹‚Ì“à—e‚ðŠÔˆá‚¦‚Ä‚¢‚é‰Â”\«‚ª‚ ‚è‚Ü‚·B
 ---ÅV”Å‚Åo—Í‚³‚ê‚éƒƒO“™‚ð‚²Šm”F‚­‚¾‚³‚¢B
+--wA.I.VOICEx‚ª‘€ì‘ÎÛ‚É“ü‚Á‚Ä‚¢‚È‚¢B
+---version 1.16.0 ‚ÅwA.I.VOICEx‚ð”ñ‘Î‰ž‚Æ‚µ‚Ü‚µ‚½BwA.I.VOICExÅV”Å‚É‚¨‚¢‚ÄŽ©“®‘€ì‚ÌŽÀŒ»‚ª¢“ï‚Æ‚È‚Á‚½‚½‚ß‚Å‚·B
 
 *XV—š—ð [#history]
 
+:2021-07-22|
+--version 1.16.0 ‚É‘Î‰žB
+---wA.I.VOICEx”ñ‘Î‰ž‰»‚É”º‚¤C³B
+--[[Q•A>#qa]]‚ðXVB
+--ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg‚ðXVB
 :2021-07-21|
 --version 1.15.3 ‚É‘Î‰žB
 --[[Q•A>#qa]]‚ðXVB
