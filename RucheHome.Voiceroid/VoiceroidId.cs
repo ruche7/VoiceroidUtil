@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -148,12 +147,14 @@ namespace RucheHome.Voiceroid
         /// </summary>
         [EnumMember]
         GynoidTalk,
-        
+
+#if AIVOICE_SUPPORTED
         /// <summary>
         /// A.I.VOICE
         /// </summary>
         [EnumMember]
         AiVoice,
+#endif // AIVOICE_SUPPORTED
     }
 
     /// <summary>
@@ -174,8 +175,10 @@ namespace RucheHome.Voiceroid
         /// </remarks>
         public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
             id == VoiceroidId.Voiceroid2 ||
-            id == VoiceroidId.GynoidTalk ||
-            id == VoiceroidId.AiVoice;
+#if AIVOICE_SUPPORTED
+            id == VoiceroidId.AiVoice ||
+#endif // AIVOICE_SUPPORTED
+            id == VoiceroidId.GynoidTalk;
 
         /// <summary>
         /// VOICEROID識別IDに紐付く情報を取得する。
@@ -361,6 +364,7 @@ namespace RucheHome.Voiceroid
                     @"GynoidTalk Editor",
                     displayProduct: @"ガイノイドTalk",
                     multiCharacters: true),
+#if AIVOICE_SUPPORTED
                 new VoiceroidInfo(
                     VoiceroidId.AiVoice,
                     true,
@@ -370,6 +374,7 @@ namespace RucheHome.Voiceroid
                     @"A.I.VOICE Editor",
                     displayProduct: @"A.I.VOICE",
                     multiCharacters: true),
+#endif // AIVOICE_SUPPORTED
             }
             .ToDictionary(info => info.Id);
     }
