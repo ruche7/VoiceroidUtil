@@ -55,10 +55,11 @@ namespace VoiceroidUtil.Services
             var filePathesClone = filePathes.ToArray();
 
             // VoiceroidUtilのメインウィンドウハンドル取得
+            var mainWin = this.MainWindow;
             var mainWinHandle =
-                await this.MainWindow.Dispatcher.InvokeAsync(
-                    () => (HwndSource.FromVisual(this.MainWindow) as HwndSource)?.Handle);
-            if (!mainWinHandle.HasValue || mainWinHandle.Value == IntPtr.Zero)
+                await mainWin.Dispatcher.InvokeAsync(
+                    () => new WindowInteropHelper(mainWin).Handle);
+            if (mainWinHandle == IntPtr.Zero)
             {
                 return FileDrop.Result.Fail;
             }
@@ -68,7 +69,7 @@ namespace VoiceroidUtil.Services
                 await Task.Run(
                     () =>
                         FileDrop.Run(
-                            mainWinHandle.Value,
+                            mainWinHandle,
                             filePathesClone,
                             stepFrameCount,
                             layer,
