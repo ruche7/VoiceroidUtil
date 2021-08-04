@@ -162,13 +162,6 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         {
             ValidateArguments(filePathes, stepFrameCount, layer);
 
-            // 処理対象ウィンドウ取得
-            var result = ReadTargetWindow(out var targetWindow);
-            if (result != Result.Success)
-            {
-                return result;
-            }
-
             // 拡張編集ウィンドウが表示されていないと失敗するので確認
             var exEditWindow =
                 Win32Window.FromDesktop()
@@ -182,10 +175,6 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             if (exEditWindow == null || !exEditWindow.IsExists)
             {
                 return Result.ExEditWindowNotFound;
-            }
-            if (!exEditWindow.IsVisible)
-            {
-                return Result.ExEditWindowInvisible;
             }
 
             // 『ごちゃまぜドロップス』 v0.3.12 以降であればミューテクスによる排他制御が可能
@@ -207,6 +196,22 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
 
             try
             {
+                // 『ごちゃまぜドロップス』共有メモリ情報読み取り＆検証
+                // v0.3.12 以降ならば外部連携APIバージョン付きの情報を読み取る
+                var result = ReadAndValidateGcmzInfo(out var gcmzInfo, mutex != null);
+                if (result != Result.Success)
+                {
+                    return result;
+                }
+
+                // 外部連携APIバージョン 2 以降は拡張編集ウィンドウ非表示状態でもドロップ可能
+                // 正確には、外部連携APIバージョン 2 になったのは v0.3.23 、
+                // 非表示状態で正常にドロップできるようになったのは v0.3.25 以降だが許容する
+                if (gcmzInfo.ApiVersion < 2 && !exEditWindow.IsVisible)
+                {
+                    return Result.ExEditWindowInvisible;
+                }
+
                 // COPYDATASTRUCT 作成
                 // 『ごちゃまぜドロップス』 v0.3.11 以前なら旧フォーマットを使う
                 var gcmzLayer = (layer == 0) ? -MinLayer : layer;
@@ -239,11 +244,8 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
 
                 // WM_COPYDATA メッセージ送信
                 var msgRes =
-                    targetWindow.SendMessage(
-                        WM_COPYDATA,
-                        ownWindowHandle,
-                        lParam,
-                        timeoutMilliseconds);
+                    new Win32Window(gcmzInfo.WindowHandle)
+                        .SendMessage(WM_COPYDATA, ownWindowHandle, lParam, timeoutMilliseconds);
                 if (!msgRes.HasValue)
                 {
                     return Result.MessageTimeout;
@@ -369,34 +371,35 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
-        /// 『ごちゃまぜドロップス』から対象ウィンドウハンドルを読み取る。
+        /// 『ごちゃまぜドロップス』の共有メモリ情報を読み取り、状態を検証する。
         /// </summary>
-        /// <param name="dest">対象ウィンドウハンドルの設定先。</param>
-        /// <returns>処理結果。</returns>
-        private static Result ReadTargetWindow(out Win32Window dest)
+        /// <param name="dest">共有メモリ情報の設定先。</param>
+        /// <param name="tryRead0312">
+        /// 『ごちゃまぜドロップス』 v0.3.12 以降の共有メモリ情報読み取りを試みるならば true 。
+        /// </param>
+        /// <returns>検証結果。</returns>
+        private static Result ReadAndValidateGcmzInfo(
+            out GcmzInfo dest,
+            bool tryRead0312 = false)
         {
             dest = null;
 
-            switch (GcmzInfoReader.Read(out var info))
+            switch (GcmzInfoReader.Read(out dest, tryRead0312))
             {
             case GcmzInfoReader.Result.Success:
                 {
-                    if (!info.IsWindowOpened)
+                    if (!dest.IsWindowOpened)
                     {
                         return Result.GcmzWindowNotFound;
                     }
-                    if (!info.IsProjectOpened)
+                    if (!dest.IsProjectOpened)
                     {
                         return Result.ProjectNotFound;
                     }
-
-                    var win = new Win32Window(info.WindowHandle);
-                    if (!win.IsExists)
+                    if (!new Win32Window(dest.WindowHandle).IsExists)
                     {
                         return Result.GcmzWindowNotFound;
                     }
-
-                    dest = win;
                 }
                 break;
 
