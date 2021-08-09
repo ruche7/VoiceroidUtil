@@ -8,7 +8,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 
 現在は下記の環境に基づいて記載しています。
 
--VoiceroidUtil version 1.16.0
+-VoiceroidUtil version 1.16.1
 -[[VOICEROID+ 結月ゆかり EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ 民安ともえ(弦巻マキ) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ 東北ずん子 EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -38,7 +38,7 @@ VOICEROID動画制作支援ツール『VoiceroidUtil』の使用方法マニュアル。
 -[[ゆっくりMovieMaker3>https://manjubox.net/ymm3/]] version 3.4.8.1
 -[[AviUtl>http://spring-fragrance.mints.ne.jp/aviutl/]] version 1.10
 --[[拡張編集>http://spring-fragrance.mints.ne.jp/aviutl/]] version 0.92
---[[ごちゃまぜドロップス>https://github.com/oov/aviutl_gcmzdrops]] version 0.3.19
+--[[ごちゃまぜドロップス>https://github.com/oov/aviutl_gcmzdrops]] version 0.3.25
 
 『ゆっくりMovieMaker3』や『AviUtl』は動作に必須ではありません。
 
@@ -331,7 +331,7 @@ VOICEROID2、ガイノイドTalkにて本体側のファイル分割設定が有効である場合、''このタ
 --『AviUtl』が起動していない場合は何も行わず、エラーにもなりません。
 --下記のような場合は連携に失敗します。
 ---『AviUtl拡張編集』や『ごちゃまぜドロップス』が導入されていない。またはバージョンが古い。
----『AviUtl拡張編集』のタイムラインウィンドウを開いていない。
+---『ごちゃまぜドロップス』のバージョンが v0.3.24 以前で、かつ『AviUtl拡張編集』のタイムラインウィンドウが表示されていない。
 ---AviUtl拡張編集プロジェクトを開いていない。
 --ファイルドロップ予定先に既にアイテムが存在する場合、ドロップできなかったり中途半端にドロップされたりします。
 ---この場合、『VoiceroidUtil』側は成功扱いとなります。実際にドロップ成功したか否かは直接ご確認ください。
@@ -680,10 +680,10 @@ VOICEROID2、ガイノイドTalkは、従来のVOICEROID+シリーズ等とはいくつか扱いの異なる
 ---本機能は version 1.11.0 で追加されました。
 ---version 1.15.1 以前のバージョンと『ごちゃまぜドロップス』の最新版を併用すると必ず失敗します。
 --『AviUtl』に『拡張編集Plugin』および『ごちゃまぜドロップス』が導入されているかご確認ください。また、それぞれ最新版に更新してください。
----『ごちゃまぜドロップス』については『PSDToolKit』に同梱されているものでも構いません。
+---『ごちゃまぜドロップス』については『PSDToolKit』に同梱されているものでも構いませんが、その場合は『PSDToolKit』をベータ版含む最新版に更新してください。
 --『AviUtl』が起動しており、最小化されておらず、『AviUtl拡張編集』のタイムラインウィンドウが開いていることをご確認ください。
----処理の都合上、『AviUtl』が最小化されていると連携に失敗します。
 ---タイムラインウィンドウが表示されていない場合、「設定」メニューから「拡張編集の設定」を選んで表示させてください。
+---『ごちゃまぜドロップス』 v0.3.25 以降は、『AviUtl』が最小化されていたり『AviUtl拡張編集』のタイムラインウィンドウが非表示でも問題なく連携できます。
 --AviUtl拡張編集プロジェクトが開いていることをご確認ください。
 ---新規作成したい場合はタイムラインウィンドウの右クリックメニューから「新規プロジェクトの作成」を選んでください。
 --VOICEROID2、ガイノイドTalkで「ファイル分割」設定を「１つのファイルに書き出す」以外に設定している場合、連携処理は行われません。
@@ -707,6 +707,9 @@ VOICEROID2、ガイノイドTalkは、従来のVOICEROID+シリーズ等とはいくつか扱いの異なる
 
 *更新履歴 [#history]
 
+:2021-08-10|
+--version 1.16.1 に対応。
+--[[Q＆A>#qa]]を更新。
 :2021-07-22|
 --version 1.16.0 に対応。
 ---『A.I.VOICE』非対応化に伴う修正。
