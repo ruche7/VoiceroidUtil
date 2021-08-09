@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
@@ -51,28 +52,28 @@ namespace VoiceroidUtil.Services
             FileDrop.ValidateFilePathes(filePathes, nameof(filePathes));
 
             // コピーしておく
-            var filePathesClone = new List<string>(filePathes);
+            var filePathesClone = filePathes.ToArray();
 
+            // VoiceroidUtilのメインウィンドウハンドル取得
+            var mainWin = this.MainWindow;
+            var mainWinHandle =
+                await mainWin.Dispatcher.InvokeAsync(
+                    () => new WindowInteropHelper(mainWin).Handle);
+            if (mainWinHandle == IntPtr.Zero)
+            {
+                return FileDrop.Result.Fail;
+            }
+
+            // ファイルドロップ処理実施
             return
-                await this.MainWindow.Dispatcher.InvokeAsync(
+                await Task.Run(
                     () =>
-                    {
-                        // VoiceroidUtilのメインウィンドウハンドル取得
-                        var mainWinHandle =
-                            (HwndSource.FromVisual(this.MainWindow) as HwndSource)?.Handle;
-                        if (!mainWinHandle.HasValue)
-                        {
-                            return FileDrop.Result.Fail;
-                        }
-
-                        return
-                            FileDrop.Run(
-                                mainWinHandle.Value,
-                                filePathesClone,
-                                stepFrameCount,
-                                layer,
-                                timeoutMilliseconds);
-                    });
+                        FileDrop.Run(
+                            mainWinHandle,
+                            filePathesClone,
+                            stepFrameCount,
+                            layer,
+                            timeoutMilliseconds));
         }
 
         #endregion

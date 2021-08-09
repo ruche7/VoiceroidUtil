@@ -37,13 +37,12 @@ namespace VoiceroidUtil.Services
         private void DoForwardAction(Win32Window processWindow)
         {
             // VoiceroidUtilのメインウィンドウ作成
-            var mainWinHandle =
-                (HwndSource.FromVisual(this.MainWindow) as HwndSource)?.Handle;
-            if (!mainWinHandle.HasValue)
+            var mainWinHandle = new WindowInteropHelper(this.MainWindow).Handle;
+            if (mainWinHandle == IntPtr.Zero)
             {
                 return;
             }
-            var mainWin = new Win32Window(mainWinHandle.Value);
+            var mainWin = new Win32Window(mainWinHandle);
 
             // 最小化されていたら元に戻す
             if (processWindow.State == WindowState.Minimized)

@@ -97,9 +97,9 @@ namespace VoiceroidUtil.Services
 
                 var handle =
                     (this.Window == null) ?
-                        null : (HwndSource.FromVisual(this.Window) as HwndSource)?.Handle;
+                        IntPtr.Zero : new WindowInteropHelper(this.Window).Handle;
                 var result =
-                    handle.HasValue ? dialog.ShowDialog(handle.Value) : dialog.ShowDialog();
+                    (handle == IntPtr.Zero) ? dialog.ShowDialog() : dialog.ShowDialog(handle);
                 if (result != CommonFileDialogResult.Ok)
                 {
                     return null;
