@@ -59,6 +59,11 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             ExEditWindowNotFound,
 
             /// <summary>
+            /// 拡張編集ウィンドウがブロックされている。(モーダルダイアログ表示中)
+            /// </summary>
+            ExEditWindowBlocked,
+
+            /// <summary>
             /// 拡張編集ウィンドウが閉じられているか最小化されている。
             /// </summary>
             ExEditWindowInvisible,
@@ -165,16 +170,23 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
             // 拡張編集ウィンドウが表示されていないと失敗するので確認
             var exEditWindow =
                 Win32Window.FromDesktop()
-                    .FindChildren()
+                    .FindChildren(@"AviUtl")
                     .FirstOrDefault(
-                        win =>
-                            win.ClassName == @"AviUtl" &&
-                            win
-                                .GetText(timeoutMilliseconds)?
-                                .StartsWith(ExEditWindowTitlePrefix) == true);
+                        win => IsExEditWindowTitle(win.GetText(timeoutMilliseconds)));
             if (exEditWindow == null || !exEditWindow.IsExists)
             {
                 return Result.ExEditWindowNotFound;
+            }
+
+            // 拡張編集ウィンドウをオーナーとするコモンダイアログが表示されていると
+            // 失敗するので確認
+            var modalDialog =
+                Win32Window.FromDesktop()
+                    .FindChildren(@"#32770")
+                    .FirstOrDefault(win => win.GetOwner()?.Handle == exEditWindow.Handle);
+            if (modalDialog != null)
+            {
+                return Result.ExEditWindowBlocked;
             }
 
             // 『ごちゃまぜドロップス』 v0.3.12 以降であればミューテクスによる排他制御が可能
@@ -332,9 +344,12 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
         }
 
         /// <summary>
-        /// AviUtl拡張編集ウィンドウタイトルプレフィクス。
+        /// AviUtl拡張編集ウィンドウタイトル。
         /// </summary>
-        private const string ExEditWindowTitlePrefix = @"拡張編集";
+        /// <remarks>
+        /// プロジェクトを開いている場合は後ろに " [" が続く。
+        /// </remarks>
+        private const string ExEditWindowTitle = @"拡張編集";
 
         /// <summary>
         /// 『ごちゃまぜドロップス』のミューテクス名。
@@ -416,6 +431,17 @@ namespace RucheHome.AviUtl.ExEdit.GcmzDrops
 
             return Result.Success;
         }
+
+        /// <summary>
+        /// 拡張編集ウィンドウのウィンドウタイトル文字列であるか否かを調べる。
+        /// </summary>
+        /// <param name="title">ウィンドウタイトル文字列。</param>
+        /// <returns>
+        /// 拡張編集ウィンドウのウィンドウタイトル文字列ならば true 。そうでなければ false 。
+        /// </returns>
+        private static bool IsExEditWindowTitle(string title) =>
+            (title == ExEditWindowTitle) ||
+            (title?.StartsWith(ExEditWindowTitle + @" [", StringComparison.Ordinal) == true);
 
         /// <summary>
         /// 『ごちゃまぜドロップス』 v0.3.12 以降用の COPYDATASTRUCT 値を作成する。

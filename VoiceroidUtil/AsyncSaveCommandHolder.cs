@@ -651,6 +651,9 @@ namespace VoiceroidUtil
             case GcmzDrops.FileDrop.Result.ExEditWindowNotFound:
                 return @"AviUtl拡張編集ウィンドウが見つかりません。";
 
+            case GcmzDrops.FileDrop.Result.ExEditWindowBlocked:
+                return @"AviUtl拡張編集ウィンドウがブロックされています。";
+
             case GcmzDrops.FileDrop.Result.ExEditWindowInvisible:
                 return @"AviUtl拡張編集ウィンドウが表示されていません。";
 
