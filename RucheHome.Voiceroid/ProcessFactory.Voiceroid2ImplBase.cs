@@ -776,6 +776,33 @@ namespace RucheHome.Voiceroid
             #region 音声保存処理
 
             /// <summary>
+            /// 音声保存を開始する。
+            /// </summary>
+            /// <returns>
+            /// 成功したならば null 。そうでなければ処理失敗時の追加メッセージ。
+            /// </returns>
+            /// <remarks>
+            /// 既定では音声保存ボタンのクリックを試みる。
+            /// </remarks>
+            protected virtual async Task<string> DoStartSave()
+            {
+                // 音声保存ボタン検索
+                var saveButton = (await this.FindButtons(ButtonType.Save))?[0];
+                if (saveButton == null)
+                {
+                    return @"音声保存ボタンが見つかりませんでした。";
+                }
+
+                // 音声保存ボタンクリック
+                if (!(await Task.Run(() => InvokeElement(saveButton))))
+                {
+                    return @"音声保存ボタンをクリックできませんでした。";
+                }
+
+                return null;
+            }
+
+            /// <summary>
             /// 音声保存時、最初に表示されうるダイアログ種別の配列を取得する。
             /// </summary>
             private DialogType[] FirstDialogTypes { get; }
@@ -1455,30 +1482,29 @@ namespace RucheHome.Voiceroid
             /// <returns>保存処理結果。</returns>
             protected override async Task<FileSaveResult> DoSave(string filePath)
             {
-                // 保存ボタン押下
-                var saveButton = (await this.FindButtons(ButtonType.Save))?[0];
-                if (saveButton == null)
+                string errorMsg = null;
+                string extraMsg;
+
+                // 音声保存開始
+                extraMsg = await this.DoStartSave();
+                if (extraMsg != null)
                 {
-                    return new FileSaveResult(
-                        false,
-                        error: @"音声保存ボタンが見つかりませんでした。");
-                }
-                if (!(await Task.Run(() => InvokeElement(saveButton))))
-                {
-                    return new FileSaveResult(
-                        false,
-                        error: @"音声保存ボタンをクリックできませんでした。");
+                    return
+                        new FileSaveResult(
+                            false,
+                            error: @"音声保存を開始できませんでした。",
+                            extraMessage: extraMsg);
                 }
 
                 // ダイアログ検索
                 var saveDialogTuple = await this.DoFindSaveDialogTask();
                 if (saveDialogTuple == null)
                 {
-                    var msg =
+                    errorMsg =
                         (await this.UpdateDialogShowing()) ?
                             @"音声保存を開始できませんでした。" :
                             @"操作対象ウィンドウが見つかりませんでした。";
-                    return new FileSaveResult(false, error: msg);
+                    return new FileSaveResult(false, error: errorMsg);
                 }
                 var rootDialog = saveDialogTuple.Item1;
                 var dialogType = saveDialogTuple.Item2;
@@ -1488,8 +1514,6 @@ namespace RucheHome.Voiceroid
                 AutomationElement progressWin = null;
                 bool optionShown = false;
                 bool autoNamed = false;
-                string errorMsg = null;
-                string extraMsg = null;
 
                 switch (dialogType)
                 {
