@@ -408,13 +408,15 @@ namespace VoiceroidUtil
                     // UpdateExoCommonConfigByAviUtl で失敗しているなら実施しない
                     var failMessage =
                         (gcmzResult != GcmzDrops.FileDrop.Result.Success) ?
-                            MakeFailMessageFromExoDropResult(gcmzResult, true) :
+                            MakeFailMessageFromExoDropResult(gcmzResult) :
                             await DoOperateExoDrop(
                                 exoFilePath,
                                 exo.Length,
                                 appConfig.AviUtlDropLayers[voiceroidId].Layer,
                                 aviUtlFileDropService);
-                    if (failMessage != null)
+
+                    // 処理失敗時、そもそも AviUtl が起動していないなら成功扱い
+                    if (failMessage != null && Process.GetProcessesByName(@"aviutl").Length > 0)
                     {
                         return Tuple.Create(ExoOperationResult.DropFail, failMessage);
                     }
@@ -563,7 +565,7 @@ namespace VoiceroidUtil
                 result = GcmzDrops.FileDrop.Result.Fail;
             }
 
-            return MakeFailMessageFromExoDropResult(result, true);
+            return MakeFailMessageFromExoDropResult(result);
         }
 
         /// <summary>
@@ -617,14 +619,8 @@ namespace VoiceroidUtil
         /// AviUtl拡張編集ファイルドロップ処理結果値から失敗文字列を作成する。
         /// </summary>
         /// <param name="result">AviUtl拡張編集ファイルドロップ処理結果値。</param>
-        /// <param name="bootCheckOnFileMappingFail">
-        /// result が <see cref="GcmzDrops.FileDrop.Result.FileMappingFail"/>
-        /// の時にAviUtlプロセスの起動確認を行うならば true 。
-        /// </param>
         /// <returns>失敗文字列。成功値または成功扱いならば null 。</returns>
-        private static string MakeFailMessageFromExoDropResult(
-            GcmzDrops.FileDrop.Result result,
-            bool bootCheckOnFileMappingFail)
+        private static string MakeFailMessageFromExoDropResult(GcmzDrops.FileDrop.Result result)
         {
             switch (result)
             {
@@ -632,15 +628,7 @@ namespace VoiceroidUtil
                 break;
 
             case GcmzDrops.FileDrop.Result.FileMappingFail:
-                // AviUtlが起動していない or ごちゃまぜドロップス未導入
-                // bootCheckOnFileMappingFail == true かつ起動していないなら成功扱い
-                if (
-                    !bootCheckOnFileMappingFail ||
-                    Process.GetProcessesByName(@"aviutl").Length > 0)
-                {
-                    return @"ごちゃまぜドロップス情報を取得できません。";
-                }
-                break;
+                return @"ごちゃまぜドロップス情報を取得できません。";
 
             case GcmzDrops.FileDrop.Result.GcmzWindowNotFound:
                 return @"ごちゃまぜドロップス情報が未初期化です。";
