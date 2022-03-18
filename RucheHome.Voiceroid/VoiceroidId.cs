@@ -148,13 +148,11 @@ namespace RucheHome.Voiceroid
         [EnumMember]
         GynoidTalk,
 
-#if AIVOICE_SUPPORTED
         /// <summary>
         /// A.I.VOICE
         /// </summary>
         [EnumMember]
         AiVoice,
-#endif // AIVOICE_SUPPORTED
     }
 
     /// <summary>
@@ -175,9 +173,7 @@ namespace RucheHome.Voiceroid
         /// </remarks>
         public static bool IsVoiceroid2LikeSoftware(this VoiceroidId id) =>
             id == VoiceroidId.Voiceroid2 ||
-#if AIVOICE_SUPPORTED
             id == VoiceroidId.AiVoice ||
-#endif // AIVOICE_SUPPORTED
             id == VoiceroidId.GynoidTalk;
 
         /// <summary>
@@ -364,7 +360,6 @@ namespace RucheHome.Voiceroid
                     @"GynoidTalk Editor",
                     displayProduct: @"ガイノイドTalk",
                     multiCharacters: true),
-#if AIVOICE_SUPPORTED
                 new VoiceroidInfo(
                     VoiceroidId.AiVoice,
                     true,
@@ -374,7 +369,6 @@ namespace RucheHome.Voiceroid
                     @"A.I.VOICE Editor",
                     displayProduct: @"A.I.VOICE",
                     multiCharacters: true),
-#endif // AIVOICE_SUPPORTED
             }
             .ToDictionary(info => info.Id);
     }

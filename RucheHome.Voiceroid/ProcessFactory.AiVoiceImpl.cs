@@ -1,6 +1,4 @@
-﻿#if AIVOICE_SUPPORTED
-
-namespace RucheHome.Voiceroid
+﻿namespace RucheHome.Voiceroid
 {
     partial class ProcessFactory
     {
@@ -35,5 +33,3 @@ namespace RucheHome.Voiceroid
         }
     }
 }
-
-#endif // AIVOICE_SUPPORTED
