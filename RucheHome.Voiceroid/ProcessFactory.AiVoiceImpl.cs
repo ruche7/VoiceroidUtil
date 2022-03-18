@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Automation;
 using RucheHome.Util;
@@ -21,11 +22,14 @@ namespace RucheHome.Voiceroid
             /// </summary>
             public AiVoiceImpl() : base(VoiceroidId.AiVoice, false, true)
             {
+                // レジストリー情報を用いてラッパー作成
                 this.Api = new AiVoiceApi();
+
                 if (this.Api.IsAvailable)
                 {
                     try
                     {
+                        // 初期化
                         var hostNames = this.Api.GetAvailableHostNames();
                         if (hostNames?.Length > 0)
                         {
@@ -40,9 +44,9 @@ namespace RucheHome.Voiceroid
             }
 
             /// <summary>
-            /// A.I.VOICE Editor API ラッパーオブジェクトを取得する。
+            /// A.I.VOICE Editor API ラッパーオブジェクトを取得または設定する。
             /// </summary>
-            private AiVoiceApi Api { get; }
+            private AiVoiceApi Api { get; set; }
 
             /// <summary>
             /// 編集モードをテキスト形式にする。
@@ -134,11 +138,12 @@ namespace RucheHome.Voiceroid
                     {
                         var root = MakeElementFromHandle(this.MainWindowHandle);
 
-                        // 「ファイル」メニュー検索
+                        // ファイルメニュー検索
                         AutomationElement fileMenu = null;
                         try
                         {
-                            var mainMenu = FindFirstChildByControlType(root, ControlType.Menu);
+                            var mainMenu =
+                                FindFirstChildByControlType(root, ControlType.Menu);
                             if (mainMenu != null)
                             {
                                 fileMenu = FindFirstChildByAccessKey(mainMenu, @"Alt+F");
@@ -231,8 +236,7 @@ namespace RucheHome.Voiceroid
 
             /// <inheritdoc/>
             protected override async Task<bool> UpdateOnMainWindowChanged() =>
-                this.Api.IsInitialized ?
-                    (await Task.Run(this.UpdateOnMainWindowChangedImpl)) : false;
+                await Task.Run(this.UpdateOnMainWindowChangedImpl);
 
             /// <summary>
             /// <see cref="UpdateOnMainWindowChanged"/> の実処理を行う。
@@ -240,14 +244,62 @@ namespace RucheHome.Voiceroid
             /// <returns>更新できたならば true 。そうでなければ false 。</returns>
             private bool UpdateOnMainWindowChangedImpl()
             {
+                if (!this.Api.IsAvailable)
+                {
+                    // 実行中プロセスの配置先取得
+                    var installPath = this.ExecutablePath;
+                    if (installPath == null)
+                    {
+                        return false;
+                    }
+                    installPath = Path.GetDirectoryName(installPath);
+
+                    // 既にロード試行済みのパスなら終わり
+                    if (installPath == null || installPath == this.Api.InstallPath)
+                    {
+                        return false;
+                    }
+
+                    // ラッパー作成し直してロード試行
+                    this.Api = new AiVoiceApi(installPath);
+                    if (!this.Api.IsAvailable)
+                    {
+                        return false;
+                    }
+                }
+
+                // ここまで来たらロード済みのはず
+                if (!this.Api.IsInitialized)
+                {
+                    // 初期化
+                    try
+                    {
+                        var names = this.Api.GetAvailableHostNames();
+                        if (names?.Length > 0)
+                        {
+                            this.Api.Initialize(names[0]);
+                        }
+                        if (!this.Api.IsInitialized)
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ThreadTrace.WriteException(ex);
+                        return false;
+                    }
+                }
+
+                // ここまで来たら初期化済みのはず
                 switch (this.Api.Status)
                 {
                 case AiVoiceHostStatus.NotConnected:
                     try
                     {
-                        ThreadDebug.WriteLine(@"NotConnected");
-
+                        // 接続
                         this.Api.Connect();
+
                         return
                             (this.Api.Status == AiVoiceHostStatus.Idle) ||
                             (this.Api.Status == AiVoiceHostStatus.Busy);

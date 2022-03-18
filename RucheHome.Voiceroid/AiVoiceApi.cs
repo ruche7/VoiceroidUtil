@@ -44,9 +44,15 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// コンストラクタ。
         /// </summary>
-        public AiVoiceApi()
+        /// <param name="installPath">
+        /// A.I.VOICE インストール先ディレクトリパス。
+        /// null ならばレジストリー情報から取得する。
+        /// </param>
+        public AiVoiceApi(string installPath = null)
         {
-            var assembly = LoadAssembly();
+            var assembly = LoadAssembly(ref installPath);
+            this.InstallPath = installPath;
+
             if (assembly != null)
             {
                 try
@@ -60,6 +66,14 @@ namespace RucheHome.Voiceroid
                 }
             }
         }
+
+        /// <summary>
+        /// インストール先ディレクトリパスを取得する。
+        /// </summary>
+        /// <remarks>
+        /// コンストラクタで指定せず、レジストリーからも取得できなかった場合は null を返す。
+        /// </remarks>
+        public string InstallPath { get; }
 
         /// <summary>
         /// 利用可能な状態であるか否かを取得する。
@@ -361,29 +375,36 @@ namespace RucheHome.Voiceroid
         /// <summary>
         /// A.I.VOICE Editor API アセンブリをロードする。
         /// </summary>
+        /// <param name="installPath">
+        /// A.I.VOICE インストール先ディレクトリパス。
+        /// null ならばレジストリー情報から取得して上書きする。
+        /// </param>
         /// <returns>
         /// A.I.VOICE Editor API アセンブリ。ロードできなければ null 。
         /// </returns>
-        private static Assembly LoadAssembly()
+        private static Assembly LoadAssembly(ref string installPath)
         {
             try
             {
-                // レジストリーからインストールディレクトリパス取得
-                var key =
-                    Registry.LocalMachine.OpenSubKey(
-                        @"SOFTWARE\AI\AIVoice\AIVoiceEditor\1.0");
-                if (key == null)
+                if (installPath == null)
                 {
-                    return null;
-                }
-                var path = key.GetValue("InstallDir") as string;
-                if (path == null)
-                {
-                    return null;
+                    // レジストリーからインストール先ディレクトリパス取得
+                    var key =
+                        Registry.LocalMachine.OpenSubKey(
+                            @"SOFTWARE\AI\AIVoice\AIVoiceEditor\1.0");
+                    if (key == null)
+                    {
+                        return null;
+                    }
+                    installPath = key.GetValue("InstallDir") as string;
+                    if (installPath == null)
+                    {
+                        return null;
+                    }
                 }
 
                 // アセンブリファイル名と連結
-                path = Path.Combine(path, AssemblyFileName);
+                var path = Path.Combine(installPath, AssemblyFileName);
                 if (!File.Exists(path))
                 {
                     return null;
