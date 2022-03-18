@@ -83,7 +83,7 @@ namespace RucheHome.Voiceroid
         UnaTalkEx,
 
         /// <summary>
-        /// 紲星あかり(VOICEROID2専用)
+        /// 紲星あかり(VOICEROID2/A.I.VOICE専用)
         /// </summary>
         [EnumMember]
         V2Akari,
@@ -113,7 +113,7 @@ namespace RucheHome.Voiceroid
         V2TsuinaStandard,
 
         /// <summary>
-        /// 伊織弓鶴(VOICEROID2専用)
+        /// 伊織弓鶴(VOICEROID2/A.I.VOICE専用)
         /// </summary>
         [EnumMember]
         V2Iori,
