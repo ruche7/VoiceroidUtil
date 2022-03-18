@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»Ý‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.16.1
+-VoiceroidUtil version 1.17.0
 -[[VOICEROID+ Œ‹ŒŽ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñŽq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -94,7 +94,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 -ƒKƒCƒmƒCƒhTalk iversion 1.13.0 ‚æ‚èj
 --[[ƒKƒCƒmƒCƒhTalk –Â‰ÔƒqƒEƒ~ƒRƒg>https://gynoid.co.jp/items/view/19]]
 --[[ƒKƒCƒmƒCƒhTalk flower>https://gynoid.co.jp/items/view/21]] iversion 1.14.0 ‚æ‚èƒLƒƒƒ‰ƒNƒ^[‘Î‰žj
--A.I.VOICE iversion 1.17.0 ‚æ‚èj
+-A.I.VOICE version 1.3.0 ˆÈ~ iversion 1.17.0 ‚æ‚èj
 --[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
 --[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
 --[[A.I.VOICE Œ‹ŒŽ‚ä‚©‚è>https://aivoice.jp/yukari/]]
@@ -305,7 +305,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 --w‚ä‚Á‚­‚èMovieMaker3x‚É‘ÎÛƒLƒƒƒ‰ƒNƒ^[‚ª‘¶Ý‚µ‚È‚¢ê‡‚Í‰½‚às‚¢‚Ü‚¹‚ñB
 :&#9314;ƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ðÝ’èƒeƒLƒXƒgƒ{ƒbƒNƒXŒQ|
 --''uƒLƒƒƒ‰ƒNƒ^[‚ðŽ©“®‘I‘ðvƒ`ƒFƒbƒNƒ{ƒbƒNƒX'' ‚Éƒ`ƒFƒbƒN‚ð“ü‚ê‚Ä‚¢‚éê‡A‚±‚ÌÝ’è‚É]‚Á‚Äw‚ä‚Á‚­‚èMovieMaker3x‚ÌƒLƒƒƒ‰ƒNƒ^[‚ð‘I‘ð‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚àˆê•”‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
 --‹ó—“‚É‚µ‚½ê‡‚ÍƒLƒƒƒ‰ƒNƒ^[‚ðŽ©“®‘I‘ð‚µ‚Ü‚¹‚ñB
 :&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk/A.I.VOICE‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
 --VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¢‚Äw‚ä‚Á‚­‚èMovieMaker3x‚ÌƒLƒƒƒ‰ƒNƒ^[Ž©“®‘I‘ð‚ª‚Ç‚Ì‚æ‚¤‚És‚í‚ê‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
@@ -350,7 +350,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 --ƒtƒ@ƒCƒ‹ƒhƒƒbƒv‰Â”\‚Èó‘Ô‚É‚È‚Á‚Ä‚¢‚È‚¯‚ê‚Îî•ñ‚ÌŽæ“¾‚ÉŽ¸”s‚µ‚Ü‚·B‚»‚Ìê‡‚Í[[.exo‰æ–Ê>#explain-exo]]/[[‹¤’Êƒ^ƒu>#explain-exo-common]]‚ÌŠeŽíÝ’è‚ª—˜—p‚³‚ê‚Ü‚·B
 :&#9314;uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èvƒAƒbƒvƒ_ƒEƒ“ŒQ|
 --VOICEROID•Ê‚ÉAƒtƒ@ƒCƒ‹ƒhƒƒbƒvæƒŒƒCƒ„[”Ô†‚ðÝ’è‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚àˆê•”‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
 --Ý’è€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkvAuA.I.VOICEv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 :&#9315;uVOICEROID2/ƒKƒCƒmƒCƒhTalk/A.I.VOICE‚É‚Â‚¢‚ÄvŠJ•Âƒ{ƒbƒNƒX|
 --VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÅŽ©“®ƒtƒ@ƒCƒ‹ƒhƒƒbƒv‹@”\‚ð—p‚¢‚éÛA‚Ç‚Ì ''uƒhƒƒbƒvæƒŒƒCƒ„[”Ô†Ý’èv'' ‚ª—˜—p‚³‚ê‚é‚±‚Æ‚É‚È‚é‚©A“®ì‚Ìà–¾•¶‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚·B
@@ -437,7 +437,7 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 
 :&#9312;VOICEROID‘I‘ðƒRƒ“ƒ{ƒ{ƒbƒNƒX|
 --Ý’è‚ðs‚¤VOICEROID‚ð‘I‘ð‚µ‚Ü‚·B
----VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚à‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
+---VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICEê—pƒLƒƒƒ‰ƒNƒ^[‚É‚àˆê•”‘Î‰ž‚µ‚Ä‚¢‚Ü‚·B
 --ˆÈ~‚ÌÝ’è‚ÍA‚±‚±‚Å‘I‘ð‚µ‚½VOICEROID‚ð—p‚¢‚Ä‰¹º•Û‘¶•AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ì¬‚ðs‚¤Û‚É—˜—p‚³‚ê‚é‚à‚Ì‚Æ‚È‚è‚Ü‚·B
 ---‚½‚¾‚µ‘I‘ð€–ÚuVOICEROID2vAuƒKƒCƒmƒCƒhTalkvAuA.I.VOICEv‚Í‘¼‚Æ‚Í—˜—pƒP[ƒX‚ªˆÙ‚È‚è‚Ü‚·BÚ‚µ‚­‚Í[[VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¯‚é“®ì>#voiceroid2]]/[[AviUtlŠg’£•ÒWƒtƒ@ƒCƒ‹ˆ—>#voiceroid2-exo]]‚Ì€‚ðŽQÆ‚µ‚Ä‚­‚¾‚³‚¢B
 --Ý’è‚ÍVOICEROID‚²‚Æ‚É•Û‘¶‚³‚ê‚Ä‚¨‚èA‚±‚ÌƒRƒ“ƒ{ƒ{ƒbƒNƒX‚Ì‘€ì‚É‚æ‚Á‚ÄÁ‚¦‚½‚èã‘‚«‚³‚ê‚½‚è‚·‚é‚±‚Æ‚Í‚ ‚è‚Ü‚¹‚ñB
@@ -471,6 +471,9 @@ VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚Ä–{‘Ì‘¤‚Ìƒtƒ@ƒCƒ‹•ªŠ„Ý’è‚ª—LŒø‚Å‚ ‚éê
 
 VOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚ÍA]—ˆ‚ÌVOICEROID+ƒVƒŠ[ƒY“™‚Æ‚Í‚¢‚­‚Â‚©ˆµ‚¢‚ÌˆÙ‚È‚é“_‚ª‚ ‚è‚Ü‚·B~
 ‚±‚Ì€‚Å‚ÍVOICEROID2AƒKƒCƒmƒCƒhTalkAA.I.VOICE‚É‚¨‚¢‚Ä“Á•Êˆµ‚¢‚³‚ê‚é“®ì‚É‚Â‚¢‚Ä‚Ü‚Æ‚ß‚Ä‚¢‚Ü‚·B
+
+‚È‚¨AA.I.VOICE‚Æ‚Ì˜AŒg‚É‚Í A.I.VOICE version 1.3.0 ˆÈ~‚ª•K—v‚Å‚·B~
+‚Ü‚½AƒŠƒXƒgŒ`Ž®‚Ì•ÒWƒ‚[ƒh‚É‚Í‘Î‰ž‚µ‚Ä‚¨‚ç‚¸AÄ¶‚â‰¹º•Û‘¶Žž‚É‹­§“I‚ÉƒeƒLƒXƒgŒ`Ž®‚Ö•ÏX‚³‚ê‚Ü‚·B
 
 **ŠÈ’P‚È‚Ü‚Æ‚ß [#voiceroid2-about]
 
@@ -631,6 +634,7 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 ---VOICEROID–{‘Ìƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒVƒ‡[ƒgƒJƒbƒg‚ÌƒAƒCƒRƒ“‚ð‰EƒNƒŠƒbƒN‚µ‚ÄuƒvƒƒpƒeƒBv‚ð‘I‘ð‚µAuŒÝŠ·«vƒ^ƒu‚ÌuŠÇ—ŽÒ‚Æ‚µ‚Ä‚±‚ÌƒvƒƒOƒ‰ƒ€‚ðŽÀs‚·‚év‚Æ‚¢‚¤€–Ú‚Éƒ`ƒFƒbƒN‚ª“ü‚Á‚Ä‚¢‚éê‡‚ÍŠO‚µ‚Ä‚­‚¾‚³‚¢B
 ---VOICEROID–{‘Ì‚ÌƒCƒ“ƒXƒg[ƒ‹æ‚É‚æ‚Á‚Ä‚ÍAÅ‰‚©‚çŠÇ—ŽÒŒ ŒÀ‚É‚È‚Á‚Ä‚µ‚Ü‚Á‚Ä‚¢‚éê‡‚ª‚ ‚è‚Ü‚·BŽ©g‚ÅÝ’è‚µ‚½Šo‚¦‚ª–³‚­‚Æ‚àˆê“x‚²Šm”F‚­‚¾‚³‚¢B
 --VOICEROID–{‘Ì‚ÌŽÀsƒtƒ@ƒCƒ‹–¼‚ð•ÏX‚µ‚Ä‚¢‚éê‡AwVoiceroidUtilx‚©‚ç‚Í–{‘Ì‚ð”FŽ¯‚Å‚«‚Ü‚¹‚ñB
+--wA.I.VOICEx‚Ì version 1.2.2 ˆÈ‘O‚É‚Í‘Î‰ž‚µ‚Ä‚¢‚Ü‚¹‚ñBÅV”Å‚ÉXV‚µ‚Ä‚­‚¾‚³‚¢B
 :uÄ¶vƒ{ƒ^ƒ“‚âu‰¹º•Û‘¶vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚·‚é‚ÆVOICEROID–{‘Ì‘¤‚Åu’ˆÓvƒ_ƒCƒAƒƒO‚ªo‚Ä‚µ‚Ü‚¢A‘€ì‚ªŠ®—¹‚µ‚È‚¢B|
 --—á‚¦‚ÎVOICEROID–{‘Ì‘¤‚Å‚ÌƒtƒŒ[ƒY•ÒW“r’†‚ÉÄ¶‚â‰¹º•Û‘¶‚ðŽwŽ¦‚·‚é‚Æ‚±‚Ìó‘Ô‚É‚È‚è‚Ü‚·B
 --ƒtƒŒ[ƒY•ÒW‚ðŠ®—¹‚³‚¹‚é“™‚µ‚ÄAVOICEROID–{‘Ì‘¤‚ðƒjƒ…[ƒgƒ‰ƒ‹‚Èó‘Ô‚É‚µ‚Ä‚­‚¾‚³‚¢B
@@ -656,6 +660,11 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 :VOICEROID‚ªãŽè‚É‚µ‚á‚×‚Á‚Ä‚­‚ê‚È‚¢B|
 --VOICEROID–{‘Ì‘¤‚Å’²ºiƒtƒŒ[ƒY•ÒWA’PŒê•ÒW“™j‚ª•K—v‚Å‚·B
 --wVOICEROID+ Œ‹ŒŽ‚ä‚©‚è EXx‚Í‘¼‚ÌVOICEROID‚Æ”ä‚×‚Ä‰¹‚ª¬‚³‚¢‚½‚ßA‰¹ºŒø‰Ê‚Å‰¹—Ê‚ðã‚°‚é‚±‚Æ‚ð„§‚µ‚Ü‚·B
+:wA.I.VOICEx‚Å‚ÌÄ¶‚â‰¹º•Û‘¶Žž‚ÉƒtƒŒ[ƒY•ÒW‚â’PŒê•ÒW‚ÌŒ‹‰Ê‚ª”½‰f‚³‚ê‚È‚¢B|
+--ƒtƒŒ[ƒY•ÒWA’PŒê•ÒWŒã‚Éu“o˜^vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ‚Ä•ÒW“à—e‚ð•Û‘¶‚µ‚Ä‚­‚¾‚³‚¢B
+--‘¼‚ÌVOICEROID‚ÆˆÙ‚È‚èAu“o˜^vƒ{ƒ^ƒ“‚ðƒNƒŠƒbƒN‚µ–Y‚ê‚Ä‚¢‚Ä‚àÄ¶‚â‰¹º•Û‘¶Žž‚Éu’ˆÓvƒ_ƒCƒAƒƒO‚Í•\Ž¦‚³‚ê‚¸A•ÒW“à—e‚ÍƒLƒƒƒ“ƒZƒ‹‚³‚ê‚Ä‚µ‚Ü‚¢‚Ü‚·B
+:wA.I.VOICEx‚ÌƒŠƒXƒgŒ`Ž®‚Åì‹Æ‚µ‚½‚¢B|
+--‘Î‰ž‚µ‚Ä‚¢‚Ü‚¹‚ñB‘Î‰ž—\’è‚à‚ ‚è‚Ü‚¹‚ñB
 :VOICEROID‚É‚µ‚á‚×‚ç‚¹‚é•¶Í‚ÆƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚É•Û‘¶‚³‚ê‚é•¶Í‚ð•Ï‚¦‚½‚¢B|
 --“Á’è‚Ì•¶Žš—ñ‚Ì’uŠ·‚Å‚ ‚ê‚Î[[’uŠ·‰æ–Ê>#explain-replace]]‚ÌÝ’è‚É‚æ‚Á‚Äs‚¤‚±‚Æ‚ª‚Å‚«‚Ü‚·B
 --’uŠ·ˆÈã‚Ì‚±‚Æ‚Íƒc[ƒ‹ã‚Å‚Ís‚¦‚È‚¢‚½‚ßA‰¹º•Û‘¶Œã‚ÉƒeƒLƒXƒgƒtƒ@ƒCƒ‹‚âw‚ä‚Á‚­‚èMovieMaker3x‚ÌŽš–‹‚ð’¼Ú•ÒW‚µ‚Ä‚­‚¾‚³‚¢B
@@ -709,6 +718,12 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 
 *XV—š—ð [#history]
 
+:2022-03-18|
+--version 1.17.0 ‚É‘Î‰žB
+---wA.I.VOICExÄ‘Î‰ž‚É”º‚¤C³B
+--[[Q•A>#qa]]‚ðXVB
+---wA.I.VOICExŠÖ˜A‚Ì€–Ú‚â•â‘«‚ð’Ç‰ÁB
+--ƒXƒNƒŠ[ƒ“ƒVƒ‡ƒbƒg‚ðXVB
 :2021-08-10|
 --version 1.16.1 ‚É‘Î‰žB
 --[[Q•A>#qa]]‚ðXVB
