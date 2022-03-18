@@ -5,7 +5,7 @@
 
     <!-- String -->
 
-    <sys:String x:Key="StringVoiceroid2Family">VOICEROID2/ガイノイドTalk</sys:String>
+    <sys:String x:Key="StringVoiceroid2Family">VOICEROID2/ガイノイドTalk/A.I.VOICE</sys:String>
 
     <!-- VoiceroidId -->
 
