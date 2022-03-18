@@ -128,13 +128,11 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/gynoidtalk_ok.png" />
             </DataTrigger>
-            <!-- AIVOICE_SUPPORTED
             <DataTrigger Binding="{Binding}" Value="AiVoice">
                 <Setter
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/aivoice_ok.png" />
             </DataTrigger>
-            -->
         </Style.Triggers>
     </Style>
     
@@ -396,7 +394,6 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/gynoidtalk_ok.png" />
             </MultiDataTrigger>
-            <!-- AIVOICE_SUPPORTED
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
                     <Condition Binding="{Binding Id}" Value="AiVoice" />
@@ -415,7 +412,6 @@
                     Property="Source"
                     Value="/VoiceroidUtil;component/resources/voiceroid/aivoice_ok.png" />
             </MultiDataTrigger>
-            -->
         </Style.Triggers>
     </Style>
 

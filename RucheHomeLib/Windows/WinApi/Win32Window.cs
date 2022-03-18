@@ -127,28 +127,52 @@ namespace RucheHome.Windows.WinApi
         }
 
         /// <summary>
-        /// ウィンドウが最前面表示されているか否かを取得する。
+        /// ウィンドウを最前面表示するか否かを取得または設定する。
         /// </summary>
-        public bool IsTopmost =>
-            ((GetWindowLong(this.Handle, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0);
+        public bool IsTopmost
+        {
+            get => (GetWindowLong(this.Handle, GWL_EXSTYLE).ToInt64() & WS_EX_TOPMOST) != 0;
+            set
+            {
+                bool result =
+                    SetWindowPos(
+                        this.Handle,
+                        value ? HWND_TOPMOST : HWND_NOTOPMOST,
+                        0,
+                        0,
+                        0,
+                        0,
+                        SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+                if (!result)
+                {
+                    ThrowLastErrorException();
+                }
+            }
+        }
 
         /// <summary>
-        /// ウィンドウが最小化や最大化されている場合は元のサイズに戻す。
+        /// ウィンドウが最小化もしくは最大化されているならば元のサイズに戻す。
         /// </summary>
-        /// <remarks>
-        /// 最大化状態から最小化したウィンドウの場合は最大化状態に戻る。
-        /// </remarks>
-        public void Restore() => ShowWindow(this.Handle, SW_RESTORE);
+        public void Restore() => ShowWindow(this.Handle, SW_SHOWNOACTIVATE);
 
         /// <summary>
         /// ウィンドウをアクティブにする。
         /// </summary>
         public void Activate()
         {
+            if (IsIconic(this.Handle))
+            {
+                this.Restore();
+            }
+
+            bool topmost = this.IsTopmost;
+
+            // 最前面表示状態を変更して元に戻すという方法でアクティブ化
+            this.IsTopmost = !topmost;
             bool result =
                 SetWindowPos(
                     this.Handle,
-                    HWND_TOP,
+                    topmost ? HWND_TOPMOST : HWND_NOTOPMOST,
                     0,
                     0,
                     0,
@@ -509,12 +533,14 @@ namespace RucheHome.Windows.WinApi
         private const uint SWP_NOSIZE = 0x01;
         private const uint SWP_NOMOVE = 0x02;
         private const uint SWP_NOACTIVATE = 0x10;
+        private const uint SWP_NOSENDCHANGING = 0x400;
         private const uint FLASHW_STOP = 0;
         private const uint FLASHW_TRAY = 0x02;
         private const uint FLASHW_TIMERNOFG = 0x0C;
         private const uint SMTO_NORMAL = 0;
 
-        private static readonly IntPtr HWND_TOP = IntPtr.Zero;
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct FLASHWINFO

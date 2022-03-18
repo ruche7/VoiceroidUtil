@@ -212,6 +212,21 @@ namespace RucheHome.Voiceroid
                     automationId);
 
             /// <summary>
+            /// AutomationElement の子をアクセスキーで検索する。
+            /// </summary>
+            /// <param name="element">検索対象 AutomationElement 。</param>
+            /// <param name="accessKey">検索条件アクセスキー文字列。</param>
+            /// <returns>見つかった AutomationElement 。見つからなければ null 。</returns>
+            protected static AutomationElement FindFirstChildByAccessKey(
+                AutomationElement element,
+                string accessKey)
+                =>
+                FindFirstChild(
+                    element,
+                    AutomationElement.AccessKeyProperty,
+                    accessKey);
+
+            /// <summary>
             /// AutomationElement の子ウィンドウを列挙する。
             /// </summary>
             /// <param name="element">検索対象 AutomationElement 。</param>
