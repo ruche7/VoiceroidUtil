@@ -5,7 +5,7 @@
 VOICEROID動画制作支援ツール『VoiceroidUtil』のソースです。
 
 * MIT License です。
-* ビルドには Visual Studio 2019 が必要です。
+* ビルドには Visual Studio 2022 が必要です。
 * 外部ライブラリは NuGet で取得しています。
 * 画像リソースの一部は再配布禁止のため、ダミー画像がコミットされています。
 * 使用したライブラリや素材の詳細は [data/readme.txt](data/readme.txt) を参照してください。
