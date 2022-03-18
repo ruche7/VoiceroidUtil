@@ -1,8 +1,8 @@
 ================================================================================
 << VoiceroidUtil >>
 
-   Update : 2021-08-10
-  Version : 1.16.1
+   Update : 2022-03-18
+  Version : 1.17.0
        By : ルーチェ
 
 ================================================================================
@@ -43,6 +43,11 @@ VOICEROID+と同等の機能を持つ文章読み上げソフトウェアです。
 VOICEROID2と同等の機能を持つ文章読み上げソフトウェアです。
 詳しくは公式サイトをご覧ください。
 - https://gynoid.co.jp/
+
+『A.I.VOICE』は、株式会社AI(エーアイ)から販売されている、
+VOICEROID2を更に拡張した機能を持つ文章読み上げソフトウェアです。
+詳しくは公式サイトをご覧ください。
+- https://aivoice.jp/
 
 『ゆっくりMovieMaker3』は、饅頭遣い氏が開発した動画作成補助ツールです。
 音声ファイルを指定することで、ゆっくりボイス以外の音声にも対応可能です。
@@ -88,8 +93,9 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
         - 音街ウナTalk Ex                    [1.0.0]
         - VOICEROID2                         [2.1.1.0]
         - ガイノイドTalk                     [1.0.0.0]
+        - A.I.VOICE                          [1.3.0] (1.3.0 以降の導入必須)
     - VOICEROID2は通常版、64ビット版の両方で動作確認しています。
-    - VOICEROID2、ガイノイドTalkはエディターへの対応となるため、
+    - VOICEROID2、ガイノイドTalk、A.I.VOICEはエディターへの対応となるため、
       シリーズ製品を1つ以上インストール済みであれば利用可能です。
 
 - ゆっくりMovieMaker3
@@ -169,7 +175,7 @@ AviUtl拡張編集ウィンドウへのファイルドロップを機能拡張することができます。
 - Microsoft Public License (Ms-PL)
 - https://dynamicjson.codeplex.com/
 
-『XamlBehaviors for WPF』 v1.1.31
+『XamlBehaviors for WPF』 v1.1.39
 - Copyright (C) Microsoft
 - The MIT License
 - https://github.com/Microsoft/XamlBehaviorsWpf
@@ -223,7 +229,7 @@ lill様
 - ガイノイドTalk アイコン
 
 Nox Halt 様
-- A.I.VOICE アイコン (※現在は非使用)
+- A.I.VOICE アイコン
 
 ICOOON MONO 様のアイコン素材
 - https://icooon-mono.com/
@@ -239,7 +245,7 @@ lill様 (https://github.com/lillazk)
   https://github.com/ruche7/VoiceroidUtil/pull/149
 
 Nox Halt 様 (https://github.com/noxhalt)
-- #179 A.I.VOICE対応 (※現在は非対応)
+- #179 A.I.VOICE対応 (※現在は外部連携APIを利用する方法に変更)
   https://github.com/ruche7/VoiceroidUtil/pull/179
 
 下記の方からの改善提案 (Issue) を受け付けました。
@@ -277,7 +283,17 @@ Tan様 (https://github.com/Tan90909090)
 ================================================================================
 ■更新履歴
 
-文中の「VOICEROID2系」は『VOICEROID2』、『ガイノイドTalk』です。
+文中の「VOICEROID2系」は『VOICEROID2』、『ガイノイドTalk』、『A.I.VOICE』です。
+
+------------------------------------------------------------
+◆2022-03-18 [1.17.1]
+
+- 『A.I.VOICE』に再対応。
+    - 外部連携APIを利用するため、『A.I.VOICE』本体を version 1.3.0 以降に
+      更新する必要があります。
+
+- 『AviUtl』が起動していない状態でも連携失敗の警告が表示されることがあった
+  不具合を修正。
 
 ------------------------------------------------------------
 ◆2021-08-10 [1.16.1]
