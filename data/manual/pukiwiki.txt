@@ -8,7 +8,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 
 Œ»Ý‚Í‰º‹L‚ÌŠÂ‹«‚ÉŠî‚Ã‚¢‚Ä‹LÚ‚µ‚Ä‚¢‚Ü‚·B
 
--VoiceroidUtil version 1.17.0
+-VoiceroidUtil version 1.17.1
 -[[VOICEROID+ Œ‹ŒŽ‚ä‚©‚è EX>https://www.ah-soft.com/voiceroid/yukari_ex/]] version 1.7.3
 -[[VOICEROID+ –¯ˆÀ‚Æ‚à‚¦(Œ·Šªƒ}ƒL) EX>https://www.ah-soft.com/voiceroid/maki/]] version 1.7.3
 -[[VOICEROID+ “Œ–k‚¸‚ñŽq EX>https://www.ah-soft.com/voiceroid/zunko/]] version 1.7.3
@@ -32,7 +32,7 @@ VOICEROID“®‰æ§ìŽx‰‡ƒc[ƒ‹wVoiceroidUtilx‚ÌŽg—p•û–@ƒ}ƒjƒ…ƒAƒ‹B
 -ƒKƒCƒmƒCƒhTalk Editor version 1.0.0.0
 --[[ƒKƒCƒmƒCƒhTalk –Â‰ÔƒqƒEƒ~ƒRƒg>https://gynoid.co.jp/items/view/19]]
 --[[ƒKƒCƒmƒCƒhTalk flower>https://gynoid.co.jp/items/view/21]]
--A.I.VOICE Editor version 1.3.0
+-A.I.VOICE Editor version 1.4.5
 --[[A.I.VOICE ‹Õ—t ˆ©Eˆ¨>https://aivoice.jp/kotonoha/]]
 --[[A.I.VOICE ˆÉD ‹|’ß>https://aivoice.jp/yuzuru/]]
 --[[A.I.VOICE Œ‹ŒŽ‚ä‚©‚è>https://aivoice.jp/yukari/]]
@@ -718,6 +718,8 @@ A.I.VOICE–{‘Ì‚ÌƒvƒƒWƒFƒNƒgÝ’è‰æ–Ê/‰¹ºƒtƒ@ƒCƒ‹•Û‘¶ƒ^ƒu‚É‚Ä ''u‰¹ºƒtƒ@ƒCƒ‹ƒpƒ
 
 *XV—š—ð [#history]
 
+:2023-03-15|
+--version 1.17.1 ‚É‘Î‰žB
 :2022-03-18|
 --version 1.17.0 ‚É‘Î‰žB
 ---wA.I.VOICExÄ‘Î‰ž‚É”º‚¤C³B
