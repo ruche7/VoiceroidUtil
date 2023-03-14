@@ -196,6 +196,16 @@ namespace VoiceroidUtil
             await Task.Run(
                 () =>
                 {
+                    // ファイル名にサブディレクトリが含まれているなら存在確認
+                    var subDirPath = Path.GetDirectoryName(name);
+                    if (
+                        !string.IsNullOrEmpty(subDirPath) &&
+                        !Directory.Exists(Path.Combine(dirPath, subDirPath)))
+                    {
+                        // サブディレクトリが存在しないなら同名ファイルも存在しない
+                        return;
+                    }
+
                     for (int i = 1; ; ++i)
                     {
                         var path = Path.Combine(dirPath, name);
