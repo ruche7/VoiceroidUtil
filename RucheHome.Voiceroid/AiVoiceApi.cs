@@ -249,78 +249,6 @@ namespace RucheHome.Voiceroid
         private sealed class AssemblyWrapper
         {
             /// <summary>
-            /// HostStatus 列挙定義クラス。
-            /// </summary>
-            public sealed class HostStatusEnum
-            {
-                /// <summary>
-                /// コンストラクタ。
-                /// </summary>
-                /// <param name="type">HostStatus 型情報。</param>
-                public HostStatusEnum(Type type)
-                {
-                    ValidateArgumentNull(type, nameof(type));
-
-                    var values = type.GetEnumValues();
-
-                    this.NotRunning = values.GetValue(0);
-                    this.NotConnected = values.GetValue(1);
-                    this.Idle = values.GetValue(2);
-                    this.Busy = values.GetValue(3);
-                }
-
-                /// <summary>
-                /// NotRunning 列挙値を取得する。
-                /// </summary>
-                public dynamic NotRunning { get; }
-
-                /// <summary>
-                /// NotConnected 列挙値を取得する。
-                /// </summary>
-                public dynamic NotConnected { get; }
-
-                /// <summary>
-                /// Idle 列挙値を取得する。
-                /// </summary>
-                public dynamic Idle { get; }
-
-                /// <summary>
-                /// Busy 列挙値を取得する。
-                /// </summary>
-                public dynamic Busy { get; }
-            }
-
-            /// <summary>
-            /// TextEditMode 列挙定義クラス。
-            /// </summary>
-            public sealed class TextEditModeEnum
-            {
-                /// <summary>
-                /// コンストラクタ。
-                /// </summary>
-                /// <param name="type">TextEditMode 型情報。</param>
-                public TextEditModeEnum(Type type)
-                {
-                    ValidateArgumentNull(type, nameof(type));
-
-                    var values = type.GetEnumValues();
-
-                    this.Text = values.GetValue(0);
-                    this.List = values.GetValue(1);
-                }
-
-                /// <summary>
-                /// Text 列挙値を取得する。
-                /// </summary>
-                public dynamic Text { get; }
-
-                /// <summary>
-                /// List 列挙値を取得する。
-                /// </summary>
-                public dynamic List { get; }
-            }
-
-            /// <summary>
             /// コンストラクタ。
             /// </summary>
             /// <param name="assembly">A.I.VOICE Editor API アセンブリ。</param>
@@ -328,38 +256,16 @@ namespace RucheHome.Voiceroid
             {
                 ValidateArgumentNull(assembly, nameof(assembly));
 
-                const string ns = @"AI.Talk.Editor.Api.";
-
-                this.HostStatusType = assembly.GetType(ns + nameof(this.HostStatus), true);
-                this.HostStatus = new HostStatusEnum(this.HostStatusType);
-
-                this.TextEditModeType = assembly.GetType(ns + nameof(this.TextEditMode), true);
-                this.TextEditMode = new TextEditModeEnum(this.TextEditModeType);
-
+                this.TextEditModeType = assembly.GetType(Namespace + @".TextEditMode", true);
                 this.TtsControl =
                     Activator.CreateInstance(
-                        assembly.GetType(ns + nameof(this.TtsControl), true));
+                        assembly.GetType(Namespace + '.' + nameof(this.TtsControl), true));
             }
-
-            /// <summary>
-            /// HostStatus 列挙型情報を取得する。
-            /// </summary>
-            public Type HostStatusType { get; }
-
-            /// <summary>
-            /// HostStatus 列挙定義オブジェクトを取得する。
-            /// </summary>
-            public HostStatusEnum HostStatus { get; }
 
             /// <summary>
             /// TextEditMode 列挙型情報を取得する。
             /// </summary>
             public Type TextEditModeType { get; }
-
-            /// <summary>
-            /// TextEditMode 列挙定義オブジェクトを取得する。
-            /// </summary>
-            public TextEditModeEnum TextEditMode { get; }
 
             /// <summary>
             /// TtsControl オブジェクトを取得する。
@@ -368,9 +274,14 @@ namespace RucheHome.Voiceroid
         }
 
         /// <summary>
+        /// A.I.VOICE Editor API 名前空間。
+        /// </summary>
+        private const string Namespace = @"AI.Talk.Editor.Api";
+
+        /// <summary>
         /// A.I.VOICE Editor API アセンブリファイル名。
         /// </summary>
-        private const string AssemblyFileName = @"AI.Talk.Editor.Api.dll";
+        private const string AssemblyFileName = Namespace + @".dll";
 
         /// <summary>
         /// A.I.VOICE Editor API アセンブリをロードする。
